@@ -8,11 +8,12 @@ class PostInstallCommand(install):
         import os
         import matplotlib as mpl
         os.system('cp -r mplhep/stylelib/ '+os.path.join(mpl.get_configdir()+'/'))
-        os.system('cp -r mplhep/fonts/ '+os.path.join(mpl.rcParams['datapath']+'/'))
+        os.system('cp -r mplhep/fonts/firasans '+os.path.join(mpl.rcParams['datapath']+'/'))
+        os.system('cp -r mplhep/fonts/firamath '+os.path.join(mpl.rcParams['datapath']+'/'))
 
         install.run(self)
 
-__version__ = '0.1.0'
+__version__ = '0.1dev'
 
 setup(
     name              = 'mplhep',
