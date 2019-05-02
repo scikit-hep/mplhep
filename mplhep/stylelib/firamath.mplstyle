@@ -1,0 +1,6 @@
+mathtext.fontset : custom
+mathtext.rm : Fira Math
+mathtext.bf : Fira Math:medium
+mathtext.sf : Fira Math
+mathtext.it : Fira Math:italic
+mathtext.tt : Fira Mono

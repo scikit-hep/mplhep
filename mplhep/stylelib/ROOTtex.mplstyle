@@ -1,0 +1,2 @@
+text.usetex: True
+text.latex.preamble : \usepackage{siunitx},\sisetup{detect-all},\usepackage{helvet},\usepackage{sansmath},\sansmath

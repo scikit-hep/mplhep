@@ -1,0 +1,46 @@
+font.sans-serif : Arial
+font.family : sans-serif
+
+mathtext.fontset : custom
+mathtext.rm : Arial
+mathtext.bf : Arial:bold
+mathtext.sf : Arial
+mathtext.it : Arial:italic
+mathtext.tt : Arial
+
+figure.figsize : 10.0, 10.0
+
+font.size : 26	
+axes.labelsize : medium
+xtick.labelsize : small 
+ytick.labelsize : small
+legend.fontsize : small
+legend.handlelength : 1.5
+
+xtick.direction : in
+xtick.major.size : 12
+xtick.minor.size : 6.0
+xtick.major.pad : 6
+
+xtick.top : True
+xtick.major.top : True
+xtick.major.bottom : True
+xtick.minor.top : True
+xtick.minor.bottom : True
+xtick.minor.visible : True
+
+ytick.direction : in
+ytick.major.size : 12
+ytick.minor.size : 6.0
+
+ytick.right : True
+ytick.major.left : True
+ytick.major.right : True
+ytick.minor.left : True
+ytick.minor.right : True
+ytick.minor.visible : True
+
+grid.alpha: 0.8
+grid.linestyle: :
+
+axes.linewidth: 2
