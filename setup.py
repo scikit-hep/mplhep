@@ -22,7 +22,7 @@ setup(
     author_email      = 'novak5andrzej@gmail.com',
     license           = 'MIT License',
     description       = 'Matplotlib styles for CMS/HEP',
-    long_description  = open('README.md', encoding='utf-8').read(),
+    long_description  = open('README.md').read(),
     long_description_content_type = "text/markdown",
     url               = "https://github.com/andrzejnovak/cmsstyle/",
     install_requires  = ['matplotlib>=2.0.0'],

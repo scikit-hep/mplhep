@@ -1,6 +1,7 @@
 # cmsstyle
 - offering mpl stylesheets to modify the defaults to look ROOT-like
 - A set of helper functions for common labeling
+- Works by copying styles and fonts to respective matplotlib data locations
 
 # Use
 - `plt.style.use(['ROOT'])`
