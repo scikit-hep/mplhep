@@ -1,2 +1,2 @@
-include mplhep/stylelib/*.mplstyle
-include mplhep/fonts/*
+include cmsstyle/stylelib/*.mplstyle
+recursive-include cmsstyle/fonts/ *.otf *.ttf

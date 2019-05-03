@@ -1,5 +1,6 @@
 def cms_annot(ax, paper=False, supplementary=False, data=False, year=2017, lumi=None, llabel=None, rlabel=None):
     from matplotlib import rcParams
+    import matplotlib.pyplot as plt
     _font_size = rcParams['font.size']
     # CMS label    
     cms = ax.annotate('CMS', xy=(0.001, 1.015), xycoords='axes fraction', fontsize=_font_size*1.3, fontname='Arial',
@@ -32,7 +33,7 @@ def cms_annot(ax, paper=False, supplementary=False, data=False, year=2017, lumi=
         _label = " ".join(_label.split())            
     
     ax.annotate(_label, xy=(0.001, 1.015), xycoords='axes fraction', fontsize=_font_size, fontname='Arial', 
-                xytext=(cms.get_window_extent(renderer=f.canvas.get_renderer()).width, 0), textcoords='offset points',
+                xytext=(cms.get_window_extent(renderer=plt.gcf().canvas.get_renderer()).width   , 0), textcoords='offset points',
                 fontstyle='italic', ha='left', annotation_clip=False)
     return ax
 
