@@ -14,8 +14,8 @@ Installation places optimized style sheets to your matplotlib `stylelib` folder 
 - For examples see https://github.com/andrzejnovak/cmsstyle/blob/master/Examples.ipynb
 
 <p float="center">
-  <img src="Example1.png" width="200" />
-  <img src="Example2.png" width="200" /> 
+  <img src="Example1.png" width="450" />
+  <img src="Example2.png" width="450" /> 
 </p>
 
 ### Available styles:
