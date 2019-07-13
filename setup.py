@@ -1,4 +1,4 @@
-    from setuptools                 import setup
+from setuptools                 import setup
 from setuptools.command.install import install
 
 class PostInstallCommand(install):
@@ -15,7 +15,7 @@ class PostInstallCommand(install):
 
         install.run(self)
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
 setup(
     name              = 'cmsstyle',
