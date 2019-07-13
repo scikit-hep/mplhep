@@ -13,7 +13,10 @@ Installation places optimized style sheets to your matplotlib `stylelib` folder 
 - `plt.style.use(['ROOT'])`
 - For examples see https://github.com/andrzejnovak/cmsstyle/blob/master/Examples.ipynb
 
-![Example-1](Example1.png "Simple") ![Example-2](Example2.png "title-2")
+<p float="center">
+  <img src="Example1.png" width="200" />
+  <img src="Example2.png" width="200" /> 
+</p>
 
 ### Available styles:
 
