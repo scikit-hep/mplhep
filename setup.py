@@ -32,3 +32,7 @@ setup(
     cmdclass          = {'install': PostInstallCommand},
     include_package_data=True
 )
+
+# To push on pypi
+# python setup.py sdist
+# twine upload dist/*
