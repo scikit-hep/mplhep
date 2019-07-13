@@ -15,7 +15,7 @@ def cms_annot(ax, paper=False, supplementary=False, data=False, year=2017, lumi=
         else: 
             _lumi = '{} (13 TeV)'.format(str(year))
 
-    ax.annotate(_lumi, xy=(1, 1.015), xycoords='axes fraction', fontsize=_font_size, fontweight='normal', fontname='Arial',
+    ax.annotate(_lumi, xy=(1, 1.015), xycoords='axes fraction', fontsize=_font_size*0.95, fontweight='normal', fontname='Arial',
             ha='right', annotation_clip=False)
     
     # Left label 
@@ -33,8 +33,9 @@ def cms_annot(ax, paper=False, supplementary=False, data=False, year=2017, lumi=
         _label = " ".join(_label.split())            
     
     ax.annotate(_label, xy=(0.001, 1.015), xycoords='axes fraction', fontsize=_font_size, fontname='Arial', 
-                xytext=(cms.get_window_extent(renderer=plt.gcf().canvas.get_renderer()).width   , 0), textcoords='offset points',
-                fontstyle='italic', ha='left', annotation_clip=False)
+                xytext=(cms.get_window_extent(renderer=plt.gcf().canvas.get_renderer()).width*1.06  , 0), textcoords='offset points',
+                fontstyle='italic', 
+                ha='left', annotation_clip=False)
     return ax
 
 def cms_ticks(ax):

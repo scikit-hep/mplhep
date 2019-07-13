@@ -1,4 +1,4 @@
-from setuptools                 import setup
+    from setuptools                 import setup
 from setuptools.command.install import install
 
 class PostInstallCommand(install):
@@ -8,8 +8,10 @@ class PostInstallCommand(install):
         import os
         import matplotlib as mpl
         os.system('cp -r cmsstyle/stylelib/ '+os.path.join(mpl.get_configdir()+'/'))
-        os.system('cp -r cmsstyle/fonts/firasans '+os.path.join(mpl.rcParams['datapath']+'/'))
-        os.system('cp -r cmsstyle/fonts/firamath '+os.path.join(mpl.rcParams['datapath']+'/'))
+        os.system('cp -r cmsstyle/fonts/firasans/* '+os.path.join(mpl.rcParams['datapath']+'/fonts/ttf/'))
+        os.system('cp -r cmsstyle/fonts/firamath/* '+os.path.join(mpl.rcParams['datapath']+'/fonts/ttf/'))
+        #os.system('cp -r cmsstyle/fonts/firasans/ '+os.path.join(mpl.rcParams['datapath']+'/fonts/ttf/'))
+        #os.system('cp -r cmsstyle/fonts/firamath/ '+os.path.join(mpl.rcParams['datapath']+'/fonts/ttf/'))
 
         install.run(self)
 
