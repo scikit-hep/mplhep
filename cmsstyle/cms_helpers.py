@@ -1,9 +1,11 @@
-def cms_annot(ax, paper=False, supplementary=False, data=False, year=2017, lumi=None, llabel=None, rlabel=None):
+def cms_annot(ax, paper=False, supplementary=False, data=False, year=2017, lumi=None, llabel=None, rlabel=None, fontname=None):
     from matplotlib import rcParams
     import matplotlib.pyplot as plt
     _font_size = rcParams['font.size']
+    fontname = 'TeX Gyre Heros' if fontname == None else fontname
+
     # CMS label    
-    cms = ax.annotate('CMS', xy=(0.001, 1.015), xycoords='axes fraction', fontsize=_font_size*1.3, fontname='Arial',
+    cms = ax.annotate('CMS', xy=(0.001, 1.015), xycoords='axes fraction', fontsize=_font_size*1.3, fontname=fontname,
                 ha='left', fontweight='bold', annotation_clip=False)
     
     # Right label
@@ -15,7 +17,7 @@ def cms_annot(ax, paper=False, supplementary=False, data=False, year=2017, lumi=
         else: 
             _lumi = '{} (13 TeV)'.format(str(year))
 
-    ax.annotate(_lumi, xy=(1, 1.015), xycoords='axes fraction', fontsize=_font_size*0.95, fontweight='normal', fontname='Arial',
+    ax.annotate(_lumi, xy=(1, 1.015), xycoords='axes fraction', fontsize=_font_size*0.95, fontweight='normal', fontname=fontname,
             ha='right', annotation_clip=False)
     
     # Left label 
@@ -32,7 +34,7 @@ def cms_annot(ax, paper=False, supplementary=False, data=False, year=2017, lumi=
         
         _label = " ".join(_label.split())            
     
-    ax.annotate(_label, xy=(0.001, 1.015), xycoords='axes fraction', fontsize=_font_size, fontname='Arial', 
+    ax.annotate(_label, xy=(0.001, 1.015), xycoords='axes fraction', fontsize=_font_size, fontname=fontname,
                 xytext=(cms.get_window_extent(renderer=plt.gcf().canvas.get_renderer()).width*1.06  , 0), textcoords='offset points',
                 fontstyle='italic', 
                 ha='left', annotation_clip=False)

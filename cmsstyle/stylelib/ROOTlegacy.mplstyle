@@ -1,26 +1,26 @@
-font.sans-serif : TeX Gyre Heros, Helvetica, Arial
+font.sans-serif : Helvetica, Arial
 font.family : sans-serif
 
 mathtext.fontset : custom
-mathtext.rm : TeX Gyre Heros
-mathtext.bf : TeX Gyre Heros:bold
-mathtext.sf : TeX Gyre Heros
-mathtext.it : TeX Gyre Heros:italic
-mathtext.tt : TeX Gyre Heros
+mathtext.rm : Helvetica
+mathtext.bf : Helvetica:bold
+mathtext.sf : Helvetica
+mathtext.it : Helvetica Neue:italic
+mathtext.tt : Helvetica
 
-figure.figsize : 6, 6
+figure.figsize : 10.0, 10.0
 
-font.size : 16
+font.size : 26	
 axes.labelsize : medium
-xtick.labelsize : smaller
-ytick.labelsize : smaller
-legend.fontsize : smaller
+xtick.labelsize : small 
+ytick.labelsize : small
+legend.fontsize : small
 legend.handlelength : 1.5
 
 xtick.direction : in
-xtick.major.size : 6
-xtick.minor.size : 3.0
-xtick.major.pad : 3
+xtick.major.size : 12
+xtick.minor.size : 6.0
+xtick.major.pad : 6
 
 xtick.top : True
 xtick.major.top : True
@@ -30,8 +30,8 @@ xtick.minor.bottom : True
 xtick.minor.visible : True
 
 ytick.direction : in
-ytick.major.size : 6
-ytick.minor.size : 3
+ytick.major.size : 12
+ytick.minor.size : 6.0
 
 ytick.right : True
 ytick.major.left : True
@@ -43,4 +43,4 @@ ytick.minor.visible : True
 grid.alpha: 0.8
 grid.linestyle: :
 
-axes.linewidth: 1
+axes.linewidth: 2

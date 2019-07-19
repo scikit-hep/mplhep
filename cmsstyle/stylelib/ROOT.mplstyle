@@ -1,12 +1,12 @@
-font.sans-serif : Arial
+font.sans-serif : TeX Gyre Heros, Helvetica, Arial
 font.family : sans-serif
 
 mathtext.fontset : custom
-mathtext.rm : Arial
-mathtext.bf : Arial:bold
-mathtext.sf : Arial
-mathtext.it : Arial:italic
-mathtext.tt : Arial
+mathtext.rm : TeX Gyre Heros
+mathtext.bf : TeX Gyre Heros:bold
+mathtext.sf : TeX Gyre Heros
+mathtext.it : TeX Gyre Heros:italic
+mathtext.tt : TeX Gyre Heros
 
 figure.figsize : 10.0, 10.0
 
