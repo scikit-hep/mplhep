@@ -7,7 +7,7 @@
 ```
 pip install cmsstyle
 ```
-Installation places optimized style sheets to your matplotlib `stylelib` folder and freely licensed fonts - TeX Gyre Heros, Firs Sans and Fira Math - into your `mpl-data` folder .
+Installation places optimized style sheets to your matplotlib `stylelib` folder and freely licensed fonts - TeX Gyre Heros, Firs Sans and Fira Math - into your `mpl-data` folder. `mpl` font cache is now also cleared to load new fonts properly.
 
 # Basic use
 - `plt.style.use(['ROOT'])`

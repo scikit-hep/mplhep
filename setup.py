@@ -11,11 +11,11 @@ class PostInstallCommand(install):
         os.system('cp -r cmsstyle/fonts/firasans/* '+os.path.join(mpl.rcParams['datapath']+'/fonts/ttf/'))
         os.system('cp -r cmsstyle/fonts/firamath/* '+os.path.join(mpl.rcParams['datapath']+'/fonts/ttf/'))
         os.system('cp -r cmsstyle/fonts/texgyreheros/* '+os.path.join(mpl.rcParams['datapath']+'/fonts/ttf/'))
-        #os.system('cp -r cmsstyle/fonts/firamath/ '+os.path.join(mpl.rcParams['datapath']+'/fonts/ttf/'))
+        os.system('rm '+os.path.join(mpl.get_cachedir()+'/font*'))
 
         install.run(self)
 
-__version__ = '0.0.2'
+__version__ = '0.0.4'
 
 setup(
     name              = 'cmsstyle',
