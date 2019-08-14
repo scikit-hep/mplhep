@@ -14,8 +14,12 @@ font.size : 16
 axes.labelsize : medium
 xtick.labelsize : smaller
 ytick.labelsize : smaller
+
 legend.fontsize : smaller
 legend.handlelength : 1.5
+legend.borderpad : 0.5
+legend.frameon   : False
+
 
 xtick.direction : in
 xtick.major.size : 6

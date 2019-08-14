@@ -10,12 +10,15 @@ mathtext.tt : TeX Gyre Heros
 
 figure.figsize : 10.0, 10.0
 
-font.size : 26	
+font.size : 26
 axes.labelsize : medium
-xtick.labelsize : small 
+xtick.labelsize : small
 ytick.labelsize : small
+
 legend.fontsize : small
 legend.handlelength : 1.5
+legend.borderpad : 0.5
+legend.frameon   : False
 
 xtick.direction : in
 xtick.major.size : 12
@@ -43,4 +46,5 @@ ytick.minor.visible : True
 grid.alpha: 0.8
 grid.linestyle: :
 
+axes.autolimit_mode : round_numbers
 axes.linewidth: 2
