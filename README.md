@@ -8,22 +8,30 @@
 
 # Installation
 ```
-pip install cmsstyle
+pip install hepstyle
 ```
-Fonts and styles are now served dynamically through the package. The fonts are made available to matplotlib by `import cmsstyle`, however as a backup solutions functions are provided to hard copy fonts and styles to their respective `mpl` locations
+Fonts and styles are now served dynamically through the package. The fonts are made available to matplotlib by `import hepstyle`, however as a backup solutions functions are provided to hard copy fonts and styles to their respective `mpl` locations
 ```
-cmsstyle.tools.hardcopy_fonts()
-cmsstyle.tools.hardcopy_styles()
+hepstyle.tools.hardcopy_fonts()
+hepstyle.tools.hardcopy_styles()
 ```
 These only need to be called once. Styles are then accessible direclty by name i.e. `plt.style.use("ROOT") as opposed to the package call.
 
 # Basic use
 ```
 import matplotlib.pyplot as plt
-import cmsstyle as cms
-plt.style.use([cms.ROOT])
+import hepstyle.styles as sty
+plt.style.use(sty.ROOT)
 ```
-- For examples see https://github.com/andrzejnovak/cmsstyle/blob/master/Examples.ipynb
+Styles are also included in experiment specific helpers
+```
+import hepstyle.cms as cms
+plt.style.use(cms.ROOT)
+
+import hepstyle.atlas as atlas
+plt.style.use(atlas.ATLAS)
+```
+- For examples see https://github.com/andrzejnovak/hepstyle/blob/master/Examples.ipynb
 
 <p float="center">
   <img src="Example1.png" width="400" />
@@ -32,27 +40,28 @@ plt.style.use([cms.ROOT])
 
 ### Available styles:
 
-- `plt.style.use(cms.ROOT)` - Default (figure 10x10 inches, full column size)
-- `plt.style.use(cms.ROOTlegacy])` - Same as ROOT style above, but use ROOT fonts - Helvetica, fallback to Arial - instead of TeX Gyre Heros, requires font to be already available on the system
-- `plt.style.use([cms.ROOTs])` - Default (figure 6x6 inches, half column size)
-- `plt.style.use([cms.fira])` - use Fira Sans
+- `plt.style.use(sty.ROOT)` - Default (figure 10x10 inches, full column size)
+- `plt.style.use(sty.ROOTlegacy)` - Same as ROOT style above, but use ROOT fonts - Helvetica, fallback to Arial - instead of TeX Gyre Heros, requires font to be already available on the system
+- `plt.style.use(sty.ROOTs)` - Default (figure 6x6 inches, half column size)
+- `plt.style.use(sty.fira)` - use Fira Sans
 
-- `plt.style.use(cms.firamath])` - use Fira Math
+- `plt.style.use(sty.firamath)` - use Fira Math
 
-- `plt.style.use(cms.ATLAS])` - use default ATLAS style from https://github.com/kratsg/ATLASstylempl, note it defaults to Helvetica, which is not supplied in this package as explained below, and will only work properly if already available on the system
+- `plt.style.use(sty.ATLAS)` - use default ATLAS style from https://github.com/kratsg/ATLASstylempl, note it defaults to Helvetica, which is not supplied in this package as explained below, and will only work properly if already available on the system
 
 #### Styles can be chained:
-- e.g. `plt.style.use([cms.ROOT, cms.fira, cms.firamath])`
+- e.g. `plt.style.use([sty.ROOT, sty.fira, sty.firamath])`
+- reappearing rcParams get overwritten silently
 
 #### Styles can be modified on the fly
 - Since styles are dictionaries and they can be chained/overwritten they can be easiely modified on the fly. e.g.
 ```
-plt.style.use(cms.ROOT)
+plt.style.use(sty.ROOT)
 plt.style.use({"font.sans-serif":'Comic Sans MS'})
 ```
 
 #### Styling with LaTeX
-- `plt.style.use(cms.ROOTtex])` - Use LaTeX to produce all text labels
+- `plt.style.use(sty.ROOTtex)` - Use LaTeX to produce all text labels
 - Requires having the full tex-live distro
 - True Helvetica
 - Use sansmath as the math font
@@ -100,12 +109,12 @@ https://github.com/firamath/firamath
 
 ### Context styles and fonts
 ```
-with pyplot.style.context(['ROOT']):
+with pyplot.style.context(sty.ROOT):
     plotting...
 ```
 - This syntax would be ideal, however, it doesn't work properly for fonts and there are no plans by mpl devs to fix this behaviour https://github.com/matplotlib/matplotlib/issues/11673
 
 For now one has to set the style globally
 ```
-plt.style.use(['ROOT'])
+plt.style.use(sty.ROOT)
 ```
