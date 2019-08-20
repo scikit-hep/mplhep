@@ -1,4 +1,4 @@
-# cmsstyle
+# hepstyle
 
 ![Hits](https://countimports.pythonanywhere.com/nocount/tag.svg?url=count_hepstyle_imports)
 

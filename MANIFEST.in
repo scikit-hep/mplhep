@@ -1,2 +1,2 @@
-include cmsstyle/stylelib/*.mplstyle
-recursive-include cmsstyle/fonts/*
+include hepstyle/stylelib/*.mplstyle
+recursive-include hepstyle/fonts/ *

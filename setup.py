@@ -40,4 +40,4 @@ setup(
 
 # To push on pypi
 # python setup.py sdist
-# twine upload dist/*
+#

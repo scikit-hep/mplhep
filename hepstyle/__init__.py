@@ -2,8 +2,8 @@
 import requests as req
 
 # Get helper functions
-from . cms import cms
-from . atlas import atlas
+from . import cms
+from . import atlas
 
 from . import tools
 
@@ -21,11 +21,8 @@ font_list = fm.createFontList(font_files)
 fm.fontManager.ttflist.extend(font_list)
 
 # Log submodules
-__all__ = [cms, atlas, sty, tools]
+__all__ = [cms, atlas, sty, tools, fm]
 
 # Ping import counter for stats
-#__ping__ = req.get("https://countimports.pythonanywhere.com/count/" +
-#                   "tag.svg?url=https%3A%2F%2Fgithub.com%2Fandrzej" +
-#                   "novak%2Fcmsstyle%2F")
 __ping__ = req.get("https://countimports.pythonanywhere.com/count/" +
                    "tag.svg?url=count_hepstyle_imports")
