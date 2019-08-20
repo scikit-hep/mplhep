@@ -21,7 +21,7 @@ class PostInstallCommand(install):
         install.run(self)
 
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
 setup(
     name='hepstyle',
@@ -40,4 +40,4 @@ setup(
 
 # To push on pypi
 # python setup.py sdist
-#
+# twine upload dist/*
