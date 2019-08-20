@@ -1,4 +1,9 @@
-def cms_annot(ax, paper=False, supplementary=False, data=False, year=2017, lumi=None, llabel=None, rlabel=None, fontname=None, fontsize=None):
+# Log styles
+from . import styles_cms as sty
+
+__all__ = [sty]
+
+def annot(ax, paper=False, supplementary=False, data=False, year=2017, lumi=None, llabel=None, rlabel=None, fontname=None, fontsize=None):
     from matplotlib import rcParams
     import matplotlib.pyplot as plt
     _font_size = rcParams['font.size'] if fontsize == None else fontsize
@@ -40,7 +45,7 @@ def cms_annot(ax, paper=False, supplementary=False, data=False, year=2017, lumi=
                 ha='left', annotation_clip=False)
     return ax
 
-def cms_ticks(ax):
+def ticks(ax):
     import matplotlib.ticker as plticker
     xl = ax.get_xlim()
     ax.xaxis.set_major_locator(plticker.MultipleLocator(base=(xl[-1]-xl[0])/5))

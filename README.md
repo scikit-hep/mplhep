@@ -1,6 +1,6 @@
 # cmsstyle
 
-![Hits](https://countimports.pythonanywhere.com/nocount/tag.svg?url=https%3A%2F%2Fgithub.com%2Fandrzejnovak%2Fcmsstyle%2F)
+![Hits](https://countimports.pythonanywhere.com/nocount/tag.svg?url=count_hepstyle_imports)
 
 - offering mpl stylesheets to modify `matplotlib` defaults to look ROOT-like
 - A set of helper functions for common labeling
