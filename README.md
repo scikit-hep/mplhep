@@ -1,4 +1,7 @@
 # cmsstyle
+
+![Hits](https://countimports.pythonanywhere.com/nocount/tag.svg?url=https%3A%2F%2Fgithub.com%2Fandrzejnovak%2Fcmsstyle%2F)
+
 - offering mpl stylesheets to modify `matplotlib` defaults to look ROOT-like
 - A set of helper functions for common labeling
 - Works by copying styles and fonts to respective matplotlib data locations
@@ -40,6 +43,13 @@ plt.style.use([cms.ROOT])
 
 #### Styles can be chained:
 - e.g. `plt.style.use([cms.ROOT, cms.fira, cms.firamath])`
+
+#### Styles can be modified on the fly
+- Since styles are dictionaries and they can be chained/overwritten they can be easiely modified on the fly. e.g.
+```
+plt.style.use(cms.ROOT)
+plt.style.use({"font.sans-serif":'Comic Sans MS'})
+```
 
 #### Styling with LaTeX
 - `plt.style.use(cms.ROOTtex])` - Use LaTeX to produce all text labels

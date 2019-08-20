@@ -1,3 +1,7 @@
+# Import counter
+import requests
+__ping = requests.get("https://countimports.pythonanywhere.com/count/tag.svg?url=https%3A%2F%2Fgithub.com%2Fandrzejnovak%2Fcmsstyle%2F")
+
 # Get helper functions
 from .cms_helpers import *
 from .atlas_helpers import *
