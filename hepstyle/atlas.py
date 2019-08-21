@@ -1,3 +1,3 @@
 # Log styles
-from . import styles_atlas as sty
-__all__ = [sty]
+from . import styles_atlas as style
+__all__ = [style]

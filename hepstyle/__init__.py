@@ -8,7 +8,7 @@ from . import atlas
 from . import tools
 
 # Get styles directly, also available within experiment helpers.
-from . import styles as sty
+from . import styles as style
 
 # Make package fonts available to matplotlib
 import os
