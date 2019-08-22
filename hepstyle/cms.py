@@ -1,6 +1,7 @@
 # Log styles
 from . import styles_cms as style
-__all__ = [style]
+from . import plot
+__all__ = [style, plot]
 
 
 def cmslabel(ax, paper=False, supplementary=False, data=False, year=2017,
