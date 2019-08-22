@@ -3,14 +3,13 @@
 ![Hits](https://countimports.pythonanywhere.com/nocount/tag.svg?url=count_hepstyle_imports)
 
 - offering mpl stylesheets to modify `matplotlib` defaults to look ROOT-like
-- A set of helper functions for common labeling
-- Works by copying styles and fonts to respective matplotlib data locations
+- A set of helper functions for common labeling and formating
 
 # Installation
 ```
 pip install hepstyle
 ```
-Fonts and styles are now served dynamically through the package. The fonts are made available to matplotlib by `import hepstyle`, however as a backup solutions functions are provided to hard copy fonts and styles to their respective `mpl` locations
+Fonts and styles are now served dynamically through the package. The fonts are made available to matplotlib by `import hepstyle`, however as a backup solution, functions are provided to hard copy fonts and styles to their respective `mpl` locations
 ```
 hepstyle.tools.hardcopy_fonts()
 hepstyle.tools.hardcopy_styles()
@@ -18,25 +17,42 @@ hepstyle.tools.hardcopy_styles()
 These only need to be called once. Styles are then accessible direclty by name i.e. `plt.style.use("ROOT") as opposed to the package call.
 
 # Basic use
+
+## Styles
 ```
 import matplotlib.pyplot as plt
-import hepstyle.styles as sty
+import hepstyle.style as sty
 plt.style.use(sty.ROOT)
 ```
 Styles are also included in experiment specific helpers
 ```
-import hepstyle.cms as cms
-plt.style.use(cms.ROOT)
-
-import hepstyle.atlas as atlas
-plt.style.use(atlas.ATLAS)
+import hepstyle as hep
+plt.style.use(hep.cms.style.ROOT)
+plt.style.use(hep.atlas.style.ATLAS)
 ```
-- For examples see https://github.com/andrzejnovak/hepstyle/blob/master/Examples.ipynb
+
+#### Minimal Example
+```diff
++ import hepstyle as hep
+import numpy as np
+import matplotlib.pyplot as plt
+
+x = np.random.uniform(0, 10, 240)
+y = np.random.normal(512, 112, 240)
+z = np.random.normal(0.5, 0.1, 240)
+
++ plt.style.use(hep.style.ROOT)
+f, ax = plt.subplots()
+ax.scatter(x,y, c=z);
+
+```
 
 <p float="center">
-  <img src="Example1.png" width="400" />
-  <img src="Example2.png" width="400" />
+  <img src="img/style0.png" width="400" />
+  <img src="img/style1.png" width="400" />
 </p>
+
+- For more examples see https://github.com/andrzejnovak/hepstyle/blob/master/Examples.ipynb
 
 ### Available styles:
 
@@ -68,6 +84,24 @@ plt.style.use({"font.sans-serif":'Comic Sans MS'})
 - Takes longer and not always better
 - In general more possibilities, but a bit more difficult to get everything working properly
 
+## Experiment annotations
+```diff
++ plt.style.use(hep.cms.style.ROOT)
++ ax = hep.cms.cmslabel(ax, data=False, paper=False, year='2017')
+```
+<p float="center">
+  <img src="img/style1.png" width="400" />
+  <img src="img/style2.png" width="400" />
+</p>
+
+
+## Plot helper functions
+
+#### Box (or other) aspect
+
+#### Square plot with subplot (works with `tight_layout()`)
+
+#### Append a new axes, without modifying the original
 
 # Notes
 
