@@ -1,3 +1,4 @@
+![mplhep]("img/mplhep.png")
 # mplhep
 
 ![Hits](https://countimports.pythonanywhere.com/nocount/tag.svg?url=count_mplhep_imports)

@@ -26,4 +26,4 @@ __all__ = [cms, atlas, plot, style, tools]
 
 # Ping import counter for stats
 __ping__ = req.get("https://countimports.pythonanywhere.com/count/" +
-                   "tag.svg?url=count_hepstyle_imports")
+                   "tag.svg?url=count_mplhep_imports")
