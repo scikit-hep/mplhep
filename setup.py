@@ -9,22 +9,22 @@ class PostInstallCommand(install):
 
         import os
         import matplotlib as mpl
-        os.system('cp -r hepstyle/stylelib/ ' +
+        os.system('cp -r mplhep/stylelib/ ' +
                   os.path.join(mpl.get_configdir() + '/'))
-        os.system('cp -r hepstyle/fonts/firasans/* ' +
+        os.system('cp -r mplhep/fonts/firasans/* ' +
                   os.path.join(mpl.rcParams['datapath'] + '/fonts/ttf/'))
-        os.system('cp -r hepstyle/fonts/firamath/* ' +
+        os.system('cp -r mplhep/fonts/firamath/* ' +
                   os.path.join(mpl.rcParams['datapath'] + '/fonts/ttf/'))
-        os.system('cp -r hepstyle/fonts/texgyreheros/* ' +
+        os.system('cp -r mplhep/fonts/texgyreheros/* ' +
                   os.path.join(mpl.rcParams['datapath'] + '/fonts/ttf/'))
         os.system('rm ' + os.path.join(mpl.get_cachedir() + '/font*'))
         install.run(self)
 
 
-__version__ = '0.0.4'
+__version__ = '0.0.2'
 
 setup(
-    name='hepstyle',
+    name='mplhep',
     version=__version__,
     author='andrzejnovak',
     author_email='novak5andrzej@gmail.com',
@@ -32,9 +32,9 @@ setup(
     description='Matplotlib styles for HEP',
     long_description=open('README.md').read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/andrzejnovak/hepstyle/",
+    url="https://github.com/andrzejnovak/mplhep/",
     install_requires=['matplotlib>=3.1.0', 'requests>=2.21.0'],
-    packages=['hepstyle'],
+    packages=['mplhep'],
     # cmdclass          = {'install': PostInstallCommand}, # Currently disabled
     include_package_data=True)
 

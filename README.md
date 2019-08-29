@@ -1,18 +1,18 @@
-# hepstyle
+# mplhep
 
-![Hits](https://countimports.pythonanywhere.com/nocount/tag.svg?url=count_hepstyle_imports)
+![Hits](https://countimports.pythonanywhere.com/nocount/tag.svg?url=count_mplhep_imports)
 
 - offering mpl stylesheets to modify `matplotlib` defaults to look ROOT-like
 - A set of helper functions for common labeling and formating
 
 # Installation
 ```
-pip install hepstyle
+pip install mplhep
 ```
-Fonts and styles are now served dynamically through the package. The fonts are made available to matplotlib by `import hepstyle`, however as a backup solution, functions are provided to hard copy fonts and styles to their respective `mpl` locations
+Fonts and styles are now served dynamically through the package. The fonts are made available to matplotlib by `import mplhep`, however as a backup solution, functions are provided to hard copy fonts and styles to their respective `mpl` locations
 ```
-hepstyle.tools.hardcopy_fonts()
-hepstyle.tools.hardcopy_styles()
+mplhep.tools.hardcopy_fonts()
+mplhep.tools.hardcopy_styles()
 ```
 These only need to be called once. Styles are then accessible direclty by name i.e. `plt.style.use("ROOT") as opposed to the package call.
 
@@ -21,19 +21,19 @@ These only need to be called once. Styles are then accessible direclty by name i
 ## Styles
 ```
 import matplotlib.pyplot as plt
-import hepstyle.style as sty
+import mplhep.style as sty
 plt.style.use(sty.ROOT)
 ```
 Styles are also included in experiment specific helpers
 ```
-import hepstyle as hep
+import mplhep as hep
 plt.style.use(hep.cms.style.ROOT)
 plt.style.use(hep.atlas.style.ATLAS)
 ```
 
 #### Minimal Example
 ```diff
-+ import hepstyle as hep
++ import mplhep as hep
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -52,7 +52,7 @@ ax.scatter(x,y, c=z);
   <img src="img/style1.png" width="400" />
 </p>
 
-- For more examples see https://github.com/andrzejnovak/hepstyle/blob/master/Examples.ipynb
+- For more examples see https://github.com/andrzejnovak/mplhep/blob/master/Examples.ipynb
 
 ### Available styles:
 
