@@ -34,6 +34,9 @@ def hplot(h, bins, weights=None, yerr=None,
     h = np.asarray(h)
     bins = np.asarray(bins)
     assert bins.ndim == 1, "bins need to be 1 dimensional"
+    assert bins.shape[0] == h.shape[-1] + 1, "len along main axis of h has "\
+                                             "to be smaller by 1 than len "\
+                                             "of bins"
     _nh = h.ndim
 
     if label is None:
@@ -90,6 +93,7 @@ def hplot(h, bins, weights=None, yerr=None,
                     _bins, _h = bins, np.r_[h, h[-1]]
             else:
                 _h = h
+                _bins = bins
             _label = _labels[0] if yerr is None else None
             _s, = ax.step(_bins, _h, where=_where, label=_label, **kwargs)
             if yerr is not None:
@@ -101,7 +105,8 @@ def hplot(h, bins, weights=None, yerr=None,
             for i in range(_nh):
                 if not _mpl_up:  # Back-comp
                     if edges:
-                        _bins, _h = [bins[0], *bins, bins[-1]], [0, *np.r_[h[i], h[i][-1]], 0]
+                        _bins = [bins[0], *bins, bins[-1]]
+                        _h = [0, *np.r_[h[i], h[i][-1]], 0]
                     else:
                         _bins, _h = bins, np.r_[h[i], h[i][-1]]
                 else:
