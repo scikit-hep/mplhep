@@ -1,4 +1,4 @@
-<p float="center">
+<p float="left">
   <img src="img/mplhep.png" width="250" />
 </p>
 
