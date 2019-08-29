@@ -1,4 +1,7 @@
-![mplhep]("img/mplhep.png")
+<p float="center">
+  <img src="img/mplhep.png" width="400" />
+</p>
+
 # mplhep
 
 ![Hits](https://countimports.pythonanywhere.com/nocount/tag.svg?url=count_mplhep_imports)
