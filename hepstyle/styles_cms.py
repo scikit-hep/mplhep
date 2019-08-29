@@ -47,7 +47,6 @@ ROOT = {
     "grid.alpha": 0.8,
     "grid.linestyle": ":",
 
-    "axes.autolimit_mode": "round_numbers",
     "axes.linewidth": 2,
 
     "savefig.transparent": False,
