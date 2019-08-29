@@ -1,6 +1,6 @@
-![logo][logo]
-
-[logo]: img/mplhep.png
+<p float="center">
+  <img src="img/mplhep.png" width="250" />
+</p>
 
 ![Hits](https://countimports.pythonanywhere.com/nocount/tag.svg?url=count_mplhep_imports)
 
