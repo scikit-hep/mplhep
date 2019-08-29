@@ -4,40 +4,34 @@
 
 ![Hits](https://countimports.pythonanywhere.com/nocount/tag.svg?url=count_mplhep_imports)
 
-- offering mpl stylesheets to modify `matplotlib` defaults to look ROOT-like
-- A set of helper functions for common labeling and formating
+- A set of helpers for `matplotlib` to more easily produce plots typically
+needed in HEP as well as style them in way that's compatible with current
+collaboration requirements (ROOT).
+
 
 # Installation
 ```
 pip install mplhep
 ```
-Fonts and styles are now served dynamically through the package. The fonts are made available to matplotlib by `import mplhep`, however as a backup solution, functions are provided to hard copy fonts and styles to their respective `mpl` locations
-```
-mplhep.tools.hardcopy_fonts()
-mplhep.tools.hardcopy_styles()
-```
-These only need to be called once. Styles are then accessible direclty by name i.e. `plt.style.use("ROOT") as opposed to the package call.
-
 # Basic use
 
-## Styles
+## Styling
 ```
 import matplotlib.pyplot as plt
-import mplhep.style as sty
-plt.style.use(sty.ROOT)
-```
-Styles are also included in experiment specific helpers
-```
 import mplhep as hep
+plt.style.use(hep.style.ROOT)
+```
+Styles are also included in experiment specific helpers along with other styling
+helper functions.
+```
 plt.style.use(hep.cms.style.ROOT)
 plt.style.use(hep.atlas.style.ATLAS)
 ```
-
 #### Minimal Example
 ```diff
-+ import mplhep as hep
 import numpy as np
 import matplotlib.pyplot as plt
++ import mplhep as hep
 
 x = np.random.uniform(0, 10, 240)
 y = np.random.normal(512, 112, 240)
@@ -50,11 +44,38 @@ ax.scatter(x,y, c=z);
 ```
 
 <p float="center">
-  <img src="img/style0.png" width="400" />
-  <img src="img/style1.png" width="400" />
+  <img src="img/style0.png" width="300" />
+  <img src="img/style1.png" width="300" />
 </p>
+*(gray padded to see figure size)
 
-- For more examples see https://github.com/andrzejnovak/mplhep/blob/master/Examples.ipynb
+## Plotting
+A pre-binned histogram plotter is provided, as this functionality is currently
+awkward in `mpl`.
+
+```diff
+import numpy as np
+import matplotlib.pyplot as plt
++ import mplhep as hep.plot as hplt
+
+h, bins = np.histogram(np.random.normal(10,3,1000))
+
+f, ax = plt.subplots()
+- ax.step(bins, np.r_[h, h[-1]], step='post')
++ hplt.hplot(h, bins)
+
+```
+Additinal functionality is also wrapped inside.
+- if `h` is a list of arrays or a 2d array, separate histograms will be plotted
+- `stack=True` stack plots
+- `yerr={None | True | array of ndim = h.ndim | array of ndim = h.ndim + 1}` is
+available to plot { no | Poisson | one-sided | two-sided } errors.
+- `density=True` show density
+- `weights`
+
+An effort has been made to provide API as close as possible to `plt.hist()`
+
+# More Information
 
 ### Available styles:
 

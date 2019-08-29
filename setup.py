@@ -21,7 +21,7 @@ class PostInstallCommand(install):
         install.run(self)
 
 
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 
 setup(
     name='mplhep',
