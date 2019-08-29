@@ -1,5 +1,5 @@
 <p float="left">
-  <img src="img/mplhep.png" width="300"/>
+  <img src="https://raw.githubusercontent.com/andrzejnovak/mplhep/master/img/mplhep.png" width="300"/>
 </p>
 
 ![Hits](https://countimports.pythonanywhere.com/nocount/tag.svg?url=count_mplhep_imports)
