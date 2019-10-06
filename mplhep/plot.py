@@ -15,11 +15,9 @@ def hplot(h, bins, weights=None, yerr=None,
 
     if ax is None:
         ax = plt.gca()
-        fig = ax.figure
     else:
         if not isinstance(ax, plt.Axes):
             raise ValueError("ax must be a matplotlib Axes object")
-        fig = ax.figure
 
     # mpl updated to new methods
     _mpl_up = np.prod([int(v) >= int(ref)
@@ -40,11 +38,11 @@ def hplot(h, bins, weights=None, yerr=None,
     _nh = h.ndim
 
     if label is None:
-        _labels = [None]
+        _labels = [None]*_nh
     elif isinstance(label, str):
-        _labels = [label]
+        _labels = [label]*_nh
     elif not np.iterable(label):
-        _labels = [str(label)]
+        _labels = [str(label)]*_nh
     else:
         _labels = [str(lab) for lab in label]
 
@@ -69,8 +67,8 @@ def hplot(h, bins, weights=None, yerr=None,
             if yerr is True:
                 assert stack is False, "Automatic errorbars not defined for " \
                                        " stacked plot"
-                _yerr = 1/np.sqrt(h)
-        _bin_centers = _bin_widths / 2
+                _yerr = np.sqrt(h)
+        _bin_centers = bins[1:] - _bin_widths / 2
 
     # Stack
     if stack and _nh > 1:
@@ -94,13 +92,14 @@ def hplot(h, bins, weights=None, yerr=None,
             else:
                 _h = h
                 _bins = bins
-            _label = _labels[0] if yerr is None else None
-            _s, = ax.step(_bins, _h, where=_where, label=_label, **kwargs)
+            _label = _labels[0]
+            _step_label = _label if yerr is None else None
+            _s, = ax.step(_bins, _h, where=_where, label=_step_label, **kwargs)
             if yerr is not None:
                 ax.errorbar(_bin_centers, h, yerr=_yerr, color=_s.get_color(),
                             ls='none', **kwargs)
                 ax.errorbar([], [], yerr=1, xerr=1, color=_s.get_color(),
-                            label=_labels[0])
+                            label=_label)
         else:
             for i in range(_nh):
                 if not _mpl_up:  # Back-comp
@@ -111,13 +110,15 @@ def hplot(h, bins, weights=None, yerr=None,
                         _bins, _h = bins, np.r_[h[i], h[i][-1]]
                 else:
                     _h = h[i]
-                _label = _labels[0] if yerr is None else None
-                _s, = ax.step(_bins, _h, where=_where, label=_label, **kwargs)
+                _label = _labels[i]
+                _step_label = _label if yerr is None else None
+                _s, = ax.step(_bins, _h, where=_where, label=_step_label,
+                              **kwargs)
                 if yerr is not None:
                     ax.errorbar(_bin_centers, h[i], yerr=_yerr[i],
                                 color=_s.get_color(), ls='none', **kwargs)
                     ax.errorbar([], [], yerr=1, xerr=1, color=_s.get_color(),
-                                label=_labels[i])
+                                label=_label)
 
     elif histtype == 'fill':
         if _nh == 1:
@@ -226,7 +227,8 @@ def append_axes(ax, size=0.1, pad=0.1, position="right"):
     margin_size = axes_size.Fixed(size)
     pad_size = axes_size.Fixed(pad)
     xsizes = [pad_size, margin_size]
-    if position in ['top', 'bottom']: xsizes = xsizes[::-1]
+    if position in ['top', 'bottom']:
+        xsizes = xsizes[::-1]
     yhax = divider.append_axes(position, size=margin_size, pad=pad_size)
 
     def extend_ratio(ax):
@@ -279,11 +281,13 @@ def sort_legend(ax, order=None):
     elif order is None:
         ordered_label_list = labels
     else:
-        raise TypeError('Unexpected values type of order: {}'.format(type(order)))
+        raise TypeError('Unexpected values type of order: {}'.format(
+            type(order)))
 
-    ordered_label_list = [entry for entry in ordered_label_list if entry in labels]
+    ordered_label_list = [
+        entry for entry in ordered_label_list if entry in labels
+    ]
     ordered_label_values = [by_label[k] for k in ordered_label_list]
     if isinstance(order, OrderedDict):
         ordered_label_list = [order[k] for k in ordered_label_list]
     return ordered_label_values, ordered_label_list
-

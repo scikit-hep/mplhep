@@ -1,3 +1,8 @@
+# PRL figsize / Elsevier figsize, Nature is somewhere in between
+# single column width -  86 mm (3.386in) /  90 mm (3.543in)
+# double column width - 172 mm (6.772in) / 180 mm (7.087in)
+# For now size to 10
+
 ROOT = {
     "font.sans-serif": ["TeX Gyre Heros", "Helvetica", "Arial"],
     "font.family": "sans-serif",
@@ -55,7 +60,9 @@ ROOT = {
 
 ROOTtex = {
     "text.usetex": True,
-    "text.latex.preamble" : r"\usepackage{siunitx},\sisetup{detect-all},\usepackage{helvet},\usepackage{sansmath},\sansmath"
+    "text.latex.preamble": r"\usepackage{siunitx},\sisetup{detect-all}, \
+                              \usepackage{helvet},\usepackage{sansmath}, \
+                              \sansmath"
 }
 
 fira = {

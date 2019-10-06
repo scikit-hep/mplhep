@@ -4,7 +4,7 @@
 
 ![Hits](https://countimports.pythonanywhere.com/nocount/tag.svg?url=count_mplhep_imports)
 
-- A set of helpers for `matplotlib` to more easily produce plots typically
+A set of helpers for `matplotlib` to more easily produce plots typically
 needed in HEP as well as style them in way that's compatible with current
 collaboration requirements (ROOT).
 
@@ -69,9 +69,11 @@ Additinal functionality is also wrapped inside.
 - if `h` is a list of arrays or a 2d array, separate histograms will be plotted
 - `stack=True` stack plots
 - `yerr={None | True | array of ndim = h.ndim | array of ndim = h.ndim + 1}` is
-available to plot { no | Poisson | one-sided | two-sided } errors.
+available to plot `{ no | Poisson | one-sided | two-sided }` errors.
 - `density=True` show density
 - `weights`
+- `histype={'step' | 'fill'}`
+- `edges` when plotting with `'step'` close the shape outside
 
 An effort has been made to provide API as close as possible to `plt.hist()`
 
