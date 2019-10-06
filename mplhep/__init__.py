@@ -43,7 +43,8 @@ __all__ = [cms, atlas, plot, style, tools,
 
 # Ping import counter for stats
 try:
-    __ping__ = req.get("https://countimports.pythonanywhere.com/count/" +
-                       "tag.svg?url=count_mplhep_imports", timeout=0.001)
+    __ping__ = req.get("https://countimports.pythonanywhere.com/"
+                       "count/tag.svg?url=count_mplhep_imports",
+                       timeout=1)
 except Exception:
     pass
