@@ -98,10 +98,10 @@ def lumitext(text="",
              ax=None,
              fontname=None,
              fontsize=None):
-    
+
     _font_size = rcParams['font.size'] if fontsize is None else fontsize
     fontname = 'TeX Gyre Heros' if fontname is None else fontname
-    
+
     if ax is None:
         ax = plt.gca()
 

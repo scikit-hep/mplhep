@@ -3,7 +3,8 @@ ATLAS = {
     "lines.linewidth": 1,
 
     "font.family": "sans-serif",
-    "font.sans-serif": ["helvetica", "Helvetica", "Nimbus Sans L", "Mukti Narrow", "FreeSans"],
+    "font.sans-serif": ["helvetica", "Helvetica", "Nimbus Sans L",
+                        "Mukti Narrow", "FreeSans"],
     "font.size": 18,
     "mathtext.fontset": "stixsans",
     "mathtext.default": "rm",
