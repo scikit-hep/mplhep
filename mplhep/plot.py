@@ -9,9 +9,9 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
 # Histogram plotter
 
 def hplot(h, bins, weights=None, yerr=None,
-            stack=False, density=False,
-            histtype='step', label=None, edges=False,
-            ax=None, **kwargs):
+          stack=False, density=False,
+          histtype='step', label=None, edges=False,
+          ax=None, **kwargs):
 
     if ax is None:
         ax = plt.gca()
@@ -140,7 +140,8 @@ def hplot(h, bins, weights=None, yerr=None,
 
     return ax
 
-def hist2d(H, xbins=None, ybins=None, weights=None, 
+
+def hist2d(H, xbins=None, ybins=None, weights=None,
            cbar=True, cbarsize="7%", cbarpad=0.2, cbarpos='right',
            cmin=None, cmax=None, ax=None, **kwargs):
 
@@ -150,12 +151,12 @@ def hist2d(H, xbins=None, ybins=None, weights=None,
     if xbins is None:
         xbins = np.arange(H.shape[1]+1)
     if ybins is None:
-        ybins = np.arange(H.shape[0]+1)    
+        ybins = np.arange(H.shape[0]+1)
 
     if cmin is not None:
-        h[h < cmin] = None
+        H[H < cmin] = None
     if cmax is not None:
-        h[h > cmax] = None
+        H[H > cmax] = None
 
     X, Y = np.meshgrid(xbins, ybins)
 
@@ -168,7 +169,7 @@ def hist2d(H, xbins=None, ybins=None, weights=None,
     ax.set_yticks(ybins)
 
     if cbar:
-        cax = hep.append_axes(ax, size=cbarsize, pad=cbarpad, position=cbarpos)
+        cax = append_axes(ax, size=cbarsize, pad=cbarpad, position=cbarpos)
         plt.colorbar(pc, cax=cax)
 
     return H, xbins, ybins, pc
