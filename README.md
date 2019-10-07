@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/andrzejnovak/mplhep/master/img/mplhep.png" width="300"/>
 </p>
 
-![Hits](https://countimports.pythonanywhere.com/nocount/tag.svg?url=count_mplhep_imports)
+[![Build Status](https://travis-ci.org/andrzejnovak/mplhep.svg?branch=master)](https://travis-ci.org/andrzejnovak/mplhep) ![Hits](https://countimports.pythonanywhere.com/nocount/tag.svg?url=count_mplhep_imports)
 
 A set of helpers for `matplotlib` to more easily produce plots typically
 needed in HEP as well as style them in way that's compatible with current
