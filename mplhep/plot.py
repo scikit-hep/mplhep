@@ -8,10 +8,10 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
 ########################################
 # Histogram plotter
 
-def hplot(h, bins, weights=None, yerr=None,
-          stack=False, density=False,
-          histtype='step', label=None, edges=False,
-          ax=None, **kwargs):
+def histplot(h, bins, weights=None, yerr=None,
+             stack=False, density=False,
+             histtype='step', label=None, edges=False,
+             ax=None, **kwargs):
 
     if ax is None:
         ax = plt.gca()
@@ -141,9 +141,9 @@ def hplot(h, bins, weights=None, yerr=None,
     return ax
 
 
-def hist2d(H, xbins=None, ybins=None, weights=None,
-           cbar=True, cbarsize="7%", cbarpad=0.2, cbarpos='right',
-           cmin=None, cmax=None, ax=None, **kwargs):
+def hist2dplot(H, xbins=None, ybins=None, weights=None,
+               cbar=True, cbarsize="7%", cbarpad=0.2, cbarpos='right',
+               cmin=None, cmax=None, ax=None, **kwargs):
 
     if ax is None:
         ax = plt.gca()

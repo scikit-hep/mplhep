@@ -56,13 +56,13 @@ awkward in `mpl`.
 ```diff
 import numpy as np
 import matplotlib.pyplot as plt
-+ import mplhep as hep.plot as hplt
++ import mplhep as hep
 
 h, bins = np.histogram(np.random.normal(10,3,1000))
 
 f, ax = plt.subplots()
 - ax.step(bins, np.r_[h, h[-1]], step='post')
-+ hplt.hplot(h, bins)
++ hep.histplot(h, bins)
 
 ```
 Additinal functionality is also wrapped inside.
@@ -77,32 +77,52 @@ available to plot `{ no | Poisson | one-sided | two-sided }` errors.
 
 An effort has been made to provide API as close as possible to `plt.hist()`
 
+### 2D Histogram plotter is also included
+
+```
+import numpy as np
+import matplotlib.pyplot as plt
+import mplhep as hep
+
+fig, ax = plt.subplots()
+
+xedges = [0, 1, 3, 5]
+yedges = [0, 2, 3, 4, 6,7]
+x = np.random.normal(2, 1, 100)
+y = np.random.normal(4, 1, 100)
+H, xedges, yedges = np.histogram2d(x, y, bins=(xedges, yedges))
+H = H.T
+
+hep.hist2dplot(H, xedges, yedges)
+
+```
+
 # More Information
 
 ### Available styles:
 
-- `plt.style.use(sty.ROOT)` - Default (figure 10x10 inches, full column size)
-- `plt.style.use(sty.ROOTlegacy)` - Same as ROOT style above, but use ROOT fonts - Helvetica, fallback to Arial - instead of TeX Gyre Heros, requires font to be already available on the system
-- `plt.style.use(sty.ROOTs)` - Default (figure 6x6 inches, half column size)
-- `plt.style.use(sty.fira)` - use Fira Sans
+- `plt.style.use(style.ROOT)` - Default (figure 10x10 inches, full column size)
+- `plt.style.use(style.ROOTlegacy)` - Same as ROOT stylele above, but use ROOT fonts - Helvetica, fallback to Arial - instead of TeX Gyre Heros, requires font to be already available on the system
+- `plt.style.use(style.ROOTs)` - Default (figure 6x6 inches, half column size)
+- `plt.style.use(style.fira)` - use Fira Sans
 
-- `plt.style.use(sty.firamath)` - use Fira Math
+- `plt.style.use(style.firamath)` - use Fira Math
 
-- `plt.style.use(sty.ATLAS)` - use default ATLAS style from https://github.com/kratsg/ATLASstylempl, note it defaults to Helvetica, which is not supplied in this package as explained below, and will only work properly if already available on the system
+- `plt.style.use(style.ATLAS)` - use default ATLAS style from https://github.com/kratsg/ATLASstylempl, note it defaults to Helvetica, which is not supplied in this package as explained below, and will only work properly if already available on the system
 
 #### Styles can be chained:
-- e.g. `plt.style.use([sty.ROOT, sty.fira, sty.firamath])`
+- e.g. `plt.style.use([style.ROOT, style.fira, style.firamath])`
 - reappearing rcParams get overwritten silently
 
 #### Styles can be modified on the fly
 - Since styles are dictionaries and they can be chained/overwritten they can be easiely modified on the fly. e.g.
 ```
-plt.style.use(sty.ROOT)
+plt.style.use(style.ROOT)
 plt.style.use({"font.sans-serif":'Comic Sans MS'})
 ```
 
 #### Styling with LaTeX
-- `plt.style.use(sty.ROOTtex)` - Use LaTeX to produce all text labels
+- `plt.style.use(style.ROOTtex)` - Use LaTeX to produce all text labels
 - Requires having the full tex-live distro
 - True Helvetica
 - Use sansmath as the math font
@@ -168,12 +188,12 @@ https://github.com/firamath/firamath
 
 ### Context styles and fonts
 ```
-with pyplot.style.context(sty.ROOT):
+with pyplot.style.context(style.ROOT):
     plotting...
 ```
 - This syntax would be ideal, however, it doesn't work properly for fonts and there are no plans by mpl devs to fix this behaviour https://github.com/matplotlib/matplotlib/issues/11673
 
 For now one has to set the style globally
 ```
-plt.style.use(sty.ROOT)
+plt.style.use(style.ROOT)
 ```

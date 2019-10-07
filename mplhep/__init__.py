@@ -12,7 +12,8 @@ from . import tools
 from . import styles as style
 
 from .plot import (
-    hplot,
+    histplot,
+    hist2dplot,
     rescale_to_axessize,
     box_aspect,
     make_square_add_cbar,
@@ -33,7 +34,8 @@ fm.fontManager.ttflist.extend(font_list)
 # Log submodules
 __all__ = [cms, atlas, plot, style, tools,
            # Log plot functions
-           'hplot',
+           'histplot',
+           'hist2dplot',
            'rescale_to_axessize',
            'box_aspect',
            'make_square_add_cbar',
