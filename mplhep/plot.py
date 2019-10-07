@@ -9,9 +9,9 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
 # Histogram plotter
 
 def hplot(h, bins, weights=None, yerr=None,
-          stack=False, density=False,
-          histtype='step', label=None, edges=False,
-          ax=None, **kwargs):
+            stack=False, density=False,
+            histtype='step', label=None, edges=False,
+            ax=None, **kwargs):
 
     if ax is None:
         ax = plt.gca()
@@ -140,6 +140,39 @@ def hplot(h, bins, weights=None, yerr=None,
 
     return ax
 
+def hist2d(H, xbins=None, ybins=None, weights=None, 
+           cbar=True, cbarsize="7%", cbarpad=0.2, cbarpos='right',
+           cmin=None, cmax=None, ax=None, **kwargs):
+
+    if ax is None:
+        ax = plt.gca()
+
+    if xbins is None:
+        xbins = np.arange(H.shape[1]+1)
+    if ybins is None:
+        ybins = np.arange(H.shape[0]+1)    
+
+    if cmin is not None:
+        h[h < cmin] = None
+    if cmax is not None:
+        h[h > cmax] = None
+
+    X, Y = np.meshgrid(xbins, ybins)
+
+    pc = ax.pcolormesh(X, Y, H, **kwargs)
+
+    ax.set_xlim(xbins[0], xbins[-1])
+    ax.set_ylim(ybins[0], ybins[-1])
+
+    ax.set_xticks(xbins)
+    ax.set_yticks(ybins)
+
+    if cbar:
+        cax = hep.append_axes(ax, size=cbarsize, pad=cbarpad, position=cbarpos)
+        plt.colorbar(pc, cax=cax)
+
+    return H, xbins, ybins, pc
+
 
 ########################################
 # Figure/axes helpers
@@ -222,6 +255,18 @@ def append_axes(ax, size=0.1, pad=0.1, position="right"):
     fig = ax.figure
     bbox = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
     width, height = bbox.width, bbox.height
+
+    def convert(fraction, position=position):
+        if isinstance(fraction, str):
+            if fraction.endswith("%"):
+                if position in ['right', 'left']:
+                    fraction = width * float(fraction.strip('%')) / 100
+                elif position in ['top', 'bottom']:
+                    fraction = height * float(fraction.strip('%')) / 100
+        return fraction
+
+    size = convert(size)
+    pad = convert(pad)
 
     divider = make_axes_locatable(ax)
     margin_size = axes_size.Fixed(size)
