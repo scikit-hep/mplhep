@@ -35,7 +35,10 @@ def histplot(h, bins, weights=None, yerr=None,
     assert bins.shape[0] == h.shape[-1] + 1, "len along main axis of h has "\
                                              "to be smaller by 1 than len "\
                                              "of bins"
-    _nh = h.ndim
+    _nh = h.shape[0]
+    _ndim = h.ndim
+    if _ndim == 2 and _nh == 1:  # Unwrap if [[1,2,3]]
+        h = h[0]
 
     if label is None:
         _labels = [None]*_nh
@@ -45,9 +48,6 @@ def histplot(h, bins, weights=None, yerr=None,
         _labels = [str(label)]*_nh
     else:
         _labels = [str(lab) for lab in label]
-
-    # Get current
-    ymin, ymax = ax.get_ylim()
 
     # Apply weights
     if weights is not None:
@@ -126,17 +126,24 @@ def histplot(h, bins, weights=None, yerr=None,
                 _h = np.r_[h, h[-1]]
             else:
                 _h = h
-            ax.fill_between(bins, _h, step=_where, **kwargs)
+            ax.fill_between(bins, _h, step=_where, label=_labels[0], **kwargs)
         else:
             for i in range(_nh):
                 if not _mpl_up:
                     _h = np.r_[h[i], h[i][-1]]
                 else:
                     _h = h[i]
-                ax.fill_between(bins, _h, step=_where, **kwargs)
+                ax.fill_between(bins, _h, step=_where,
+                                label=_labels[i], **kwargs)
+
+    # Get current
+    ymin, ymax = ax.get_ylim()
 
     ax.set_ylim(min(1.05*np.min(h) if np.min(h) < 0 else 0, ymin),
                 max(1.05*np.max(h), ymax))
+
+    if len(ax.get_xticks())/3*2 < len(bins):
+        ax.set_xticks(bins)
 
     return ax
 

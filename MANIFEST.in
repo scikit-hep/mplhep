@@ -1,2 +1,2 @@
-include hepstyle/stylelib/*.mplstyle
-recursive-include hepstyle/fonts/ *
+include mplhep/stylelib/*.mplstyle
+recursive-include mplhep/fonts/ *
