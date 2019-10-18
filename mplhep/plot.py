@@ -12,7 +12,7 @@ def histplot(h, bins, weights=None, yerr=None,
              stack=False, density=False,
              histtype='step', label=None, edges=False, binticks=False,
              ax=None, **kwargs):
-
+    print (h)
     if ax is None:
         ax = plt.gca()
     else:
@@ -35,9 +35,16 @@ def histplot(h, bins, weights=None, yerr=None,
     assert bins.shape[0] == h.shape[-1] + 1, "len along main axis of h has "\
                                              "to be smaller by 1 than len "\
                                              "of bins"
-    _sh = h.shape[0]
-    _nh = h.ndim
-    if _nh == 2 and _sh == 1:  # Unwrap if [[1,2,3]]
+
+    if h.ndim == 1:
+        _nh = 1
+    elif h.ndim > 1:
+        _nh = len(h)
+    else:
+        raise ValueError("Input cannot be handled")
+
+    # Find a better way to unwrap to "real" dimentionality
+    if h.ndim == 2 and len(h) == 1:  # Unwrap if [[1,2,3]]
         h = h[0]
 
     if label is None:
@@ -60,16 +67,19 @@ def histplot(h, bins, weights=None, yerr=None,
                  / (np.ones_like(h) * _bin_widths).T).T
         h = h / _norm
 
+    print(yerr)
     if yerr is not None:
         if hasattr(yerr, '__len__'):
             _yerr = np.asarray(yerr)
+            if _yerr.ndim == 3 and len(_yerr) == 1:  # Unwrap if [[1,2,3]]
+                _yerr = _yerr[0][0]
         else:
             if yerr is True:
                 assert stack is False, "Automatic errorbars not defined for " \
                                        " stacked plot"
                 _yerr = np.sqrt(h)
         _bin_centers = bins[1:] - _bin_widths / 2
-
+    print(_yerr)
     # Stack
     if stack and _nh > 1:
         h = np.cumsum(h, axis=0)[::-1]
