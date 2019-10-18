@@ -1,10 +1,18 @@
 from setuptools import setup
 from setuptools.command.install import install
 
+import six
+
+INSTALL_REQUIRES = ['matplotlib<3' if six.PY2 else 'matplotlib>=3',
+                    'six',
+                    'requests>=2.21.0',
+                    ]
+
 
 class PostInstallCommand(install):
     # Currently disabled, done on the fly
     """Post-installation for installation mode."""
+    """
     def run(self):
 
         import os
@@ -19,6 +27,7 @@ class PostInstallCommand(install):
                   os.path.join(mpl.rcParams['datapath'] + '/fonts/ttf/'))
         os.system('rm ' + os.path.join(mpl.get_cachedir() + '/font*'))
         install.run(self)
+    """
 
 
 __version__ = '0.0.9'
@@ -41,9 +50,9 @@ setup(
         "Programming Language :: Python :: 3.7",
     ],
     python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*",
-    install_requires=['matplotlib>=3.1.0', 'requests>=2.21.0'],
-    packages=['mplhep'],
-    # cmdclass          = {'install': PostInstallCommand}, # Currently disabled
+    install_requires=INSTALL_REQUIRES,
+    # packages=find_packages(exclude=['tests']),
+    # cmdclass= {'install': PostInstallCommand}, # Currently disabled
     include_package_data=True)
 
 # To push on pypi

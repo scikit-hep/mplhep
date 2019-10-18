@@ -45,24 +45,24 @@ def cmstext(text="",
     }
 
     if loc not in [0, 1, 2, 3]:
-        raise ValueError(f"loc must be in {0, 1, 2}:\n"
-                         f"0 : Above axes, left aligned\n"
-                         f"1 : Top left corner\n"
-                         f"2 : Top left corner, multiline\n"
-                         f"3 : Split CMS above axes, rest of label in"
-                         f"top left corner")
+        raise ValueError("loc must be in {0, 1, 2}:\n"
+                         "0 : Above axes, left aligned\n"
+                         "1 : Top left corner\n"
+                         "2 : Top left corner, multiline\n"
+                         "3 : Split CMS above axes, rest of label in"
+                         "top left corner")
 
     if loc in [0, 3]:
         _cms_loc = 0
     else:
         _cms_loc = 1
-    cms = ax.text(*loc1_dict[_cms_loc]['xy'], "CMS",
+    cms = ax.text(*loc1_dict[_cms_loc]['xy'], s="CMS",
                   transform=ax.transAxes,
                   ha='left',
                   va=loc1_dict[_cms_loc]['va'],
                   fontsize=_font_size * 1.3,
                   fontweight='bold',
-                  fontname=fontname,
+                  fontname=fontname
                   )
 
     _xoff = cms.get_window_extent(

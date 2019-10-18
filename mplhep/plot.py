@@ -10,7 +10,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
 
 def histplot(h, bins, weights=None, yerr=None,
              stack=False, density=False,
-             histtype='step', label=None, edges=False,
+             histtype='step', label=None, edges=False, binticks=False,
              ax=None, **kwargs):
 
     if ax is None:
@@ -35,9 +35,9 @@ def histplot(h, bins, weights=None, yerr=None,
     assert bins.shape[0] == h.shape[-1] + 1, "len along main axis of h has "\
                                              "to be smaller by 1 than len "\
                                              "of bins"
-    _nh = h.shape[0]
-    _ndim = h.ndim
-    if _ndim == 2 and _nh == 1:  # Unwrap if [[1,2,3]]
+    _sh = h.shape[0]
+    _nh = h.ndim
+    if _nh == 2 and _sh == 1:  # Unwrap if [[1,2,3]]
         h = h[0]
 
     if label is None:
@@ -85,8 +85,11 @@ def histplot(h, bins, weights=None, yerr=None,
         if _nh == 1:
             if not _mpl_up:  # Back-comp
                 if edges:
-                    _bins = [bins[0], *bins, bins[-1]]
-                    _h = [0, *np.r_[h, h[-1]], 0]
+                    # 3.6 and up
+                    # _bins = [bins[0], *bins, bins[-1]]
+                    # _h = [0, *np.r_[h, h[-1]], 0]
+                    _bins = np.r_[bins[0], bins, bins[-1]]
+                    _h = np.r_[0, h, h[-1], 0]
                 else:
                     _bins, _h = bins, np.r_[h, h[-1]]
             else:
@@ -104,8 +107,11 @@ def histplot(h, bins, weights=None, yerr=None,
             for i in range(_nh):
                 if not _mpl_up:  # Back-comp
                     if edges:
-                        _bins = [bins[0], *bins, bins[-1]]
-                        _h = [0, *np.r_[h[i], h[i][-1]], 0]
+                        # 3.6 and up
+                        # _bins = [bins[0], *bins, bins[-1]]
+                        # _h = [0, *np.r_[h[i], h[i][-1]], 0]
+                        _bins = np.r_[bins[0], bins, bins[-1]]
+                        _h = np.r_[0, h[i], h[i][-1], 0]
                     else:
                         _bins, _h = bins, np.r_[h[i], h[i][-1]]
                 else:
@@ -138,12 +144,11 @@ def histplot(h, bins, weights=None, yerr=None,
 
     # Get current
     ymin, ymax = ax.get_ylim()
+    ax.set_ylim(ymin if np.min(h) < 0 else 0, None)
 
-    ax.set_ylim(min(1.05*np.min(h) if np.min(h) < 0 else 0, ymin),
-                max(1.05*np.max(h), ymax))
-
-    if len(ax.get_xticks())/3*2 < len(bins):
-        ax.set_xticks(bins)
+    if binticks:
+        _slice = int(round(float(len(bins))/len(ax.get_xticks())))+1
+        ax.set_xticks(bins[::_slice])
 
     return ax
 
