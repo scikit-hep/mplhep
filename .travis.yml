@@ -26,3 +26,4 @@ deploy:
   password: $PYPI_PW
   on:
     tags: true
+    condition: $TRAVIS_PYTHON_VERSION = "3.7"
