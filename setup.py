@@ -3,9 +3,8 @@ from setuptools.command.install import install
 
 import six
 
-INSTALL_REQUIRES = ['matplotlib<3' if six.PY2 else 'matplotlib>=3',
-                    'six',
-                    'requests>=2.21.0',
+INSTALL_REQUIRES = ['matplotlib<3' if six.PY2 else 'matplotlib~=3.1',
+                    'requests~=2.21',
                     ]
 
 
@@ -53,6 +52,7 @@ setup(
     install_requires=INSTALL_REQUIRES,
     # packages=find_packages(exclude=['tests']),
     # cmdclass= {'install': PostInstallCommand}, # Currently disabled
+    packages=['mplhep'],
     include_package_data=True)
 
 # To push on pypi
