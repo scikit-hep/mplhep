@@ -12,7 +12,7 @@ def histplot(h, bins, weights=None, yerr=None,
              stack=False, density=False,
              histtype='step', label=None, edges=False, binticks=False,
              ax=None, **kwargs):
-    print (h)
+
     if ax is None:
         ax = plt.gca()
     else:
@@ -67,7 +67,6 @@ def histplot(h, bins, weights=None, yerr=None,
                  / (np.ones_like(h) * _bin_widths).T).T
         h = h / _norm
 
-    print(yerr)
     if yerr is not None:
         if hasattr(yerr, '__len__'):
             _yerr = np.asarray(yerr)
@@ -79,7 +78,7 @@ def histplot(h, bins, weights=None, yerr=None,
                                        " stacked plot"
                 _yerr = np.sqrt(h)
         _bin_centers = bins[1:] - _bin_widths / 2
-    print(_yerr)
+
     # Stack
     if stack and _nh > 1:
         h = np.cumsum(h, axis=0)[::-1]
