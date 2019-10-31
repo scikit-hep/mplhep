@@ -1,11 +1,11 @@
 from setuptools import setup
 from setuptools.command.install import install
+import sys
 
-import six
-
-INSTALL_REQUIRES = ['matplotlib<3' if six.PY2 else 'matplotlib~=3.1',
-                    'requests~=2.21',
-                    ]
+INSTALL_REQUIRES = [
+    'matplotlib<3' if sys.version_info.major < 3 else 'matplotlib~=3.1',
+    'requests~=2.21',
+]
 
 
 class PostInstallCommand(install):
