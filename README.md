@@ -4,6 +4,9 @@
 
 [![Build Status](https://travis-ci.org/andrzejnovak/mplhep.svg?branch=master)](https://travis-ci.org/andrzejnovak/mplhep) ![Hits](https://countimports.pythonanywhere.com/nocount/tag.svg?url=count_mplhep_imports)
 
+[![PyPI version](https://badge.fury.io/py/mplhep.svg)](https://badge.fury.io/py/mplhep)
+[![Supported Python versions](https://img.shields.io/pypi/pyversions/mplhep.svg)](https://pypi.org/project/mplhep/)
+
 A set of helpers for `matplotlib` to more easily produce plots typically
 needed in HEP as well as style them in way that's compatible with current
 collaboration requirements (ROOT).
