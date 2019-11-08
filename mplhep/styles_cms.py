@@ -56,7 +56,7 @@ ROOT = {
 
     "savefig.transparent": False,
 
-    }
+}
 
 ROOTtex = {
     "text.usetex": True,

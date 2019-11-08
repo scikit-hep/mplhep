@@ -48,11 +48,11 @@ def histplot(h, bins, weights=None, yerr=None,
         h = h[0]
 
     if label is None:
-        _labels = [None]*_nh
+        _labels = [None] * _nh
     elif isinstance(label, str):
-        _labels = [label]*_nh
+        _labels = [label] * _nh
     elif not np.iterable(label):
-        _labels = [str(label)]*_nh
+        _labels = [str(label)] * _nh
     else:
         _labels = [str(lab) for lab in label]
 
@@ -165,7 +165,7 @@ def histplot(h, bins, weights=None, yerr=None,
     ax.set_ylim(ymin if np.min(h) < 0 else 0, None)
 
     if binticks:
-        _slice = int(round(float(len(bins))/len(ax.get_xticks())))+1
+        _slice = int(round(float(len(bins)) / len(ax.get_xticks()))) + 1
         ax.set_xticks(bins[::_slice])
 
     return ax
@@ -179,9 +179,9 @@ def hist2dplot(H, xbins=None, ybins=None, weights=None,
         ax = plt.gca()
 
     if xbins is None:
-        xbins = np.arange(H.shape[1]+1)
+        xbins = np.arange(H.shape[1] + 1)
     if ybins is None:
-        ybins = np.arange(H.shape[0]+1)
+        ybins = np.arange(H.shape[0] + 1)
 
     if cmin is not None:
         H[H < cmin] = None
@@ -220,8 +220,8 @@ def rescale_to_axessize(ax, w, h):
     r = ax.figure.subplotpars.right
     t = ax.figure.subplotpars.top
     b = ax.figure.subplotpars.bottom
-    figw = float(w)/(r-left)
-    figh = float(h)/(t-b)
+    figw = float(w) / (r - left)
+    figh = float(h) / (t - b)
     ax.figure.set_size_inches(figw, figh)
 
 
@@ -314,7 +314,7 @@ def append_axes(ax, size=0.1, pad=0.1, position="right"):
         for itax in ax.figure.axes:
             new_size += itax.get_position().size
 
-        return new_size/orig_size
+        return new_size / orig_size
 
     if position in ["right"]:
         divider.set_horizontal([axes_size.Fixed(width)] + xsizes)

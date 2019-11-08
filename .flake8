@@ -1,2 +1,16 @@
 [flake8]
+# E124: closing bracket does not match visual indentation
+# E126: continuation line over-indented for hanging indent
+# F401: some imports are used by code which is dynamically loaded <- check again later
+# F403: ‘from module import *’ used; unable to detect undefined names
+# F405: name may be undefined, or defined from star imports: module
+# Ignoring the next one for valid tests
+# F811: redefinition of unused name from line N
+# This one is bad. Sometimes ordering matters, conditional imports
+# setting env vars necessary etc.
+# E402: module level import not at top of file
+# E129: Visual indent to not match indent as next line, counter eg here:
+# https://github.com/PyCQA/pycodestyle/issues/386
+# W504: Raised by flake8 even when it is followed
 max-line-length = 88
+ignore = E402
