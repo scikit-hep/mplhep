@@ -63,8 +63,8 @@ def histplot(h, bins, weights=None, yerr=None,
 
     _bin_widths = np.diff(bins)
     if density:
-        _norm = (np.sum(h, axis=1 if h.ndim > 1 else 0)
-                 / (np.ones_like(h) * _bin_widths).T).T
+        _norm = (np.sum(h, axis=1 if h.ndim > 1 else 0) /
+                 (np.ones_like(h) * _bin_widths).T).T
         h = h / _norm
 
     if yerr is not None:
@@ -150,7 +150,7 @@ def histplot(h, bins, weights=None, yerr=None,
                     _h = h[i]
                 ax.fill_between(bins, _h, step=_where,
                                 label=_labels[i], **kwargs)
-       
+
     elif histtype == 'errorbar':
         if _nh == 1:
             ax.errorbar(_bin_centers, h, yerr=_yerr, ls='none',
