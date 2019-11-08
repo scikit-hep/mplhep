@@ -150,6 +150,15 @@ def histplot(h, bins, weights=None, yerr=None,
                     _h = h[i]
                 ax.fill_between(bins, _h, step=_where,
                                 label=_labels[i], **kwargs)
+       
+    elif histtype == 'errorbar':
+        if _nh == 1:
+            ax.errorbar(_bin_centers, h, yerr=_yerr, ls='none',
+                        label=_labels[0], **kwargs)
+        else:
+            for i in range(_nh):
+                ax.errorbar(_bin_centers, h[i], yerr=_yerr[i], ls='none',
+                            label=_labels[0], **kwargs)
 
     # Get current
     ymin, ymax = ax.get_ylim()

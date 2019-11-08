@@ -65,24 +65,28 @@ def cmstext(text="",
                   fontname=fontname
                   )
 
-    _xoff = cms.get_window_extent(
-                renderer=plt.gcf().canvas.get_renderer()).width*1.09
-    _yoff = cms.get_window_extent(
-                renderer=plt.gcf().canvas.get_renderer()).height
+    from matplotlib import transforms
+    cms.draw(ax.figure.canvas.get_renderer())
+
     if loc == 0:
-        _offset = (_xoff, 0)
+        _t = transforms.offset_copy(cms._transform,
+                                    x=cms.get_window_extent().width * 1.08,
+                                    units='dots')
     elif loc == 1:
-        _offset = (_xoff, -_yoff)
+        _t = transforms.offset_copy(cms._transform,
+                                    x=cms.get_window_extent().width * 1.08,
+                                    y=-cms.get_window_extent().height,
+                                    units='dots')
     elif loc == 2:
-        _offset = (0, -_yoff)
+        _t = transforms.offset_copy(cms._transform,
+                                    y=-cms.get_window_extent().height,
+                                    units='dots')
     elif loc == 3:
-        _offset = (0, 0)
+        _t = transforms.offset_copy(cms._transform, units='dots')
 
     ax.annotate(text,
                 xy=loc2_dict[loc]['xy'],
-                xycoords='axes fraction',
-                xytext=_offset,
-                textcoords='offset points',
+                xycoords=_t,
                 ha='left',
                 va=loc2_dict[loc]['va'],
                 fontsize=_font_size,
