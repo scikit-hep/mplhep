@@ -66,7 +66,7 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
 
     _bin_widths = np.diff(bins)
     _bin_centers = bins[1:] - _bin_widths / float(2)
-    
+
     if density:
         _norm = (np.sum(h, axis=1 if h.ndim > 1 else 0) /
                  (np.ones_like(h) * _bin_widths).T).T
