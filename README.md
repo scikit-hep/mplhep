@@ -30,8 +30,8 @@ helper functions.
 plt.style.use(hep.cms.style.ROOT)
 plt.style.use(hep.atlas.style.ATLAS)
 ```
-** If the default styles are not what you need, I'd be happy to merge in new styles or
-modify the current ones. **
+**If the default styles are not what you need, I'd be happy to merge in new styles or
+modify the current ones.**
 
 #### Minimal Example
 ```diff
