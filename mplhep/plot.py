@@ -88,14 +88,16 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
                                        "stacked plot"
                 _yerr = np.sqrt(h)
 
-    if variances is not None:
+    elif variances is not None:
         int_variances = np.around(variances).astype(int)
-        if np.all(np.isclose(variances, int_variances, 0.001)):
-            print('pois I')
+        if np.all(np.isclose(variances, int_variances, 0.000001)):
+            # If variances are integers (true data hist), calculate Garwood interval
             _yerr = np.abs(poisson_interval(h, variances) - h)
         else:
-            print('just sq')
+            # Variances to errors directly if specified previously
             _yerr = np.sqrt(variances)
+    else:
+        _yerr = None
 
     # Stack
     if stack and _nh > 1:
