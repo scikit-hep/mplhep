@@ -4,11 +4,13 @@ import numpy as np
 from matplotlib.transforms import Bbox
 from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
 
+from .error_estimation import poisson_interval
+
 
 ########################################
 # Histogram plotter
 
-def histplot(h, bins, weights=None, yerr=None,
+def histplot(h, bins, weights=None, yerr=None, variances=None,
              stack=False, density=False,
              histtype='step', label=None, edges=False, binticks=False,
              ax=None, **kwargs):
@@ -35,6 +37,7 @@ def histplot(h, bins, weights=None, yerr=None,
     assert bins.shape[0] == h.shape[-1] + 1, "len along main axis of h has "\
                                              "to be smaller by 1 than len "\
                                              "of bins"
+    assert variances is None or yerr is None, "Can only supply errors or variances"
 
     if h.ndim == 1:
         _nh = 1
@@ -62,22 +65,37 @@ def histplot(h, bins, weights=None, yerr=None,
         h = h * weights
 
     _bin_widths = np.diff(bins)
+    _bin_centers = bins[1:] - _bin_widths / float(2)
+    
     if density:
         _norm = (np.sum(h, axis=1 if h.ndim > 1 else 0) /
                  (np.ones_like(h) * _bin_widths).T).T
         h = h / _norm
 
     if yerr is not None:
+        # yerr is array
         if hasattr(yerr, '__len__'):
             _yerr = np.asarray(yerr)
             if _yerr.ndim == 3 and len(_yerr) == 1:  # Unwrap if [[1,2,3]]
                 _yerr = _yerr[0][0]
+        # yerr is a number
+        elif isinstance(yerr, (int, float)) and not isinstance(yerr, bool):
+            _yerr = np.ones_like(h) * yerr
+        # yerr is automatic
         else:
             if yerr is True:
                 assert stack is False, "Automatic errorbars not defined for " \
-                                       " stacked plot"
+                                       "stacked plot"
                 _yerr = np.sqrt(h)
-        _bin_centers = bins[1:] - _bin_widths / 2
+
+    if variances is not None:
+        int_variances = np.around(variances).astype(int)
+        if np.all(np.isclose(variances, int_variances, 0.001)):
+            print('pois I')
+            _yerr = np.abs(poisson_interval(h, variances) - h)
+        else:
+            print('just sq')
+            _yerr = np.sqrt(variances)
 
     # Stack
     if stack and _nh > 1:
@@ -107,7 +125,7 @@ def histplot(h, bins, weights=None, yerr=None,
             _label = _labels[0]
             _step_label = _label if yerr is None else None
             _s, = ax.step(_bins, _h, where=_where, label=_step_label, **kwargs)
-            if yerr is not None:
+            if yerr is not None or variances is not None:
                 ax.errorbar(_bin_centers, h, yerr=_yerr, color=_s.get_color(),
                             ls='none', **kwargs)
                 ax.errorbar([], [], yerr=1, xerr=1, color=_s.get_color(),
@@ -129,7 +147,7 @@ def histplot(h, bins, weights=None, yerr=None,
                 _step_label = _label if yerr is None else None
                 _s, = ax.step(_bins, _h, where=_where, label=_step_label,
                               **kwargs)
-                if yerr is not None:
+                if yerr is not None or variances is not None:
                     ax.errorbar(_bin_centers, h[i], yerr=_yerr[i],
                                 color=_s.get_color(), ls='none', **kwargs)
                     ax.errorbar([], [], yerr=1, xerr=1, color=_s.get_color(),
