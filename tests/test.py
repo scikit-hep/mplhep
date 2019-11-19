@@ -68,7 +68,7 @@ def test_histplot_multiple():
 
     axs[3].set_title("With Labels", fontsize=18)
     hep.histplot([h, 1.5 * h], bins, yerr=True, ax=axs[3], label=["First", "Second"])
-    # axs[3].legend(fontsize=16)
+    axs[3].legend(fontsize=16, prop={'family': 'Tex Gyre Heros'})
 
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
     return fig
