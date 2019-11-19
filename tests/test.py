@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 import mplhep as hep
 
+plt.switch_backend("Agg")
 
 @pytest.mark.mpl_image_compare(style='default', remove_text=True)
 def test_basic():
