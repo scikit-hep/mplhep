@@ -2,7 +2,9 @@
   <img src="https://raw.githubusercontent.com/andrzejnovak/mplhep/master/img/mplhep.png" width="300"/>
 </p>
 
-[![Build Status](https://travis-ci.org/andrzejnovak/mplhep.svg?branch=master)](https://travis-ci.org/andrzejnovak/mplhep) ![Hits](https://countimports.pythonanywhere.com/nocount/tag.svg?url=count_mplhep_imports)
+[![Build Status](https://travis-ci.org/andrzejnovak/mplhep.svg?branch=master)](https://travis-ci.org/andrzejnovak/mplhep)
+[![GitHub Actions Status: CI](https://github.com/andrzejnovak/mplhep/workflows/CI/CD/badge.svg)](https://github.com/andrzejnovak/mplhep/actions?query=workflow%3ACI%2FCD+branch%3Amaster)
+![Hits](https://countimports.pythonanywhere.com/nocount/tag.svg?url=count_mplhep_imports)
 
 [![PyPI version](https://badge.fury.io/py/mplhep.svg)](https://badge.fury.io/py/mplhep)
 [![Supported Python versions](https://img.shields.io/pypi/pyversions/mplhep.svg)](https://pypi.org/project/mplhep/)
