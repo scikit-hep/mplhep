@@ -14,10 +14,11 @@ addons:
 
 script:
 - python setup.py flake8
+- pytest --mpl
 
 install:
 - pip -q install --upgrade setuptools setuptools_scm
-- pip -q install matplotlib pytest flake8 --upgrade
+- pip -q install matplotlib pytest flake8 pytest-mpl --upgrade
 
 
 deploy:
