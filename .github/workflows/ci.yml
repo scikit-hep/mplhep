@@ -1,0 +1,36 @@
+name: CI/CD
+
+on:
+  push:
+  pull_request:
+  # Run daily at 0:01 UTC
+  schedule:
+  - cron:  '1 0 * * *'
+
+jobs:
+  test:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest]
+        python-version: [3.6, 3.7]
+
+    steps:
+    - uses: actions/checkout@master
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel
+        python -m pip install -q --no-cache-dir -e .[complete]
+        python -m pip list
+    - name: Lint with flake8
+      if: matrix.python-version == 3.7 && matrix.os == 'ubuntu-latest'
+      run: |
+        flake8 mplhep
+    - name: Test with pytest
+      run: |
+        python -m pytest -r sx --mpl

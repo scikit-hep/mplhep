@@ -2,7 +2,6 @@ language: python
 os:
 - linux
 python:
-- 3.6
 - 3.7
 - 2.7
 
@@ -17,9 +16,8 @@ script:
 - pytest --mpl
 
 install:
-- pip -q install --upgrade setuptools setuptools_scm
-- pip -q install matplotlib scipy pytest flake8 pytest-mpl --upgrade
-- pip -q install .
+- python -m pip install -q --upgrade pip setuptools wheel setuptools_scm
+- python -m pip install -q --no-cache-dir -e .[complete]
 
 
 deploy:

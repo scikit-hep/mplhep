@@ -9,6 +9,12 @@ INSTALL_REQUIRES = [
     'requests~=2.21',
 ]
 
+extras_require = {
+    'test': ['pytest', 'pytest-mpl'],
+    'develop': ['flake8', 'twine'],
+}
+extras_require['complete'] = sorted(set(sum(extras_require.values(), [])))
+
 
 class PostInstallCommand(install):
     # Currently disabled, done on the fly
@@ -52,6 +58,7 @@ setup(
     ],
     python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*",
     install_requires=INSTALL_REQUIRES,
+    extras_require=extras_require,
     # packages=find_packages(exclude=['tests']),
     # cmdclass= {'install': PostInstallCommand}, # Currently disabled
     packages=['mplhep'],
