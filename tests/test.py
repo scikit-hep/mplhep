@@ -4,6 +4,14 @@ import matplotlib.pyplot as plt
 
 import mplhep as hep
 
+"""
+To test run:
+py.test --mpl
+
+When adding new tests, run:
+py.test --mpl-generate-path=tests/baseline
+"""
+
 plt.switch_backend("Agg")
 
 @pytest.mark.mpl_image_compare(style='default', remove_text=True)
