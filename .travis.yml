@@ -18,7 +18,7 @@ script:
 
 install:
 - pip -q install --upgrade setuptools setuptools_scm
-- pip -q install matplotlib pytest flake8 pytest-mpl --upgrade
+- pip -q install matplotlib scipy pytest flake8 pytest-mpl --upgrade
 - pip -q install .
 
 
