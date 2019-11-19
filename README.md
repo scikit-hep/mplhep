@@ -6,6 +6,8 @@
 [![GitHub Actions Status: CI](https://github.com/andrzejnovak/mplhep/workflows/CI/CD/badge.svg)](https://github.com/andrzejnovak/mplhep/actions?query=workflow%3ACI%2FCD+branch%3Amaster)
 ![Hits](https://countimports.pythonanywhere.com/nocount/tag.svg?url=count_mplhep_imports)
 
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/andrzejnovak/mplhep/master)
+
 [![PyPI version](https://badge.fury.io/py/mplhep.svg)](https://badge.fury.io/py/mplhep)
 [![Supported Python versions](https://img.shields.io/pypi/pyversions/mplhep.svg)](https://pypi.org/project/mplhep/)
 
