@@ -96,3 +96,11 @@ def test_histplot_stack():
 
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
     return fig
+
+
+@pytest.mark.mpl_image_compare(style='default', remove_text=True)
+def test_cmslabel():
+    plt.style.use(hep.style.ROOT)
+    fig, ax = plt.subplots(figsize=(10, 10))
+    hep.cms.cmslabel(ax)
+    return fig
