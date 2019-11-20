@@ -177,10 +177,10 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
 
     elif histtype == 'errorbar':
         err_defaults = {
-                'linestyle':'none',
-                'marker': '.',
-                'markersize': 10.,
-                'elinewidth': 1,
+            'linestyle': 'none',
+            'marker': '.',
+            'markersize': 10.,
+            'elinewidth': 1,
         }
         if _yerr is None:
             _yerr = np.zeros_like(h)
