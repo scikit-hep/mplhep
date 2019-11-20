@@ -102,6 +102,7 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
     # Stack
     if stack and _nh > 1:
         h = np.cumsum(h, axis=0)[::-1]
+        _labels = _labels[::-1]
 
     if not _mpl_up:
         _where = 'post'
