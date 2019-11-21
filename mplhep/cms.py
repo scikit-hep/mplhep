@@ -56,7 +56,7 @@ def cmstext(text="",
         _cms_loc = 0
     else:
         _cms_loc = 1
-    cms = ax.text(*loc1_dict[_cms_loc]['xy'], s="CMS",
+    cms = ax.text(*loc1_dict[_cms_loc]['xy'], s="ABC",
                   transform=ax.transAxes,
                   ha='left',
                   va=loc1_dict[_cms_loc]['va'],
