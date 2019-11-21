@@ -30,6 +30,9 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
     # arg check
     if histtype != 'step':
         assert edges is False, "edges is only valid with histtype='step'"
+    _allowed_histtype = ['fill', 'step', 'errorbar']
+    _err_message = "Select 'histtype' from: {}".format(_allowed_histtype)
+    assert histtype in _allowed_histtype, _err_message
     # Preprocess
     h = np.asarray(h)
     bins = np.asarray(bins)
@@ -173,6 +176,17 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
                                 label=_labels[i], **kwargs)
 
     elif histtype == 'errorbar':
+        err_defaults = {
+            'linestyle': 'none',
+            'marker': '.',
+            'markersize': 10.,
+            'elinewidth': 1,
+        }
+        if _yerr is None:
+            _yerr = np.zeros_like(h)
+        for k, v in err_defaults.items():
+            if k not in kwargs.keys():
+                kwargs[k] = v
         if _nh == 1:
             ax.errorbar(_bin_centers, h, yerr=_yerr, ls='none',
                         label=_labels[0], **kwargs)
@@ -183,7 +197,7 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
 
     # Get current
     ymin, ymax = ax.get_ylim()
-    ax.set_ylim(ymin if np.min(h) < 0 else 0, None)
+    ax.set_ylim(ymin if np.min(h) < 0 else 0, ymax)
 
     if binticks:
         _slice = int(round(float(len(bins)) / len(ax.get_xticks()))) + 1
