@@ -50,6 +50,30 @@ def test_histplot():
 
 
 @pytest.mark.mpl_image_compare(style='default', remove_text=True)
+def test_histplot_density():
+    np.random.seed(0)
+    h, bins = np.histogram(np.random.normal(10, 3, 400), bins=10)
+
+    fig, axs = plt.subplots(2, 2, sharex=True, sharey=True, figsize=(10, 10))
+    axs = axs.flatten()
+
+    axs[0].set_title("Default", fontsize=18)
+    hep.histplot(h, bins, ax=axs[0], density=True)
+
+    axs[1].set_title("Plot Edges", fontsize=18)
+    hep.histplot(h, bins, edges=True, ax=axs[1], density=True)
+
+    axs[2].set_title("Plot Errorbars", fontsize=18)
+    hep.histplot(h, bins, yerr=np.sqrt(h), ax=axs[2], density=True)
+
+    axs[3].set_title("Filled Histogram", fontsize=18)
+    hep.histplot(h, bins, histtype='fill', ax=axs[3], density=True)
+
+    fig.subplots_adjust(hspace=0.1, wspace=0.1)
+    return fig
+
+
+@pytest.mark.mpl_image_compare(style='default', remove_text=True)
 def test_histplot_multiple():
     np.random.seed(0)
     h, bins = np.histogram(np.random.normal(10, 3, 400), bins=10)

@@ -70,11 +70,6 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
     _bin_widths = np.diff(bins)
     _bin_centers = bins[1:] - _bin_widths / float(2)
 
-    if density:
-        _norm = (np.sum(h, axis=1 if h.ndim > 1 else 0) /
-                 (np.ones_like(h) * _bin_widths).T).T
-        h = h / _norm
-
     if yerr is not None:
         # yerr is array
         if hasattr(yerr, '__len__'):
@@ -101,6 +96,14 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
             _yerr = np.sqrt(variances)
     else:
         _yerr = None
+
+    if density:
+        _norm = (np.sum(h, axis=1 if h.ndim > 1 else 0) /
+                (np.ones_like(h) * _bin_widths).T).T
+        h = h / _norm
+
+        if _yerr is not None:
+            _yerr /= _norm
 
     # Stack
     if stack and _nh > 1:
