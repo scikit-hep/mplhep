@@ -99,7 +99,7 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
 
     if density:
         _norm = (np.sum(h, axis=1 if h.ndim > 1 else 0) /
-                (np.ones_like(h) * _bin_widths).T).T
+                 (np.ones_like(h) * _bin_widths).T).T
         h = h / _norm
 
         if _yerr is not None:
