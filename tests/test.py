@@ -122,7 +122,7 @@ def test_histplot_stack():
     return fig
 
 
-@pytest.mark.mpl_image_compare(style='default', remove_text=True, tolerance=0)
+@pytest.mark.mpl_image_compare(style='default', remove_text=True, tolerance=2)
 def test_cmslabel():
     plt.style.use(hep.style.ROOT)
     fig, ax = plt.subplots(figsize=(10, 10), dpi=72)
