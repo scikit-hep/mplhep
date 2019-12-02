@@ -1,8 +1,8 @@
 <p float="left">
-  <img src="https://raw.githubusercontent.com/andrzejnovak/mplhep/master/img/mplhep.png" width="300"/>
+  <img src="https://raw.githubusercontent.com/scikit-hep/mplhep/master/img/mplhep.png" width="300"/>
 </p>
 
-[![Build Status](https://travis-ci.org/andrzejnovak/mplhep.svg?branch=master)](https://travis-ci.org/andrzejnovak/mplhep)
+[![Build Status](https://travis-ci.org/scikit-hep/mplhep.svg?branch=master)](https://travis-ci.org/scikit-hep/mplhep)
 [![GitHub Actions Status: CI](https://github.com/andrzejnovak/mplhep/workflows/CI/CD/badge.svg)](https://github.com/andrzejnovak/mplhep/actions?query=workflow%3ACI%2FCD+branch%3Amaster)
 ![Hits](https://countimports.pythonanywhere.com/nocount/tag.svg?url=count_mplhep_imports)
 
