@@ -71,18 +71,18 @@ def cmstext(text="",
     if loc == 0:
         _t = transforms.offset_copy(cms._transform,
                                     x=cms.get_window_extent().width * 1.08,
-                                    units='dots')
+                                    units='points', fig=ax.figure)
     elif loc == 1:
         _t = transforms.offset_copy(cms._transform,
                                     x=cms.get_window_extent().width * 1.08,
                                     y=-cms.get_window_extent().height,
-                                    units='dots')
+                                    units='points', fig=ax.figure)
     elif loc == 2:
         _t = transforms.offset_copy(cms._transform,
                                     y=-cms.get_window_extent().height,
-                                    units='dots')
+                                    units='points', fig=ax.figure)
     elif loc == 3:
-        _t = transforms.offset_copy(cms._transform, units='dots')
+        _t = transforms.offset_copy(cms._transform, units='inches', fig=ax.figure)
 
     ax.annotate(text,
                 xy=loc2_dict[loc]['xy'],
