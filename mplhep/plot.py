@@ -243,6 +243,35 @@ def hist2dplot(H, xbins=None, ybins=None, weights=None,
     return H, xbins, ybins, pc
 
 
+#############################################
+# Utils
+def r_align(ax=None):
+    """
+    Align axes labels to the right
+    """
+    if ax is None:
+        ax = plt.gca()
+
+    ax.set_xlabel(ax.get_xlabel(), ha='right', x=1)
+    ax.set_ylabel(ax.get_ylabel(), ha='right', y=1)
+
+    return ax
+
+
+def magic(ax=None):
+    """
+    Consolidate all ex-post style adjustments:
+        r_align
+        ...
+    """
+    if ax is None:
+        ax = plt.gca()
+
+    ax = r_align(ax)
+
+    return ax
+
+
 ########################################
 # Figure/axes helpers
 
