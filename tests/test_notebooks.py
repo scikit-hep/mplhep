@@ -1,6 +1,9 @@
+import os
 import sys
 import papermill as pm
 import pytest
+
+os.environ["RUNNING_PYTEST"] = "true"
 
 
 @pytest.fixture()

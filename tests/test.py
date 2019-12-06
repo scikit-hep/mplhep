@@ -1,8 +1,11 @@
+import os
 import pytest
 import matplotlib.pyplot as plt
 import numpy as np
 
-import mplhep as hep
+os.environ["RUNNING_PYTEST"] = "true"
+
+import mplhep as hep # noqa
 
 """
 To test run:
