@@ -258,7 +258,60 @@ def r_align(ax=None):
     return ax
 
 
-def magic(ax=None):
+def ylow(ax=None, ylow=None):
+    """
+    Set lower y limit to 0 if not data/errors go lower.
+    Or set a specific value
+    """
+    if ax is None:
+        ax = plt.gca()
+
+    if ylow is None:
+        from matplotlib.transforms import Bbox
+        from matplotlib.lines import Line2D
+        from matplotlib.patches import Patch, Rectangle
+        lines = []
+        bboxes = []
+
+        # From
+        # https://github.com/matplotlib/matplotlib/blob/08008d5cb4d1f27692e9aead9a76396adc8f0b19/lib/matplotlib/legend.py#L845
+        for handle in ax.lines:
+            assert isinstance(handle, Line2D)
+            path = handle.get_path()
+            lines.append(path)
+        for handle in ax.collections:
+            for path in handle.get_paths():
+                lines.append(path)
+        for handle in ax.patches:
+            assert isinstance(handle, Patch)
+
+            if isinstance(handle, Rectangle):
+                transform = handle.get_data_transform()
+                bboxes.append(handle.get_bbox().transformed(transform))
+            else:
+                transform = handle.get_transform()
+                bboxes.append(handle.get_path().get_extents(transform))
+
+        vertices = np.concatenate([l.vertices for l in lines])
+
+        # Check full figsize below 0
+        bbox = Bbox.from_bounds(0, 0,
+                                ax.get_window_extent().width,
+                                -ax.get_window_extent().height)
+
+        if bbox.count_contains(vertices) == 0:
+            ax.set_ylim(0, None)
+        else:
+            ymin_data = np.min(vertices[:, 1])
+            ax.set_ylim(np.min([ymin_data, ax.get_ylim()[0]]), None)
+
+    else:
+        ax.set_ylim(0, ax.get_ylim()[-1])
+
+    return ax
+
+
+def cms_magic(ax=None):
     """
     Consolidate all ex-post style adjustments:
         r_align
@@ -268,6 +321,7 @@ def magic(ax=None):
         ax = plt.gca()
 
     ax = r_align(ax)
+    ax = ylow(ax)
 
     return ax
 
@@ -406,6 +460,24 @@ def append_axes(ax, size=0.1, pad=0.1, position="right"):
 
 ####################
 # Legend Helpers
+
+
+def hist_legend(ax=None, **kwargs):
+    from matplotlib.lines import Line2D
+    if ax is None:
+        ax = plt.gca()
+
+    handles, labels = ax.get_legend_handles_labels()
+    new_handles = [
+        Line2D([], [], c=h.get_edgecolor()) if type(h) == mpl.patches.Polygon else h
+        for h in handles
+    ]
+    ax.legend(handles=new_handles[::-1],
+              labels=labels[::-1],
+              **kwargs
+              )
+
+    return ax
 
 
 def sort_legend(ax, order=None):
