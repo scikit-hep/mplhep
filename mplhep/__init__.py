@@ -14,7 +14,7 @@ from . import styles as style
 from .plot import (
     histplot,
     hist2dplot,
-    magic,
+    cms_magic,
     r_align,
     rescale_to_axessize,
     box_aspect,
@@ -38,7 +38,7 @@ __all__ = [cms, atlas, plot, style, tools,
            # Log plot functions
            'histplot',
            'hist2dplot',
-           'magic',
+           'cms_magic',
            'r_align',
            'rescale_to_axessize',
            'box_aspect',
