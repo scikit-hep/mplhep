@@ -258,6 +258,74 @@ def r_align(ax=None):
     return ax
 
 
+def overlap(ax, bbox, get_vertices=False):
+    """
+    Find overlap of bbox for drawn elements an axes.
+    """
+    from matplotlib.lines import Line2D
+    from matplotlib.patches import Patch, Rectangle
+    # From
+    # https://github.com/matplotlib/matplotlib/blob/08008d5cb4d1f27692e9aead9a76396adc8f0b19/lib/matplotlib/legend.py#L845
+    lines = []
+    bboxes = []
+    for handle in ax.lines:
+        assert isinstance(handle, Line2D)
+        path = handle.get_path()
+        lines.append(path)
+    for handle in ax.collections:
+        for path in handle.get_paths():
+            lines.append(path.interpolated(20))
+
+    for handle in ax.patches:
+        assert isinstance(handle, Patch)
+
+        if isinstance(handle, Rectangle):
+            transform = handle.get_data_transform()
+            bboxes.append(handle.get_bbox().transformed(transform))
+        else:
+            transform = handle.get_transform()
+            bboxes.append(handle.get_path().get_extents(transform))
+
+    # TODO Possibly other objects
+
+    vertices = np.concatenate([l.vertices for l in lines])
+    tvertices = [ax.transData.transform(v) for v in vertices]
+
+    overlap = bbox.count_contains(tvertices) + bbox.count_overlaps(bboxes)
+
+    if get_vertices:
+        return overlap, vertices
+    else:
+        return overlap
+
+
+def _draw_leg_bbox(ax):
+    """
+    Draw legend() and fetch it's bbox
+    """
+    fig = ax.figure
+    leg = ax.get_legend()
+
+    fig.canvas.draw()
+    bbox = leg.get_frame().get_bbox()
+
+    return ax, bbox
+
+
+def yscale_legend(ax=None):
+    """
+    Automatically scale y-axis up to fit in legend()
+    """
+    if ax is None:
+        ax = plt.gca()
+
+    while overlap(*_draw_leg_bbox(ax)) > 0:
+        ax = plt.gca()
+        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[-1] * 1.05)
+        ax.figure.canvas.draw()
+    return ax
+
+
 def ylow(ax=None, ylow=None):
     """
     Set lower y limit to 0 if not data/errors go lower.
@@ -267,43 +335,15 @@ def ylow(ax=None, ylow=None):
         ax = plt.gca()
 
     if ylow is None:
-        from matplotlib.transforms import Bbox
-        from matplotlib.lines import Line2D
-        from matplotlib.patches import Patch, Rectangle
-        lines = []
-        bboxes = []
-
-        # From
-        # https://github.com/matplotlib/matplotlib/blob/08008d5cb4d1f27692e9aead9a76396adc8f0b19/lib/matplotlib/legend.py#L845
-        for handle in ax.lines:
-            assert isinstance(handle, Line2D)
-            path = handle.get_path()
-            lines.append(path)
-        for handle in ax.collections:
-            for path in handle.get_paths():
-                lines.append(path)
-        for handle in ax.patches:
-            assert isinstance(handle, Patch)
-
-            if isinstance(handle, Rectangle):
-                transform = handle.get_data_transform()
-                bboxes.append(handle.get_bbox().transformed(transform))
-            else:
-                transform = handle.get_transform()
-                bboxes.append(handle.get_path().get_extents(transform))
-
-        vertices = np.concatenate([l.vertices for l in lines])
-
         # Check full figsize below 0
         bbox = Bbox.from_bounds(0, 0,
                                 ax.get_window_extent().width,
                                 -ax.get_window_extent().height)
-
-        if bbox.count_contains(vertices) == 0:
+        if overlap(ax, bbox) == 0:
             ax.set_ylim(0, None)
         else:
-            ymin_data = np.min(vertices[:, 1])
-            ax.set_ylim(np.min([ymin_data, ax.get_ylim()[0]]), None)
+            ydata = overlap(ax, bbox, get_vertices=True)[1][:, 1]
+            ax.set_ylim(np.min([np.min(ydata), ax.get_ylim()[0]]), None)
 
     else:
         ax.set_ylim(0, ax.get_ylim()[-1])
@@ -311,17 +351,23 @@ def ylow(ax=None, ylow=None):
     return ax
 
 
-def cms_magic(ax=None):
+def cms_magic(ax=None, suppress=True):
     """
     Consolidate all ex-post style adjustments:
         r_align
-        ...
+        ylow
+        yscale_legend
     """
     if ax is None:
         ax = plt.gca()
+    if not suppress:
+        print("Running the following adjustments (hide with suppress=True):")
+        print("Align axis labels right. Set ylow=0 if not data below. Scale"
+              "y-axis up to fit legend.")
 
     ax = r_align(ax)
     ax = ylow(ax)
+    ax = yscale_legend(ax)
 
     return ax
 
