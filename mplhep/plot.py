@@ -351,7 +351,7 @@ def ylow(ax=None, ylow=None):
     return ax
 
 
-def cms_magic(ax=None, suppress=True):
+def mpl_magic(ax=None, info=True):
     """
     Consolidate all ex-post style adjustments:
         r_align
@@ -360,10 +360,8 @@ def cms_magic(ax=None, suppress=True):
     """
     if ax is None:
         ax = plt.gca()
-    if not suppress:
-        print("Running the following adjustments (hide with suppress=True):")
-        print("Align axis labels right. Set ylow=0 if not data below. Scale"
-              "y-axis up to fit legend.")
+    if not info:
+        print("Running ROOT/CMS style adjustments (hide with info=False):")
 
     ax = r_align(ax)
     ax = ylow(ax)
