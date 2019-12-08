@@ -14,8 +14,12 @@ from . import styles as style
 from .plot import (
     histplot,
     hist2dplot,
-    cms_magic,
+
+    mpl_magic,
     r_align,
+    yscale_legend,
+    ylow,
+
     rescale_to_axessize,
     box_aspect,
     make_square_add_cbar,
@@ -38,8 +42,12 @@ __all__ = [cms, atlas, plot, style, tools,
            # Log plot functions
            'histplot',
            'hist2dplot',
-           'cms_magic',
+
+           'mpl_magic',
            'r_align',
+           'yscale_legend',
+           'ylow',
+
            'rescale_to_axessize',
            'box_aspect',
            'make_square_add_cbar',
