@@ -15,7 +15,7 @@ from .plot import (
     histplot,
     hist2dplot,
 
-    cms_magic,
+    mpl_magic,
     r_align,
     yscale_legend,
     ylow,
@@ -43,7 +43,7 @@ __all__ = [cms, atlas, plot, style, tools,
            'histplot',
            'hist2dplot',
 
-           'cms_magic',
+           'mpl_magic',
            'r_align',
            'yscale_legend',
            'ylow',

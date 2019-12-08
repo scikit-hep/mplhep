@@ -82,7 +82,7 @@ def cmstext(text="",
                                     y=-cms.get_window_extent().height,
                                     units='points', fig=ax.figure)
     elif loc == 3:
-        _t = transforms.offset_copy(cms._transform, units='inches', fig=ax.figure)
+        _t = transforms.offset_copy(cms._transform, units='points', fig=ax.figure)
 
     ax.annotate(text,
                 xy=loc2_dict[loc]['xy'],
