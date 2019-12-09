@@ -67,22 +67,23 @@ def cmstext(text="",
 
     from matplotlib import transforms
     cms.draw(ax.figure.canvas.get_renderer())
+    _dpi = ax.figure.dpi
 
     if loc == 0:
         _t = transforms.offset_copy(cms._transform,
-                                    x=cms.get_window_extent().width * 1.08,
-                                    units='points', fig=ax.figure)
+                                    x=cms.get_window_extent().width / _dpi * 1.08,
+                                    units='inches', fig=ax.figure)
     elif loc == 1:
         _t = transforms.offset_copy(cms._transform,
-                                    x=cms.get_window_extent().width * 1.08,
-                                    y=-cms.get_window_extent().height,
-                                    units='points', fig=ax.figure)
+                                    x=cms.get_window_extent().width / _dpi * 1.08,
+                                    y=-cms.get_window_extent().height / _dpi,
+                                    units='inches', fig=ax.figure)
     elif loc == 2:
         _t = transforms.offset_copy(cms._transform,
-                                    y=-cms.get_window_extent().height,
-                                    units='points', fig=ax.figure)
+                                    y=-cms.get_window_extent().height / _dpi,
+                                    units='inches', fig=ax.figure)
     elif loc == 3:
-        _t = transforms.offset_copy(cms._transform, units='points', fig=ax.figure)
+        _t = transforms.offset_copy(cms._transform, units='inches', fig=ax.figure)
 
     ax.annotate(text,
                 xy=loc2_dict[loc]['xy'],
