@@ -14,6 +14,12 @@ from . import styles as style
 from .plot import (
     histplot,
     hist2dplot,
+
+    mpl_magic,
+    r_align,
+    yscale_legend,
+    ylow,
+
     rescale_to_axessize,
     box_aspect,
     make_square_add_cbar,
@@ -36,6 +42,12 @@ __all__ = [cms, atlas, plot, style, tools,
            # Log plot functions
            'histplot',
            'hist2dplot',
+
+           'mpl_magic',
+           'r_align',
+           'yscale_legend',
+           'ylow',
+
            'rescale_to_axessize',
            'box_aspect',
            'make_square_add_cbar',
@@ -47,7 +59,8 @@ __all__ = [cms, atlas, plot, style, tools,
 # Check if CI
 istravis = os.environ.get('TRAVIS') == 'true'
 isactions = os.environ.get('GITHUB_ACTIONS') == 'true'
-if not (istravis | isactions):
+istests = os.environ.get('RUNNING_PYTEST') == 'true'
+if not (istravis | isactions | istests):
     try:
         __ping__ = req.get("https://countimports.pythonanywhere.com/"
                            "count/tag.svg?url=count_mplhep_imports",

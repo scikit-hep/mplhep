@@ -243,6 +243,133 @@ def hist2dplot(H, xbins=None, ybins=None, weights=None,
     return H, xbins, ybins, pc
 
 
+#############################################
+# Utils
+def r_align(ax=None):
+    """
+    Align axes labels to the right
+    """
+    if ax is None:
+        ax = plt.gca()
+
+    ax.set_xlabel(ax.get_xlabel(), ha='right', x=1)
+    ax.set_ylabel(ax.get_ylabel(), ha='right', y=1)
+
+    return ax
+
+
+def overlap(ax, bbox, get_vertices=False):
+    """
+    Find overlap of bbox for drawn elements an axes.
+    """
+    from matplotlib.lines import Line2D
+    from matplotlib.patches import Patch, Rectangle
+    # From
+    # https://github.com/matplotlib/matplotlib/blob/08008d5cb4d1f27692e9aead9a76396adc8f0b19/lib/matplotlib/legend.py#L845
+    lines = []
+    bboxes = []
+    for handle in ax.lines:
+        assert isinstance(handle, Line2D)
+        path = handle.get_path()
+        lines.append(path)
+    for handle in ax.collections:
+        for path in handle.get_paths():
+            lines.append(path.interpolated(20))
+
+    for handle in ax.patches:
+        assert isinstance(handle, Patch)
+
+        if isinstance(handle, Rectangle):
+            transform = handle.get_data_transform()
+            bboxes.append(handle.get_bbox().transformed(transform))
+        else:
+            transform = handle.get_transform()
+            bboxes.append(handle.get_path().get_extents(transform))
+
+    # TODO Possibly other objects
+
+    vertices = np.concatenate([l.vertices for l in lines])
+    tvertices = [ax.transData.transform(v) for v in vertices]
+
+    overlap = bbox.count_contains(tvertices) + bbox.count_overlaps(bboxes)
+
+    if get_vertices:
+        return overlap, vertices
+    else:
+        return overlap
+
+
+def _draw_leg_bbox(ax):
+    """
+    Draw legend() and fetch it's bbox
+    """
+    fig = ax.figure
+    leg = ax.get_legend()
+
+    fig.canvas.draw()
+    bbox = leg.get_frame().get_bbox()
+
+    return ax, bbox
+
+
+def yscale_legend(ax=None):
+    """
+    Automatically scale y-axis up to fit in legend()
+    """
+    if ax is None:
+        ax = plt.gca()
+
+    while overlap(*_draw_leg_bbox(ax)) > 0:
+        ax = plt.gca()
+        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[-1] * 1.05)
+        ax.figure.canvas.draw()
+    return ax
+
+
+def ylow(ax=None, ylow=None):
+    """
+    Set lower y limit to 0 if not data/errors go lower.
+    Or set a specific value
+    """
+    if ax is None:
+        ax = plt.gca()
+
+    if ylow is None:
+        # Check full figsize below 0
+        bbox = Bbox.from_bounds(0, 0,
+                                ax.get_window_extent().width,
+                                -ax.get_window_extent().height)
+        if overlap(ax, bbox) == 0:
+            ax.set_ylim(0, None)
+        else:
+            ydata = overlap(ax, bbox, get_vertices=True)[1][:, 1]
+            ax.set_ylim(np.min([np.min(ydata), ax.get_ylim()[0]]), None)
+
+    else:
+        ax.set_ylim(0, ax.get_ylim()[-1])
+
+    return ax
+
+
+def mpl_magic(ax=None, info=True):
+    """
+    Consolidate all ex-post style adjustments:
+        r_align
+        ylow
+        yscale_legend
+    """
+    if ax is None:
+        ax = plt.gca()
+    if not info:
+        print("Running ROOT/CMS style adjustments (hide with info=False):")
+
+    ax = r_align(ax)
+    ax = ylow(ax)
+    ax = yscale_legend(ax)
+
+    return ax
+
+
 ########################################
 # Figure/axes helpers
 
@@ -377,6 +504,24 @@ def append_axes(ax, size=0.1, pad=0.1, position="right"):
 
 ####################
 # Legend Helpers
+
+
+def hist_legend(ax=None, **kwargs):
+    from matplotlib.lines import Line2D
+    if ax is None:
+        ax = plt.gca()
+
+    handles, labels = ax.get_legend_handles_labels()
+    new_handles = [
+        Line2D([], [], c=h.get_edgecolor()) if type(h) == mpl.patches.Polygon else h
+        for h in handles
+    ]
+    ax.legend(handles=new_handles[::-1],
+              labels=labels[::-1],
+              **kwargs
+              )
+
+    return ax
 
 
 def sort_legend(ax, order=None):
