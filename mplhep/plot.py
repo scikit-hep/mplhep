@@ -6,6 +6,10 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
 
 from .error_estimation import poisson_interval
 
+# mpl updated to new methods
+from packaging import version
+_mpl_up_version = '3.3.3'
+_mpl_up = version.parse(mpl.__version__) >= version.parse(_mpl_up_version)
 
 ########################################
 # Histogram plotter
@@ -20,12 +24,6 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
     else:
         if not isinstance(ax, plt.Axes):
             raise ValueError("ax must be a matplotlib Axes object")
-
-    # mpl updated to new methods
-    _mpl_up = np.prod([int(v) >= int(ref)
-                       for v, ref in zip(mpl.__version__.split('.')[:3],
-                                         [3, 3, 3])
-                       ]).astype(bool)
 
     # arg check
     if histtype != 'step':

@@ -7,6 +7,7 @@ INSTALL_REQUIRES = [
     'numpy>=1.16.0',
     'scipy>=1.1.0',
     'requests~=2.21',
+    'packaging',
 ]
 
 extras_require = {
