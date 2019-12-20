@@ -20,23 +20,37 @@ collaboration requirements (ROOT).
 ```
 pip install mplhep
 ```
-# Basic use
-
-## Styling
+# Getting Started
+### Styling
 ```
 import matplotlib.pyplot as plt
 import mplhep as hep
 plt.style.use(hep.style.ROOT)
 ```
-Styles are also included in experiment specific helpers along with other styling
-helper functions.
-```
-plt.style.use(hep.cms.style.ROOT)
-plt.style.use(hep.atlas.style.ATLAS)
-```
-**If the default styles are not what you need, I'd be happy to merge in new styles or
-modify the current ones.**
+Experiment specific style are also available. **If the default styles are not what you need, I'd be happy to merge in new styles or modify the current ones.**
 
+### Plotting
+#### 1D Histograms
+```
+h, bins = [2, 3, 2], [0, 1, 2, 3]
+hep.histplot(h, bins)
+```
+#### 2D Histograms
+```
+xbins, ybins = [0, 1, 2, 3], [0, 1, 2, 3]
+H = [[2,3,2], [1,2,1], [3,1,3]]
+hep.hist2dplot(H, xbins, ybins)
+```
+Several useful style adjustments differing form mpl defaults are also available separately or within 
+```
+hep.mpl_magic()
+```
+- align axis labels to the right
+- Set lower ylim to 0, if no data is obscured
+- Autoscale upper ylim to fit legend without overlapping with plots
+
+# Basic Use
+## Styling
 #### Minimal Example
 ```diff
 import numpy as np
