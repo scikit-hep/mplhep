@@ -200,7 +200,7 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
 
     # Get current
     ymin, ymax = ax.get_ylim()
-    ax.set_ylim(ymin if np.min(h) < 0 else 0, ymax)
+    ax.set_ylim(ymin if np.min(h) < 0 else 0, np.max([ymax, 1.2 * np.max(h)]))
 
     if binticks:
         _slice = int(round(float(len(bins)) / len(ax.get_xticks()))) + 1
@@ -209,7 +209,7 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
     return ax
 
 
-def hist2dplot(H, xbins=None, ybins=None, weights=None,
+def hist2dplot(H, xbins=None, ybins=None, weights=None, labels=None,
                cbar=True, cbarsize="7%", cbarpad=0.2, cbarpos='right',
                cmin=None, cmax=None, ax=None, **kwargs):
 
@@ -233,12 +233,31 @@ def hist2dplot(H, xbins=None, ybins=None, weights=None,
     ax.set_xlim(xbins[0], xbins[-1])
     ax.set_ylim(ybins[0], ybins[-1])
 
-    ax.set_xticks(xbins)
-    ax.set_yticks(ybins)
+    if len(ax.get_xticks()) > len(xbins) * 0.7:
+        ax.set_xticks(xbins)
+    if len(ax.get_yticks()) > len(ybins) * 0.7:
+        ax.set_yticks(ybins)
 
     if cbar:
         cax = append_axes(ax, size=cbarsize, pad=cbarpad, position=cbarpos)
         plt.colorbar(pc, cax=cax)
+
+    if labels is not None:
+        if np.array_equiv(H, labels):
+            _labels = labels
+        elif labels is True:
+            _labels = H
+        elif labels is False:
+            pass
+        else:
+            raise ValueError('Labels not understood, either specify a bool or a'
+                             'Histlike array ')
+        _xbin_centers = xbins[1:] - np.diff(xbins) / float(2)
+        _ybin_centers = ybins[1:] - np.diff(ybins) / float(2)
+        for ix, xc in enumerate(_xbin_centers):
+            for iy, yc in enumerate(_ybin_centers):
+                color = 'black' if pc.norm(H[iy, ix]) > 0.5 else 'lightgrey'
+                ax.text(xc, yc, _labels[iy, ix], ha='center', va='center', color=color)
 
     return H, xbins, ybins, pc
 
