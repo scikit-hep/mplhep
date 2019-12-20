@@ -14,6 +14,7 @@ _mpl_up = version.parse(mpl.__version__) >= version.parse(_mpl_up_version)
 ########################################
 # Histogram plotter
 
+
 def histplot(h, bins, weights=None, yerr=None, variances=None,
              stack=False, density=False,
              histtype='step', label=None, edges=False, binticks=False,
