@@ -125,7 +125,7 @@ def test_histplot_stack():
     return fig
 
 
-@pytest.mark.mpl_image_compare(style='default', remove_text=True)
+# @pytest.mark.mpl_image_compare(style='default', remove_text=True)
 def test_hist2dplot():
     np.random.seed(0)
     xedges = np.arange(0, 11.5, 1.5)
