@@ -196,7 +196,7 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
         else:
             for i in range(_nh):
                 ax.errorbar(_bin_centers, h[i], yerr=_yerr[i], ls='none',
-                            label=_labels[0], **kwargs) 
+                            label=_labels[0], **kwargs)
 
     # Get current
     ymin, ymax = ax.get_ylim()
