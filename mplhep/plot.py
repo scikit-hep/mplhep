@@ -196,11 +196,11 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
         else:
             for i in range(_nh):
                 ax.errorbar(_bin_centers, h[i], yerr=_yerr[i], ls='none',
-                            label=_labels[0], **kwargs)
+                            label=_labels[0], **kwargs) 
 
     # Get current
     ymin, ymax = ax.get_ylim()
-    ax.set_ylim(ymin if np.min(h) < 0 else 0, np.max(ymax, np.max(h)))
+    ax.set_ylim(ymin if np.min(h) < 0 else 0, np.max([ymax, 1.2 * np.max(h)]))
 
     if binticks:
         _slice = int(round(float(len(bins)) / len(ax.get_xticks()))) + 1
@@ -233,9 +233,9 @@ def hist2dplot(H, xbins=None, ybins=None, weights=None, labels=None,
     ax.set_xlim(xbins[0], xbins[-1])
     ax.set_ylim(ybins[0], ybins[-1])
 
-    if len(ax.get_xticks()) > len(xbins) * .7:
+    if len(ax.get_xticks()) > len(xbins) * 0.7:
         ax.set_xticks(xbins)
-    if len(ax.get_yticks()) > len(ybins) * .7 :
+    if len(ax.get_yticks()) > len(ybins) * 0.7:
         ax.set_yticks(ybins)
 
     if cbar:
@@ -250,14 +250,14 @@ def hist2dplot(H, xbins=None, ybins=None, weights=None, labels=None,
         elif labels is False:
             pass
         else:
-            raise ValueError('Labels not understood, either specify a bool or a' 
+            raise ValueError('Labels not understood, either specify a bool or a'
                              'Histlike array ')
         _xbin_centers = xbins[1:] - np.diff(xbins) / float(2)
         _ybin_centers = ybins[1:] - np.diff(ybins) / float(2)
         for ix, xc in enumerate(_xbin_centers):
             for iy, yc in enumerate(_ybin_centers):
                 color = 'black' if pc.norm(H[iy, ix]) > 0.5 else 'lightgrey'
-                ax.text(xc, yc, _labels, ha='center', va='center', color=color)
+                ax.text(xc, yc, _labels[iy, ix], ha='center', va='center', color=color)
 
     return H, xbins, ybins, pc
 

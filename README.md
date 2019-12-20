@@ -52,7 +52,6 @@ f, ax = plt.subplots()
 ax.scatter(x,y, c=z);
 
 ```
-
 <p float="center">
   <img src="img/style0.png" width="300" />
   <img src="img/style1.png" width="300" />

@@ -123,3 +123,18 @@ def test_histplot_stack():
 
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
     return fig
+
+
+@pytest.mark.mpl_image_compare(style='default', remove_text=True)
+def test_hist2dplot():
+    np.random.seed(0)
+    xedges = np.arange(0, 11.5, 1.5)
+    yedges = [0, 2, 3, 4, 6, 7]
+    x = np.random.normal(5, 1.5, 100)
+    y = np.random.normal(4, 1, 100)
+    H, xedges, yedges = np.histogram2d(x, y, bins=(xedges, yedges))
+    H = H.T
+
+    fig, ax = plt.subplots()
+    hep.hist2dplot(H, xedges, yedges, labels=True)
+    return fig
