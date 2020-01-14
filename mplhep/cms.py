@@ -56,6 +56,16 @@ def cmstext(text="",
         _cms_loc = 0
     else:
         _cms_loc = 1
+    if ax.get_yaxis().get_major_formatter()._scientific and _cms_loc == 0:
+        ax.figure.canvas.draw()
+        _dpi = ax.figure.dpi
+        _sci_width = ax.get_yaxis().offsetText.get_window_extent().width 
+        _sci_offset = _sci_width / _dpi
+        _sci_offset_scaled = _sci_offset * 1.5 / ax.figure.get_size_inches()[0]
+        loc1_dict[_cms_loc]['xy'] = (_sci_offset_scaled, 1)
+    else:
+        _sci_offset = 0.
+
     cms = ax.text(*loc1_dict[_cms_loc]['xy'], s="CMS",
                   transform=ax.transAxes,
                   ha='left',
@@ -68,14 +78,14 @@ def cmstext(text="",
     from matplotlib import transforms
     cms.draw(ax.figure.canvas.get_renderer())
     _dpi = ax.figure.dpi
-
+    _cms_xoffset = cms.get_window_extent().width / _dpi * 1.08
     if loc == 0:
         _t = transforms.offset_copy(cms._transform,
-                                    x=cms.get_window_extent().width / _dpi * 1.08,
+                                    x=_cms_xoffset + _sci_offset * 1.2,
                                     units='inches', fig=ax.figure)
     elif loc == 1:
         _t = transforms.offset_copy(cms._transform,
-                                    x=cms.get_window_extent().width / _dpi * 1.08,
+                                    x=_cms_xoffset,
                                     y=-cms.get_window_extent().height / _dpi,
                                     units='inches', fig=ax.figure)
     elif loc == 2:
