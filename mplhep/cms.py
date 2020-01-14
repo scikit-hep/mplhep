@@ -59,7 +59,7 @@ def cmstext(text="",
     if ax.get_yaxis().get_major_formatter()._scientific and _cms_loc == 0:
         ax.figure.canvas.draw()
         _dpi = ax.figure.dpi
-        _sci_width = ax.get_yaxis().offsetText.get_window_extent().width 
+        _sci_width = ax.get_yaxis().offsetText.get_window_extent().width
         _sci_offset = _sci_width / _dpi
         _sci_offset_scaled = _sci_offset * 1.5 / ax.figure.get_size_inches()[0]
         loc1_dict[_cms_loc]['xy'] = (_sci_offset_scaled, 1)
