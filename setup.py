@@ -12,7 +12,7 @@ INSTALL_REQUIRES = [
 
 extras_require = {
     'test': ['pytest', 'pytest-mpl', 'papermill~=1.0', 'nteract-scrapbook~=0.3'],
-    'develop': ['flake8', 'jupyter', 'twine'],
+    'develop': ['flake8', 'jupyter', 'bumpversion', 'twine'],
 }
 extras_require['complete'] = sorted(set(sum(extras_require.values(), [])))
 
@@ -38,7 +38,7 @@ class PostInstallCommand(install):
     """
 
 
-__version__ = '0.0.23'
+__version__ = '0.0.25'
 
 setup(
     name='mplhep',
