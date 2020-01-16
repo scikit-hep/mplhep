@@ -18,12 +18,3 @@ script:
 install:
 - python -m pip install -q --upgrade pip packaging setuptools wheel setuptools_scm
 - python -m pip install -q --no-cache-dir -e .[complete]
-
-
-deploy:
-  provider: pypi
-  user: $PYPI_USER
-  password: $PYPI_PW
-  on:
-    tags: true
-    condition: $TRAVIS_PYTHON_VERSION = "3.7"
