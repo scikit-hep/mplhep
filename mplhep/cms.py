@@ -1,6 +1,6 @@
 # Log styles
-from . import styles_cms as style
 from . import label
+from . import styles_cms as style
 from .label import lumitext
 
 __all__ = [style, lumitext]

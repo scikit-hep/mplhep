@@ -1,7 +1,7 @@
 import matplotlib as mpl
-from matplotlib import rcParams
-import matplotlib.transforms as mtransforms
 import matplotlib.pyplot as plt
+import matplotlib.transforms as mtransforms
+from matplotlib import rcParams
 
 
 def _exptext(
