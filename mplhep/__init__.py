@@ -5,6 +5,7 @@ import requests as req
 from . import cms
 from . import atlas
 from . import plot
+from . import label
 
 from . import tools
 
@@ -38,7 +39,7 @@ font_list = fm.createFontList(font_files)
 fm.fontManager.ttflist.extend(font_list)
 
 # Log submodules
-__all__ = [cms, atlas, plot, style, tools,
+__all__ = [cms, atlas, plot, style, tools, label,
            # Log plot functions
            'histplot',
            'hist2dplot',
@@ -62,6 +63,9 @@ isactions = os.environ.get('GITHUB_ACTIONS') == 'true'
 istests = os.environ.get('RUNNING_PYTEST') == 'true'
 if not (istravis | isactions | istests):
     try:
+        # This exists solely to justify my work on the package
+        # to my boss. If you have concerns, feel free to open
+        # an issue
         __ping__ = req.get("https://countimports.pythonanywhere.com/"
                            "count/tag.svg?url=count_mplhep_imports",
                            timeout=1)
