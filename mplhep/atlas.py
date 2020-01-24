@@ -20,18 +20,18 @@ def atlastext(text="", loc=0, ax=None, fontname=None, fontsize=None, pad=0):
 
 
 def atlaslabel(
-    ax=None,
-    loc=0,
-    data=False,
-    paper=False,
-    supplementary=False,
-    year=2017,
-    lumi=None,
-    llabel=None,
-    rlabel=None,
-    fontname=None,
-    fontsize=None,
-    pad=0,
+        ax=None,
+        loc=0,
+        data=False,
+        paper=False,
+        supplementary=False,
+        year=2017,
+        lumi=None,
+        llabel=None,
+        rlabel=None,
+        fontname=None,
+        fontsize=None,
+        pad=0,
 ):
     return label._explabel(
         ax=ax,

@@ -48,8 +48,10 @@ ROOT = {
 }
 
 ROOTtex = {
-    "text.usetex": True,
-    "text.latex.preamble": r"\usepackage{siunitx},\sisetup{detect-all}, \
+    "text.usetex":
+    True,
+    "text.latex.preamble":
+    r"\usepackage{siunitx},\sisetup{detect-all}, \
                               \usepackage{helvet},\usepackage{sansmath}, \
                               \sansmath",
 }
