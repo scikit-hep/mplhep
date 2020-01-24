@@ -13,6 +13,7 @@ ROOT = {
     "mathtext.sf": "TeX Gyre Heros",
     "mathtext.it": "TeX Gyre Heros:italic",
     "mathtext.tt": "TeX Gyre Heros",
+    "mathtext.default": "regular",
 
     "figure.figsize": (10.0, 10.0),
 
