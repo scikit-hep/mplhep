@@ -38,7 +38,7 @@ class PostInstallCommand(install):
     """
 
 
-__version__ = '0.0.29'
+__version__ = '0.0.30'
 
 setup(
     name='mplhep',
