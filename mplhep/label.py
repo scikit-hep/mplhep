@@ -117,7 +117,7 @@ def _exptext(exp="",
         _t = mtransforms.offset_copy(exp._transform, units='inches', fig=ax.figure)
 
     ax.text(*loc2_dict[loc]['xy'],
-            text,
+            s=text,
             transform=_t,
             ha='left',
             va=loc2_dict[loc]['va'],

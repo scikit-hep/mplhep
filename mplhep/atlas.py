@@ -1,7 +1,8 @@
 # Log styles
 from . import styles_atlas as style
 from . import label
-__all__ = [style]
+from . label import lumitext
+__all__ = [style, lumitext]
 
 
 def atlastext(text="", loc=0, ax=None,
