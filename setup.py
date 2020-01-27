@@ -1,6 +1,7 @@
+import sys
+
 from setuptools import setup
 from setuptools.command.install import install
-import sys
 
 INSTALL_REQUIRES = [
     "matplotlib<3" if sys.version_info.major < 3 else "matplotlib~=3.1",

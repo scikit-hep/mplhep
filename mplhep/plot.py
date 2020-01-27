@@ -1,14 +1,14 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.transforms import Bbox
 from matplotlib.offsetbox import AnchoredText
-from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
+from matplotlib.transforms import Bbox
+from mpl_toolkits.axes_grid1 import axes_size
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from packaging import version
 
 from .error_estimation import poisson_interval
-
 # mpl updated to new methods
-from packaging import version
 
 _mpl_up_version = "3.3.3"
 _mpl_up = version.parse(mpl.__version__) >= version.parse(_mpl_up_version)
