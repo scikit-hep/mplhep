@@ -342,7 +342,7 @@ def _draw_text_bbox(ax):
             textboxes.append(k)
 
     if len(textboxes) > 1:
-        print(f"Warning: More than one textbox found")
+        print("Warning: More than one textbox found")
         for box in textboxes:
             if box.loc in [1, 2]:
                 bbox = box.get_tightbbox(fig.canvas.renderer)
