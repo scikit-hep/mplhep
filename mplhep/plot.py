@@ -2,6 +2,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.transforms import Bbox
+from matplotlib.offsetbox import AnchoredText
 from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
 
 from .error_estimation import poisson_interval
@@ -327,7 +328,28 @@ def _draw_leg_bbox(ax):
     fig.canvas.draw()
     bbox = leg.get_frame().get_bbox()
 
-    return ax, bbox
+    return bbox
+
+
+def _draw_text_bbox(ax):
+    """
+    Draw legend() and fetch it's bbox
+    """
+    fig = ax.figure
+    textboxes = []
+    for k in ax.get_children():
+        if type(k) == AnchoredText:
+            textboxes.append(k)
+
+    if len(textboxes) > 1:
+        print("Warning: More than one textbox found")
+        for box in textboxes:
+            if box.loc in [1, 2]:
+                bbox = box.get_tightbbox(fig.canvas.renderer)
+    else:
+        bbox = textboxes[0].get_tightbbox(fig.canvas.renderer)
+
+    return bbox
 
 
 def yscale_legend(ax=None):
@@ -337,9 +359,21 @@ def yscale_legend(ax=None):
     if ax is None:
         ax = plt.gca()
 
-    while overlap(*_draw_leg_bbox(ax)) > 0:
-        ax = plt.gca()
+    while overlap(ax, _draw_leg_bbox(ax)) > 0:
         ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[-1] * 1.05)
+        ax.figure.canvas.draw()
+    return ax
+
+
+def yscale_text(ax=None):
+    """
+    Automatically scale y-axis up to fit AnchoredText
+    """
+    if ax is None:
+        ax = plt.gca()
+
+    while overlap(ax, _draw_text_bbox(ax)) > 0:
+        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[-1] * 1.1)
         ax.figure.canvas.draw()
     return ax
 
@@ -384,6 +418,7 @@ def mpl_magic(ax=None, info=True):
     ax = r_align(ax)
     ax = ylow(ax)
     ax = yscale_legend(ax)
+    ax = yscale_text(ax)
 
     return ax
 
