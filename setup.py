@@ -12,7 +12,8 @@ INSTALL_REQUIRES = [
 ]
 
 extras_require = {
-    "test": ["pytest", "pytest-mpl", "papermill~=1.0", "nteract-scrapbook~=0.3"],
+    "test":
+    ["pytest", "pytest-mpl", "papermill~=1.0", "nteract-scrapbook~=0.3"],
     "develop": ["flake8", "jupyter", "bumpversion", "twine"],
 }
 extras_require["complete"] = sorted(set(sum(extras_require.values(), [])))
@@ -58,7 +59,8 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
     ],
-    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*",
+    python_requires=
+    ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*",
     install_requires=INSTALL_REQUIRES,
     extras_require=extras_require,
     # packages=find_packages(exclude=['tests']),
