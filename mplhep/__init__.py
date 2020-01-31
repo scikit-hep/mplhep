@@ -32,6 +32,7 @@ from .plot import (
 # Make __version__ available
 try:
     _base_dir = os.path.dirname(os.path.abspath(__file__))
+    _base_dir = "/".join(_base_dir.split("/")[:-1])
 except NameError:
     _base_dir = None
 
