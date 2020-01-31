@@ -1,6 +1,4 @@
-#from . import version
-#__version__ = version.__version__
-
+import os
 # Import counter
 import requests as req
 
@@ -30,6 +28,15 @@ from .plot import (
     append_axes,
     sort_legend
 )
+
+# Make __version__ available
+try:
+    _base_dir = os.path.dirname(os.path.abspath(__file__))
+except NameError:
+    _base_dir = None
+
+with open(os.path.join(_base_dir, '.VERSION')) as version_file:
+    __version__ = version_file.read().strip()
 
 # Make package fonts available to matplotlib
 import os

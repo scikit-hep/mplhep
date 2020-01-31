@@ -1,3 +1,4 @@
+import os
 from setuptools import setup
 from setuptools.command.install import install
 import sys
@@ -38,7 +39,13 @@ class PostInstallCommand(install):
     """
 
 
-__version__ = '0.0.31'
+try:
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+except NameError:
+    base_dir = None
+
+with open(os.path.join(base_dir, '.VERSION')) as version_file:
+    __version__ = version_file.read().strip()
 
 setup(
     name='mplhep',
