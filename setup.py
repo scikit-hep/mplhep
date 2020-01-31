@@ -4,18 +4,18 @@ from setuptools.command.install import install
 import sys
 
 INSTALL_REQUIRES = [
-    'matplotlib<3' if sys.version_info.major < 3 else 'matplotlib~=3.1',
-    'numpy>=1.16.0',
-    'scipy>=1.1.0',
-    'requests~=2.21',
-    'packaging',
+    "matplotlib<3" if sys.version_info.major < 3 else "matplotlib~=3.1",
+    "numpy>=1.16.0",
+    "scipy>=1.1.0",
+    "requests~=2.21",
+    "packaging",
 ]
 
 extras_require = {
-    'test': ['pytest', 'pytest-mpl', 'papermill~=1.0', 'nteract-scrapbook~=0.3'],
-    'develop': ['flake8', 'jupyter', 'bumpversion', 'twine'],
+    "test": ["pytest", "pytest-mpl", "papermill~=1.0", "nteract-scrapbook~=0.3"],
+    "develop": ["flake8", "jupyter", "bumpversion", "twine"],
 }
-extras_require['complete'] = sorted(set(sum(extras_require.values(), [])))
+extras_require["complete"] = sorted(set(sum(extras_require.values(), [])))
 
 
 class PostInstallCommand(install):
@@ -44,17 +44,17 @@ try:
 except NameError:
     base_dir = None
 
-with open(os.path.join(base_dir, '.VERSION')) as version_file:
+with open(os.path.join(base_dir, ".VERSION")) as version_file:
     __version__ = version_file.read().strip()
 
 setup(
-    name='mplhep',
+    name="mplhep",
     version=__version__,
-    author='andrzejnovak',
-    author_email='novak5andrzej@gmail.com',
-    license='MIT License',
-    description='Matplotlib styles for HEP',
-    long_description=open('README.md').read(),
+    author="andrzejnovak",
+    author_email="novak5andrzej@gmail.com",
+    license="MIT License",
+    description="Matplotlib styles for HEP",
+    long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/andrzejnovak/mplhep/",
     classifiers=[
@@ -69,8 +69,9 @@ setup(
     extras_require=extras_require,
     # packages=find_packages(exclude=['tests']),
     # cmdclass= {'install': PostInstallCommand}, # Currently disabled
-    packages=['mplhep'],
-    include_package_data=True)
+    packages=["mplhep"],
+    include_package_data=True,
+)
 
 # To push on pypi
 # python setup.py sdist

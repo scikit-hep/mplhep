@@ -1,4 +1,5 @@
 import os
+
 # Import counter
 import requests as req
 
@@ -16,17 +17,15 @@ from . import styles as style
 from .plot import (
     histplot,
     hist2dplot,
-
     mpl_magic,
     r_align,
     yscale_legend,
     ylow,
-
     rescale_to_axessize,
     box_aspect,
     make_square_add_cbar,
     append_axes,
-    sort_legend
+    sort_legend,
 )
 
 # Make __version__ available
@@ -36,7 +35,7 @@ try:
 except NameError:
     _base_dir = None
 
-with open(os.path.join(_base_dir, '.VERSION')) as version_file:
+with open(os.path.join(_base_dir, ".VERSION")) as version_file:
     __version__ = version_file.read().strip()
 
 # Make package fonts available to matplotlib
@@ -50,35 +49,41 @@ font_list = fm.createFontList(font_files)
 fm.fontManager.ttflist.extend(font_list)
 
 # Log submodules
-__all__ = [cms, atlas, plot, style, tools, label,
-           # Log plot functions
-           'histplot',
-           'hist2dplot',
-
-           'mpl_magic',
-           'r_align',
-           'yscale_legend',
-           'ylow',
-
-           'rescale_to_axessize',
-           'box_aspect',
-           'make_square_add_cbar',
-           'append_axes',
-           'sort_legend'
-           ]
+__all__ = [
+    cms,
+    atlas,
+    plot,
+    style,
+    tools,
+    label,
+    # Log plot functions
+    "histplot",
+    "hist2dplot",
+    "mpl_magic",
+    "r_align",
+    "yscale_legend",
+    "ylow",
+    "rescale_to_axessize",
+    "box_aspect",
+    "make_square_add_cbar",
+    "append_axes",
+    "sort_legend",
+]
 
 # Ping import counter for stats
 # Check if CI
-istravis = os.environ.get('TRAVIS') == 'true'
-isactions = os.environ.get('GITHUB_ACTIONS') == 'true'
-istests = os.environ.get('RUNNING_PYTEST') == 'true'
+istravis = os.environ.get("TRAVIS") == "true"
+isactions = os.environ.get("GITHUB_ACTIONS") == "true"
+istests = os.environ.get("RUNNING_PYTEST") == "true"
 if not (istravis | isactions | istests):
     try:
         # This exists solely to justify my work on the package
         # to my boss. If you have concerns, feel free to open
         # an issue
-        __ping__ = req.get("https://countimports.pythonanywhere.com/"
-                           "count/tag.svg?url=count_mplhep_imports",
-                           timeout=1)
+        __ping__ = req.get(
+            "https://countimports.pythonanywhere.com/"
+            "count/tag.svg?url=count_mplhep_imports",
+            timeout=1,
+        )
     except Exception:
         pass
