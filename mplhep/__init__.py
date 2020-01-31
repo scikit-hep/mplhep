@@ -1,3 +1,6 @@
+#from . import version
+#__version__ = version.__version__
+
 # Import counter
 import requests as req
 
