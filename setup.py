@@ -44,7 +44,7 @@ try:
 except NameError:
     base_dir = None
 
-with open(os.path.join(base_dir, '.VERSION')) as version_file:
+with open(os.path.join(base_dir, 'mplhep', '.VERSION')) as version_file:
     __version__ = version_file.read().strip()
 
 setup(
