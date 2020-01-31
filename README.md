@@ -29,6 +29,8 @@ pip install mplhep
 import matplotlib.pyplot as plt
 import mplhep as hep
 plt.style.use(hep.style.ROOT)
+# or
+plt.style.use(hep.style.ATLAS)
 ```
 Experiment specific style are also available. **If the default styles are not what you need, I'd be happy to merge in new styles or modify the current ones.**
 
