@@ -6,16 +6,16 @@ __all__ = [style, lumitext]
 
 
 # Experiment wrappers:
-def cmstext(text="", **kwargs):
-    return label_base._exptext("CMS", text=text, **kwargs, italic=(False, True))
+def cmstext(text, **kwargs):
+    return label_base._exptext("CMS", text=text, italic=(False, True), **kwargs)
 
 
 def cmslabel(**kwargs):
-    return label_base._explabel(**kwargs, exp="CMS", italic=(False, True))
+    return label_base._explabel(exp="CMS", italic=(False, True), **kwargs)
 
 
-def text(**kwargs):
-    return cmstext(**kwargs)
+def text(*args, **kwargs):
+    return cmstext(*args, **kwargs)
 
 
 def label(**kwargs):
