@@ -7,7 +7,7 @@ __all__ = [style, lumitext]
 
 # Experiment wrappers:
 def atlastext(text="", **kwargs):
-    return label)_base._exptext("ATLAS", text=text, **kwargs, italic=(True, False))
+    return label_base._exptext("ATLAS", text=text, **kwargs, italic=(True, False))
 
 
 def atlaslabel(**kwargs):
