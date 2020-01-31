@@ -1,32 +1,27 @@
 import os
 
-# Import counter
 import requests as req
 
-# Get helper functions
-from . import cms
 from . import atlas
-from . import plot
+from . import cms
 from . import label
-
-from . import tools
-
-# Get styles directly, also available within experiment helpers.
+from . import plot
 from . import styles as style
-
-from .plot import (
-    histplot,
-    hist2dplot,
-    mpl_magic,
-    r_align,
-    yscale_legend,
-    ylow,
-    rescale_to_axessize,
-    box_aspect,
-    make_square_add_cbar,
-    append_axes,
-    sort_legend,
-)
+from . import tools
+from .plot import append_axes
+from .plot import box_aspect
+from .plot import hist2dplot
+from .plot import histplot
+from .plot import make_square_add_cbar
+from .plot import mpl_magic
+from .plot import r_align
+from .plot import rescale_to_axessize
+from .plot import sort_legend
+from .plot import ylow
+from .plot import yscale_legend
+# Import counter
+# Get helper functions
+# Get styles directly, also available within experiment helpers.
 
 # Make __version__ available
 try:
