@@ -7,10 +7,14 @@ __all__ = [style, lumitext]
 
 # Experiment wrappers:
 def atlastext(text="", **kwargs):
+    if 'fontname' not in kwargs:
+        kwargs.update(fontname='Helvetica')
     return label_base._exptext("ATLAS", text=text, italic=(True, False), **kwargs)
 
 
 def atlaslabel(**kwargs):
+    if 'fontname' not in kwargs:
+        kwargs.update(fontname='Helvetica')
     return label_base._explabel(exp="ATLAS", italic=(True, False), **kwargs)
 
 
