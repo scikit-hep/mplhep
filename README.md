@@ -18,6 +18,8 @@ A set of helpers for `matplotlib` to more easily produce plots typically
 needed in HEP as well as style them in way that's compatible with current
 collaboration requirements (ROOT).
 
+### py27 version master, to remain as 0.1.X
+
 
 # Installation
 ```
