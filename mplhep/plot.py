@@ -1,3 +1,5 @@
+import collections
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -61,6 +63,19 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
         _labels = [str(label)] * _nh
     else:
         _labels = [str(lab) for lab in label]
+
+    def iterable_not_string(arg):
+        return (isinstance(arg, collections.Iterable) and not isinstance(arg, str))
+
+    _chunked_kwargs = []
+    for i in range(_nh):
+        _chunked_kwargs.append({})
+    for kwarg in kwargs:
+        if iterable_not_string(kwargs[kwarg]):
+            for i, kw in enumerate(kwargs[kwarg]):
+                _chunked_kwargs[i][kwarg] = kw
+        else:
+            _chunked_kwargs[i][kwarg] = kwargs[kwarg]
 
     # Apply weights
     if weights is not None:
@@ -152,10 +167,11 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
                         _bins, _h = bins, np.r_[h[i], h[i][-1]]
                 else:
                     _h = h[i]
+                _kwargs = _chunked_kwargs[i]
                 _label = _labels[i]
                 _step_label = _label if yerr is None else None
                 _s, = ax.step(_bins, _h, where=_where, label=_step_label,
-                              **kwargs)
+                              **_kwargs)
                 if yerr is not None or variances is not None:
                     ax.errorbar(_bin_centers, h[i], yerr=_yerr[i],
                                 color=_s.get_color(), ls='none', **kwargs)
@@ -175,8 +191,9 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
                     _h = np.r_[h[i], h[i][-1]]
                 else:
                     _h = h[i]
+                _kwargs = _chunked_kwargs[i]
                 ax.fill_between(bins, _h, step=_where,
-                                label=_labels[i], **kwargs)
+                                label=_labels[i], **_kwargs)
 
     elif histtype == 'errorbar':
         err_defaults = {
@@ -196,7 +213,7 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
         else:
             for i in range(_nh):
                 ax.errorbar(_bin_centers, h[i], yerr=_yerr[i], ls='none',
-                            label=_labels[0], **kwargs)
+                            label=_labels[0], **_chunked_kwargs[i])
 
     # Get current
     ymin, ymax = ax.get_ylim()
