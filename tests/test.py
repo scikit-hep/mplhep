@@ -138,3 +138,44 @@ def test_hist2dplot():
     fig, ax = plt.subplots()
     hep.hist2dplot(H, xedges, yedges, labels=True)
     return fig
+
+
+@pytest.mark.mpl_image_compare(style='default', remove_text=True)
+def test_histplot_kwargs():
+    np.random.seed(0)
+    h, bins = np.histogram(np.random.normal(10, 3, 1000), bins=10)
+
+    fig, axs = plt.subplots(2, 2, sharex=True, sharey=True, figsize=(10, 10))
+    axs = axs.flatten()
+
+    hep.histplot([h * 2, h * 1, h * 0.5], bins, label=["1", "2", "3"], stack=True,
+                 histtype="step", linestyle="--",
+                 color=["green", "black", (1, 0, 0, .4)],
+                 ax=axs[0])
+    axs[0].legend()
+
+    hep.histplot([h, h, h], bins, label=["1", "2", "3"], stack=True,
+                 histtype="step", linestyle=["--", ':'],
+                 color=(1, 0, 0, .8),
+                 ax=axs[1])
+    axs[1].legend()
+
+    hep.histplot([h, h, h], bins, label=["1", "2", "3"], histtype="step",
+                 weights=[0.5 * np.ones_like(h), 3 * np.ones_like(h),
+                          6 * np.ones_like(h)],
+                 linestyle=["--", ':'],
+                 color=(1, 0, 0, .8),
+                 ax=axs[2])
+    axs[2].legend()
+
+    hep.histplot([h, h, h], bins, label=["1", "2", "3"], histtype="fill",
+                 weights=[0.5 * np.ones_like(h), 3 * np.ones_like(h),
+                          6 * np.ones_like(h)],
+                 linestyle=["--", ':'],
+                 color=["green", "darkorange", 'red'],
+                 alpha=[0.4, 0.7, 0.2],
+                 ax=axs[3])
+    axs[3].legend()
+
+    fig.subplots_adjust(hspace=0.1, wspace=0.1)
+    return fig

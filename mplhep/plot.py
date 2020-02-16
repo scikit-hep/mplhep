@@ -71,11 +71,18 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
     for i in range(_nh):
         _chunked_kwargs.append({})
     for kwarg in kwargs:
+        # Check if iterable
         if iterable_not_string(kwargs[kwarg]):
-            for i, kw in enumerate(kwargs[kwarg]):
-                _chunked_kwargs[i][kwarg] = kw
+            # Check if tuple (can be used for colors)
+            if type(kwargs[kwarg]) == tuple:
+                for i in range(len(_chunked_kwargs)):
+                    _chunked_kwargs[i][kwarg] = kwargs[kwarg]
+            else:
+                for i, kw in enumerate(kwargs[kwarg]):
+                    _chunked_kwargs[i][kwarg] = kw
         else:
-            _chunked_kwargs[i][kwarg] = kwargs[kwarg]
+            for i in range(len(_chunked_kwargs)):
+                _chunked_kwargs[i][kwarg] = kwargs[kwarg]
 
     # Apply weights
     if weights is not None:
@@ -124,6 +131,7 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
     if stack and _nh > 1:
         h = np.cumsum(h, axis=0)[::-1]
         _labels = _labels[::-1]
+        _chunked_kwargs = _chunked_kwargs[::-1]
 
     if not _mpl_up:
         _where = 'post'
