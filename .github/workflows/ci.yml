@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest]
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.6]
 
     steps:
     - uses: actions/checkout@master
@@ -28,7 +28,7 @@ jobs:
         python -m pip install -q --no-cache-dir -e .[complete]
         python -m pip list
     - name: Lint with flake8
-      if: matrix.python-version == 3.7 && matrix.os == 'ubuntu-latest'
+      if: matrix.python-version == 2.7 && matrix.os == 'ubuntu-latest'
       run: |
         flake8 mplhep
     - name: Test with pytest
