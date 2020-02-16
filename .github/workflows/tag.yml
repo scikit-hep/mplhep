@@ -65,7 +65,9 @@ jobs:
       run: |
         OLD_TAG=$(git describe --tags --abbrev=0)
         echo "::set-env name=OLD_TAG::${OLD_TAG}"
-        ## bumpversion $BV_PART --message "Bump version: {current_version} → {new_version}
+        echo "XXXXX"
+        bumpversion $BV_PART --message "Bump version: {current_version} → {new_version}
+        echo "YYY"
         Triggered by #${PR_NUMBER} via GitHub Actions."
         NEW_TAG=$(git describe --tags --abbrev=0)
         echo "::set-env name=NEW_TAG::${NEW_TAG}"
