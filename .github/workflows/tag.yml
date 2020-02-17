@@ -65,19 +65,38 @@ jobs:
       run: |
         OLD_TAG=$(git describe --tags --abbrev=0)
         echo "::set-env name=OLD_TAG::${OLD_TAG}"
+        echo "Run bumpversion"
         bumpversion $BV_PART --message "Bump version: {current_version} → {new_version}
         Triggered by #${PR_NUMBER} via GitHub Actions."
+        echo "Successfully ran bumpversion"
         NEW_TAG=$(git describe --tags --abbrev=0)
         echo "::set-env name=NEW_TAG::${NEW_TAG}"
         git tag -n99 -l $NEW_TAG
+        echo "Old Tag:" $OLD_TAG
+        echo "New Tag:" $NEW_TAG
         CHANGES=$(git log --pretty=format:'%s' $OLD_TAG..HEAD -i -E --grep='^([a-z]*?):')
+        if [ -z "$CHANGES" ]; CHANGES=$(git log --pretty=format:'%s' $OLD_TAG..HEAD -i -E)
+        echo $CHANGES$
+        echo "AAA"
         CHANGES_NEWLINE="$(echo "${CHANGES}" | sed -e 's/^/  - /')"
         SANITIZED_CHANGES=$(echo "${CHANGES}" | sed -e 's/^/<li>/' -e 's|$|</li>|' -e 's/(#[0-9]\+)//' )
+        echo "Show Changes"
+        echo $CHANGES
+        echo "END Changes"
+        echo "Show San Changes"
+        echo $SANATIZED_CHANGES
+        echo "END San Changes"
         echo "::set-env name=CHANGES::${SANITIZED_CHANGES//$'\n'/}"
+        echo -n "$CHANGES" | grep -c '^'
+        echo "bbbCC"
         NUM_CHANGES=$(echo -n "$CHANGES" | grep -c '^')
+        echo "CC"
         echo "::set-env name=NUM_CHANGES::${NUM_CHANGES}"
+        echo "DDDD"
         git tag $NEW_TAG $NEW_TAG^{} -f -m "$(printf "This is a $BV_PART release from $OLD_TAG → $NEW_TAG.\n\nChanges:\n$CHANGES_NEWLINE")"
+        echo "EEE"
         git tag -n99 -l $NEW_TAG
+        echo "GGG"
     - name: Comment on issue
       if: >-
         github.event.action == 'labeled'
