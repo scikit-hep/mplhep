@@ -20,6 +20,7 @@ extras_require['complete'] = sorted(set(sum(extras_require.values(), [])))
 
 class PostInstallCommand(install):
     # Currently disabled, done on the fly
+    # To be removed
     """Post-installation for installation mode."""
     """
     def run(self):
