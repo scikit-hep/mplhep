@@ -65,15 +65,21 @@ jobs:
       run: |
         OLD_TAG=$(git describe --tags --abbrev=0)
         echo "::set-env name=OLD_TAG::${OLD_TAG}"
+        echo "Run bumpversion"
         bumpversion $BV_PART --message "Bump version: {current_version} → {new_version}
         Triggered by #${PR_NUMBER} via GitHub Actions."
+        echo "Successfully ran bumpversion"
         NEW_TAG=$(git describe --tags --abbrev=0)
         echo "::set-env name=NEW_TAG::${NEW_TAG}"
         git tag -n99 -l $NEW_TAG
+        echo "Old Tag:" $OLD_TAG
+        echo "New Tag:" $NEW_TAG
         CHANGES=$(git log --pretty=format:'%s' $OLD_TAG..HEAD -i -E --grep='^([a-z]*?):')
+        echo "CHANGES: "$CHANGES$
         CHANGES_NEWLINE="$(echo "${CHANGES}" | sed -e 's/^/  - /')"
         SANITIZED_CHANGES=$(echo "${CHANGES}" | sed -e 's/^/<li>/' -e 's|$|</li>|' -e 's/(#[0-9]\+)//' )
         echo "::set-env name=CHANGES::${SANITIZED_CHANGES//$'\n'/}"
+        echo -n "$CHANGES" | grep -c '^'
         NUM_CHANGES=$(echo -n "$CHANGES" | grep -c '^')
         echo "::set-env name=NUM_CHANGES::${NUM_CHANGES}"
         git tag $NEW_TAG $NEW_TAG^{} -f -m "$(printf "This is a $BV_PART release from $OLD_TAG → $NEW_TAG.\n\nChanges:\n$CHANGES_NEWLINE")"

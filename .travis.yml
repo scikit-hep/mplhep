@@ -3,7 +3,7 @@ os:
 - linux
 python:
 - 3.7
-- 2.7
+#- 2.7
 
 addons:
   apt:
@@ -12,7 +12,7 @@ addons:
     - pandoc
 
 script:
-- python setup.py flake8
+#- python setup.py flake8
 - pytest --mpl
 
 install:
