@@ -75,7 +75,8 @@ jobs:
         echo "Old Tag:" $OLD_TAG
         echo "New Tag:" $NEW_TAG
         CHANGES=$(git log --pretty=format:'%s' $OLD_TAG..HEAD -i -E --grep='^([a-z]*?):')
-        echo "CHANGES: "$CHANGES$
+        echo "CHANGES:"$CHANGES";"
+        if [ -z "$CHANGES" ];; then echo "CHANGES is empty"; fi
         CHANGES_NEWLINE="$(echo "${CHANGES}" | sed -e 's/^/  - /')"
         SANITIZED_CHANGES=$(echo "${CHANGES}" | sed -e 's/^/<li>/' -e 's|$|</li>|' -e 's/(#[0-9]\+)//' )
         echo "::set-env name=CHANGES::${SANITIZED_CHANGES//$'\n'/}"
