@@ -1,4 +1,5 @@
 import os
+import warnings
 # Import counter
 import requests as req
 
@@ -28,6 +29,13 @@ from .plot import (
     append_axes,
     sort_legend
 )
+
+# Remind to use py3 instead
+warnings.simplefilter('default', DeprecationWarning)
+warnings.warn("Python 2 has reached EOL. mplhep is in a deprecated mode. "
+              "Please switch to Python 3.",
+              DeprecationWarning, stacklevel=2)
+
 
 # Make __version__ available
 try:

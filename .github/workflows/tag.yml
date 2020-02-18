@@ -4,10 +4,6 @@ on:
   pull_request:
     types: [labeled, closed]
 env:
-  IS_MAJOR: >-
-      ${{ contains( github.event.pull_request.labels.*.name, 'bumpversion/major' ) }}
-  IS_MINOR: >-
-      ${{ contains( github.event.pull_request.labels.*.name, 'bumpversion/minor' ) }}
   IS_PATCH: >-
       ${{ contains( github.event.pull_request.labels.*.name, 'bumpversion/patch' ) }}
   PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -17,8 +13,6 @@ jobs:
   bumpversion:
     if: >-
       (
-        contains( github.event.pull_request.labels.*.name, 'bumpversion/major' ) ||
-        contains( github.event.pull_request.labels.*.name, 'bumpversion/minor' ) ||
         contains( github.event.pull_request.labels.*.name, 'bumpversion/patch' )
       ) && (
         github.event.sender.login == 'andrzejnovak'
@@ -76,8 +70,7 @@ jobs:
         echo "New Tag:" $NEW_TAG
         CHANGES=$(git log --pretty=format:'%s' $OLD_TAG..HEAD -i -E --grep='^([a-z]*?):')
         echo "CHANGES:"$CHANGES";"
-        if [ -z "${CHANGES// }" ]; then echo "CHANGES is empty"; fi
-        if [ -z "${CHANGES// }" ]; then echo "Substituting dummy"; fi
+        if [ -z "${CHANGES// }" ]; then echo "CHANGES is empty, will substitute a dummy"; fi
         if [ -z "${CHANGES// }" ];   then CHANGES="dummy: didn't find valid semantic labels"; fi
         echo "guess prints fucked up"
         CHANGES_NEWLINE="$(echo "${CHANGES}" | sed -e 's/^/  - /')"
