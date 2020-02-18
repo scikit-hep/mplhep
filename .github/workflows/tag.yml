@@ -4,10 +4,6 @@ on:
   pull_request:
     types: [labeled, closed]
 env:
-  IS_MAJOR: >-
-      ${{ contains( github.event.pull_request.labels.*.name, 'bumpversion/major' ) }}
-  IS_MINOR: >-
-      ${{ contains( github.event.pull_request.labels.*.name, 'bumpversion/minor' ) }}
   IS_PATCH: >-
       ${{ contains( github.event.pull_request.labels.*.name, 'bumpversion/patch' ) }}
   PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -17,8 +13,6 @@ jobs:
   bumpversion:
     if: >-
       (
-        contains( github.event.pull_request.labels.*.name, 'bumpversion/major' ) ||
-        contains( github.event.pull_request.labels.*.name, 'bumpversion/minor' ) ||
         contains( github.event.pull_request.labels.*.name, 'bumpversion/patch' )
       ) && (
         github.event.sender.login == 'andrzejnovak'
@@ -31,13 +25,7 @@ jobs:
       run: echo "$GITHUB_CONTEXT"
     - name: Determine version part
       run: |
-        if [ $IS_MAJOR == 'true' ]
-        then
-          echo "::set-env name=BV_PART::major"
-        elif [ $IS_MINOR == 'true' ]
-        then
-          echo "::set-env name=BV_PART::minor"
-        else
+        if [ $IS_PATCH == 'true' ]
           echo "::set-env name=BV_PART::patch"
         fi
     - name: Checkout repository
