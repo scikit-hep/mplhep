@@ -2,12 +2,12 @@ name: publish distributions
 on:
   push:
     branches:
-    - master
+    - master-py27
     tags:
     - v*
   pull_request:
     branches:
-    - master
+    - master-py27
 
 jobs:
   build-and-publish:

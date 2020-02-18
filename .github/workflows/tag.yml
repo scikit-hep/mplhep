@@ -46,9 +46,9 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-    - name: Checkout master
-      run: git checkout master
-    - name: Squash and merge PR#${{ github.event.pull_request.number }} to master
+    - name: Checkout master-py27
+      run: git checkout master-py27
+    - name: Squash and merge PR#${{ github.event.pull_request.number }} to master-py27
       if: github.event.action == 'labeled'
       run: |
         git merge --squash "origin/${GITHUB_HEAD_REF}"
@@ -65,15 +65,25 @@ jobs:
       run: |
         OLD_TAG=$(git describe --tags --abbrev=0)
         echo "::set-env name=OLD_TAG::${OLD_TAG}"
+        echo "Run bumpversion"
         bumpversion $BV_PART --message "Bump version: {current_version} → {new_version}
         Triggered by #${PR_NUMBER} via GitHub Actions."
+        echo "Successfully ran bumpversion"
         NEW_TAG=$(git describe --tags --abbrev=0)
         echo "::set-env name=NEW_TAG::${NEW_TAG}"
         git tag -n99 -l $NEW_TAG
+        echo "Old Tag:" $OLD_TAG
+        echo "New Tag:" $NEW_TAG
         CHANGES=$(git log --pretty=format:'%s' $OLD_TAG..HEAD -i -E --grep='^([a-z]*?):')
+        echo "CHANGES:"$CHANGES";"
+        if [ -z "${CHANGES// }" ]; then echo "CHANGES is empty"; fi
+        if [ -z "${CHANGES// }" ]; then echo "Substituting dummy"; fi
+        if [ -z "${CHANGES// }" ];   then CHANGES="dummy: didn't find valid semantic labels"; fi
+        echo "guess prints fucked up"
         CHANGES_NEWLINE="$(echo "${CHANGES}" | sed -e 's/^/  - /')"
         SANITIZED_CHANGES=$(echo "${CHANGES}" | sed -e 's/^/<li>/' -e 's|$|</li>|' -e 's/(#[0-9]\+)//' )
         echo "::set-env name=CHANGES::${SANITIZED_CHANGES//$'\n'/}"
+        echo -n "$CHANGES" | grep -c '^'
         NUM_CHANGES=$(echo -n "$CHANGES" | grep -c '^')
         echo "::set-env name=NUM_CHANGES::${NUM_CHANGES}"
         git tag $NEW_TAG $NEW_TAG^{} -f -m "$(printf "This is a $BV_PART release from $OLD_TAG → $NEW_TAG.\n\nChanges:\n$CHANGES_NEWLINE")"
