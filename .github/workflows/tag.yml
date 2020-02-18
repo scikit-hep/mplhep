@@ -25,7 +25,13 @@ jobs:
       run: echo "$GITHUB_CONTEXT"
     - name: Determine version part
       run: |
-        if [ $IS_PATCH == 'true' ]
+        if [ $IS_MAJOR == 'true' ]
+        then
+          echo "::set-env name=BV_PART::major"
+        elif [ $IS_MINOR == 'true' ]
+        then
+          echo "::set-env name=BV_PART::minor"
+        else
           echo "::set-env name=BV_PART::patch"
         fi
     - name: Checkout repository
