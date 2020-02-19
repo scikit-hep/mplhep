@@ -130,7 +130,7 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
             h = _stack(h)
             _norm = (np.sum(h, axis=1 if h.ndim > 1 else 0) /
                      (np.ones_like(h) * _bin_widths).T).T
-            h = h / _norm[-1] # Divide by tot stack norm
+            h = h / _norm[-1]  # Divide by tot stack norm
         else:
             _norm = (np.sum(h, axis=1 if h.ndim > 1 else 0) /
                      (np.ones_like(h) * _bin_widths).T).T
@@ -142,7 +142,7 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
             _yerr /= _norm
 
     if stack and not density:
-        h = _stack(h)        
+        h = _stack(h)
 
     # Stack
     if stack and _nh > 1:
