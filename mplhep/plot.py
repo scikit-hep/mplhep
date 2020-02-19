@@ -19,7 +19,7 @@ _mpl_up = version.parse(mpl.__version__) >= version.parse(_mpl_up_version)
 
 
 def histplot(h, bins, weights=None, yerr=None, variances=None,
-             stack=False, density=False,
+             stack=False, density=False, densitymode='unit',
              histtype='step', label=None, edges=False, binticks=False,
              ax=None, **kwargs):
 
@@ -35,6 +35,9 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
     _allowed_histtype = ['fill', 'step', 'errorbar']
     _err_message = "Select 'histtype' from: {}".format(_allowed_histtype)
     assert histtype in _allowed_histtype, _err_message
+    _allowed_densitymode = ['unit', 'stack']
+    _err_message = "Select 'densitymode' from: {}".format(_allowed_densitymode)
+    assert densitymode in _allowed_densitymode, _err_message
     # Preprocess
     h = np.asarray(h)
     bins = np.asarray(bins)
@@ -119,17 +122,31 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
     else:
         _yerr = None
 
+    def _stack(_h):
+        return np.cumsum(_h, axis=0)
+
     if density:
-        _norm = (np.sum(h, axis=1 if h.ndim > 1 else 0) /
-                 (np.ones_like(h) * _bin_widths).T).T
-        h = h / _norm
+        if stack and densitymode == 'stack':
+            h = _stack(h)
+            _norm = (np.sum(h, axis=1 if h.ndim > 1 else 0) /
+                     (np.ones_like(h) * _bin_widths).T).T
+            h = h / _norm[-1] # Divide by tot stack norm
+        else:
+            _norm = (np.sum(h, axis=1 if h.ndim > 1 else 0) /
+                     (np.ones_like(h) * _bin_widths).T).T
+            h = h / _norm
+            if stack and densitymode == 'unit':
+                h = _stack(h)
 
         if _yerr is not None:
             _yerr /= _norm
 
+    if stack and not density:
+        h = _stack(h)        
+
     # Stack
     if stack and _nh > 1:
-        h = np.cumsum(h, axis=0)[::-1]
+        h = h[::-1]
         _labels = _labels[::-1]
         _chunked_kwargs = _chunked_kwargs[::-1]
 
