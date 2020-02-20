@@ -141,7 +141,7 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
             overallnorm = binwnorm * per_hist_norm
         else:
             overallnorm = np.ones(h.ndim)
-        binnorms = np.outer(overallnorm, np.ones_like(bins[:-1])) 
+        binnorms = np.outer(overallnorm, np.ones_like(bins[:-1]))
         binnorms /= np.outer(np.diff(bins), per_hist_norm).T
         if binnorms.ndim == 2 and len(binnorms) == 1:  # Unwrap if [[1,2,3]]
             binnorms = binnorms[0]
