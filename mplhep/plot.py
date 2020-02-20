@@ -131,13 +131,15 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
         return np.cumsum(_h, axis=0)
 
     def get_density(h, density=True, binwnorm=None, bins=bins):
-        assert (not density) ^ (binwnorm is None), "Can only calculate density or binwnorm"
+        assert (not density) ^ (binwnorm is None), (
+            "Can only calculate density or binwnorm")
         per_hist_norm = np.sum(h, axis=1 if h.ndim > 1 else 0)
         if binwnorm is not None:
             overallnorm = binwnorm * per_hist_norm
         else:
             overallnorm = np.ones(h.ndim)
-        binnorms = np.outer(overallnorm, np.ones_like(bins[:-1])) / np.outer(np.diff(bins), per_hist_norm).T
+        binnorms = np.outer(overallnorm, np.ones_like(bins[:-1])) 
+        binnorms /= np.outer(np.diff(bins), per_hist_norm).T
         return binnorms
 
     if density:
