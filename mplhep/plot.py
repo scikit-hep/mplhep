@@ -19,7 +19,7 @@ _mpl_up = version.parse(mpl.__version__) >= version.parse(_mpl_up_version)
 
 
 def histplot(h, bins, weights=None, yerr=None, variances=None,
-             stack=False, density=False, densitymode='unit',
+             stack=False, density=False, binwnorm=None, densitymode='unit',
              histtype='step', label=None, edges=False, binticks=False,
              ax=None, **kwargs):
 
@@ -39,8 +39,13 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
     _err_message = "Select 'densitymode' from: {}".format(_allowed_densitymode)
     assert densitymode in _allowed_densitymode, _err_message
     # Preprocess
-    h = np.asarray(h)
+    h = np.asarray(h).astype(float)
     bins = np.asarray(bins)
+    # Convert 1/0 etc to real bools
+    stack = bool(stack)
+    density = bool(density)
+    edges = bool(edges)
+    binticks = bool(binticks)
     assert bins.ndim == 1, "bins need to be 1 dimensional"
     assert bins.shape[0] == h.shape[-1] + 1, "len along main axis of h has "\
                                              "to be smaller by 1 than len "\
@@ -52,7 +57,10 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
     elif h.ndim > 1:
         _nh = len(h)
     else:
-        raise ValueError("Input cannot be handled")
+        raise ValueError("Input not recognized")
+
+    if _nh == 1:
+        assert not stack, "Cannot stack one histogram"
 
     # Find a better way to unwrap to "real" dimentionality
     if h.ndim == 2 and len(h) == 1:  # Unwrap if [[1,2,3]]
@@ -122,27 +130,38 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
     else:
         _yerr = None
 
-    def _stack(_h):
+    def get_stack(_h):
         return np.cumsum(_h, axis=0)
 
-    if density:
-        if stack and densitymode == 'stack':
-            h = _stack(h)
-            _norm = (np.sum(h, axis=1 if h.ndim > 1 else 0) /
-                     (np.ones_like(h) * _bin_widths).T).T
-            h = h / _norm[-1]  # Divide by tot stack norm
+    def get_density(h, density=True, binwnorm=None, bins=bins):
+        assert (not density) ^ (binwnorm is None), (
+            "Can only calculate density or binwnorm")
+        per_hist_norm = np.sum(h, axis=1 if h.ndim > 1 else 0)
+        if binwnorm is not None:
+            overallnorm = binwnorm * per_hist_norm
         else:
-            _norm = (np.sum(h, axis=1 if h.ndim > 1 else 0) /
-                     (np.ones_like(h) * _bin_widths).T).T
-            h = h / _norm
+            overallnorm = np.ones(h.ndim)
+        binnorms = np.outer(overallnorm, np.ones_like(bins[:-1]))
+        binnorms /= np.outer(np.diff(bins), per_hist_norm).T
+        if binnorms.ndim == 2 and len(binnorms) == 1:  # Unwrap if [[1,2,3]]
+            binnorms = binnorms[0]
+        return binnorms
+
+    if density:
+        density_arr = get_density(h, density, binwnorm)
+        if stack and densitymode == 'stack':
+            h = get_stack(h)
+            h *= density_arr[-1]
+        else:
+            h *= density_arr
             if stack and densitymode == 'unit':
-                h = _stack(h)
+                h = get_stack(h)
 
         if _yerr is not None:
-            _yerr /= _norm
+            _yerr *= density_arr
 
     if stack and not density:
-        h = _stack(h)
+        h = get_stack(h)
 
     # Stack
     if stack and _nh > 1:
