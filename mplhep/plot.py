@@ -39,7 +39,7 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
     _err_message = "Select 'densitymode' from: {}".format(_allowed_densitymode)
     assert densitymode in _allowed_densitymode, _err_message
     # Preprocess
-    h = np.asarray(h)
+    h = np.asarray(h).astype(float)
     bins = np.asarray(bins)
     # Convert 1/0 etc to real bools
     stack = bool(stack)
@@ -57,7 +57,10 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
     elif h.ndim > 1:
         _nh = len(h)
     else:
-        raise ValueError("Input cannot be handled")
+        raise ValueError("Input not recognized")
+
+    if _nh == 1:
+        assert not stack, "Cannot stack one histogram"
 
     # Find a better way to unwrap to "real" dimentionality
     if h.ndim == 2 and len(h) == 1:  # Unwrap if [[1,2,3]]
@@ -140,19 +143,22 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
             overallnorm = np.ones(h.ndim)
         binnorms = np.outer(overallnorm, np.ones_like(bins[:-1])) 
         binnorms /= np.outer(np.diff(bins), per_hist_norm).T
+        if binnorms.ndim == 2 and len(binnorms) == 1:  # Unwrap if [[1,2,3]]
+            binnorms = binnorms[0]
         return binnorms
 
     if density:
+        density_arr = get_density(h, density, binwnorm)
         if stack and densitymode == 'stack':
             h = get_stack(h)
-            h *= get_density(h, density, binwnorm)[-1]
+            h *= density_arr[-1]
         else:
-            h *= get_density(h, density, binwnorm)
+            h *= density_arr
             if stack and densitymode == 'unit':
                 h = get_stack(h)
 
         if _yerr is not None:
-            _yerr *= get_density(h, density, binwnorm)
+            _yerr *= density_arr
 
     if stack and not density:
         h = get_stack(h)
