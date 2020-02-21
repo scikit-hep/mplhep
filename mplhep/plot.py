@@ -157,7 +157,7 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
             if stack and densitymode == 'unit':
                 h = get_stack(h)
         if _yerr is not None:
-            for i in range(_nh):
+            for i in range(len(density_arr)):
                 _yerr[i] = _yerr[i] * density_arr[i]
 
     if stack and not density:
