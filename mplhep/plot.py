@@ -252,7 +252,7 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
             if k not in kwargs.keys():
                 kwargs[k] = v
         if _nh == 1:
-            ax.errorbar(_bin_centers, h, yerr=_yerr, linestyle='none',
+            ax.errorbar(_bin_centers, h, yerr=_yerr,
                         label=_labels[0], **kwargs)
         else:
             for i in range(_nh):
