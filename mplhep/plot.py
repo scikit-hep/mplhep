@@ -274,6 +274,8 @@ def hist2dplot(H, xbins=None, ybins=None, weights=None, labels=None,
                cbar=True, cbarsize="7%", cbarpad=0.2, cbarpos='right',
                cmin=None, cmax=None, ax=None, **kwargs):
 
+    H = H.T
+
     if ax is None:
         ax = plt.gca()
 
@@ -320,7 +322,7 @@ def hist2dplot(H, xbins=None, ybins=None, weights=None, labels=None,
                 color = 'black' if pc.norm(H[iy, ix]) > 0.5 else 'lightgrey'
                 ax.text(xc, yc, _labels[iy, ix], ha='center', va='center', color=color)
 
-    return H, xbins, ybins, pc
+    return ax
 
 
 #############################################
