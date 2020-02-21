@@ -133,7 +133,6 @@ def test_hist2dplot():
     x = np.random.normal(5, 1.5, 100)
     y = np.random.normal(4, 1, 100)
     H, xedges, yedges = np.histogram2d(x, y, bins=(xedges, yedges))
-    H = H.T
 
     fig, ax = plt.subplots()
     hep.hist2dplot(H, xedges, yedges, labels=True)

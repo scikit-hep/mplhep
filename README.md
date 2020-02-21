@@ -119,7 +119,6 @@ yedges = [0, 2, 3, 4, 6,7]
 x = np.random.normal(2, 1, 100)
 y = np.random.normal(4, 1, 100)
 H, xedges, yedges = np.histogram2d(x, y, bins=(xedges, yedges))
-H = H.T
 
 hep.hist2dplot(H, xedges, yedges)
 
