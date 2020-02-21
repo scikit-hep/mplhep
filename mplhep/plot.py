@@ -195,7 +195,7 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
             _s, = ax.step(_bins, _h, where=_where, label=_step_label, **kwargs)
             if yerr is not None or variances is not None:
                 ax.errorbar(_bin_centers, h, yerr=_yerr, color=_s.get_color(),
-                            ls='none', **kwargs)
+                            linestyle='none', **kwargs)
                 ax.errorbar([], [], yerr=1, xerr=1, color=_s.get_color(),
                             label=_label)
         else:
@@ -218,7 +218,7 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
                               **_kwargs)
                 if yerr is not None or variances is not None:
                     ax.errorbar(_bin_centers, h[i], yerr=_yerr[i],
-                                color=_s.get_color(), ls='none', **kwargs)
+                                color=_s.get_color(), linestyle='none', **kwargs)
                     ax.errorbar([], [], yerr=1, xerr=1, color=_s.get_color(),
                                 label=_label)
 
@@ -252,11 +252,11 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
             if k not in kwargs.keys():
                 kwargs[k] = v
         if _nh == 1:
-            ax.errorbar(_bin_centers, h, yerr=_yerr, ls='none',
+            ax.errorbar(_bin_centers, h, yerr=_yerr, linestyle='none',
                         label=_labels[0], **kwargs)
         else:
             for i in range(_nh):
-                ax.errorbar(_bin_centers, h[i], yerr=_yerr[i], ls='none',
+                ax.errorbar(_bin_centers, h[i], yerr=_yerr[i], linestyle='none',
                             label=_labels[0], **_chunked_kwargs[i])
 
     # Get current
