@@ -136,11 +136,11 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
     def get_density(h, density=True, binwnorm=None, bins=bins):
         assert (not density) ^ (binwnorm is None), (
             "Can only calculate density or binwnorm")
-        per_hist_norm = np.sum(h, axis=1 if h.ndim > 1 else 0)
+        per_hist_norm = np.sum(h, axis=1 if _nh > 1 else 0)
         if binwnorm is not None:
             overallnorm = binwnorm * per_hist_norm
         else:
-            overallnorm = np.ones(h.ndim)
+            overallnorm = np.ones(_nh)
         binnorms = np.outer(overallnorm, np.ones_like(bins[:-1]))
         binnorms /= np.outer(np.diff(bins), per_hist_norm).T
         if binnorms.ndim == 2 and len(binnorms) == 1:  # Unwrap if [[1,2,3]]
@@ -156,9 +156,9 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
             h *= density_arr
             if stack and densitymode == 'unit':
                 h = get_stack(h)
-
         if _yerr is not None:
-            _yerr *= density_arr
+            for i in range(_nh):
+                _yerr[i] = _yerr[i] * density_arr[i]
 
     if stack and not density:
         h = get_stack(h)
