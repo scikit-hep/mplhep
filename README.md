@@ -224,3 +224,8 @@ For now one has to set the style globally
 ```
 plt.style.use(style.ROOT)
 ```
+
+
+### Used in the following publications:
+- https://cds.cern.ch/record/2706189
+
