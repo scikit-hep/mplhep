@@ -5,6 +5,7 @@ import requests as req
 # Get helper functions
 from . import cms
 from . import atlas
+from . import lhcb
 from . import plot
 from . import label
 
@@ -49,7 +50,7 @@ font_list = fm.createFontList(font_files)
 fm.fontManager.ttflist.extend(font_list)
 
 # Log submodules
-__all__ = [cms, atlas, plot, style, tools, label,
+__all__ = [cms, atlas, lhcb, plot, style, tools, label,
            # Log plot functions
            'histplot',
            'hist2dplot',
