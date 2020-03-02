@@ -12,6 +12,7 @@ ROOT = {
     # Custom colors
     "axes.prop_cycle": cycler('color', colors) + cycler('marker', markers),
     "axes.formatter.min_exponent": 3,
+    "axes.unicode_minus": False,
     # Figure properties
     "figure.figsize": (12, 9),
     "figure.dpi": 100,
