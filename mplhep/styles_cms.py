@@ -19,6 +19,7 @@ ROOT = {
 
     "font.size": 26,
     "axes.labelsize": "medium",
+    "axes.unicode_minus": False,
     "xtick.labelsize": "small",
     "ytick.labelsize": "small",
 
