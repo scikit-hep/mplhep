@@ -46,7 +46,7 @@ xbins, ybins = [0, 1, 2, 3], [0, 1, 2, 3]
 H = [[2,3,2], [1,2,1], [3,1,3]]
 hep.hist2dplot(H, xbins, ybins)
 ```
-Several useful style adjustments differing form mpl defaults are also available separately or within 
+Several useful style adjustments differing form mpl defaults are also available separately or within
 ```
 hep.mpl_magic()
 ```
@@ -226,6 +226,8 @@ plt.style.use(style.ROOT)
 ```
 
 
-### Used in the following publications:
-- https://cds.cern.ch/record/2706189
+### Use in publications
 
+Updating list of citations and use cases of `mplhep` in publications:
+
+- [Simultaneous Jet Energy and Mass Calibrations with Neural Networks](https://cds.cern.ch/record/2706189), ATLAS Collaboration, 2019
