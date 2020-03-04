@@ -76,7 +76,7 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
         _labels = [str(lab) for lab in label]
 
     def iterable_not_string(arg):
-        return (isinstance(arg, collections.Iterable) and not isinstance(arg, str))
+        return (isinstance(arg, collections.abc.Iterable) and not isinstance(arg, str))
 
     _chunked_kwargs = []
     for i in range(_nh):

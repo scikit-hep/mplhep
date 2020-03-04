@@ -28,11 +28,23 @@ pip install mplhep
 ```
 import matplotlib.pyplot as plt
 import mplhep as hep
-plt.style.use(hep.style.ROOT)
+plt.style.use(hep.style.ROOT) # For now ROOT defaults to CMS
+# Or choose one of the experiment styles
+plt.style.use(hep.style.CMS)
 # or
 plt.style.use(hep.style.ATLAS)
+# or
+plt.style.use(hep.style.LHCb)
 ```
 Experiment specific style are also available. **If the default styles are not what you need, I'd be happy to merge in new styles or modify the current ones.**
+
+Default experiment labels are also available
+```
+# Overall - both left and right annotation
+hep.<experiment>.label()
+# Just experiment label and <text> such as 'Preliminary' or 'Simulation'
+hep.<experiment>.text(<text>)
+```
 
 ### Plotting
 #### 1D Histograms

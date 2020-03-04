@@ -1,4 +1,5 @@
 import os
+import sys
 import pytest
 import matplotlib.pyplot as plt
 import numpy as np
@@ -125,7 +126,7 @@ def test_histplot_stack():
     return fig
 
 
-# @pytest.mark.mpl_image_compare(style='default', remove_text=True)
+@pytest.mark.mpl_image_compare(style='default', remove_text=True)
 def test_hist2dplot():
     np.random.seed(0)
     xedges = np.arange(0, 11.5, 1.5)
@@ -177,4 +178,52 @@ def test_histplot_kwargs():
     axs[3].legend()
 
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
+    return fig
+
+
+# Compare styles
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+@pytest.mark.mpl_image_compare(style='default', remove_text=False)
+def test_style_atlas():
+    import mplhep as hep
+    import matplotlib.pyplot as plt
+    plt.rcParams.update(plt.rcParamsDefault)
+
+    # Test suite does not have Helvetica
+    plt.style.use([hep.style.ATLAS, {"font.sans-serif": ["Tex Gyre Heros"]}])
+    fig, ax = plt.subplots()
+    hep.atlas.text()
+
+    plt.rcParams.update(plt.rcParamsDefault)
+    return fig
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+@pytest.mark.mpl_image_compare(style='default', remove_text=False)
+def test_style_cms():
+    import mplhep as hep
+    import matplotlib.pyplot as plt
+    plt.rcParams.update(plt.rcParamsDefault)
+
+    plt.style.use(hep.style.CMS)
+    fig, ax = plt.subplots()
+    hep.cms.text()
+
+    plt.rcParams.update(plt.rcParamsDefault)
+    return fig
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+@pytest.mark.mpl_image_compare(style='default', remove_text=False)
+def test_style_lhcb():
+    import mplhep as hep
+    import matplotlib.pyplot as plt
+    plt.rcParams.update(plt.rcParamsDefault)
+
+    plt.style.use([hep.style.LHCb, 
+                   {"figure.autolayout": False}
+                   ])
+    fig, ax = plt.subplots()
+    # Doesn't work for now
+    # hep.lhcb.text()
+    plt.rcParams.update(plt.rcParamsDefault)
     return fig
