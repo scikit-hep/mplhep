@@ -1,14 +1,17 @@
 ATLAS = {
     # From https://github.com/kratsg/ATLASstylempl
     "lines.linewidth": 1,
-
     "font.family": "sans-serif",
-    "font.sans-serif": ["helvetica", "Helvetica", "Nimbus Sans L",
-                        "Mukti Narrow", "FreeSans"],
+    "font.sans-serif": [
+        "helvetica",
+        "Helvetica",
+        "Nimbus Sans L",
+        "Mukti Narrow",
+        "FreeSans",
+    ],
     "font.size": 18,
     "mathtext.fontset": "stixsans",
     "mathtext.default": "rm",
-
     # figure layout
     "figure.figsize": (8.75, 5.92),
     "figure.facecolor": "white",
@@ -16,7 +19,6 @@ ATLAS = {
     "figure.subplot.top": 0.93,
     "figure.subplot.left": 0.16,
     "figure.subplot.right": 0.95,
-
     # axes
     "axes.labelsize": 30,
     "axes.labelpad": 30,
@@ -33,7 +35,6 @@ ATLAS = {
     "ytick.direction": "in",
     "ytick.minor.visible": True,
     "lines.markersize": 8,
-
     # legend
     "legend.numpoints": 1,
     "legend.fontsize": 18,
