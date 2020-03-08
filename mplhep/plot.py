@@ -20,7 +20,7 @@ _mpl_up = version.parse(mpl.__version__) >= version.parse(_mpl_up_version)
 
 def histplot(h, bins, weights=None, yerr=None, variances=None,
              stack=False, density=False, binwnorm=None, densitymode='unit',
-             histtype='step', label=None, edges=False, binticks=False,
+             histtype='step', label=None, edges=True, binticks=False,
              ax=None, **kwargs):
 
     if ax is None:
@@ -30,8 +30,6 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
             raise ValueError("ax must be a matplotlib Axes object")
 
     # arg check
-    if histtype != 'step':
-        assert edges is False, "edges is only valid with histtype='step'"
     _allowed_histtype = ['fill', 'step', 'errorbar']
     _err_message = "Select 'histtype' from: {}".format(_allowed_histtype)
     assert histtype in _allowed_histtype, _err_message
