@@ -3,7 +3,7 @@
 # double column width - 172 mm (6.772in) / 180 mm (7.087in)
 # For now size to 10
 
-ROOT = {
+CMS = {
     "font.sans-serif": ["TeX Gyre Heros", "Helvetica", "Arial"],
     "font.family": "sans-serif",
 
@@ -19,6 +19,7 @@ ROOT = {
 
     "font.size": 26,
     "axes.labelsize": "medium",
+    "axes.unicode_minus": False,
     "xtick.labelsize": "small",
     "ytick.labelsize": "small",
 
@@ -59,12 +60,15 @@ ROOT = {
 
 }
 
-ROOTtex = {
+CMSTex = {
     "text.usetex": True,
     "text.latex.preamble": r"\usepackage{siunitx},\sisetup{detect-all}, \
                               \usepackage{helvet},\usepackage{sansmath}, \
                               \sansmath"
 }
+
+ROOT = CMS
+ROOTTex = CMSTex
 
 fira = {
     "font.sans-serif": "Fira Sans"

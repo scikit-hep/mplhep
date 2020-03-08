@@ -1,10 +1,11 @@
 from cycler import cycler
+from . tools import DeprecDict
 
 colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
           '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
 markers = ['o', 's', 'D', '^', 'v', '<', '>', 'P', 'X', '*']
 
-ROOT = {
+LHCb = {
     # Plot properties
     "axes.labelsize": 32,
     "axes.linewidth": 2,
@@ -77,7 +78,11 @@ ROOT = {
     "patch.linewidth": 2,
 }
 
-ROOTTex = {
+ROOT = DeprecDict(
+    LHCb, message="'ROOT' style dict is deprecated, please use 'LHCb' instead")
+
+
+LHCbTex = {
     # Use LaTeX rendering by default
     # (overrides default font)
     "text.usetex": True,
@@ -85,3 +90,6 @@ ROOTTex = {
     "text.latex.preamble": r"\usepackage{mathptmx}",
     "pgf.rcfonts": False
 }
+
+ROOTTex = DeprecDict(
+    LHCbTex, message="'ROOT' style dict is deprecated, please use 'LHCb' instead")

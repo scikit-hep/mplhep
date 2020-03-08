@@ -2,6 +2,8 @@ import os
 # Import counter
 import requests as req
 
+import matplotlib.font_manager as fm
+
 # Get helper functions
 from . import cms
 from . import atlas
@@ -40,14 +42,11 @@ with open(os.path.join(_base_dir, '.VERSION')) as version_file:
     __version__ = version_file.read().strip()
 
 # Make package fonts available to matplotlib
-import os
-import matplotlib.font_manager as fm
-
 path = os.path.abspath(__file__)
-font_path = "/" + "/".join(path.split("/")[:-1]) + "/fonts/"
+font_path = "/".join(path.split("/")[:-1]) + "/fonts/"
 font_files = fm.findSystemFonts(fontpaths=font_path)
-font_list = fm.createFontList(font_files)
-fm.fontManager.ttflist.extend(font_list)
+for font in font_files:
+    fm.fontManager.addfont(font)
 
 # Log submodules
 __all__ = [cms, atlas, lhcb, plot, style, tools, label,

@@ -28,11 +28,23 @@ pip install mplhep
 ```
 import matplotlib.pyplot as plt
 import mplhep as hep
-plt.style.use(hep.style.ROOT)
+plt.style.use(hep.style.ROOT) # For now ROOT defaults to CMS
+# Or choose one of the experiment styles
+plt.style.use(hep.style.CMS)
 # or
 plt.style.use(hep.style.ATLAS)
+# or
+plt.style.use(hep.style.LHCb)
 ```
 Experiment specific style are also available. **If the default styles are not what you need, I'd be happy to merge in new styles or modify the current ones.**
+
+Default experiment labels are also available
+```
+# Overall - both left and right annotation
+hep.<experiment>.label()
+# Just experiment label and <text> such as 'Preliminary' or 'Simulation'
+hep.<experiment>.text(<text>)
+```
 
 ### Plotting
 #### 1D Histograms
@@ -46,7 +58,7 @@ xbins, ybins = [0, 1, 2, 3], [0, 1, 2, 3]
 H = [[2,3,2], [1,2,1], [3,1,3]]
 hep.hist2dplot(H, xbins, ybins)
 ```
-Several useful style adjustments differing form mpl defaults are also available separately or within 
+Several useful style adjustments differing form mpl defaults are also available separately or within
 ```
 hep.mpl_magic()
 ```
@@ -226,6 +238,8 @@ plt.style.use(style.ROOT)
 ```
 
 
-### Used in the following publications:
-- https://cds.cern.ch/record/2706189
+### Use in publications
 
+Updating list of citations and use cases of `mplhep` in publications:
+
+- [Simultaneous Jet Energy and Mass Calibrations with Neural Networks](https://cds.cern.ch/record/2706189), ATLAS Collaboration, 2019
