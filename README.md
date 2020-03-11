@@ -54,8 +54,9 @@ hep.histplot(h, bins)
 ```
 #### 2D Histograms
 ```
+import numpy as np
 xbins, ybins = [0, 1, 2, 3], [0, 1, 2, 3]
-H = [[2,3,2], [1,2,1], [3,1,3]]
+H = np.array([[2,3,2], [1,2,1], [3,1,3]])
 hep.hist2dplot(H, xbins, ybins)
 ```
 Several useful style adjustments differing form mpl defaults are also available separately or within
