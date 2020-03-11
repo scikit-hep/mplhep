@@ -106,7 +106,7 @@ f, ax = plt.subplots()
 + hep.histplot(h, bins)
 
 ```
-Additinal functionality is also wrapped inside.
+Additional functionality is also wrapped inside.
 - if `h` is a list of arrays or a 2d array, separate histograms will be plotted
 - `stack=True` stack plots
 - `yerr={None | True | array of ndim = h.ndim | array of ndim = h.ndim + 1}` is
