@@ -1,9 +1,19 @@
 from cycler import cycler
-from . tools import DeprecDict
+from .tools import DeprecDict
 
-colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
-          '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
-markers = ['o', 's', 'D', '^', 'v', '<', '>', 'P', 'X', '*']
+colors = [
+    "#1f77b4",
+    "#ff7f0e",
+    "#2ca02c",
+    "#d62728",
+    "#9467bd",
+    "#8c564b",
+    "#e377c2",
+    "#7f7f7f",
+    "#bcbd22",
+    "#17becf",
+]
+markers = ["o", "s", "D", "^", "v", "<", ">", "P", "X", "*"]
 
 LHCb = {
     # Plot properties
@@ -11,7 +21,7 @@ LHCb = {
     "axes.linewidth": 2,
     "axes.facecolor": "white",
     # Custom colors
-    "axes.prop_cycle": cycler('color', colors) + cycler('marker', markers),
+    "axes.prop_cycle": cycler("color", colors) + cycler("marker", markers),
     "axes.formatter.min_exponent": 3,
     "axes.unicode_minus": False,
     # Figure properties
@@ -20,13 +30,11 @@ LHCb = {
     # Outer frame color
     "figure.facecolor": "white",
     "figure.autolayout": True,
-
     # Set default font to Times New Roman
     "font.family": "serif",
     "font.serif": ["Times New Roman"],
     "font.size": 14,
     "font.weight": 400,
-
     # Draw the legend on a solid background
     "legend.frameon": True,
     "legend.fancybox": False,
@@ -43,17 +51,14 @@ LHCb = {
     # Space between the borders of the plot and the legend
     "legend.borderaxespad": 1.0,
     "legend.edgecolor": "white",
-
     # Lines settings
     "lines.linewidth": 4,
     "lines.markeredgewidth": 0,
     "lines.markersize": 8,
-
     # Saved figure settings
     "savefig.bbox": "tight",
     "savefig.pad_inches": 0.1,
     "savefig.format": "pdf",
-
     # Ticks settings
     "xtick.major.size": 14,
     "xtick.minor.size": 7,
@@ -71,7 +76,6 @@ LHCb = {
     "ytick.minor.pad": 10,
     "ytick.direction": "in",
     "ytick.labelsize": 30,
-
     # Legend frame border size
     # WARNING: this affects every patch object
     # (i.e. histograms and so on)
@@ -79,7 +83,8 @@ LHCb = {
 }
 
 ROOT = DeprecDict(
-    LHCb, message="'ROOT' style dict is deprecated, please use 'LHCb' instead")
+    LHCb, message="'ROOT' style dict is deprecated, please use 'LHCb' instead"
+)
 
 
 LHCbTex = {
@@ -88,8 +93,9 @@ LHCbTex = {
     "text.usetex": True,
     # Use the LaTeX version of Times New Roman
     "text.latex.preamble": r"\usepackage{mathptmx}",
-    "pgf.rcfonts": False
+    "pgf.rcfonts": False,
 }
 
 ROOTTex = DeprecDict(
-    LHCbTex, message="'ROOT' style dict is deprecated, please use 'LHCb' instead")
+    LHCbTex, message="'ROOT' style dict is deprecated, please use 'LHCb' instead"
+)

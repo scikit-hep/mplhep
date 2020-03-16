@@ -11,17 +11,31 @@ from .error_estimation import poisson_interval
 
 # mpl updated to new methods
 from packaging import version
-_mpl_up_version = '3.3.3'
+
+_mpl_up_version = "3.3.3"
 _mpl_up = version.parse(mpl.__version__) >= version.parse(_mpl_up_version)
 
 ########################################
 # Histogram plotter
 
 
-def histplot(h, bins, weights=None, yerr=None, variances=None,
-             stack=False, density=False, binwnorm=None, densitymode='unit',
-             histtype='step', label=None, edges=False, binticks=False,
-             ax=None, **kwargs):
+def histplot(
+    h,
+    bins,
+    weights=None,
+    yerr=None,
+    variances=None,
+    stack=False,
+    density=False,
+    binwnorm=None,
+    densitymode="unit",
+    histtype="step",
+    label=None,
+    edges=False,
+    binticks=False,
+    ax=None,
+    **kwargs
+):
 
     if ax is None:
         ax = plt.gca()
@@ -30,12 +44,12 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
             raise ValueError("ax must be a matplotlib Axes object")
 
     # arg check
-    if histtype != 'step':
+    if histtype != "step":
         assert edges is False, "edges is only valid with histtype='step'"
-    _allowed_histtype = ['fill', 'step', 'errorbar']
+    _allowed_histtype = ["fill", "step", "errorbar"]
     _err_message = "Select 'histtype' from: {}".format(_allowed_histtype)
     assert histtype in _allowed_histtype, _err_message
-    _allowed_densitymode = ['unit', 'stack']
+    _allowed_densitymode = ["unit", "stack"]
     _err_message = "Select 'densitymode' from: {}".format(_allowed_densitymode)
     assert densitymode in _allowed_densitymode, _err_message
     # Preprocess
@@ -47,9 +61,9 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
     edges = bool(edges)
     binticks = bool(binticks)
     assert bins.ndim == 1, "bins need to be 1 dimensional"
-    assert bins.shape[0] == h.shape[-1] + 1, "len along main axis of h has "\
-                                             "to be smaller by 1 than len "\
-                                             "of bins"
+    assert bins.shape[0] == h.shape[-1] + 1, (
+        "len along main axis of h has " "to be smaller by 1 than len " "of bins"
+    )
     assert variances is None or yerr is None, "Can only supply errors or variances"
 
     if h.ndim == 1:
@@ -76,7 +90,7 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
         _labels = [str(lab) for lab in label]
 
     def iterable_not_string(arg):
-        return (isinstance(arg, collections.abc.Iterable) and not isinstance(arg, str))
+        return isinstance(arg, collections.abc.Iterable) and not isinstance(arg, str)
 
     _chunked_kwargs = []
     for i in range(_nh):
@@ -105,7 +119,7 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
 
     if yerr is not None:
         # yerr is array
-        if hasattr(yerr, '__len__'):
+        if hasattr(yerr, "__len__"):
             _yerr = np.asarray(yerr)
             if _yerr.ndim == 3 and len(_yerr) == 1:  # Unwrap if [[1,2,3]]
                 _yerr = _yerr[0][0]
@@ -115,8 +129,9 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
         # yerr is automatic
         else:
             if yerr is True:
-                assert stack is False, "Automatic errorbars not defined for " \
-                                       "stacked plot"
+                assert stack is False, (
+                    "Automatic errorbars not defined for " "stacked plot"
+                )
                 _yerr = np.sqrt(h)
 
     elif variances is not None:
@@ -134,8 +149,9 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
         return np.cumsum(_h, axis=0)
 
     def get_density(h, density=True, binwnorm=None, bins=bins):
-        assert (not density) ^ (binwnorm is None), (
-            "Can only calculate density or binwnorm")
+        assert (not density) ^ (
+            binwnorm is None
+        ), "Can only calculate density or binwnorm"
         per_hist_norm = np.sum(h, axis=1 if _nh > 1 else 0)
         if binwnorm is not None:
             overallnorm = binwnorm * per_hist_norm
@@ -149,12 +165,12 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
 
     if density:
         density_arr = get_density(h, density, binwnorm)
-        if stack and densitymode == 'stack':
+        if stack and densitymode == "stack":
             h = get_stack(h)
             h *= get_density(h, density, binwnorm)[-1]
         else:
             h *= density_arr
-            if stack and densitymode == 'unit':
+            if stack and densitymode == "unit":
                 h = get_stack(h)
         if _yerr is not None:
             for i in range(len(density_arr)):
@@ -170,13 +186,13 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
         _chunked_kwargs = _chunked_kwargs[::-1]
 
     if not _mpl_up:
-        _where = 'post'
+        _where = "post"
     elif edges:
-        _where = 'edges'
+        _where = "edges"
     else:
-        _where = 'between'
+        _where = "between"
 
-    if histtype == 'step':
+    if histtype == "step":
         if _nh == 1:
             if not _mpl_up:  # Back-comp
                 if edges:
@@ -192,12 +208,17 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
                 _bins = bins
             _label = _labels[0]
             _step_label = _label if yerr is None else None
-            _s, = ax.step(_bins, _h, where=_where, label=_step_label, **kwargs)
+            (_s,) = ax.step(_bins, _h, where=_where, label=_step_label, **kwargs)
             if yerr is not None or variances is not None:
-                ax.errorbar(_bin_centers, h, yerr=_yerr, color=_s.get_color(),
-                            linestyle='none', **kwargs)
-                ax.errorbar([], [], yerr=1, xerr=1, color=_s.get_color(),
-                            label=_label)
+                ax.errorbar(
+                    _bin_centers,
+                    h,
+                    yerr=_yerr,
+                    color=_s.get_color(),
+                    linestyle="none",
+                    **kwargs
+                )
+                ax.errorbar([], [], yerr=1, xerr=1, color=_s.get_color(), label=_label)
         else:
             for i in range(_nh):
                 if not _mpl_up:  # Back-comp
@@ -214,15 +235,21 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
                 _kwargs = _chunked_kwargs[i]
                 _label = _labels[i]
                 _step_label = _label if yerr is None else None
-                _s, = ax.step(_bins, _h, where=_where, label=_step_label,
-                              **_kwargs)
+                (_s,) = ax.step(_bins, _h, where=_where, label=_step_label, **_kwargs)
                 if yerr is not None or variances is not None:
-                    ax.errorbar(_bin_centers, h[i], yerr=_yerr[i],
-                                color=_s.get_color(), linestyle='none', **kwargs)
-                    ax.errorbar([], [], yerr=1, xerr=1, color=_s.get_color(),
-                                label=_label)
+                    ax.errorbar(
+                        _bin_centers,
+                        h[i],
+                        yerr=_yerr[i],
+                        color=_s.get_color(),
+                        linestyle="none",
+                        **kwargs
+                    )
+                    ax.errorbar(
+                        [], [], yerr=1, xerr=1, color=_s.get_color(), label=_label
+                    )
 
-    elif histtype == 'fill':
+    elif histtype == "fill":
         if _nh == 1:
             if not _mpl_up:
                 _h = np.r_[h, h[-1]]
@@ -236,15 +263,14 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
                 else:
                     _h = h[i]
                 _kwargs = _chunked_kwargs[i]
-                ax.fill_between(bins, _h, step=_where,
-                                label=_labels[i], **_kwargs)
+                ax.fill_between(bins, _h, step=_where, label=_labels[i], **_kwargs)
 
-    elif histtype == 'errorbar':
+    elif histtype == "errorbar":
         err_defaults = {
-            'linestyle': 'none',
-            'marker': '.',
-            'markersize': 10.,
-            'elinewidth': 1,
+            "linestyle": "none",
+            "marker": ".",
+            "markersize": 10.0,
+            "elinewidth": 1,
         }
         if _yerr is None:
             _yerr = np.zeros_like(h)
@@ -252,12 +278,17 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
             if k not in kwargs.keys():
                 kwargs[k] = v
         if _nh == 1:
-            ax.errorbar(_bin_centers, h, yerr=_yerr,
-                        label=_labels[0], **kwargs)
+            ax.errorbar(_bin_centers, h, yerr=_yerr, label=_labels[0], **kwargs)
         else:
             for i in range(_nh):
-                ax.errorbar(_bin_centers, h[i], yerr=_yerr[i], linestyle='none',
-                            label=_labels[0], **_chunked_kwargs[i])
+                ax.errorbar(
+                    _bin_centers,
+                    h[i],
+                    yerr=_yerr[i],
+                    linestyle="none",
+                    label=_labels[0],
+                    **_chunked_kwargs[i]
+                )
 
     # Get current
     ymin, ymax = ax.get_ylim()
@@ -270,9 +301,21 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
     return ax
 
 
-def hist2dplot(H, xbins=None, ybins=None, weights=None, labels=None,
-               cbar=True, cbarsize="7%", cbarpad=0.2, cbarpos='right',
-               cmin=None, cmax=None, ax=None, **kwargs):
+def hist2dplot(
+    H,
+    xbins=None,
+    ybins=None,
+    weights=None,
+    labels=None,
+    cbar=True,
+    cbarsize="7%",
+    cbarpad=0.2,
+    cbarpos="right",
+    cmin=None,
+    cmax=None,
+    ax=None,
+    **kwargs
+):
 
     H = H.T
 
@@ -313,14 +356,15 @@ def hist2dplot(H, xbins=None, ybins=None, weights=None, labels=None,
         elif labels is False:
             pass
         else:
-            raise ValueError('Labels not understood, either specify a bool or a'
-                             'Histlike array ')
+            raise ValueError(
+                "Labels not understood, either specify a bool or a" "Histlike array "
+            )
         _xbin_centers = xbins[1:] - np.diff(xbins) / float(2)
         _ybin_centers = ybins[1:] - np.diff(ybins) / float(2)
         for ix, xc in enumerate(_xbin_centers):
             for iy, yc in enumerate(_ybin_centers):
-                color = 'black' if pc.norm(H[iy, ix]) > 0.5 else 'lightgrey'
-                ax.text(xc, yc, _labels[iy, ix], ha='center', va='center', color=color)
+                color = "black" if pc.norm(H[iy, ix]) > 0.5 else "lightgrey"
+                ax.text(xc, yc, _labels[iy, ix], ha="center", va="center", color=color)
 
     return ax
 
@@ -334,8 +378,8 @@ def r_align(ax=None):
     if ax is None:
         ax = plt.gca()
 
-    ax.set_xlabel(ax.get_xlabel(), ha='right', x=1)
-    ax.set_ylabel(ax.get_ylabel(), ha='right', y=1)
+    ax.set_xlabel(ax.get_xlabel(), ha="right", x=1)
+    ax.set_ylabel(ax.get_ylabel(), ha="right", y=1)
 
     return ax
 
@@ -346,6 +390,7 @@ def overlap(ax, bbox, get_vertices=False):
     """
     from matplotlib.lines import Line2D
     from matplotlib.patches import Patch, Rectangle
+
     # From
     # https://github.com/matplotlib/matplotlib/blob/08008d5cb4d1f27692e9aead9a76396adc8f0b19/lib/matplotlib/legend.py#L845
     lines = []
@@ -451,9 +496,9 @@ def ylow(ax=None, ylow=None):
 
     if ylow is None:
         # Check full figsize below 0
-        bbox = Bbox.from_bounds(0, 0,
-                                ax.get_window_extent().width,
-                                -ax.get_window_extent().height)
+        bbox = Bbox.from_bounds(
+            0, 0, ax.get_window_extent().width, -ax.get_window_extent().height
+        )
         if overlap(ax, bbox) == 0:
             ax.set_ylim(0, None)
         else:
@@ -532,13 +577,14 @@ class RemainderFixed(axes_size.Scaled):
         xrel, xabs = axes_size.AddList(self.xsizes).get_size(renderer)
         yrel, yabs = axes_size.AddList(self.ysizes).get_size(renderer)
         bb = Bbox.from_bounds(*self.div.get_position()).transformed(
-            self.div._fig.transFigure)
+            self.div._fig.transFigure
+        )
         w = bb.width / self.div._fig.dpi - xabs
         h = bb.height / self.div._fig.dpi - yabs
         return 0, min([w, h])
 
 
-def make_square_add_cbar(ax, size=.4, pad=0.1):
+def make_square_add_cbar(ax, size=0.4, pad=0.1):
     """
     Make input axes square and return an appended axes to the right for
     a colorbar. Both axes resize together to fit figure automatically.
@@ -571,10 +617,10 @@ def append_axes(ax, size=0.1, pad=0.1, position="right"):
     def convert(fraction, position=position):
         if isinstance(fraction, str):
             if fraction.endswith("%"):
-                if position in ['right', 'left']:
-                    fraction = width * float(fraction.strip('%')) / 100
-                elif position in ['top', 'bottom']:
-                    fraction = height * float(fraction.strip('%')) / 100
+                if position in ["right", "left"]:
+                    fraction = width * float(fraction.strip("%")) / 100
+                elif position in ["top", "bottom"]:
+                    fraction = height * float(fraction.strip("%")) / 100
         return fraction
 
     size = convert(size)
@@ -584,7 +630,7 @@ def append_axes(ax, size=0.1, pad=0.1, position="right"):
     margin_size = axes_size.Fixed(size)
     pad_size = axes_size.Fixed(pad)
     xsizes = [pad_size, margin_size]
-    if position in ['top', 'bottom']:
+    if position in ["top", "bottom"]:
         xsizes = xsizes[::-1]
     yhax = divider.append_axes(position, size=margin_size, pad=pad_size)
 
@@ -599,24 +645,29 @@ def append_axes(ax, size=0.1, pad=0.1, position="right"):
 
     if position in ["right"]:
         divider.set_horizontal([axes_size.Fixed(width)] + xsizes)
-        fig.set_size_inches(fig.get_size_inches()[0] * extend_ratio(ax)[0],
-                            fig.get_size_inches()[1])
+        fig.set_size_inches(
+            fig.get_size_inches()[0] * extend_ratio(ax)[0], fig.get_size_inches()[1]
+        )
     elif position in ["left"]:
         divider.set_horizontal(xsizes[::-1] + [axes_size.Fixed(width)])
-        fig.set_size_inches(fig.get_size_inches()[0] * extend_ratio(ax)[0],
-                            fig.get_size_inches()[1])
-    elif position in ['top']:
+        fig.set_size_inches(
+            fig.get_size_inches()[0] * extend_ratio(ax)[0], fig.get_size_inches()[1]
+        )
+    elif position in ["top"]:
         divider.set_vertical([axes_size.Fixed(height)] + xsizes[::-1])
-        fig.set_size_inches(fig.get_size_inches()[0],
-                            fig.get_size_inches()[1] * extend_ratio(ax)[1])
+        fig.set_size_inches(
+            fig.get_size_inches()[0], fig.get_size_inches()[1] * extend_ratio(ax)[1]
+        )
         ax.get_shared_x_axes().join(ax, yhax)
-    elif position in ['bottom']:
+    elif position in ["bottom"]:
         divider.set_vertical(xsizes + [axes_size.Fixed(height)])
-        fig.set_size_inches(fig.get_size_inches()[0],
-                            fig.get_size_inches()[1] * extend_ratio(ax)[1])
+        fig.set_size_inches(
+            fig.get_size_inches()[0], fig.get_size_inches()[1] * extend_ratio(ax)[1]
+        )
         ax.get_shared_x_axes().join(ax, yhax)
 
     return yhax
+
 
 ####################
 # Legend Helpers
@@ -624,6 +675,7 @@ def append_axes(ax, size=0.1, pad=0.1, position="right"):
 
 def hist_legend(ax=None, **kwargs):
     from matplotlib.lines import Line2D
+
     if ax is None:
         ax = plt.gca()
 
@@ -632,10 +684,7 @@ def hist_legend(ax=None, **kwargs):
         Line2D([], [], c=h.get_edgecolor()) if type(h) == mpl.patches.Polygon else h
         for h in handles
     ]
-    ax.legend(handles=new_handles[::-1],
-              labels=labels[::-1],
-              **kwargs
-              )
+    ax.legend(handles=new_handles[::-1], labels=labels[::-1], **kwargs)
 
     return ax
 
@@ -646,6 +695,7 @@ def sort_legend(ax, order=None):
     order : Ordered dict with renames or array with order
     """
     from collections import OrderedDict
+
     handles, labels = ax.get_legend_handles_labels()
     by_label = OrderedDict(zip(labels, handles))
 
@@ -656,12 +706,9 @@ def sort_legend(ax, order=None):
     elif order is None:
         ordered_label_list = labels
     else:
-        raise TypeError('Unexpected values type of order: {}'.format(
-            type(order)))
+        raise TypeError("Unexpected values type of order: {}".format(type(order)))
 
-    ordered_label_list = [
-        entry for entry in ordered_label_list if entry in labels
-    ]
+    ordered_label_list = [entry for entry in ordered_label_list if entry in labels]
     ordered_label_values = [by_label[k] for k in ordered_label_list]
     if isinstance(order, OrderedDict):
         ordered_label_list = [order[k] for k in ordered_label_list]

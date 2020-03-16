@@ -1,7 +1,8 @@
 # Log styles
 from . import styles_atlas as style
 from . import label as label_base
-from . label import lumitext
+from .label import lumitext
+
 __all__ = [style, lumitext]
 
 
