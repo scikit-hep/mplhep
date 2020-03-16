@@ -25,15 +25,15 @@ def _exptext(
         ax = plt.gca()
 
     loc1_dict = {
-        0: {"xy": (0.001, 1 + pad), "va": "bottom",},
-        1: {"xy": (0.05, 0.95 - pad), "va": "top",},
+        0: {"xy": (0.001, 1 + pad), "va": "bottom"},
+        1: {"xy": (0.05, 0.95 - pad), "va": "top"},
     }
 
     loc2_dict = {
-        0: {"xy": (0.001, 1.005 + pad), "va": "bottom",},
-        1: {"xy": (0.05, 0.9550 - pad), "va": "bottom",},
-        2: {"xy": (0.05, 0.9450 - pad), "va": "top",},
-        3: {"xy": (0.05, 0.95 - pad), "va": "top",},
+        0: {"xy": (0.001, 1.005 + pad), "va": "bottom"},
+        1: {"xy": (0.05, 0.9550 - pad), "va": "bottom"},
+        2: {"xy": (0.05, 0.9450 - pad), "va": "top"},
+        3: {"xy": (0.05, 0.95 - pad), "va": "top"},
     }
 
     if loc not in [0, 1, 2, 3]:
