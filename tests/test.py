@@ -40,8 +40,8 @@ def test_histplot():
     axs[0].set_title("Default", fontsize=18)
     hep.histplot(h, bins, ax=axs[0])
 
-    axs[1].set_title("Plot Edges", fontsize=18)
-    hep.histplot(h, bins, edges=True, ax=axs[1])
+    axs[1].set_title("Plot No Edges", fontsize=18)
+    hep.histplot(h, bins, edges=False, ax=axs[1])
 
     axs[2].set_title("Plot Errorbars", fontsize=18)
     hep.histplot(h, bins, yerr=np.sqrt(h), ax=axs[2])
@@ -64,8 +64,8 @@ def test_histplot_density():
     axs[0].set_title("Default", fontsize=18)
     hep.histplot(h, bins, ax=axs[0], density=True)
 
-    axs[1].set_title("Plot Edges", fontsize=18)
-    hep.histplot(h, bins, edges=True, ax=axs[1], density=True)
+    axs[1].set_title("Plot No Edges", fontsize=18)
+    hep.histplot(h, bins, edges=False, ax=axs[1], density=True)
 
     axs[2].set_title("Plot Errorbars", fontsize=18)
     hep.histplot(h, bins, yerr=np.sqrt(h), ax=axs[2], density=True)
@@ -113,8 +113,8 @@ def test_histplot_stack():
     axs[0].set_title("Default", fontsize=18)
     hep.histplot([h, 1.5 * h], bins, stack=True, ax=axs[0])
 
-    axs[1].set_title("Plot Edges", fontsize=18)
-    hep.histplot([h, 1.5 * h], bins, edges=True, stack=True, ax=axs[1])
+    axs[1].set_title("Plot No Edges", fontsize=18)
+    hep.histplot([h, 1.5 * h], bins, edges=False, stack=True, ax=axs[1])
 
     axs[2].set_title("Plot Errorbars", fontsize=18)
     hep.histplot([h, 1.5 * h], bins, yerr=np.sqrt(h), stack=True, ax=axs[2])
