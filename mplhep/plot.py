@@ -59,6 +59,13 @@ def histplot(
         if h.rank > 1:
             raise ValueError("More than 1 axis")
         h, bins = h.to_numpy()
+    elif hasattr(h, "to_numpy"):
+        # Generic
+        _tup = h.to_numpy()
+        if len(_tup) != 2:
+            raise ValueError("to_numpy() method not understood")
+        else:
+            h, bins = _tup
     elif isinstance(h, tuple):
         # Numpy histogram tuple
         h, bins = h
