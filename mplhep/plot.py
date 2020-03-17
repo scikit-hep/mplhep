@@ -1,3 +1,4 @@
+import warnings
 import collections
 
 import matplotlib as mpl
@@ -18,11 +19,33 @@ _mpl_up = version.parse(mpl.__version__) >= version.parse(_mpl_up_version)
 # Histogram plotter
 
 
+<<<<<<< HEAD
 def histplot(h, bins, weights=None, yerr=None, variances=None,
              stack=False, density=False, binwnorm=None, densitymode='unit',
              histtype='step', label=None, edges=False, binticks=False,
              ax=None, **kwargs):
 
+=======
+def histplot(
+    h,  # Histogram object, tuple or array
+    bins=None,  # Bins to be supplied when h is a value array or iterable of arrays
+    *,
+    weights=None,
+    yerr=None,
+    w2=None,
+    stack=False,
+    density=False,
+    binwnorm=None,
+    densitymode="unit",
+    histtype="step",
+    label=None,
+    edges=True,
+    binticks=False,
+    ax=None,
+    **kwargs
+):
+    # ax check
+>>>>>>> ed49230... Merge pull request #99 from scikit-hep/edges
     if ax is None:
         ax = plt.gca()
     else:
@@ -30,15 +53,36 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
             raise ValueError("ax must be a matplotlib Axes object")
 
     # arg check
+<<<<<<< HEAD
     if histtype != 'step':
         assert edges is False, "edges is only valid with histtype='step'"
     _allowed_histtype = ['fill', 'step', 'errorbar']
+=======
+    _allowed_histtype = ["fill", "step", "errorbar"]
+>>>>>>> ed49230... Merge pull request #99 from scikit-hep/edges
     _err_message = "Select 'histtype' from: {}".format(_allowed_histtype)
     assert histtype in _allowed_histtype, _err_message
     _allowed_densitymode = ['unit', 'stack']
     _err_message = "Select 'densitymode' from: {}".format(_allowed_densitymode)
     assert densitymode in _allowed_densitymode, _err_message
-    # Preprocess
+
+    # Input check
+    if hasattr(h, "rank") and hasattr(h, "to_numpy"):
+        # Boost histogram compat
+        if h.rank > 1:
+            raise ValueError("More than 1 axis")
+        h, bins = h.to_numpy()
+    elif hasattr(h, "to_numpy"):
+        # Generic
+        _tup = h.to_numpy()
+        if len(_tup) != 2:
+            raise ValueError("to_numpy() method not understood")
+        else:
+            h, bins = _tup
+    elif isinstance(h, tuple):
+        # Numpy histogram tuple
+        h, bins = h
+    # Input handling
     h = np.asarray(h).astype(float)
     bins = np.asarray(bins)
     # Convert 1/0 etc to real bools
@@ -47,10 +91,17 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
     edges = bool(edges)
     binticks = bool(binticks)
     assert bins.ndim == 1, "bins need to be 1 dimensional"
+<<<<<<< HEAD
     assert bins.shape[0] == h.shape[-1] + 1, "len along main axis of h has "\
                                              "to be smaller by 1 than len "\
                                              "of bins"
     assert variances is None or yerr is None, "Can only supply errors or variances"
+=======
+    assert bins.shape[0] == h.shape[-1] + 1, (
+        "len along main axis of h has " "to be smaller by 1 than len " "of bins"
+    )
+    assert w2 is None or yerr is None, "Can only supply errors or w2"
+>>>>>>> ed49230... Merge pull request #99 from scikit-hep/edges
 
     if h.ndim == 1:
         _nh = 1
@@ -97,6 +148,11 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
 
     # Apply weights
     if weights is not None:
+        warnings.simplefilter("always", DeprecationWarning)
+        warnings.warn(
+            "weights is deprecated", category=DeprecationWarning, stacklevel=1
+        )
+        warnings.simplefilter("default", DeprecationWarning)
         weights = np.asarray(weights)
         h = h * weights
 
@@ -119,14 +175,14 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
                                        "stacked plot"
                 _yerr = np.sqrt(h)
 
-    elif variances is not None:
-        int_variances = np.around(variances).astype(int)
-        if np.all(np.isclose(variances, int_variances, 0.000001)):
-            # If variances are integers (true data hist), calculate Garwood interval
-            _yerr = np.abs(poisson_interval(h, variances) - h)
+    elif w2 is not None:
+        int_w2 = np.around(w2).astype(int)
+        if np.all(np.isclose(w2, int_w2, 0.000001)):
+            # If w2 are integers (true data hist), calculate Garwood interval
+            _yerr = np.abs(poisson_interval(h, w2) - h)
         else:
-            # Variances to errors directly if specified previously
-            _yerr = np.sqrt(variances)
+            # w2 to errors directly if specified previously
+            _yerr = np.sqrt(w2)
     else:
         _yerr = None
 
@@ -192,12 +248,28 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
                 _bins = bins
             _label = _labels[0]
             _step_label = _label if yerr is None else None
+<<<<<<< HEAD
             _s, = ax.step(_bins, _h, where=_where, label=_step_label, **kwargs)
             if yerr is not None or variances is not None:
                 ax.errorbar(_bin_centers, h, yerr=_yerr, color=_s.get_color(),
                             ls='none', **kwargs)
                 ax.errorbar([], [], yerr=1, xerr=1, color=_s.get_color(),
                             label=_label)
+=======
+            (_s,) = ax.step(
+                _bins, _h, where=_where, label=_step_label, marker="", **kwargs
+            )
+            if yerr is not None or w2 is not None:
+                ax.errorbar(
+                    _bin_centers,
+                    h,
+                    yerr=_yerr,
+                    color=_s.get_color(),
+                    linestyle="none",
+                    **kwargs
+                )
+                ax.errorbar([], [], yerr=1, xerr=1, color=_s.get_color(), label=_label)
+>>>>>>> ed49230... Merge pull request #99 from scikit-hep/edges
         else:
             for i in range(_nh):
                 if not _mpl_up:  # Back-comp
@@ -214,6 +286,7 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
                 _kwargs = _chunked_kwargs[i]
                 _label = _labels[i]
                 _step_label = _label if yerr is None else None
+<<<<<<< HEAD
                 _s, = ax.step(_bins, _h, where=_where, label=_step_label,
                               **_kwargs)
                 if yerr is not None or variances is not None:
@@ -223,6 +296,25 @@ def histplot(h, bins, weights=None, yerr=None, variances=None,
                                 label=_label)
 
     elif histtype == 'fill':
+=======
+                (_s,) = ax.step(
+                    _bins, _h, where=_where, label=_step_label, marker="", **_kwargs
+                )
+                if yerr is not None or w2 is not None:
+                    ax.errorbar(
+                        _bin_centers,
+                        h[i],
+                        yerr=_yerr[i],
+                        color=_s.get_color(),
+                        linestyle="none",
+                        **kwargs
+                    )
+                    ax.errorbar(
+                        [], [], yerr=1, xerr=1, color=_s.get_color(), label=_label
+                    )
+
+    elif histtype == "fill":
+>>>>>>> ed49230... Merge pull request #99 from scikit-hep/edges
         if _nh == 1:
             if not _mpl_up:
                 _h = np.r_[h, h[-1]]
