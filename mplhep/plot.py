@@ -20,8 +20,9 @@ _mpl_up = version.parse(mpl.__version__) >= version.parse(_mpl_up_version)
 
 
 def histplot(
-    h,
-    bins,
+    h,  # Histogram object, tuple or array
+    bins=None,  # Bins to be supplied when h is a value array or iterable of arrays
+    *,
     weights=None,
     yerr=None,
     variances=None,
@@ -36,7 +37,7 @@ def histplot(
     ax=None,
     **kwargs
 ):
-
+    # ax check
     if ax is None:
         ax = plt.gca()
     else:
@@ -50,7 +51,17 @@ def histplot(
     _allowed_densitymode = ["unit", "stack"]
     _err_message = "Select 'densitymode' from: {}".format(_allowed_densitymode)
     assert densitymode in _allowed_densitymode, _err_message
-    # Preprocess
+
+    # Input check
+    if hasattr(h, "rank") and hasattr(h, "to_numpy"):
+        # Boost histogram compat
+        if h.rank > 1:
+            raise ValueError('More than 1 axis')
+        h, bins = h.to_numpy()
+    elif isinstance(h, tuple):
+        # Numpy histogram tuple
+        h, bins = h
+    # Input handling
     h = np.asarray(h).astype(float)
     bins = np.asarray(bins)
     # Convert 1/0 etc to real bools
