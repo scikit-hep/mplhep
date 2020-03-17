@@ -129,7 +129,9 @@ def histplot(
     # Apply weights
     if weights is not None:
         warnings.simplefilter("always", DeprecationWarning)
-        warnings.warn(self.message, category=DeprecationWarning, stacklevel=1)
+        warnings.warn(
+            "weights is deprecated", category=DeprecationWarning, stacklevel=1
+        )
         warnings.simplefilter("default", DeprecationWarning)
         weights = np.asarray(weights)
         h = h * weights
