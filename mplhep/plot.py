@@ -230,7 +230,9 @@ def histplot(
                 _bins = bins
             _label = _labels[0]
             _step_label = _label if yerr is None else None
-            (_s,) = ax.step(_bins, _h, where=_where, label=_step_label, **kwargs)
+            (_s,) = ax.step(
+                _bins, _h, where=_where, label=_step_label, marker="", **kwargs
+            )
             if yerr is not None or w2 is not None:
                 ax.errorbar(
                     _bin_centers,
@@ -257,7 +259,9 @@ def histplot(
                 _kwargs = _chunked_kwargs[i]
                 _label = _labels[i]
                 _step_label = _label if yerr is None else None
-                (_s,) = ax.step(_bins, _h, where=_where, label=_step_label, **_kwargs)
+                (_s,) = ax.step(
+                    _bins, _h, where=_where, label=_step_label, marker="", **_kwargs
+                )
                 if yerr is not None or w2 is not None:
                     ax.errorbar(
                         _bin_centers,
