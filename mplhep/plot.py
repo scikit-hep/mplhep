@@ -45,7 +45,7 @@ def histplot(
             raise ValueError("ax must be a matplotlib Axes object")
 
     # arg check
-    _allowed_histtype = ['fill', 'step', 'errorbar']
+    _allowed_histtype = ["fill", "step", "errorbar"]
     _err_message = "Select 'histtype' from: {}".format(_allowed_histtype)
     assert histtype in _allowed_histtype, _err_message
     _allowed_densitymode = ["unit", "stack"]
@@ -56,7 +56,7 @@ def histplot(
     if hasattr(h, "rank") and hasattr(h, "to_numpy"):
         # Boost histogram compat
         if h.rank > 1:
-            raise ValueError('More than 1 axis')
+            raise ValueError("More than 1 axis")
         h, bins = h.to_numpy()
     elif isinstance(h, tuple):
         # Numpy histogram tuple
