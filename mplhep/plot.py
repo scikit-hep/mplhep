@@ -1,3 +1,4 @@
+import warnings
 import collections
 
 import matplotlib as mpl
@@ -25,7 +26,7 @@ def histplot(
     *,
     weights=None,
     yerr=None,
-    variances=None,
+    w2=None,
     stack=False,
     density=False,
     binwnorm=None,
@@ -73,7 +74,7 @@ def histplot(
     assert bins.shape[0] == h.shape[-1] + 1, (
         "len along main axis of h has " "to be smaller by 1 than len " "of bins"
     )
-    assert variances is None or yerr is None, "Can only supply errors or variances"
+    assert w2 is None or yerr is None, "Can only supply errors or w2"
 
     if h.ndim == 1:
         _nh = 1
@@ -120,6 +121,9 @@ def histplot(
 
     # Apply weights
     if weights is not None:
+        warnings.simplefilter("always", DeprecationWarning)
+        warnings.warn(self.message, category=DeprecationWarning, stacklevel=1)
+        warnings.simplefilter("default", DeprecationWarning)
         weights = np.asarray(weights)
         h = h * weights
 
@@ -143,14 +147,14 @@ def histplot(
                 )
                 _yerr = np.sqrt(h)
 
-    elif variances is not None:
-        int_variances = np.around(variances).astype(int)
-        if np.all(np.isclose(variances, int_variances, 0.000001)):
-            # If variances are integers (true data hist), calculate Garwood interval
-            _yerr = np.abs(poisson_interval(h, variances) - h)
+    elif w2 is not None:
+        int_w2 = np.around(w2).astype(int)
+        if np.all(np.isclose(w2, int_w2, 0.000001)):
+            # If w2 are integers (true data hist), calculate Garwood interval
+            _yerr = np.abs(poisson_interval(h, w2) - h)
         else:
-            # Variances to errors directly if specified previously
-            _yerr = np.sqrt(variances)
+            # w2 to errors directly if specified previously
+            _yerr = np.sqrt(w2)
     else:
         _yerr = None
 
@@ -218,7 +222,7 @@ def histplot(
             _label = _labels[0]
             _step_label = _label if yerr is None else None
             (_s,) = ax.step(_bins, _h, where=_where, label=_step_label, **kwargs)
-            if yerr is not None or variances is not None:
+            if yerr is not None or w2 is not None:
                 ax.errorbar(
                     _bin_centers,
                     h,
@@ -245,7 +249,7 @@ def histplot(
                 _label = _labels[i]
                 _step_label = _label if yerr is None else None
                 (_s,) = ax.step(_bins, _h, where=_where, label=_step_label, **_kwargs)
-                if yerr is not None or variances is not None:
+                if yerr is not None or w2 is not None:
                     ax.errorbar(
                         _bin_centers,
                         h[i],
