@@ -5,7 +5,7 @@ import numpy as np
 
 os.environ["RUNNING_PYTEST"] = "true"
 
-import mplhep as hep # noqa
+import mplhep as hep  # noqa
 
 """
 To test run:
@@ -18,17 +18,17 @@ py.test --mpl-generate-path=tests/baseline
 plt.switch_backend("Agg")
 
 
-@pytest.mark.mpl_image_compare(style='default', remove_text=True)
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_basic():
     fig, ax = plt.subplots(figsize=(10, 10))
     h = [1, 3, 2]
     bins = [0, 1, 2, 3]
-    hep.histplot(h, bins, yerr=True, label='X')
+    hep.histplot(h, bins, yerr=True, label="X")
     ax.legend()
     return fig
 
 
-@pytest.mark.mpl_image_compare(style='default', remove_text=True)
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_histplot():
     np.random.seed(0)
     h, bins = np.histogram(np.random.normal(10, 3, 400), bins=10)
@@ -46,13 +46,13 @@ def test_histplot():
     hep.histplot(h, bins, yerr=np.sqrt(h), ax=axs[2])
 
     axs[3].set_title("Filled Histogram", fontsize=18)
-    hep.histplot(h, bins, histtype='fill', ax=axs[3])
+    hep.histplot(h, bins, histtype="fill", ax=axs[3])
 
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
     return fig
 
 
-@pytest.mark.mpl_image_compare(style='default', remove_text=True)
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_histplot_density():
     np.random.seed(0)
     h, bins = np.histogram(np.random.normal(10, 3, 400), bins=10)
@@ -70,13 +70,13 @@ def test_histplot_density():
     hep.histplot(h, bins, yerr=np.sqrt(h), ax=axs[2], density=True)
 
     axs[3].set_title("Filled Histogram", fontsize=18)
-    hep.histplot(h, bins, histtype='fill', ax=axs[3], density=True)
+    hep.histplot(h, bins, histtype="fill", ax=axs[3], density=True)
 
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
     return fig
 
 
-@pytest.mark.mpl_image_compare(style='default', remove_text=True)
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_histplot_multiple():
     np.random.seed(0)
     h, bins = np.histogram(np.random.normal(10, 3, 400), bins=10)
@@ -95,13 +95,13 @@ def test_histplot_multiple():
 
     axs[3].set_title("With Labels", fontsize=18)
     hep.histplot([h, 1.5 * h], bins, yerr=True, ax=axs[3], label=["First", "Second"])
-    axs[3].legend(fontsize=16, prop={'family': 'Tex Gyre Heros'})
+    axs[3].legend(fontsize=16, prop={"family": "Tex Gyre Heros"})
 
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
     return fig
 
 
-@pytest.mark.mpl_image_compare(style='default', remove_text=True)
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_histplot_stack():
     np.random.seed(0)
     h, bins = np.histogram(np.random.normal(10, 3, 400), bins=10)
@@ -119,7 +119,7 @@ def test_histplot_stack():
     hep.histplot([h, 1.5 * h], bins, yerr=np.sqrt(h), stack=True, ax=axs[2])
 
     axs[3].set_title("Filled Histogram", fontsize=18)
-    hep.histplot([1.5 * h, h], bins, histtype='fill', stack=True, ax=axs[3])
+    hep.histplot([1.5 * h, h], bins, histtype="fill", stack=True, ax=axs[3])
 
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
     return fig
@@ -139,7 +139,7 @@ def test_hist2dplot():
     return fig
 
 
-@pytest.mark.mpl_image_compare(style='default', remove_text=True)
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_histplot_kwargs():
     np.random.seed(0)
     h, bins = np.histogram(np.random.normal(10, 3, 1000), bins=10)
@@ -147,33 +147,53 @@ def test_histplot_kwargs():
     fig, axs = plt.subplots(2, 2, sharex=True, sharey=True, figsize=(10, 10))
     axs = axs.flatten()
 
-    hep.histplot([h * 2, h * 1, h * 0.5], bins, label=["1", "2", "3"], stack=True,
-                 histtype="step", linestyle="--",
-                 color=["green", "black", (1, 0, 0, .4)],
-                 ax=axs[0])
+    hep.histplot(
+        [h * 2, h * 1, h * 0.5],
+        bins,
+        label=["1", "2", "3"],
+        stack=True,
+        histtype="step",
+        linestyle="--",
+        color=["green", "black", (1, 0, 0, 0.4)],
+        ax=axs[0],
+    )
     axs[0].legend()
 
-    hep.histplot([h, h, h], bins, label=["1", "2", "3"], stack=True,
-                 histtype="step", linestyle=["--", ':'],
-                 color=(1, 0, 0, .8),
-                 ax=axs[1])
+    hep.histplot(
+        [h, h, h],
+        bins,
+        label=["1", "2", "3"],
+        stack=True,
+        histtype="step",
+        linestyle=["--", ":"],
+        color=(1, 0, 0, 0.8),
+        ax=axs[1],
+    )
     axs[1].legend()
 
-    hep.histplot([h, h, h], bins, label=["1", "2", "3"], histtype="step",
-                 weights=[0.5 * np.ones_like(h), 3 * np.ones_like(h),
-                          6 * np.ones_like(h)],
-                 linestyle=["--", ':'],
-                 color=(1, 0, 0, .8),
-                 ax=axs[2])
+    hep.histplot(
+        [h, h, h],
+        bins,
+        label=["1", "2", "3"],
+        histtype="step",
+        weights=[0.5 * np.ones_like(h), 3 * np.ones_like(h), 6 * np.ones_like(h)],
+        linestyle=["--", ":"],
+        color=(1, 0, 0, 0.8),
+        ax=axs[2],
+    )
     axs[2].legend()
 
-    hep.histplot([h, h, h], bins, label=["1", "2", "3"], histtype="fill",
-                 weights=[0.5 * np.ones_like(h), 3 * np.ones_like(h),
-                          6 * np.ones_like(h)],
-                 linestyle=["--", ':'],
-                 color=["green", "darkorange", 'red'],
-                 alpha=[0.4, 0.7, 0.2],
-                 ax=axs[3])
+    hep.histplot(
+        [h, h, h],
+        bins,
+        label=["1", "2", "3"],
+        histtype="fill",
+        weights=[0.5 * np.ones_like(h), 3 * np.ones_like(h), 6 * np.ones_like(h)],
+        linestyle=["--", ":"],
+        color=["green", "darkorange", "red"],
+        alpha=[0.4, 0.7, 0.2],
+        ax=axs[3],
+    )
     axs[3].legend()
 
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
