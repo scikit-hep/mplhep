@@ -4,6 +4,9 @@ import warnings
 # Import counter
 import requests as req
 
+# Make package fonts available to matplotlib
+import matplotlib.font_manager as fm
+
 # Get helper functions
 from . import cms
 from . import atlas
@@ -47,10 +50,6 @@ except NameError:
 
 with open(os.path.join(_base_dir, ".VERSION")) as version_file:
     __version__ = version_file.read().strip()
-
-# Make package fonts available to matplotlib
-import os
-import matplotlib.font_manager as fm
 
 path = os.path.abspath(__file__)
 font_path = "/" + "/".join(path.split("/")[:-1]) + "/fonts/"
