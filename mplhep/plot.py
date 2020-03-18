@@ -19,13 +19,6 @@ _mpl_up = version.parse(mpl.__version__) >= version.parse(_mpl_up_version)
 # Histogram plotter
 
 
-<<<<<<< HEAD
-def histplot(h, bins, weights=None, yerr=None, variances=None,
-             stack=False, density=False, binwnorm=None, densitymode='unit',
-             histtype='step', label=None, edges=False, binticks=False,
-             ax=None, **kwargs):
-
-=======
 def histplot(
     h,  # Histogram object, tuple or array
     bins=None,  # Bins to be supplied when h is a value array or iterable of arrays
@@ -45,7 +38,6 @@ def histplot(
     **kwargs
 ):
     # ax check
->>>>>>> ed49230... Merge pull request #99 from scikit-hep/edges
     if ax is None:
         ax = plt.gca()
     else:
@@ -53,13 +45,7 @@ def histplot(
             raise ValueError("ax must be a matplotlib Axes object")
 
     # arg check
-<<<<<<< HEAD
-    if histtype != 'step':
-        assert edges is False, "edges is only valid with histtype='step'"
-    _allowed_histtype = ['fill', 'step', 'errorbar']
-=======
     _allowed_histtype = ["fill", "step", "errorbar"]
->>>>>>> ed49230... Merge pull request #99 from scikit-hep/edges
     _err_message = "Select 'histtype' from: {}".format(_allowed_histtype)
     assert histtype in _allowed_histtype, _err_message
     _allowed_densitymode = ['unit', 'stack']
@@ -91,17 +77,10 @@ def histplot(
     edges = bool(edges)
     binticks = bool(binticks)
     assert bins.ndim == 1, "bins need to be 1 dimensional"
-<<<<<<< HEAD
-    assert bins.shape[0] == h.shape[-1] + 1, "len along main axis of h has "\
-                                             "to be smaller by 1 than len "\
-                                             "of bins"
-    assert variances is None or yerr is None, "Can only supply errors or variances"
-=======
     assert bins.shape[0] == h.shape[-1] + 1, (
         "len along main axis of h has " "to be smaller by 1 than len " "of bins"
     )
     assert w2 is None or yerr is None, "Can only supply errors or w2"
->>>>>>> ed49230... Merge pull request #99 from scikit-hep/edges
 
     if h.ndim == 1:
         _nh = 1
@@ -248,14 +227,6 @@ def histplot(
                 _bins = bins
             _label = _labels[0]
             _step_label = _label if yerr is None else None
-<<<<<<< HEAD
-            _s, = ax.step(_bins, _h, where=_where, label=_step_label, **kwargs)
-            if yerr is not None or variances is not None:
-                ax.errorbar(_bin_centers, h, yerr=_yerr, color=_s.get_color(),
-                            ls='none', **kwargs)
-                ax.errorbar([], [], yerr=1, xerr=1, color=_s.get_color(),
-                            label=_label)
-=======
             (_s,) = ax.step(
                 _bins, _h, where=_where, label=_step_label, marker="", **kwargs
             )
@@ -269,7 +240,6 @@ def histplot(
                     **kwargs
                 )
                 ax.errorbar([], [], yerr=1, xerr=1, color=_s.get_color(), label=_label)
->>>>>>> ed49230... Merge pull request #99 from scikit-hep/edges
         else:
             for i in range(_nh):
                 if not _mpl_up:  # Back-comp
@@ -286,17 +256,6 @@ def histplot(
                 _kwargs = _chunked_kwargs[i]
                 _label = _labels[i]
                 _step_label = _label if yerr is None else None
-<<<<<<< HEAD
-                _s, = ax.step(_bins, _h, where=_where, label=_step_label,
-                              **_kwargs)
-                if yerr is not None or variances is not None:
-                    ax.errorbar(_bin_centers, h[i], yerr=_yerr[i],
-                                color=_s.get_color(), ls='none', **kwargs)
-                    ax.errorbar([], [], yerr=1, xerr=1, color=_s.get_color(),
-                                label=_label)
-
-    elif histtype == 'fill':
-=======
                 (_s,) = ax.step(
                     _bins, _h, where=_where, label=_step_label, marker="", **_kwargs
                 )
@@ -314,7 +273,6 @@ def histplot(
                     )
 
     elif histtype == "fill":
->>>>>>> ed49230... Merge pull request #99 from scikit-hep/edges
         if _nh == 1:
             if not _mpl_up:
                 _h = np.r_[h, h[-1]]
