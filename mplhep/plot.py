@@ -23,7 +23,6 @@ _mpl_up = version.parse(mpl.__version__) >= version.parse(_mpl_up_version)
 def histplot(
     h,  # Histogram object, tuple or array
     bins=None,  # Bins to be supplied when h is a value array or iterable of arrays
-    *,
     weights=None,
     yerr=None,
     w2=None,
