@@ -34,17 +34,19 @@ def poisson_interval(sumw, sumw2, coverage=_coverage1sd):
         missing = np.where(sumw == 0)
         available = np.nonzero(sumw)
         if len(available[0]) == 0:
-            warnings.warn("All sumw are zero!  Cannot compute meaningful error bars",
-                          RuntimeWarning)
+            warnings.warn(
+                "All sumw are zero!  Cannot compute meaningful error bars",
+                RuntimeWarning,
+            )
             return np.vstack([sumw, sumw])
-        nearest = sum([
-            np.subtract.outer(d, d0)**2 for d, d0 in zip(available, missing)
-        ]).argmin(axis=0)
+        nearest = sum(
+            [np.subtract.outer(d, d0) ** 2 for d, d0 in zip(available, missing)]
+        ).argmin(axis=0)
         argnearest = tuple(dim[nearest] for dim in available)
         scale[missing] = scale[argnearest]
     counts = sumw / scale
-    lo = scale * scipy.stats.chi2.ppf((1 - coverage) / 2, 2 * counts) / 2.
-    hi = scale * scipy.stats.chi2.ppf((1 + coverage) / 2, 2 * (counts + 1)) / 2.
+    lo = scale * scipy.stats.chi2.ppf((1 - coverage) / 2, 2 * counts) / 2.0
+    hi = scale * scipy.stats.chi2.ppf((1 + coverage) / 2, 2 * (counts + 1)) / 2.0
     interval = np.array([lo, hi])
-    interval[interval == np.nan] = 0.  # chi2.ppf produces nan for counts=0
+    interval[interval == np.nan] = 0.0  # chi2.ppf produces nan for counts=0
     return interval
