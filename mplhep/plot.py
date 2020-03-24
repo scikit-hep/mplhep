@@ -312,7 +312,7 @@ def histplot(
                     h[i],
                     yerr=_yerr[i],
                     linestyle="none",
-                    label=_labels[0],
+                    label=_labels[i],
                     **_chunked_kwargs[i]
                 )
 
