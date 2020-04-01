@@ -1,3 +1,5 @@
+from .tools import DeprecDict
+
 # PRL figsize / Elsevier figsize, Nature is somewhere in between
 # single column width -  86 mm (3.386in) /  90 mm (3.543in)
 # double column width - 172 mm (6.772in) / 180 mm (7.087in)
@@ -55,10 +57,16 @@ CMSTex = {
                               \sansmath",
 }
 
-ROOT = CMS
+ROOT = CMS  # Leave as default
+# ROOT = DeprecDict(
+#     CMS, message="'ROOT' style dict is deprecated, please use 'CMS' or other"
+#     "experiment specific stytle instead"
+# )
 ROOTTex = CMSTex
-
-fira = {"font.sans-serif": "Fira Sans"}
+# ROOTTex = DeprecDict(
+#     CMSTex, message="'ROOTTex' style dict is deprecated, please use 'CMSTex' or other"
+#     "experiment specific stytle instead"
+# )
 
 firamath = {
     "mathtext.fontset": "custom",
