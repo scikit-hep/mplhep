@@ -374,6 +374,8 @@ def hist2dplot(
         cax = append_axes(ax, size=cbarsize, pad=cbarpad, position=cbarpos)
         plt.colorbar(pc, cax=cax)
 
+    plt.sca(ax)
+
     if labels is not None:
         if np.array_equiv(H, labels):
             _labels = labels
