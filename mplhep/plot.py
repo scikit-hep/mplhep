@@ -185,7 +185,7 @@ def histplot(
             binnorms = binnorms[0]
         return binnorms
 
-    if density:
+    if density or binwnorm is not None:
         density_arr = get_density(h, density, binwnorm)
         if stack and densitymode == "stack":
             h = get_stack(h)
