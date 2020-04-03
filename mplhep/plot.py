@@ -198,7 +198,7 @@ def histplot(
             for i in range(len(density_arr)):
                 _yerr[i] = _yerr[i] * density_arr[i]
 
-    if stack and not density:
+    if stack and not density and binwnorm is None:
         h = get_stack(h)
 
     # Stack
