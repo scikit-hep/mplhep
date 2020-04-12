@@ -582,8 +582,8 @@ def rescale_to_axessize(ax, w, h):
 def box_aspect(ax, aspect=1):
     """
     Adjust figure size to axes size in inches
-    Parameters: aspect: float, optional
-                        aspect ratio
+    Parameters: aspect: float, optional aspect ratio
+
     """
     position = ax.get_position()
 
