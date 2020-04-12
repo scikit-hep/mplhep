@@ -1,5 +1,5 @@
 <p float="left">
-  <img src="https://raw.githubusercontent.com/scikit-hep/mplhep/master/img/mplhep.png" width="300"/>
+  <img src="https://raw.githubusercontent.com/scikit-hep/mplhep/master/docs/source/_static/mplhep.png" width="300"/>
 </p>
 
 [![Build Status](https://travis-ci.org/scikit-hep/mplhep.svg?branch=master)](https://travis-ci.org/scikit-hep/mplhep)
