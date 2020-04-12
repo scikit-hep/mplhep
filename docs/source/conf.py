@@ -20,22 +20,23 @@ import subprocess
 import mplhep
 
 # Add mplhep to path for sphinx-automodapi
-sys.path.insert(0, os.path.abspath(".."))
+sys.path.insert(0, os.path.abspath('../..'))
 
 print("sys.path:", sys.path)
 print("mplhep version:", mplhep.__version__)
 
 
+
 # -- Project information -----------------------------------------------------
 
-project = "mplhep"
-copyright = "2020, Andrzej Novak"
-author = "Andrzej Novak"
+project = 'mplhep'
+copyright = '2020, Andrzej Novak'
+author = 'Andrzej Novak'
 
 # The full version, including alpha/beta/rc tags
-version = mplhep.__version__.rsplit(".", 1)[0]
+version = mplhep.__version__.rsplit('.', 1)[0]
 release = mplhep.__version__
-githash = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip().decode("ascii")
+githash = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip().decode('ascii')
 
 
 # -- General configuration ---------------------------------------------------
@@ -44,54 +45,52 @@ githash = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip().decode("
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "sphinx.ext.todo",
-    "sphinx.ext.viewcode",
-    "sphinx.ext.autodoc",
-    "sphinx.ext.autosummary",
-    "sphinx.ext.intersphinx",
-    "sphinx.ext.linkcode",
-    "sphinx.ext.napoleon",  # Google and NumPy format docstrings
+    'sphinx.ext.todo', 
+    'sphinx.ext.viewcode', 
+    'sphinx.ext.autodoc',    
+
+    'sphinx.ext.autosummary',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.linkcode',
+    'sphinx.ext.napoleon',  # Google and NumPy format docstrings
     #'sphinx.ext.automodapi',
-    "sphinx_rtd_theme",
-]
+
+    'sphinx_rtd_theme'
+    ]
 
 numpydoc_show_class_members = False
-nbsphinx_execute = "never"
-
+nbsphinx_execute = 'never'
 
 def linkcode_resolve(domain, info):
-    if domain != "py":
+    if domain != 'py':
         return None
-    if not info["module"]:
+    if not info['module']:
         return None
-    mod = importlib.import_module(info["module"])
+    mod = importlib.import_module(info['module'])
     modpath = [p for p in sys.path if mod.__file__.startswith(p)]
     if len(modpath) < 1:
-        raise RuntimeException("Cannot deduce module path")
+        raise RuntimeException('Cannot deduce module path')
     modpath = modpath[0]
-    obj = reduce(getattr, [mod] + info["fullname"].split("."))
+    obj = reduce(getattr, [mod] + info['fullname'].split('.'))
     try:
         path = inspect.getsourcefile(obj)
-        relpath = path[len(modpath) + 1 :]
+        relpath = path[len(modpath) + 1:]
         _, lineno = inspect.getsourcelines(obj)
     except TypeError:
         # skip property or other type that inspect doesn't like
         return None
-    return "http://github.com/scikit-hep/mplhep/blob/{}/{}#L{}".format(
-        githash, relpath, lineno
-    )
-
+    return "http://github.com/scikit-hep/mplhep/blob/{}/{}#L{}".format(githash, relpath, lineno)
 
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3", None),
+    'python': ('https://docs.python.org/3', None),
 }
 
 # The master toctree document.
-master_doc = "index"
+master_doc = 'index'
 
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ["_templates"]
+templates_path = ['_templates']
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -105,27 +104,27 @@ exclude_patterns = []
 # a list of builtin themes.
 #
 # html_theme = 'alabaster'
-html_theme = "sphinx_rtd_theme"
+html_theme = 'sphinx_rtd_theme'
 
-html_logo = "_static/mplhep.png"
+html_logo = '_static/mplhep.png'
 
 html_theme_options = {
-    "canonical_url": "",
-    "analytics_id": "UA-XXXXXXX-1",  #  Provided by Google in your dashboard
-    "logo_only": False,
-    "display_version": True,
-    "prev_next_buttons_location": "bottom",
-    "style_external_links": False,
-    "style_nav_header_background": "white",
+    'canonical_url': '',
+    'analytics_id': 'UA-XXXXXXX-1',  #  Provided by Google in your dashboard
+    'logo_only': False,
+    'display_version': True,
+    'prev_next_buttons_location': 'bottom',
+    'style_external_links': False,
+    'style_nav_header_background': 'white',
     # Toc options
-    "collapse_navigation": False,
-    "sticky_navigation": True,
-    "navigation_depth": 4,
-    "includehidden": True,
-    "titles_only": False,
+    'collapse_navigation': False,
+    'sticky_navigation': True,
+    'navigation_depth': 4,
+    'includehidden': True,
+    'titles_only': False
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["_static"]
+html_static_path = ['_static']
