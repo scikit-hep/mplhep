@@ -21,7 +21,8 @@ _mpl_up = version.parse(mpl.__version__) >= version.parse(_mpl_up_version)
 # Histogram plotter
 
 
-@deprecate.deprecate_parameter("weights")
+@deprecate.deprecate_parameter("weights", "Scale \"h\" directly or use \"binwnorm\"")
+@deprecate.deprecate_parameter("densitymode", "\"unit\"mode is not useful")
 def histplot(
     h,  # Histogram object, tuple or array
     bins=None,  # Bins to be supplied when h is a value array or iterable of arrays
@@ -40,6 +41,50 @@ def histplot(
     ax=None,
     **kwargs
 ):
+    """Create a 1D histogram plot from `np.histogram`-like inputs.
+    Parameters
+    ----------
+        h : Histogram object-like or list thereof
+            Histogram object with at containing values and bins. Can be:
+            - `np.histogram` tuple
+            - `boost_histogram` histogram object
+            - raw histogram values, provided `bins` is specified.
+        bins : iterable, optional
+            Histogram bins, if not part of ``h``.
+        weights : float or list, optional, deprecated
+            Per-bin weights if same lenght as histogram values. Otherwise
+            scales each histogram input
+        yerr : iterable or bool, optional
+            Histogram uncertainties. Following modes are supported:
+            - True, sqrt(N) errors or poissonian interval when ``w2`` is specified
+            - shape(N) array of for one sided errors or list thereof
+            - shape(Nx2) array of for two sided errors or list thereof
+        w2 : iterable, optional
+            Sum of the histogram weights squared for poissonian interval error caclulation
+        stack : bool, optional
+            Whether to stack or overlay non-axis dimension (if it exists
+        density : bool, optional
+            If true, convert sum weights to probability density (i.e. integrates to 1 over domain of axis)
+            (Note: this option conflicts with ``binwnorm``)
+        densitymode: ["unit", "stack"], default: "unit", deprecated
+            If using both density/binwnorm and stack choose stacking behaviour. "unit" normalized
+            each histogram separately and stacks afterwards, while "stack" normalizes the total after summing.
+        binwnorm : float, optional
+            If true, convert sum weights to bin-width-normalized, with unit equal to supplied value (usually you want to specify 1.)
+        label : str or list, optional
+        edges : bool, default: True, optional
+            Specifies whether to draw first and last edges of the histogram
+        binticks : bool, optional
+            Attempts to draw x-axis ticks coinciding with bin boundaries if feasible.
+        ax : matplotlib.axes.Axes, optional
+            Axes object (if None, last one is fetched or one is created)
+        **kwargs :
+            Keyword arguments passed to underlying matplotlib artist - ``Line2D``.
+    Returns
+    -------
+        ax : matplotlib.axes.Axes
+            A matplotlib `Axes <https://matplotlib.org/3.1.1/api/axes_api.html>`_ object
+    """
     # ax check
     if ax is None:
         ax = plt.gca()
