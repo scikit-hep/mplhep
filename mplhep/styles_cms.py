@@ -1,4 +1,4 @@
-from .tools import DeprecDict
+from ._deprecate import deprecated_dict
 
 # PRL figsize / Elsevier figsize, Nature is somewhere in between
 # single column width -  86 mm (3.386in) /  90 mm (3.543in)

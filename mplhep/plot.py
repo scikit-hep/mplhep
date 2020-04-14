@@ -1,5 +1,6 @@
 import warnings
 import collections
+import mplhep._deprecate as deprecate
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -20,6 +21,7 @@ _mpl_up = version.parse(mpl.__version__) >= version.parse(_mpl_up_version)
 # Histogram plotter
 
 
+@deprecate.deprecate_parameter("weights")
 def histplot(
     h,  # Histogram object, tuple or array
     bins=None,  # Bins to be supplied when h is a value array or iterable of arrays
@@ -128,11 +130,7 @@ def histplot(
 
     # Apply weights
     if weights is not None:
-        warnings.simplefilter("always", DeprecationWarning)
-        warnings.warn(
-            "weights is deprecated", category=DeprecationWarning, stacklevel=1
-        )
-        warnings.simplefilter("default", DeprecationWarning)
+        # Deprecated
         weights = np.asarray(weights)
         h = h * weights
 

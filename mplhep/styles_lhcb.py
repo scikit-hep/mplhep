@@ -1,5 +1,5 @@
 from cycler import cycler
-from .tools import DeprecDict
+from ._deprecate import deprecated_dict
 
 colors = [
     "#1f77b4",
@@ -82,7 +82,7 @@ LHCb = {
     "patch.linewidth": 2,
 }
 
-ROOT = DeprecDict(
+ROOT = deprecated_dict(
     LHCb, message="'ROOT' style dict is deprecated, please use 'LHCb' instead"
 )
 
@@ -96,6 +96,6 @@ LHCbTex = {
     "pgf.rcfonts": False,
 }
 
-ROOTTex = DeprecDict(
+ROOTTex = deprecated_dict(
     LHCbTex, message="'ROOT' style dict is deprecated, please use 'LHCb' instead"
 )
