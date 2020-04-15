@@ -21,8 +21,8 @@ _mpl_up = version.parse(mpl.__version__) >= version.parse(_mpl_up_version)
 # Histogram plotter
 
 
-@deprecate.deprecate_parameter("weights", "Scale \"h\" directly or use \"binwnorm\"")
-@deprecate.deprecate_parameter("densitymode", "\"unit\"mode is not useful")
+@deprecate.deprecate_parameter("weights", 'Scale "h" directly or use "binwnorm"')
+@deprecate.deprecate_parameter("densitymode", '"unit"mode is not useful')
 def histplot(
     h,  # Histogram object, tuple or array
     bins=None,  # Bins to be supplied when h is a value array or iterable of arrays
