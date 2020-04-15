@@ -56,7 +56,7 @@ class deprecate_parameter(object):
             return func(*args, **kwargs)
 
         decorated_func.__name__ = func.__name__
-        decorated_func.__doc__ = "deprecated: " + self._reason
+        decorated_func.__doc__ = func.__doc__
         return decorated_func
 
 
