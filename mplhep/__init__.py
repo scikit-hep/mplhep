@@ -3,6 +3,8 @@ import os
 # Import counter
 import requests as req
 
+from packaging import version
+import matplotlib as mpl
 import matplotlib.font_manager as fm
 
 # Get helper functions
@@ -40,12 +42,23 @@ except NameError:
 with open(os.path.join(_base_dir, ".VERSION")) as version_file:
     __version__ = version_file.read().strip()
 
+
 # Make package fonts available to matplotlib
-path = os.path.abspath(__file__)
-font_path = "/".join(path.split("/")[:-1]) + "/fonts/"
-font_files = fm.findSystemFonts(fontpaths=font_path)
-for font in font_files:
-    fm.fontManager.addfont(font)
+if version.parse(mpl.__version__) >= version.parse("3.2"):
+    # mpl 3.2 and up
+    path = os.path.abspath(__file__)
+    font_path = "/".join(path.split("/")[:-1]) + "/fonts/"
+    font_files = fm.findSystemFonts(fontpaths=font_path)
+    for font in font_files:
+        fm.fontManager.addfont(font)
+else:
+    # Back-comp for mpl<3.2
+    # Deprecated in 3.2, removed in 3.3
+    path = os.path.abspath(__file__)
+    font_path = "/" + "/".join(path.split("/")[:-1]) + "/fonts/"
+    font_files = fm.findSystemFonts(fontpaths=font_path)
+    font_list = fm.createFontList(font_files)
+    fm.fontManager.ttflist.extend(font_list)
 
 # Log submodules
 __all__ = [
