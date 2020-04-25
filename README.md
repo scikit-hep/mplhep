@@ -4,6 +4,7 @@
 
 [![DOI](https://zenodo.org/badge/184555939.svg)](https://zenodo.org/badge/latestdoi/184555939)
 [![Scikit-HEP][sk-badge]](https://scikit-hep.org/)
+
 [sk-badge]: https://scikit-hep.org/assets/images/Scikit--HEP-Project-blue.svg
 
 [![Build Status](https://travis-ci.org/scikit-hep/mplhep.svg?branch=master)](https://travis-ci.org/scikit-hep/mplhep)
