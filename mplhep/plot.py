@@ -44,7 +44,7 @@ def histplot(
     """Create a 1D histogram plot from `np.histogram`-like inputs.
     Parameters
     ----------
-        h : Histogram object-like or list thereof
+        h : object
             Histogram object with at containing values and bins. Can be:
             - `np.histogram` tuple
             - `boost_histogram` histogram object
@@ -361,7 +361,8 @@ def histplot(
 
     # Get current
     ymin, ymax = ax.get_ylim()
-    ax.set_ylim(ymin if np.min(h) < 0 else 0, np.max([ymax, 1.2 * np.max(h)]))
+
+    ax.set_ylim(ymin if np.nanmin(h) < 0 else 0, np.max([ymax, 1.2 * np.nanmax(h)]))
 
     if binticks:
         _slice = int(round(float(len(bins)) / len(ax.get_xticks()))) + 1
