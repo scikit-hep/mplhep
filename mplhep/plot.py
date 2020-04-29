@@ -137,9 +137,6 @@ def histplot(
     else:
         raise ValueError("Input not recognized")
 
-    if _nh == 1:
-        assert not stack, "Cannot stack one histogram"
-
     # Find a better way to unwrap to "real" dimentionality
     if h.ndim == 2 and len(h) == 1:  # Unwrap if [[1,2,3]]
         h = h[0]
