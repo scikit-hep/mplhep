@@ -1,0 +1,62 @@
+name: Mark
+
+on:
+  pull_request:
+    types: [labeled]
+  # push:
+
+env:
+  IS_MAJOR: >-
+      ${{ contains( github.event.pull_request.labels.*.name, 'bumpversion/major' ) }}
+  IS_MINOR: >-
+      ${{ contains( github.event.pull_request.labels.*.name, 'bumpversion/minor' ) }}
+  IS_PATCH: >-
+      ${{ contains( github.event.pull_request.labels.*.name, 'bumpversion/patch' ) }}
+  PR_NUMBER: ${{ github.event.pull_request.number }}
+  PR_TITLE: ${{ github.event.pull_request.title }}
+  GITHUB_HEAD_REF: ${{ github.head_ref }}
+
+jobs:
+  bumpversion_artifact:
+    if: >-
+      (
+        contains( github.event.pull_request.labels.*.name, 'bumpversion/major' ) ||
+        contains( github.event.pull_request.labels.*.name, 'bumpversion/minor' ) ||
+        contains( github.event.pull_request.labels.*.name, 'bumpversion/patch' )
+      ) && (
+        github.event.sender.login == 'andrzejnovak'
+      )
+    runs-on: ubuntu-latest
+    steps:
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "$GITHUB_CONTEXT"
+    - name: Determine version part
+      run: |
+        if [ $IS_MAJOR == 'true' ]
+        then
+          echo "::set-env name=BV_PART::major"
+        elif [ $IS_MINOR == 'true' ]
+        then
+          echo "::set-env name=BV_PART::minor"
+        else
+          echo "::set-env name=BV_PART::patch"
+        fi
+
+    - name: Generate artifact
+      run: |
+        mkdir -p artifacts
+        cat > artifacts/message.md <<EOF
+        {
+          "BV_PART": "${BV_PART}",
+          "PR_TITLE": "${PR_TITLE}",
+          "PR_NUMBER": "${PR_NUMBER}"
+        }
+        
+        EOF
+    - name: Store artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: message
+        path: artifacts
