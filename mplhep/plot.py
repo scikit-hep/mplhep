@@ -484,7 +484,7 @@ def overlap(ax, bbox, get_vertices=False):
 
     # TODO Possibly other objects
 
-    vertices = np.concatenate([l.vertices for l in lines])
+    vertices = np.concatenate([line.vertices for line in lines])
     tvertices = [ax.transData.transform(v) for v in vertices]
 
     overlap = bbox.count_contains(tvertices) + bbox.count_overlaps(bboxes)
