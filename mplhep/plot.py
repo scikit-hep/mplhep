@@ -208,7 +208,10 @@ def histplot(
         _yerr = None
 
     def get_stack(_h):
-        return np.cumsum(_h, axis=0)
+        if _nh > 1:
+            return np.cumsum(_h, axis=0)
+        else:
+            return _h
 
     def get_density(h, density=True, binwnorm=None, bins=bins):
         assert (not density) ^ (
