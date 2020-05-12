@@ -1,8 +1,8 @@
 name: CI/CD
 
 on:
-  push:
-  pull_request:
+  #push:
+  #pull_request:
   # Run daily at 0:01 UTC
   schedule:
   - cron:  '1 0 * * *'
