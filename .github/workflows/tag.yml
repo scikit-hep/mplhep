@@ -87,16 +87,16 @@ jobs:
         echo "::set-env name=NUM_CHANGES::${NUM_CHANGES}"
         git tag $NEW_TAG $NEW_TAG^{} -f -m "$(printf "This is a $BV_PART release from $OLD_TAG → $NEW_TAG.\n\nChanges:\n$CHANGES_NEWLINE")"
         git tag -n99 -l $NEW_TAG
-    # - name: Comment on issue
-    #   if: >-
-    #     github.event.action == 'labeled'
-    #   uses: peter-evans/create-or-update-comment@v1
-    #   with:
-    #     token: ${{ secrets.GITHUB_PAT }}
-    #     issue-number: ${{ github.event.pull_request.number }}
-    #     body: |
-    #         ## Automated Release Message
-    #         I've queued this up. When it gets merged, I'll create a ${{ env['BV_PART'] }} release from ${{ env['OLD_TAG'] }} → ${{ env['NEW_TAG'] }} which includes the following ${{ env['NUM_CHANGES'] }} change(s) [including this PR]:<br />${{ env['CHANGES'] }}<br />If you make any more changes, you probably want to re-trigger me again by removing the `bumpversion/${{ env['BV_PART'] }}` label and then adding it back again.
+    - name: Comment on issue
+      if: >-
+        github.event.action == 'labeled'
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        token: ${{ secrets.GITHUB_PAT }}
+        issue-number: ${{ github.event.pull_request.number }}
+        body: |
+            ## Automated Release Message
+            I've queued this up. When it gets merged, I'll create a ${{ env['BV_PART'] }} release from ${{ env['OLD_TAG'] }} → ${{ env['NEW_TAG'] }} which includes the following ${{ env['NUM_CHANGES'] }} change(s) [including this PR]:<br />${{ env['CHANGES'] }}<br />If you make any more changes, you probably want to re-trigger me again by removing the `bumpversion/${{ env['BV_PART'] }}` label and then adding it back again.
     - name: Push changes
       if: >-
         github.event.action == 'closed' && github.event.pull_request.merged
