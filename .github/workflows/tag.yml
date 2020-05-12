@@ -51,7 +51,8 @@ jobs:
     - name: Squash and merge PR#${{ github.event.pull_request.number }} to master
       if: github.event.action == 'labeled'
       run: |
-        git merge --squash "origin/${GITHUB_HEAD_REF}"
+        git fetch origin "pull/${PR_NUMBER}/head:PR${PR_NUMBER}"
+        git merge --squash "PR${PR_NUMBER}"
         git commit -m "${PR_TITLE} (#${PR_NUMBER})"
     - name: Set up Python 3.7
       uses: actions/setup-python@v1
