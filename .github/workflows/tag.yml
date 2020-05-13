@@ -2,7 +2,7 @@
 name: Tag Creator
 on:
   pull_request:
-    types: [labeled, closed]
+      #types: [labeled, closed]
 env:
   IS_MAJOR: >-
       ${{ contains( github.event.pull_request.labels.*.name, 'bumpversion/major' ) }}
