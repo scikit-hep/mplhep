@@ -358,11 +358,9 @@ def histplot(
                     label=_labels[i],
                     **_chunked_kwargs[i]
                 )
-
-    # Get current
-    ymin, ymax = ax.get_ylim()
-
-    ax.set_ylim(ymin if np.nanmin(h) < 0 else 0, np.max([ymax, 1.2 * np.nanmax(h)]))
+    # Add dummy artists with sticky edges for autoscale
+    _dummy = ax.plot([0, 1], [0, 0], lw=0, ms=0, alpha=0)
+    _dummy[0].sticky_edges.y.append(0)
 
     if binticks:
         _slice = int(round(float(len(bins)) / len(ax.get_xticks()))) + 1
