@@ -30,6 +30,18 @@ def test_basic():
 
 
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_log():
+    fig, axs = plt.subplots(2, 2, figsize=(10, 10))
+    for ax in axs[0]:
+        hep.histplot([1, 2, 3, 2], range(5), ax=ax)
+    plt.semilogy()
+    for ax in axs[1]:
+        hep.histplot([1, 2, 3, 2], range(5), ax=ax, edges=False)
+    plt.semilogy()
+    return fig
+
+
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_histplot():
     np.random.seed(0)
     h, bins = np.histogram(np.random.normal(10, 3, 400), bins=10)
