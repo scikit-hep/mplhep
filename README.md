@@ -177,7 +177,7 @@ plt.style.use({"font.sans-serif":'Comic Sans MS'})
 ## Experiment annotations
 ```diff
 + plt.style.use(hep.cms.style.ROOT)
-+ ax = hep.cms.cmslabel(ax, data=False, paper=False, year='2017')
++ ax = hep.cms.cmslabel(data=False, paper=False, year='2017', ax=ax)
 ```
 <p float="center">
   <img src="img/style1.png" width="400" />
