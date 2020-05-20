@@ -147,7 +147,7 @@ hep.hist2dplot(H, xedges, yedges)
 ### Available styles:
 
 - `plt.style.use(style.ROOT)` - Default (figure 10x10 inches, full column size)
-- `plt.style.use(style.ROOTlegacy)` - Same as ROOT stylele above, but use ROOT fonts - Helvetica, fallback to Arial - instead of TeX Gyre Heros, requires font to be already available on the system
+- `plt.style.use(style.ROOTlegacy)` - Same as ROOT style above, but use ROOT fonts - Helvetica, fallback to Arial - instead of TeX Gyre Heros, requires font to be already available on the system
 - `plt.style.use(style.ROOTs)` - Default (figure 6x6 inches, half column size)
 - `plt.style.use(style.fira)` - use Fira Sans
 
