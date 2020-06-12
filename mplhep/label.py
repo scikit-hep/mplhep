@@ -14,8 +14,35 @@ def _exptext(
     italic=(False, False),
     pad=0,
 ):
-    """
-    pad in units of axis fraction
+    """Add typical LHC experiment primary label to the axes. Base function 
+    for experiment specific text functions.
+    Parameters
+    ----------
+        exp : string
+            Experiment name, unavailable in public ``<experiment>text()``.
+        text : string, optional
+            Secondary experiment label, typically not-bold and smaller font-size.
+            For example "Simulation" or "Preliminary"
+        loc : int, optional
+            Label positon: 
+            - 0 : Above axes, left aligned
+            - 1 : Top left corner
+            - 2 : Top left corner, multiline
+            - 3 : Split EXP above axes, rest of label in top left corner"
+        ax : matplotlib.axes.Axes, optional
+            Axes object (if None, last one is fetched)
+        fontname : string, optional
+            Name of font to be used.
+        fontsize : string, optional
+            Defines size of "secondary label". Experiment label is 1.3x larger.
+        italic : (bool, bool), optional
+            Tuple of bools to switch which label is italicized
+        pad : float, optional
+            Additional padding from axes border in units of axes fraction size.
+    Returns
+    -------
+        ax : matplotlib.axes.Axes
+            A matplotlib `Axes <https://matplotlib.org/3.1.1/api/axes_api.html>`_ object
     """
 
     _font_size = rcParams["font.size"] if fontsize is None else fontsize
@@ -133,6 +160,24 @@ def _exptext(
 
 # Lumi text
 def lumitext(text="", ax=None, fontname=None, fontsize=None):
+    """Add typical LHC experiment top-right label. Usually used to indicate year
+    or aggregate luminosity in the plot.
+    Parameters
+    ----------
+        text : string, optional
+            Secondary experiment label, typically not-bold and smaller font-size.
+            For example "Simulation" or "Preliminary"
+        ax : matplotlib.axes.Axes, optional
+            Axes object (if None, last one is fetched)
+        fontname : string, optional
+            Name of font to be used.
+        fontsize : string, optional
+            Defines size of "secondary label". Experiment label is 1.3x larger.
+    Returns
+    -------
+        ax : matplotlib.axes.Axes
+            A matplotlib `Axes <https://matplotlib.org/3.1.1/api/axes_api.html>`_ object
+    """
 
     _font_size = rcParams["font.size"] if fontsize is None else fontsize
     fontname = "TeX Gyre Heros" if fontname is None else fontname
@@ -152,6 +197,8 @@ def lumitext(text="", ax=None, fontname=None, fontsize=None):
         fontname=fontname,
     )
 
+    return ax
+
 
 # Wrapper
 def _explabel(
@@ -170,6 +217,48 @@ def _explabel(
     exp="",
     italic=(False, False),
 ):
+    """A convenience wrapper combining ``_exptext`` and ``lumitext`` providing for
+    the most common use cases. Base function for experiment specific label functions.
+    Parameters
+    ----------
+        loc : int, optional
+            Label positon of ``_exptext`` label : 
+            - 0 : Above axes, left aligned
+            - 1 : Top left corner
+            - 2 : Top left corner, multiline
+            - 3 : Split EXP above axes, rest of label in top left corner"
+        ax : matplotlib.axes.Axes, optional
+            Axes object (if None, last one is fetched)
+        data : bool, optional
+            Prevents appending "Simulation" to experiment label.
+        paper : bool, optional
+            Prevents appending "Preliminary" to experiment label.
+        supplementary : bool, optional
+            Appends "Supplementary" to experiment label for public plots, included
+            in supplementary materials, but not paper body.
+        year : int, optional
+            Year when data was collected
+        lumi : float, optional
+            Aggregate luminosity shown. Should require ``"data"`` to be ``True``.
+        llabel : string, optional
+            String to manually set left-hand label text.
+        rlabel : string, optional
+            String to manually set right-hand label text.
+        fontname : string, optional
+            Name of font to be used.
+        fontsize : string, optional
+            Defines size of "secondary label". Experiment label is 1.3x larger.
+        italic : (bool, bool), optional
+            Tuple of bools to switch which label is italicized
+        pad : float, optional
+            Additional padding from axes border in units of axes fraction size.
+        exp : string
+            Experiment name, unavailable in public ``<experiment>text()``.
+    Returns
+    -------
+        ax : matplotlib.axes.Axes
+            A matplotlib `Axes <https://matplotlib.org/3.1.1/api/axes_api.html>`_ object
+    """
 
     # Right label
     if rlabel is not None:
