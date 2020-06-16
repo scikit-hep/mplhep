@@ -14,17 +14,17 @@ def _exptext(
     italic=(False, False),
     pad=0,
 ):
-    """Add typical LHC experiment primary label to the axes. Base function 
+    """Add typical LHC experiment primary label to the axes. Base function
     for experiment specific text functions.
     Parameters
     ----------
         exp : string
             Experiment name, unavailable in public ``<experiment>text()``.
         text : string, optional
-            Secondary experiment label, typically not-bold and smaller font-size.
-            For example "Simulation" or "Preliminary"
+            Secondary experiment label, typically not-bold and smaller
+            font-size. For example "Simulation" or "Preliminary"
         loc : int, optional
-            Label positon: 
+            Label positon:
             - 0 : Above axes, left aligned
             - 1 : Top left corner
             - 2 : Top left corner, multiline
@@ -42,7 +42,8 @@ def _exptext(
     Returns
     -------
         ax : matplotlib.axes.Axes
-            A matplotlib `Axes <https://matplotlib.org/3.1.1/api/axes_api.html>`_ object
+            A matplotlib `Axes <https://matplotlib.org/3.1.1/api/axes_api.html>`
+            object
     """
 
     _font_size = rcParams["font.size"] if fontsize is None else fontsize
@@ -165,8 +166,8 @@ def lumitext(text="", ax=None, fontname=None, fontsize=None):
     Parameters
     ----------
         text : string, optional
-            Secondary experiment label, typically not-bold and smaller font-size.
-            For example "Simulation" or "Preliminary"
+            Secondary experiment label, typically not-bold and smaller
+            font-size. For example "Simulation" or "Preliminary"
         ax : matplotlib.axes.Axes, optional
             Axes object (if None, last one is fetched)
         fontname : string, optional
@@ -222,7 +223,7 @@ def _explabel(
     Parameters
     ----------
         loc : int, optional
-            Label positon of ``_exptext`` label : 
+            Label positon of ``_exptext`` label:
             - 0 : Above axes, left aligned
             - 1 : Top left corner
             - 2 : Top left corner, multiline
