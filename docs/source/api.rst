@@ -15,6 +15,25 @@ Primary functions.
    .. automodule:: mplhep.plot
       :members:
 
+Experiment label helpers
+========================
+
+Experiment specific helpers
+
+.. autofunction:: mplhep.cms.cmstext
+
+.. autofunction:: mplhep.cms.cmslabel
+
+.. autofunction:: mplhep.atlas.atlastext
+
+.. autofunction:: mplhep.atlas.atlaslabel
+
+.. autofunction:: mplhep.lhcb.lhcbtext
+
+.. autofunction:: mplhep.lhcb.lhcblabel
+
+.. autofunction:: mplhep.cms.lumitext
+
 Axes helpers
 ============
 
