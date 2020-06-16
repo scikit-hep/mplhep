@@ -1,8 +1,12 @@
 import os
 import matplotlib as mpl
+import mplhep._deprecate as deprecate
 
 
-# Backup options
+@deprecate.deprecate(
+    "Hardcoded style sheets and fonts will be deprecated, let us know"
+    "if this is affection your workflow"
+)
 def hardcopy_styles():
     path = os.path.abspath(__file__)
     pkg_dir = "/" + "/".join(path.split("/")[:-1])
@@ -11,6 +15,10 @@ def hardcopy_styles():
     )
 
 
+@deprecate.deprecate(
+    "Hardcoded style sheets and fonts will be deprecated, let us know"
+    "if this is affection your workflow"
+)
 def hardcopy_fonts():
     path = os.path.abspath(__file__)
     pkg_dir = "/" + "/".join(path.split("/")[:-1])
