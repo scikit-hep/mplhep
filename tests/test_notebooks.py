@@ -16,4 +16,4 @@ def common_kwargs(tmpdir):
 
 
 def test_examples(common_kwargs):
-    pm.execute_notebook("Examples.ipynb", **common_kwargs)
+    pm.execute_notebook("examples/Examples.ipynb", **common_kwargs)
