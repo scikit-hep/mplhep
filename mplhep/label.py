@@ -14,12 +14,9 @@ def _exp_text(
     italic=(False, False),
     pad=0,
 ):
-    """Add typical LHC experiment primary label to the axes. Base function
-    for experiment specific text functions.
+    """Add typical LHC experiment primary label to the axes.
     Parameters
     ----------
-        exp : string
-            Experiment name, unavailable in public ``<experiment>text()``.
         text : string, optional
             Secondary experiment label, typically not-bold and smaller
             font-size. For example "Simulation" or "Preliminary"
@@ -75,7 +72,7 @@ def _exp_text(
         )
 
     def pixel_to_axis(extent, ax=None):
-        # Transform pixel bbox extens to axis fractions
+        # Transform pixel bbox extends to axis fractions
         if ax is None:
             ax = plt.gca()
 
@@ -218,8 +215,8 @@ def _exp_label(
     exp="",
     italic=(False, False),
 ):
-    """A convenience wrapper combining ``_exp_text`` and ``lumitext`` providing for
-    the most common use cases. Base function for experiment specific label functions.
+    """A convenience wrapper combining ``<exp>.text`` and ``lumitext`` providing for
+    the most common use cases.
     Parameters
     ----------
         loc : int, optional

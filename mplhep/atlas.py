@@ -3,6 +3,7 @@ from . import styles_atlas as style
 from . import label as label_base
 from .label import lumitext
 import mplhep._deprecate as deprecate
+from matplotlib import docstring
 
 
 __all__ = [style, lumitext]
@@ -28,9 +29,11 @@ def atlastext(**kwargs):
     return _atlas_text(**kwargs)
 
 
+@docstring.copy(label_base._exp_text)
 def text(*args, **kwargs):
     return _atlas_text(*args, **kwargs)
 
 
+@docstring.copy(label_base._exp_label)
 def label(**kwargs):
     return _atlas_label(**kwargs)

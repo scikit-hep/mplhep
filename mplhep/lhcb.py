@@ -3,6 +3,7 @@ from . import styles_lhcb as style
 from . import label as label_base
 from .label import lumitext
 import mplhep._deprecate as deprecate
+from matplotlib import docstring
 
 __all__ = [style, lumitext]
 
@@ -42,9 +43,11 @@ def lhcbtext(**kwargs):
     return _lhcb_text(**kwargs)
 
 
+@docstring.copy(label_base._exp_text)
 def text(*args, **kwargs):
     return _lhcb_text(*args, **kwargs)
 
 
+@docstring.copy(label_base._exp_label)
 def label(**kwargs):
     return _lhcb_label(**kwargs)
