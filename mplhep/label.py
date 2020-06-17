@@ -4,7 +4,7 @@ import matplotlib.transforms as mtransforms
 import matplotlib.pyplot as plt
 
 
-def _exptext(
+def _exp_text(
     exp="",
     text="",
     loc=0,
@@ -202,7 +202,7 @@ def lumitext(text="", ax=None, fontname=None, fontsize=None):
 
 
 # Wrapper
-def _explabel(
+def _exp_label(
     ax=None,
     loc=0,
     data=False,
@@ -218,12 +218,12 @@ def _explabel(
     exp="",
     italic=(False, False),
 ):
-    """A convenience wrapper combining ``_exptext`` and ``lumitext`` providing for
+    """A convenience wrapper combining ``_exp_text`` and ``lumitext`` providing for
     the most common use cases. Base function for experiment specific label functions.
     Parameters
     ----------
         loc : int, optional
-            Label positon of ``_exptext`` label:
+            Label positon of ``_exp_text`` label:
             - 0 : Above axes, left aligned
             - 1 : Top left corner
             - 2 : Top left corner, multiline
@@ -288,7 +288,7 @@ def _explabel(
 
         _label = " ".join(_label.split())
 
-    _exptext(
+    _exp_text(
         exp=exp,
         text=_label,
         loc=loc,

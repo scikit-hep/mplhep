@@ -20,7 +20,7 @@ class deprecate(object):
         def decorated_func(*args, **kwargs):
             warnings.simplefilter("always", DeprecationWarning)
             warnings.warn(
-                "{0} is deprecated: {1}".format(func.__name__, self._reason),
+                "``{0}`` is deprecated: {1}".format(func.__name__, self._reason),
                 category=DeprecationWarning,
                 stacklevel=2,
             )
@@ -46,7 +46,7 @@ class deprecate_parameter(object):
             if self._name in kwargs.keys():
                 warnings.simplefilter("always", DeprecationWarning)
                 warnings.warn(
-                    'kwarg "{0}" in function "{1}" is deprecated and may be removed in future versions: {2}'.format(
+                    'kwarg "{0}" in function ``{1}`` is deprecated and may be removed in future versions: {2}'.format(
                         self._name, func.__name__, self._reason
                     ),
                     category=DeprecationWarning,

@@ -2,13 +2,14 @@
 from . import styles_lhcb as style
 from . import label as label_base
 from .label import lumitext
+import mplhep._deprecate as deprecate
 
 __all__ = [style, lumitext]
 
 
 # Experiment wrappers:
-def lhcbtext(text="", **kwargs):
-    return label_base._exptext(
+def _lhcb_text(text="", **kwargs):
+    return label_base._exp_text(
         "LHCb",
         text=text,
         italic=(False, False),
@@ -19,8 +20,8 @@ def lhcbtext(text="", **kwargs):
     )
 
 
-def lhcblabel(**kwargs):
-    return label_base._explabel(
+def _lhcb_label(**kwargs):
+    return label_base._exp_label(
         exp="LHCb",
         italic=(False, False),
         fontsize=28,
@@ -30,9 +31,20 @@ def lhcblabel(**kwargs):
     )
 
 
+# Change to snake_case
+@deprecate.deprecate("Naming convention is changing. Use ``mplhep.lhcb.label``.")
+def lhcblabel(*args, **kwargs):
+    return _lhcb_label(*args, **kwargs)
+
+
+@deprecate.deprecate("Naming convention is changing. Use ``mplhep.lhcb.text``.")
+def lhcbtext(**kwargs):
+    return _lhcb_text(**kwargs)
+
+
 def text(*args, **kwargs):
-    return lhcbtext(*args, **kwargs)
+    return _lhcb_text(*args, **kwargs)
 
 
 def label(**kwargs):
-    return lhcblabel(**kwargs)
+    return _lhcb_label(**kwargs)
