@@ -15,6 +15,7 @@ def _cms_text(text="", **kwargs):
 def _cms_label(**kwargs):
     return label_base._exp_label(exp="CMS", italic=(False, True), **kwargs)
 
+
 # Change to snake_case
 @deprecate.deprecate("Naming convention is changing. Use ``mplhep.cms.label``.")
 def cmslabel(*args, **kwargs):
