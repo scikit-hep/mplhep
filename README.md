@@ -21,7 +21,7 @@
 
 A set of helpers for `matplotlib` to more easily produce plots typically
 needed in HEP as well as style them in way that's compatible with current
-collaboration requirements (ROOT).
+collaboration requirements (ROOT-like plots for CMS, ATLAS, LHCb).
 
 
 # Installation
@@ -249,3 +249,6 @@ plt.style.use(style.ROOT)
 Updating list of citations and use cases of `mplhep` in publications:
 
 - [Simultaneous Jet Energy and Mass Calibrations with Neural Networks](https://cds.cern.ch/record/2706189), ATLAS Collaboration, 2019
+- [Integration and Performance of New Technologies in the CMS Simulation](https://arxiv.org/abs/2004.02327), Kevin Pedro, 2020 (Fig 3,4)
+- [GeantV: Results from the prototype of concurrent vector particle transport simulation in HEP](https://arxiv.org/abs/2005.00949), Amadio et al, 2020 (Fig 25,26)
+- [Search for the standard model Higgs boson decaying to charm quarks](https://cds.cern.ch/record/2682638), CMS Collaboration, 2019 (Fig 1)
