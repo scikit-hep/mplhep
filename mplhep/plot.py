@@ -385,6 +385,13 @@ def hist2dplot(
     **kwargs
 ):
 
+    # Input check
+    if hasattr(H, "ndim") and hasattr(H, "to_numpy"):
+        # Boost histogram compat
+        if H.ndim != 2:
+            raise ValueError("Not a 2D histogram")
+        H, xbins, ybins = H.to_numpy()
+
     H = H.T
 
     if ax is None:
