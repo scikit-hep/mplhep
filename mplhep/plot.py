@@ -101,9 +101,9 @@ def histplot(
     assert densitymode in _allowed_densitymode, _err_message
 
     # Input check
-    if hasattr(h, "rank") and hasattr(h, "to_numpy"):
+    if hasattr(h, "ndim") and hasattr(h, "to_numpy"):
         # Boost histogram compat
-        if h.rank > 1:
+        if h.ndim > 1:
             raise ValueError("More than 1 axis")
         h, bins = h.to_numpy()
     elif hasattr(h, "to_numpy"):
