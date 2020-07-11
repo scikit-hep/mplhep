@@ -2,6 +2,12 @@ import matplotlib as mpl
 from matplotlib import rcParams
 import matplotlib.transforms as mtransforms
 import matplotlib.pyplot as plt
+import matplotlib.text as mtext
+
+
+class exptext(mtext.Text):
+    def __repr__(self):
+        return "exptext: Custom Text(%s, %s, %s)" % (self._x, self._y, repr(self._text))
 
 
 def _exp_text(
@@ -105,9 +111,11 @@ def _exp_text(
         if loc == 0:
             loc2_dict[_exp_loc]["xy"] = (_sci_offset, loc2_dict[_exp_loc]["xy"][-1])
 
-    exp = ax.text(
+    #exp = ax.text(
+    exp = exptext(
         *loc1_dict[_exp_loc]["xy"],
-        s=exp,
+        #s=exp,
+        text=exp,
         transform=ax.transAxes,
         ha="left",
         va=loc1_dict[_exp_loc]["va"],
@@ -116,6 +124,7 @@ def _exp_text(
         fontstyle="italic" if italic[0] else "normal",
         fontname=fontname
     )
+    ax._add_text(exp)
 
     ax.figure.canvas.draw()
     _dpi = ax.figure.dpi
