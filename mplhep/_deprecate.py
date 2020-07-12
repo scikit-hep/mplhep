@@ -1,11 +1,9 @@
 import collections
 import warnings
-import functools
-import inspect
 
 # Adapted from:
-#   https://github.com/scikit-hep/iminuit/blob/develop/iminuit/_deprecated.py
-#   https://github.com/matplotlib/matplotlib/blob/717d1fa3e51e8d397030882779244f8fa33caae9/lib/matplotlib/cbook/deprecation.py
+# https://github.com/scikit-hep/iminuit/blob/develop/iminuit/_deprecated.py
+# https://github.com/matplotlib/matplotlib/blob/717d1fa3e51e8d397030882779244f8fa33caae9/lib/matplotlib/cbook/deprecation.py
 
 
 class deprecate(object):

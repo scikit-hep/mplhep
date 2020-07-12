@@ -1,9 +1,9 @@
 name: Mint a release
-on: 
+on:
   workflow_dispatch:
     inputs:
       major-minor-patch:
-        description: 'Bumpversion'     
+        description: 'Bumpversion'
         required: true
         default: 'patch'
 
@@ -76,5 +76,3 @@ jobs:
         uses: ad-m/github-push-action@v0.6.0
         with:
           github_token: ${{ secrets.GITHUB_PAT }}
-
-

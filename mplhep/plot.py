@@ -154,7 +154,7 @@ def histplot(
         return isinstance(arg, collections.abc.Iterable) and not isinstance(arg, str)
 
     _chunked_kwargs = []
-    for i in range(_nh):
+    for _i in range(_nh):
         _chunked_kwargs.append({})
     for kwarg in kwargs:
         # Check if iterable

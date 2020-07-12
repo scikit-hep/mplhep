@@ -13,7 +13,7 @@ INSTALL_REQUIRES = [
 
 extras_require = {
     "test": ["pytest", "pytest-mpl", "papermill~=1.0", "nteract-scrapbook~=0.3"],
-    "develop": ["flake8", "jupyter", "bumpversion", "twine", "black"],
+    "develop": ["flake8", "jupyter", "bumpversion", "twine", "black", "pre-commit"],
 }
 extras_require["complete"] = sorted(set(sum(extras_require.values(), [])))
 

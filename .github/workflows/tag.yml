@@ -15,13 +15,13 @@ env:
   GITHUB_HEAD_REF: ${{ github.head_ref }}
 jobs:
   bumpversion:
-    if: >-  
+    if: >-
       (
         contains( github.event.pull_request.labels.*.name, 'bumpversion/major' ) ||
         contains( github.event.pull_request.labels.*.name, 'bumpversion/minor' ) ||
         contains( github.event.pull_request.labels.*.name, 'bumpversion/patch' )
       ) && (
-        github.event.sender.login == 'andrzejnovak'      
+        github.event.sender.login == 'andrzejnovak'
       )
     runs-on: ubuntu-latest
     steps:
