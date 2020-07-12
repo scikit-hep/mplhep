@@ -10,9 +10,9 @@ mathtext.tt : Helvetica
 
 figure.figsize : 10.0, 10.0
 
-font.size : 26	
+font.size : 26
 axes.labelsize : medium
-xtick.labelsize : small 
+xtick.labelsize : small
 ytick.labelsize : small
 
 legend.fontsize : small

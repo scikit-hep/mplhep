@@ -44,7 +44,7 @@ jobs:
     - name: Check black
       run: |
         python -m pip install -q black
-        black --check . 
+        black --check .
 
   test:
     runs-on: ${{ matrix.os }}
