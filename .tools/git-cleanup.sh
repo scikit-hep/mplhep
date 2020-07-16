@@ -21,7 +21,7 @@ for i in "$@" ; do [ $i = "--unmerged" ] && UNMERGED=1 && break ; done
 MERGED=$((1-$UNMERGED))
 
 if [ $USER != anovak ]; then
-  echo "Don't do that. If you insist, change lins 23-25 in .tools/git-cleanup.sh"
+  echo "Don't do that. If you insist, change lines 23-25 in .tools/git-cleanup.sh"
   exit 1
 fi
 
