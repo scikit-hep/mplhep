@@ -2,6 +2,9 @@ name: CI/CD
 
 on:
   push:
+    branches:
+      - master
+      - master-py27
   pull_request:
   # Run daily at 0:01 UTC
   schedule:
