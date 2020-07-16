@@ -114,7 +114,7 @@ def histplot(
 
     elif hasattr(h, "to_numpy"):
         # Generic (possibly Uproot 4)
-        _tup = h.to_numpy()
+        _tup = h.to_numpy(flow=False)
         if len(_tup) != 2:
             raise ValueError("to_numpy() method not understood")
         else:
@@ -419,7 +419,7 @@ def hist2dplot(
 
     elif hasattr(H, "to_numpy"):
         # Generic (Uproot 4) support
-        H, xbins, ybins = H.to_numpy()
+        H, xbins, ybins = H.to_numpy(flow=False)
 
     elif hasattr(H, "numpy"):
         # uproot/TH2
