@@ -66,7 +66,7 @@ def histplot(
         density : bool, optional
             If true, convert sum weights to probability density (i.e. integrates to 1 over domain of axis)
             (Note: this option conflicts with ``binwnorm``)
-        densitymode: ["unit", "stack"], default: "unit", deprecated
+        densitymode: ["unit", "stack"], default: "stack", deprecated
             If using both density/binwnorm and stack choose stacking behaviour. "unit" normalized
             each histogram separately and stacks afterwards, while "stack" normalizes the total after summing.
         binwnorm : float, optional
@@ -111,6 +111,13 @@ def histplot(
         _tup = h.to_numpy()
         if len(_tup) != 2:
             raise ValueError("to_numpy() method not understood")
+        else:
+            h, bins = _tup
+    elif hasattr(h, "numpy"):
+        # uproot/TH1
+        _tup = h.numpy()
+        if len(_tup) != 2:
+            raise ValueError("numpy() method not understood")
         else:
             h, bins = _tup
     elif isinstance(h, tuple):
@@ -391,6 +398,20 @@ def hist2dplot(
         if H.ndim != 2:
             raise ValueError("Not a 2D histogram")
         H, xbins, ybins = H.to_numpy()
+    elif hasattr(H, "numpy"):
+        # uproot/TH2
+        _tup = H.numpy()
+        if len(_tup) != 2:
+            raise ValueError("numpy() method not understood")
+        else:
+            H, xy = _tup
+            if len(xy) == 1 and isinstance(xy, list):
+                if len(xy[0]) == 2 and isinstance(xy[0], tuple):
+                    xbins, ybins = xy[0]
+                else:
+                    raise ValueError("Input not understood")
+            else:
+                raise ValueError("Input not understood")
 
     H = H.T
 
