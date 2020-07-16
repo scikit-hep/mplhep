@@ -33,7 +33,7 @@ def histplot(
     stack=False,
     density=False,
     binwnorm=None,
-    densitymode="unit",
+    densitymode="stack",
     histtype="step",
     label=None,
     edges=True,
