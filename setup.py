@@ -18,6 +18,7 @@ extras_require = {
         "papermill~=1.0",
         "nteract-scrapbook~=0.3",
         "uproot4",
+        "boost_histogram",
         "scikit-hep-testdata",
     ],
     "develop": ["flake8", "jupyter", "bumpversion", "twine", "black", "pre-commit"],
