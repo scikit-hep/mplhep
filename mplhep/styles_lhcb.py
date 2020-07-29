@@ -80,6 +80,8 @@ LHCb = {
     # WARNING: this affects every patch object
     # (i.e. histograms and so on)
     "patch.linewidth": 2,
+    "xaxis.labellocation": "right",
+    "yaxis.labellocation": "top",
 }
 
 ROOT = deprecated_dict(
@@ -88,6 +90,7 @@ ROOT = deprecated_dict(
 
 
 LHCbTex = {
+    **LHCb,
     # Use LaTeX rendering by default
     # (overrides default font)
     "text.usetex": True,

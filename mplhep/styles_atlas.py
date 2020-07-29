@@ -40,4 +40,6 @@ ATLAS = {
     "legend.fontsize": 18,
     "legend.labelspacing": 0.3,
     "legend.frameon": False,
+    "xaxis.labellocation": "right",
+    "yaxis.labellocation": "top",
 }

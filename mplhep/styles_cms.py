@@ -48,9 +48,12 @@ CMS = {
     "grid.linestyle": ":",
     "axes.linewidth": 2,
     "savefig.transparent": False,
+    "xaxis.labellocation": "right",
+    "yaxis.labellocation": "top",
 }
 
 CMSTex = {
+    **CMS,
     "text.usetex": True,
     "text.latex.preamble": r"\usepackage{siunitx},\sisetup{detect-all}, \
                               \usepackage{helvet},\usepackage{sansmath}, \
