@@ -85,6 +85,8 @@ jobs:
         echo "::set-env name=NUM_CHANGES::${NUM_CHANGES}"
         git tag $NEW_TAG $NEW_TAG^{} -f -m "$(printf "This is a $BV_PART release from $OLD_TAG → $NEW_TAG.\n\nChanges:\n$CHANGES_NEWLINE")"
         git tag -n99 -l $NEW_TAG
+
+        git pull master
     - name: Comment on issue
       if: >-
         github.event.action == 'labeled'
