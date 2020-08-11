@@ -54,6 +54,7 @@ jobs:
     - name: Squash and merge PR#${{ github.event.pull_request.number }} to master
       if: github.event.action == 'labeled'
       run: |
+        git pull master
         git fetch origin "pull/${PR_NUMBER}/head:PR${PR_NUMBER}"
         git merge --squash "PR${PR_NUMBER}"
         git commit -m "${PR_TITLE} (#${PR_NUMBER})"
