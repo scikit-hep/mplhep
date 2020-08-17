@@ -1,3 +1,6 @@
+from packaging import version
+import matplotlib as mpl
+
 ATLAS = {
     # From https://github.com/kratsg/ATLASstylempl
     "lines.linewidth": 1,
@@ -43,3 +46,9 @@ ATLAS = {
     "xaxis.labellocation": "right",
     "yaxis.labellocation": "top",
 }
+
+# Remove backcomp incompatible configs
+if version.parse(mpl.__version__) < version.parse("3.2"):
+    # mpl < 3.2
+    del ATLAS["xaxis.labellocation"]
+    del ATLAS["yaxis.labellocation"]
