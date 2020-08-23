@@ -839,3 +839,44 @@ def sort_legend(ax, order=None):
     if isinstance(order, OrderedDict):
         ordered_label_list = [order[k] for k in ordered_label_list]
     return ordered_label_values, ordered_label_list
+
+
+#########################
+# Other helpers
+
+
+def save_variations(fig, name, text_list=None, exp=None):
+    """[summary]
+
+    Parameters
+    ----------
+    fig : figure
+    name : str
+        Savename to pass to `plt.savefig()`
+    text_list : list, optional
+        Variations of ExpSuffix text object to cycle
+        through
+    exp : str, optional
+        Change experiment name label
+    """
+    if text_list is None:
+        text_list = ["Preliminary", ""]
+
+    from mplhep.label import ExpText, ExpSuffix
+
+    for text in text_list:
+        for ax in fig.get_axes():
+            exp_labels = [t for t in ax.get_children() if isinstance(t, ExpText)]
+            suffixes = [t for t in ax.get_children() if isinstance(t, ExpSuffix)]
+            for exp_label, suffix_text in zip(exp_labels, suffixes):
+                if exp is not None:
+                    exp_label.set_text(exp)
+                suffix_text.set_text(text)
+        if text == "":
+            name_ext = ""
+        else:
+            name_ext = "_" + text.lower()
+        if exp is not None:
+            name_ext = exp.lower() + name_ext
+        save_name = name.split(".")[0] + name_ext + "." + name.split(".")[1]
+        fig.savefig(save_name)

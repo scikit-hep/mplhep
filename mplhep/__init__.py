@@ -31,6 +31,7 @@ from .plot import (
     make_square_add_cbar,
     append_axes,
     sort_legend,
+    save_variations,
 )
 
 # Make __version__ available
