@@ -9,8 +9,8 @@ mplhep
 ======
 
 A `matplotlib <https://matplotlib.org/>`__ wrapper for easy plotting required in
-high energy physics (HEP). Primarily "prebinned" 1D & 2D histograms and matplotlib 
-`style-sheets <https://matplotlib.org/3.1.1/gallery/style_sheets/style_sheets_reference.html>`__ 
+high energy physics (HEP). Primarily "prebinned" 1D & 2D histograms and matplotlib
+`style-sheets <https://matplotlib.org/3.1.1/gallery/style_sheets/style_sheets_reference.html>`__
 carrying recommended plotting styles of large LHC experiments - ATLAS, CMS & LHCb.
 This project is published `on GitHub <https://github.com/scikit-hep/mplhep>`__.
 

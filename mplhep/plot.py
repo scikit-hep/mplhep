@@ -10,6 +10,7 @@ from matplotlib.offsetbox import AnchoredText
 from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
 
 from .error_estimation import poisson_interval
+from .utils import get_histogram_axes_title
 
 # mpl updated to new methods
 from packaging import version
@@ -33,7 +34,7 @@ def histplot(
     stack=False,
     density=False,
     binwnorm=None,
-    densitymode="unit",
+    densitymode="stack",
     histtype="step",
     label=None,
     edges=True,
@@ -66,7 +67,7 @@ def histplot(
         density : bool, optional
             If true, convert sum weights to probability density (i.e. integrates to 1 over domain of axis)
             (Note: this option conflicts with ``binwnorm``)
-        densitymode: ["unit", "stack"], default: "unit", deprecated
+        densitymode: ["unit", "stack"], default: "stack", deprecated
             If using both density/binwnorm and stack choose stacking behaviour. "unit" normalized
             each histogram separately and stacks afterwards, while "stack" normalizes the total after summing.
         binwnorm : float, optional
@@ -92,6 +93,8 @@ def histplot(
         if not isinstance(ax, plt.Axes):
             raise ValueError("ax must be a matplotlib Axes object")
 
+    x_axes_label = ""  # Only added in if non-blank
+
     # arg check
     _allowed_histtype = ["fill", "step", "errorbar"]
     _err_message = "Select 'histtype' from: {}".format(_allowed_histtype)
@@ -101,21 +104,33 @@ def histplot(
     assert densitymode in _allowed_densitymode, _err_message
 
     # Input check
-    if hasattr(h, "ndim") and hasattr(h, "to_numpy"):
-        # Boost histogram compat
-        if h.ndim > 1:
-            raise ValueError("More than 1 axis")
+    if hasattr(h, "axes") and hasattr(h, "to_numpy"):
+        # Boost histogram / Hist compat
+        # TODO: support different storages
+        if len(h.axes) != 1:
+            raise ValueError("Must have only 1 axis")
+        x_axes_label = get_histogram_axes_title(h.axes[0])
         h, bins = h.to_numpy()
+
     elif hasattr(h, "to_numpy"):
-        # Generic
-        _tup = h.to_numpy()
+        # Generic (possibly Uproot 4)
+        _tup = h.to_numpy(flow=False)
         if len(_tup) != 2:
             raise ValueError("to_numpy() method not understood")
+        else:
+            h, bins = _tup
+
+    elif hasattr(h, "numpy"):
+        # uproot/TH1
+        _tup = h.numpy()
+        if len(_tup) != 2:
+            raise ValueError("numpy() method not understood")
         else:
             h, bins = _tup
     elif isinstance(h, tuple):
         # Numpy histogram tuple
         h, bins = h
+
     # Input handling
     h = np.asarray(h).astype(float)
     bins = np.asarray(bins)
@@ -154,7 +169,7 @@ def histplot(
         return isinstance(arg, collections.abc.Iterable) and not isinstance(arg, str)
 
     _chunked_kwargs = []
-    for i in range(_nh):
+    for _i in range(_nh):
         _chunked_kwargs.append({})
     for kwarg in kwargs:
         # Check if iterable
@@ -366,6 +381,9 @@ def histplot(
         _slice = int(round(float(len(bins)) / len(ax.get_xticks()))) + 1
         ax.set_xticks(bins[::_slice])
 
+    if x_axes_label:
+        ax.set_xlabel(x_axes_label)
+
     return ax
 
 
@@ -385,6 +403,39 @@ def hist2dplot(
     **kwargs
 ):
 
+    x_axes_label = ""
+    y_axes_label = ""
+
+    # Input check
+    if hasattr(H, "axes") and hasattr(H, "to_numpy"):
+        # Hist compat
+        if len(H.axes) != 2:
+            raise ValueError("Not a 2D histogram")
+
+        x_axes_label = get_histogram_axes_title(H.axes[0])
+        y_axes_label = get_histogram_axes_title(H.axes[1])
+
+        H, xbins, ybins = H.to_numpy()
+
+    elif hasattr(H, "to_numpy"):
+        # Generic (Uproot 4) support
+        H, xbins, ybins = H.to_numpy(flow=False)
+
+    elif hasattr(H, "numpy"):
+        # uproot/TH2
+        _tup = H.numpy()
+        if len(_tup) != 2:
+            raise ValueError("numpy() method not understood")
+        else:
+            H, xy = _tup
+            if len(xy) == 1 and isinstance(xy, list):
+                if len(xy[0]) == 2 and isinstance(xy[0], tuple):
+                    xbins, ybins = xy[0]
+                else:
+                    raise ValueError("Input not understood")
+            else:
+                raise ValueError("Input not understood")
+
     H = H.T
 
     if ax is None:
@@ -403,6 +454,11 @@ def hist2dplot(
     X, Y = np.meshgrid(xbins, ybins)
 
     pc = ax.pcolormesh(X, Y, H, **kwargs)
+
+    if x_axes_label:
+        ax.set_xlabel(x_axes_label)
+    if y_axes_label:
+        ax.set_ylabel(y_axes_label)
 
     ax.set_xlim(xbins[0], xbins[-1])
     ax.set_ylim(ybins[0], ybins[-1])

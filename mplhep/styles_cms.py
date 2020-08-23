@@ -1,4 +1,6 @@
 from ._deprecate import deprecated_dict
+from packaging import version
+import matplotlib as mpl
 
 # PRL figsize / Elsevier figsize, Nature is somewhere in between
 # single column width -  86 mm (3.386in) /  90 mm (3.543in)
@@ -48,9 +50,18 @@ CMS = {
     "grid.linestyle": ":",
     "axes.linewidth": 2,
     "savefig.transparent": False,
+    "xaxis.labellocation": "right",
+    "yaxis.labellocation": "top",
 }
 
+# Remove backcomp incompatible configs
+if version.parse(mpl.__version__) < version.parse("3.2"):
+    # mpl < 3.2
+    del CMS["xaxis.labellocation"]
+    del CMS["yaxis.labellocation"]
+
 CMSTex = {
+    **CMS,
     "text.usetex": True,
     "text.latex.preamble": r"\usepackage{siunitx},\sisetup{detect-all}, \
                               \usepackage{helvet},\usepackage{sansmath}, \

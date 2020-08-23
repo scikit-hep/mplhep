@@ -213,51 +213,52 @@ def test_histplot_kwargs():
     return fig
 
 
-# Compare styles
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
-@pytest.mark.mpl_image_compare(style="default", remove_text=False)
-def test_style_atlas():
-    import mplhep as hep
-    import matplotlib.pyplot as plt
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_histplot_real():
+    np.random.seed(0)
+    h, bins = np.histogram(np.random.normal(10, 3, 1000), bins=10)
 
-    plt.rcParams.update(plt.rcParamsDefault)
+    fig, axs = plt.subplots(2, 2, figsize=(10, 10))
+    axs = axs.flatten()
+    a, b, c = h, h * 2, np.random.poisson(h * 3)
 
-    # Test suite does not have Helvetica
-    plt.style.use([hep.style.ATLAS, {"font.sans-serif": ["Tex Gyre Heros"]}])
-    fig, ax = plt.subplots()
-    hep.atlas.text()
+    hep.histplot(
+        [a, b, c], bins=bins, ax=axs[0], yerr=True, label=["MC1", "MC2", "Data"]
+    )
+    hep.histplot([a, b], bins=bins, ax=axs[1], stack=True, label=["MC1", "MC2"])
+    hep.histplot(
+        [c], bins=bins, ax=axs[1], yerr=True, histtype="errorbar", label="Data"
+    )
 
-    plt.rcParams.update(plt.rcParamsDefault)
-    return fig
+    hep.histplot(
+        [a, b], bins=bins, ax=axs[2], stack=True, label=["MC1", "MC2"], binwnorm=[2, 1]
+    )
+    hep.histplot(
+        c,
+        bins=bins,
+        ax=axs[2],
+        yerr=True,
+        histtype="errorbar",
+        label="Data",
+        binwnorm=1,
+    )
+    hep.histplot(
+        [a, b], bins=bins, ax=axs[3], stack=True, label=["MC1", "MC2"], density=True
+    )
+    hep.histplot(
+        c,
+        bins=bins,
+        ax=axs[3],
+        yerr=True,
+        histtype="errorbar",
+        label="Data",
+        density=True,
+    )
+    for ax in axs:
+        ax.legend()
+    axs[0].set_title("Raw")
+    axs[1].set_title("Data/MC")
+    axs[2].set_title("Data/MC binwnorm")
+    axs[3].set_title("Data/MC Density")
 
-
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
-@pytest.mark.mpl_image_compare(style="default", remove_text=False)
-def test_style_cms():
-    import mplhep as hep
-    import matplotlib.pyplot as plt
-
-    plt.rcParams.update(plt.rcParamsDefault)
-
-    plt.style.use(hep.style.CMS)
-    fig, ax = plt.subplots()
-    hep.cms.text()
-
-    plt.rcParams.update(plt.rcParamsDefault)
-    return fig
-
-
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
-@pytest.mark.mpl_image_compare(style="default", remove_text=False)
-def test_style_lhcb():
-    import mplhep as hep
-    import matplotlib.pyplot as plt
-
-    plt.rcParams.update(plt.rcParamsDefault)
-
-    plt.style.use([hep.style.LHCb, {"figure.autolayout": False}])
-    fig, ax = plt.subplots()
-    # Doesn't work for now
-    # hep.lhcb.text()
-    plt.rcParams.update(plt.rcParamsDefault)
     return fig

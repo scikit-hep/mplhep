@@ -1,0 +1,80 @@
+name: Mint a release
+on:
+  workflow_dispatch:
+    inputs:
+      major-minor-patch:
+        description: 'Bumpversion'
+        required: true
+        default: 'patch'
+
+jobs:
+  mintRelease:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - name: Print bumpversion input
+        run: |
+          echo "bumpversion type: ${{ github.event.inputs.major-minor-patch }}"
+      - name: Parse bumpversion
+        env:
+          IS_MAJOR: >-
+              ${{ contains( github.event.inputs.major-minor-patch, 'major' ) }}
+          IS_MINOR: >-
+              ${{ contains( github.event.inputs.major-minor-patch, 'minor' ) }}
+          IS_PATCH: >-
+              ${{ contains( github.event.inputs.major-minor-patch, 'patch' ) }}
+        run: |
+          if [ $IS_MAJOR == 'true' ]
+          then
+            echo "::set-env name=BV_PART::major"
+          elif [ $IS_MINOR == 'true' ]
+          then
+            echo "::set-env name=BV_PART::minor"
+          else
+            echo "::set-env name=BV_PART::patch"
+          fi
+      - name: Checkout repository
+        uses: actions/checkout@v2.2.0
+        with:
+          persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
+          fetch-depth: 0
+      - name: Set up git user
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+      - name: Checkout master
+        run: git checkout master
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: Install bumpversion
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install bumpversion
+      - name: Run bumpversion ${{ env['BV_PART'] }}
+        run: |
+          OLD_TAG=$(git describe --tags --abbrev=0)
+          echo "::set-env name=OLD_TAG::${OLD_TAG}"
+          bumpversion $BV_PART --message "Bump version: {current_version} → {new_version}"
+          NEW_TAG=$(git describe --tags --abbrev=0)
+          echo "::set-env name=NEW_TAG::${NEW_TAG}"
+          git tag -n99 -l $NEW_TAG
+          CHANGES=$(git log --pretty=format:'%s' $OLD_TAG..HEAD -i -E --grep='^([a-z]*?):')
+          echo "CHANGES:"$CHANGES";"
+          if [ -z "${CHANGES// }" ]; then echo "CHANGES is empty, will substitute a dummy"; fi
+          if [ -z "${CHANGES// }" ]; then CHANGES="dummy: didn't find valid semantic labels"; fi
+          CHANGES_NEWLINE="$(echo "${CHANGES}" | sed -e 's/^/  - /')"
+          SANITIZED_CHANGES=$(echo "${CHANGES}" | sed -e 's/^/<li>/' -e 's|$|</li>|' -e 's/(#[0-9]\+)//' -e 's/"/'"'"'/g')
+          echo "::set-env name=CHANGES::${SANITIZED_CHANGES//$'\n'/}"
+          NUM_CHANGES=$(echo -n "$CHANGES" | grep -c '^')
+          echo "::set-env name=NUM_CHANGES::${NUM_CHANGES}"
+          git tag $NEW_TAG $NEW_TAG^{} -f -m "$(printf "This is a $BV_PART release from $OLD_TAG → $NEW_TAG.\n\nChanges:\n$CHANGES_NEWLINE")"
+          git tag -n99 -l $NEW_TAG
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.GITHUB_PAT }}

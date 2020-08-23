@@ -20,7 +20,7 @@ import subprocess
 # Add mplhep to path for sphinx-automodapi
 sys.path.insert(0, os.path.abspath("../.."))
 
-import mplhep
+import mplhep  # noqa
 
 print("sys.path:", sys.path)
 print("mplhep version:", mplhep.__version__)
@@ -51,7 +51,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.linkcode",
     "sphinx.ext.napoleon",  # Google and NumPy format docstrings
-    #'sphinx.ext.automodapi',
+    # 'sphinx.ext.automodapi',
     "sphinx_rtd_theme",
 ]
 
@@ -67,7 +67,7 @@ def linkcode_resolve(domain, info):
     mod = importlib.import_module(info["module"])
     modpath = [p for p in sys.path if mod.__file__.startswith(p)]
     if len(modpath) < 1:
-        raise RuntimeException("Cannot deduce module path")
+        raise RuntimeError("Cannot deduce module path")
     modpath = modpath[0]
     obj = reduce(getattr, [mod] + info["fullname"].split("."))
     try:
@@ -111,7 +111,7 @@ html_logo = "_static/mplhep.png"
 
 html_theme_options = {
     "canonical_url": "",
-    "analytics_id": "UA-XXXXXXX-1",  #  Provided by Google in your dashboard
+    "analytics_id": "UA-XXXXXXX-1",  # Provided by Google in your dashboard
     "logo_only": False,
     "display_version": True,
     "prev_next_buttons_location": "bottom",

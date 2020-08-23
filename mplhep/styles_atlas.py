@@ -1,3 +1,6 @@
+from packaging import version
+import matplotlib as mpl
+
 ATLAS = {
     # From https://github.com/kratsg/ATLASstylempl
     "lines.linewidth": 1,
@@ -9,7 +12,7 @@ ATLAS = {
         "Mukti Narrow",
         "FreeSans",
     ],
-    "font.size": 18,
+    "font.size": 22,
     "mathtext.fontset": "stixsans",
     "mathtext.default": "rm",
     # figure layout
@@ -20,16 +23,16 @@ ATLAS = {
     "figure.subplot.left": 0.16,
     "figure.subplot.right": 0.95,
     # axes
-    "axes.labelsize": 30,
-    "axes.labelpad": 30,
+    "axes.labelsize": 24,
+    "axes.labelpad": 24,
     "xtick.top": True,
-    "xtick.labelsize": 19,
+    "xtick.labelsize": 14,
     "xtick.major.size": 10,
     "xtick.minor.size": 5,
     "xtick.direction": "in",
     "xtick.minor.visible": True,
     "ytick.right": True,
-    "ytick.labelsize": 19,
+    "ytick.labelsize": 14,
     "ytick.major.size": 14,
     "ytick.minor.size": 7,
     "ytick.direction": "in",
@@ -40,4 +43,12 @@ ATLAS = {
     "legend.fontsize": 18,
     "legend.labelspacing": 0.3,
     "legend.frameon": False,
+    "xaxis.labellocation": "right",
+    "yaxis.labellocation": "top",
 }
+
+# Remove backcomp incompatible configs
+if version.parse(mpl.__version__) < version.parse("3.2"):
+    # mpl < 3.2
+    del ATLAS["xaxis.labellocation"]
+    del ATLAS["yaxis.labellocation"]

@@ -5,12 +5,12 @@ Installing mplhep
 
 Quick start
 -----------
-If you are already familiar with python environment and have ran ``pip install mplhep``, 
+If you are already familiar with python environment and have ran ``pip install mplhep``,
 primary functionality can be accessed as follows:
 
 .. code-block:: python
 
-   import numpy as np 
+   import numpy as np
    import matplotlib.pyplot as plt
    import mplhep as hep
 
@@ -18,7 +18,7 @@ primary functionality can be accessed as follows:
    plt.style.use(hep.style.CMS)  # or ATLAS/LHCb
 
    h, bins = np.histogram(np.random.random(1000))
-   fig, ax = plt.subplots() 
+   fig, ax = plt.subplots()
    hep.histplot(h, bins)
 
 Will feature binder
@@ -29,7 +29,7 @@ Will feature binder
 
 Platform support
 ----------------
-mplhep is a python package distributed via `PyPI <https://pypi.org/project/mplhep>`_. 
+mplhep is a python package distributed via `PyPI <https://pypi.org/project/mplhep>`_.
 Python version 3.6 or newer is preferred, but a semi-maintained version of mplhep will run in python 2.7 or newer.
 
 .. note:: Python 2 end-of-life is Jan. 1, 2020. All major scientific python packages will no longer provide support for python 2 by that date: https://python3statement.org/
