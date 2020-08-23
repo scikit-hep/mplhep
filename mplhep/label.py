@@ -5,9 +5,18 @@ import matplotlib.pyplot as plt
 import matplotlib.text as mtext
 
 
-class exptext(mtext.Text):
+class ExpText(mtext.Text):
     def __repr__(self):
         return "exptext: Custom Text(%s, %s, %s)" % (self._x, self._y, repr(self._text))
+
+
+class ExpSuffix(mtext.Text):
+    def __repr__(self):
+        return "expsuffix: Custom Text(%s, %s, %s)" % (
+            self._x,
+            self._y,
+            repr(self._text),
+        )
 
 
 def _exp_text(
@@ -111,10 +120,9 @@ def _exp_text(
         if loc == 0:
             loc2_dict[_exp_loc]["xy"] = (_sci_offset, loc2_dict[_exp_loc]["xy"][-1])
 
-    #exp = ax.text(
-    exp = exptext(
+    exptext = ExpText(
         *loc1_dict[_exp_loc]["xy"],
-        #s=exp,
+        # s=exp,
         text=exp,
         transform=ax.transAxes,
         ha="left",
@@ -124,36 +132,36 @@ def _exp_text(
         fontstyle="italic" if italic[0] else "normal",
         fontname=fontname
     )
-    ax._add_text(exp)
+    ax._add_text(exptext)
 
     ax.figure.canvas.draw()
     _dpi = ax.figure.dpi
-    _exp_xoffset = exp.get_window_extent().width / _dpi * 1.05
+    _exp_xoffset = exptext.get_window_extent().width / _dpi * 1.05
     if loc == 0:
         _t = mtransforms.offset_copy(
-            exp._transform, x=_exp_xoffset, units="inches", fig=ax.figure
+            exptext._transform, x=_exp_xoffset, units="inches", fig=ax.figure
         )
     elif loc == 1:
         _t = mtransforms.offset_copy(
             exp._transform,
             x=_exp_xoffset,
-            y=-exp.get_window_extent().height / _dpi,
+            y=-exptext.get_window_extent().height / _dpi,
             units="inches",
             fig=ax.figure,
         )
     elif loc == 2:
         _t = mtransforms.offset_copy(
             exp._transform,
-            y=-exp.get_window_extent().height / _dpi,
+            y=-exptext.get_window_extent().height / _dpi,
             units="inches",
             fig=ax.figure,
         )
     elif loc == 3:
-        _t = mtransforms.offset_copy(exp._transform, units="inches", fig=ax.figure)
+        _t = mtransforms.offset_copy(exptext._transform, units="inches", fig=ax.figure)
 
-    ax.text(
+    expsuffix = ExpSuffix(
         *loc2_dict[loc]["xy"],
-        s=text,
+        text=text,
         transform=_t,
         ha="left",
         va=loc2_dict[loc]["va"],
@@ -161,8 +169,9 @@ def _exp_text(
         fontname=fontname,
         fontstyle="italic" if italic[1] else "normal"
     )
+    ax._add_text(expsuffix)
 
-    return ax
+    return exptext, expsuffix
 
 
 # Lumi text
@@ -294,7 +303,7 @@ def _exp_label(
 
         _label = " ".join(_label.split())
 
-    _exp_text(
+    exp = _exp_text(
         exp=exp,
         text=_label,
         loc=loc,
@@ -305,4 +314,4 @@ def _exp_label(
         pad=pad,
     )
 
-    return ax
+    return exp
