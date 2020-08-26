@@ -274,18 +274,14 @@ def histplot(
 
     if histtype == "step":
         if _nh == 1:
-            if not _mpl_up:  # Back-comp
-                if edges:
-                    # 3.6 and up
-                    # _bins = [bins[0], *bins, bins[-1]]
-                    # _h = [0, *np.r_[h, h[-1]], 0]
-                    _bins = np.r_[bins[0], bins, bins[-1]]
-                    _h = np.r_[0, h, h[-1], 0]
-                else:
-                    _bins, _h = bins, np.r_[h, h[-1]]
+            if edges:
+                # 3.6 and up
+                # _bins = [bins[0], *bins, bins[-1]]
+                # _h = [0, *np.r_[h, h[-1]], 0]
+                _bins = np.r_[bins[0], bins, bins[-1]]
+                _h = np.r_[0, h, h[-1], 0]
             else:
-                _h = h
-                _bins = bins
+                _bins, _h = bins, np.r_[h, h[-1]]
             _label = _labels[0]
             _step_label = _label if yerr is None else None
             (_s,) = ax.step(
@@ -303,17 +299,14 @@ def histplot(
                 ax.errorbar([], [], yerr=1, xerr=1, color=_s.get_color(), label=_label)
         else:
             for i in range(_nh):
-                if not _mpl_up:  # Back-comp
-                    if edges:
-                        # 3.6 and up
-                        # _bins = [bins[0], *bins, bins[-1]]
-                        # _h = [0, *np.r_[h[i], h[i][-1]], 0]
-                        _bins = np.r_[bins[0], bins, bins[-1]]
-                        _h = np.r_[0, h[i], h[i][-1], 0]
-                    else:
-                        _bins, _h = bins, np.r_[h[i], h[i][-1]]
+                if edges:
+                    # 3.6 and up
+                    # _bins = [bins[0], *bins, bins[-1]]
+                    # _h = [0, *np.r_[h[i], h[i][-1]], 0]
+                    _bins = np.r_[bins[0], bins, bins[-1]]
+                    _h = np.r_[0, h[i], h[i][-1], 0]
                 else:
-                    _h = h[i]
+                    _bins, _h = bins, np.r_[h[i], h[i][-1]]
                 _kwargs = _chunked_kwargs[i]
                 _label = _labels[i]
                 _step_label = _label if yerr is None else None
@@ -332,6 +325,7 @@ def histplot(
                     ax.errorbar(
                         [], [], yerr=1, xerr=1, color=_s.get_color(), label=_label
                     )
+        _artist = _s
 
     elif histtype == "fill":
         if _nh == 1:
@@ -339,7 +333,7 @@ def histplot(
                 _h = np.r_[h, h[-1]]
             else:
                 _h = h
-            ax.fill_between(bins, _h, step=_where, label=_labels[0], **kwargs)
+            _f = ax.fill_between(bins, _h, step=_where, label=_labels[0], **kwargs)
         else:
             for i in range(_nh):
                 if not _mpl_up:
@@ -347,7 +341,8 @@ def histplot(
                 else:
                     _h = h[i]
                 _kwargs = _chunked_kwargs[i]
-                ax.fill_between(bins, _h, step=_where, label=_labels[i], **_kwargs)
+                _f = ax.fill_between(bins, _h, step=_where, label=_labels[i], **_kwargs)
+        _artist = _f
 
     elif histtype == "errorbar":
         err_defaults = {
@@ -373,9 +368,9 @@ def histplot(
                     label=_labels[i],
                     **_chunked_kwargs[i]
                 )
-    # Add dummy artists with sticky edges for autoscale
-    _dummy = ax.plot([0, 1], [0, 0], lw=0, ms=0, alpha=0)
-    _dummy[0].sticky_edges.y.append(0)
+        _artist = ax.plot(_bin_centers, h, lw=0, ms=0, alpha=0)[0]
+    # Add sticky edges for autoscale
+    _artist.sticky_edges.y.append(0)
 
     if binticks:
         _slice = int(round(float(len(bins)) / len(ax.get_xticks()))) + 1
@@ -453,6 +448,7 @@ def hist2dplot(
 
     X, Y = np.meshgrid(xbins, ybins)
 
+    kwargs.setdefault("shading", "flat")
     pc = ax.pcolormesh(X, Y, H, **kwargs)
 
     if x_axes_label:
