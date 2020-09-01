@@ -448,6 +448,7 @@ def hist2dplot(
 
     X, Y = np.meshgrid(xbins, ybins)
 
+    kwargs.setdefault("shading", "flat")
     pc = ax.pcolormesh(X, Y, H, **kwargs)
 
     if x_axes_label:
