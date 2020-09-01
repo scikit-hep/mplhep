@@ -58,3 +58,11 @@ def test_style_lhcb():
     # hep.lhcb.text()
     plt.rcParams.update(plt.rcParamsDefault)
     return fig
+
+
+@pytest.mark.mpl_image_compare(style="default")
+def test_label_loc():
+    fig, axs = plt.subplots(1, 4, figsize=(16, 4))
+    for i, ax in enumerate(axs.flatten()):
+        hep.cms.text("Test", loc=i, ax=ax)
+    return fig

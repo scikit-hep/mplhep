@@ -143,7 +143,7 @@ def _exp_text(
         )
     elif loc == 1:
         _t = mtransforms.offset_copy(
-            exp._transform,
+            exptext._transform,
             x=_exp_xoffset,
             y=-exptext.get_window_extent().height / _dpi,
             units="inches",
@@ -151,7 +151,7 @@ def _exp_text(
         )
     elif loc == 2:
         _t = mtransforms.offset_copy(
-            exp._transform,
+            exptext._transform,
             y=-exptext.get_window_extent().height / _dpi,
             units="inches",
             fig=ax.figure,
