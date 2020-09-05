@@ -22,17 +22,6 @@ def _alice_label(**kwargs):
     )
 
 
-# Temporary aliases
-@deprecate.deprecate("Naming convention is changing. Use ``mplhep.alice.label``.")
-def alicelabel(*args, **kwargs):
-    return _alice_label(*args, **kwargs)
-
-
-@deprecate.deprecate("Naming convention is changing. Use ``mplhep.alice.text``.")
-def alicetext(**kwargs):
-    return _alice_text(**kwargs)
-
-
 @docstring.copy(label_base._exp_text)
 def text(*args, **kwargs):
     return _alice_text(*args, **kwargs)
