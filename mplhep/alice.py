@@ -11,11 +11,15 @@ __all__ = [style, lumitext]
 
 # Experiment wrappers, full names made private
 def _alice_text(text="", **kwargs):
-    return label_base._exp_text("ALICE", text=text, fontsize=28, loc=1, italic=(False, False), **kwargs)
+    return label_base._exp_text(
+        "ALICE", text=text, fontsize=28, loc=1, italic=(False, False), **kwargs
+    )
 
 
 def _alice_label(**kwargs):
-    return label_base._exp_label(exp="ALICE", fontsize=28, loc=1, italic=(False, False), rlabel="", **kwargs)
+    return label_base._exp_label(
+        exp="ALICE", fontsize=28, loc=1, italic=(False, False), rlabel="", **kwargs
+    )
 
 
 # Temporary aliases

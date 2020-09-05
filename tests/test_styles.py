@@ -46,6 +46,7 @@ def test_style_cms():
     plt.rcParams.update(plt.rcParamsDefault)
     return fig
 
+
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @pytest.mark.mpl_image_compare(style="default", remove_text=False)
 def test_style_alice():
@@ -57,6 +58,7 @@ def test_style_alice():
 
     plt.rcParams.update(plt.rcParamsDefault)
     return fig
+
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @pytest.mark.mpl_image_compare(style="default", remove_text=False)
