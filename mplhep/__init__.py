@@ -11,6 +11,7 @@ import matplotlib.font_manager as fm
 from . import cms
 from . import atlas
 from . import lhcb
+from . import alice
 from . import plot
 from . import label
 
@@ -66,6 +67,7 @@ __all__ = [
     cms,
     atlas,
     lhcb,
+    alice,
     plot,
     style,
     tools,
