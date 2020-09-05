@@ -49,6 +49,19 @@ def test_style_cms():
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @pytest.mark.mpl_image_compare(style="default", remove_text=False)
+def test_style_alice():
+    plt.rcParams.update(plt.rcParamsDefault)
+
+    plt.style.use(hep.style.ALICE)
+    fig, ax = plt.subplots()
+    hep.alice.text()
+
+    plt.rcParams.update(plt.rcParamsDefault)
+    return fig
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+@pytest.mark.mpl_image_compare(style="default", remove_text=False)
 def test_style_lhcb():
     plt.rcParams.update(plt.rcParamsDefault)
 
