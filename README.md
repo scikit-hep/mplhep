@@ -21,7 +21,7 @@
 
 A set of helpers for `matplotlib` to more easily produce plots typically
 needed in HEP as well as style them in way that's compatible with current
-collaboration requirements (ROOT-like plots for CMS, ATLAS, LHCb).
+collaboration requirements (ROOT-like plots for CMS, ATLAS, LHCb, ALICE).
 
 
 # Installation
@@ -40,6 +40,8 @@ plt.style.use(hep.style.CMS)
 plt.style.use(hep.style.ATLAS)
 # or
 plt.style.use(hep.style.LHCb)
+# or
+plt.style.use(hep.style.ALICE)
 ```
 Experiment specific style are also available. **If the default styles are not what you need, I'd be happy to merge in new styles or modify the current ones.**
 
