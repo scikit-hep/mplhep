@@ -281,8 +281,9 @@ def _exp_label(
         _lumi = rlabel
     else:
         if lumi is not None:
-            _lumi = r"{lumi}, {year} (13 TeV)".format(
-                lumi=str(lumi) + r" $\mathrm{fb^{-1}}$", year=str(year)
+            _lumi = r"{lumi}{year} (13 TeV)".format(
+                lumi=str(lumi) + r" $\mathrm{fb^{-1}}$",
+                year=", " + str(year) if len(str(year)) > 0 else "",
             )
         else:
             _lumi = "{} (13 TeV)".format(str(year))
