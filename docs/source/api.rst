@@ -44,8 +44,6 @@ Use all helpers together
 
 or one by one.
 
-.. autofunction:: mplhep.plot.r_align
-
 .. autofunction:: mplhep.plot.ylow
 
 .. autofunction:: mplhep.plot.yscale_legend

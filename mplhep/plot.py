@@ -451,19 +451,6 @@ def hist2dplot(
 
 #############################################
 # Utils
-def r_align(ax=None):
-    """
-    Align axes labels to the right
-    """
-    if ax is None:
-        ax = plt.gca()
-
-    ax.set_xlabel(ax.get_xlabel(), ha="right", x=1)
-    ax.set_ylabel(ax.get_ylabel(), ha="right", y=1)
-
-    return ax
-
-
 def overlap(ax, bbox, get_vertices=False):
     """
     Find overlap of bbox for drawn elements an axes.
@@ -594,7 +581,6 @@ def ylow(ax=None, ylow=None):
 def mpl_magic(ax=None, info=True):
     """
     Consolidate all ex-post style adjustments:
-        r_align
         ylow
         yscale_legend
     """
@@ -603,7 +589,6 @@ def mpl_magic(ax=None, info=True):
     if not info:
         print("Running ROOT/CMS style adjustments (hide with info=False):")
 
-    ax = r_align(ax)
     ax = ylow(ax)
     ax = yscale_legend(ax)
     ax = yscale_text(ax)
