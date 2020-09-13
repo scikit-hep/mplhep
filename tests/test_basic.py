@@ -262,3 +262,16 @@ def test_histplot_real():
     axs[3].set_title("Data/MC Density")
 
     return fig
+
+
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_histplot_types():
+    hs, bins = [[2, 3, 4], [5, 4, 3]], [0, 1, 2, 3]
+    fig, axs = plt.subplots(3, 2, figsize=(8, 12))
+    axs = axs.flatten()
+
+    for i, htype in enumerate(["step", "fill", "errorbar"]):
+        hep.histplot(hs[0], bins, yerr=True, histtype=htype, ax=axs[i * 2], alpha=0.7)
+        hep.histplot(hs, bins, yerr=True, histtype=htype, ax=axs[i * 2 + 1], alpha=0.7)
+
+    return fig
