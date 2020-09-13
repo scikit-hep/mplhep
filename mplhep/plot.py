@@ -22,19 +22,15 @@ _mpl_up = version.parse(mpl.__version__) >= version.parse(_mpl_up_version)
 # Histogram plotter
 
 
-@deprecate.deprecate_parameter("weights", 'Scale "h" directly or use "binwnorm"')
-@deprecate.deprecate_parameter("densitymode", '"unit"mode is not useful')
 def histplot(
     h,  # Histogram object, tuple or array
     bins=None,  # Bins to be supplied when h is a value array or iterable of arrays
     *,
-    weights=None,
     yerr=None,
     w2=None,
     stack=False,
     density=False,
     binwnorm=None,
-    densitymode="stack",
     histtype="step",
     label=None,
     edges=True,
@@ -52,9 +48,6 @@ def histplot(
             - raw histogram values, provided `bins` is specified.
         bins : iterable, optional
             Histogram bins, if not part of ``h``.
-        weights : float or list, optional, deprecated
-            Per-bin weights if same lenght as histogram values. Otherwise
-            scales each histogram input
         yerr : iterable or bool, optional
             Histogram uncertainties. Following modes are supported:
             - True, sqrt(N) errors or poissonian interval when ``w2`` is specified
@@ -66,10 +59,7 @@ def histplot(
             Whether to stack or overlay non-axis dimension (if it exists
         density : bool, optional
             If true, convert sum weights to probability density (i.e. integrates to 1 over domain of axis)
-            (Note: this option conflicts with ``binwnorm``)
-        densitymode: ["unit", "stack"], default: "stack", deprecated
-            If using both density/binwnorm and stack choose stacking behaviour. "unit" normalized
-            each histogram separately and stacks afterwards, while "stack" normalizes the total after summing.
+            (Note: this option conflicts with ``binwnorm``)de
         binwnorm : float, optional
             If true, convert sum weights to bin-width-normalized, with unit equal to supplied value (usually you want to specify 1.)
         label : str or list, optional
@@ -99,9 +89,6 @@ def histplot(
     _allowed_histtype = ["fill", "step", "errorbar"]
     _err_message = "Select 'histtype' from: {}".format(_allowed_histtype)
     assert histtype in _allowed_histtype, _err_message
-    _allowed_densitymode = ["unit", "stack"]
-    _err_message = "Select 'densitymode' from: {}".format(_allowed_densitymode)
-    assert densitymode in _allowed_densitymode, _err_message
 
     # Input check
     if hasattr(h, "axes") and hasattr(h, "to_numpy"):
@@ -185,12 +172,6 @@ def histplot(
             for i in range(len(_chunked_kwargs)):
                 _chunked_kwargs[i][kwarg] = kwargs[kwarg]
 
-    # Apply weights
-    if weights is not None:
-        # Deprecated
-        weights = np.asarray(weights)
-        h = h * weights
-
     _bin_widths = np.diff(bins)
     _bin_centers = bins[1:] - _bin_widths / float(2)
 
@@ -245,13 +226,11 @@ def histplot(
 
     if density or binwnorm is not None:
         density_arr = get_density(h, density, binwnorm)
-        if stack and densitymode == "stack":
+        if stack:
             h = get_stack(h)
             h *= get_density(h, density, binwnorm)[-1]
         else:
             h *= density_arr
-            if stack and densitymode == "unit":
-                h = get_stack(h)
         if _yerr is not None:
             for i in range(len(density_arr)):
                 _yerr[i] = _yerr[i] * density_arr[i]
@@ -386,7 +365,6 @@ def hist2dplot(
     H,
     xbins=None,
     ybins=None,
-    weights=None,
     labels=None,
     cbar=True,
     cbarsize="7%",

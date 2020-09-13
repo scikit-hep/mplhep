@@ -15,7 +15,6 @@ from . import alice
 from . import plot
 from . import label
 
-from . import tools
 from ._tools import Config
 
 # Get styles directly, also available within experiment helpers.
@@ -85,7 +84,6 @@ __all__ = [
     alice,
     plot,
     style,
-    tools,
     label,
     # Log plot functions
     "histplot",

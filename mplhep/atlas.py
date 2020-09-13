@@ -6,7 +6,6 @@ from . import styles_atlas as style
 from . import label as label_base
 from .label import lumitext
 import mplhep
-import mplhep._deprecate as deprecate
 
 __all__ = [style, lumitext]
 
@@ -32,17 +31,6 @@ def _atlas_label(**kwargs):
         ):
             kwargs[key] = value
     return label_base._exp_label(exp="ATLAS", italic=(True, False), **kwargs)
-
-
-# Temporary aliases
-@deprecate.deprecate("Naming convention is changing. Use ``mplhep.atlas.label``.")
-def atlaslabel(*args, **kwargs):
-    return _atlas_label(*args, **kwargs)
-
-
-@deprecate.deprecate("Naming convention is changing. Use ``mplhep.atlas.text``.")
-def atlastext(**kwargs):
-    return _atlas_text(**kwargs)
 
 
 @docstring.copy(label_base._exp_text)

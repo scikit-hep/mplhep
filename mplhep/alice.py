@@ -6,7 +6,6 @@ from . import styles_alice as style
 from . import label as label_base
 from .label import lumitext
 import mplhep
-import mplhep._deprecate as deprecate
 
 __all__ = [style, lumitext]
 

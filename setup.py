@@ -25,28 +25,6 @@ extras_require = {
 }
 extras_require["complete"] = sorted(set(sum(extras_require.values(), [])))
 
-
-class PostInstallCommand(install):
-    # Currently disabled, done on the fly
-    """Post-installation for installation mode."""
-    """
-    def run(self):
-
-        import os
-        import matplotlib as mpl
-        os.system('cp -r mplhep/stylelib/ ' +
-                  os.path.join(mpl.get_configdir() + '/'))
-        os.system('cp -r mplhep/fonts/firasans/* ' +
-                  os.path.join(mpl.rcParams['datapath'] + '/fonts/ttf/'))
-        os.system('cp -r mplhep/fonts/firamath/* ' +
-                  os.path.join(mpl.rcParams['datapath'] + '/fonts/ttf/'))
-        os.system('cp -r mplhep/fonts/texgyreheros/* ' +
-                  os.path.join(mpl.rcParams['datapath'] + '/fonts/ttf/'))
-        os.system('rm ' + os.path.join(mpl.get_cachedir() + '/font*'))
-        install.run(self)
-    """
-
-
 try:
     base_dir = os.path.dirname(os.path.abspath(__file__))
 except NameError:
@@ -73,8 +51,6 @@ setup(
     python_requires=">=3.5",
     install_requires=INSTALL_REQUIRES,
     extras_require=extras_require,
-    # packages=find_packages(exclude=['tests']),
-    # cmdclass= {'install': PostInstallCommand}, # Currently disabled
     packages=["mplhep"],
     include_package_data=True,
 )
