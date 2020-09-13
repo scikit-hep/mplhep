@@ -129,7 +129,9 @@ def test_histplot_stack():
     hep.histplot([h, 1.5 * h], bins, edges=False, stack=True, ax=axs[1])
 
     axs[2].set_title("Plot Errorbars", fontsize=18)
-    hep.histplot([h, 1.5 * h], bins, yerr=np.sqrt(h), stack=True, ax=axs[2])
+    hep.histplot(
+        [h, 1.5 * h], bins, yerr=[np.sqrt(h), np.sqrt(h)], stack=True, ax=axs[2]
+    )
 
     axs[3].set_title("Filled Histogram", fontsize=18)
     hep.histplot([1.5 * h, h], bins, histtype="fill", stack=True, ax=axs[3])
