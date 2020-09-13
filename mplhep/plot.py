@@ -1,5 +1,6 @@
 import warnings
 import collections
+from collections import namedtuple
 import mplhep._deprecate as deprecate
 
 import matplotlib as mpl
@@ -251,7 +252,9 @@ def histplot(
     else:
         _where = "between"
 
+    return_artists = []
     if histtype == "step":
+        art_tuple = namedtuple("StepArtists", "step errorbar legend_artist")
         if _nh == 1:
             if edges:
                 # 3.6 and up
@@ -267,7 +270,7 @@ def histplot(
                 _bins, _h, where=_where, label=_step_label, marker="", **kwargs
             )
             if yerr is not None or w2 is not None:
-                ax.errorbar(
+                _e = ax.errorbar(
                     _bin_centers,
                     h,
                     yerr=_yerr,
@@ -275,7 +278,16 @@ def histplot(
                     linestyle="none",
                     **kwargs
                 )
-                ax.errorbar([], [], yerr=1, xerr=1, color=_s.get_color(), label=_label)
+                _eleg = ax.errorbar(
+                    [], [], yerr=1, xerr=1, color=_s.get_color(), label=_label
+                )
+            return_artists.append(
+                art_tuple(
+                    _s,
+                    _e if yerr is not None or w2 is not None else None,
+                    _eleg if yerr is not None or w2 is not None else None,
+                )
+            )
         else:
             for i in range(_nh):
                 if edges:
@@ -293,7 +305,7 @@ def histplot(
                     _bins, _h, where=_where, label=_step_label, marker="", **_kwargs
                 )
                 if yerr is not None or w2 is not None:
-                    ax.errorbar(
+                    _e = ax.errorbar(
                         _bin_centers,
                         h[i],
                         yerr=_yerr[i],
@@ -301,18 +313,27 @@ def histplot(
                         linestyle="none",
                         **kwargs
                     )
-                    ax.errorbar(
+                    _eleg = ax.errorbar(
                         [], [], yerr=1, xerr=1, color=_s.get_color(), label=_label
                     )
+                return_artists.append(
+                    art_tuple(
+                        _s,
+                        _e if yerr is not None or w2 is not None else None,
+                        _eleg if yerr is not None or w2 is not None else None,
+                    )
+                )
         _artist = _s
 
     elif histtype == "fill":
+        art_tuple = namedtuple("FillArtists", "fill_between")
         if _nh == 1:
             if not _mpl_up:
                 _h = np.r_[h, h[-1]]
             else:
                 _h = h
             _f = ax.fill_between(bins, _h, step=_where, label=_labels[0], **kwargs)
+            return_artists.append(art_tuple(_f))
         else:
             for i in range(_nh):
                 if not _mpl_up:
@@ -321,9 +342,11 @@ def histplot(
                     _h = h[i]
                 _kwargs = _chunked_kwargs[i]
                 _f = ax.fill_between(bins, _h, step=_where, label=_labels[i], **_kwargs)
+                return_artists.append(art_tuple(_f))
         _artist = _f
 
     elif histtype == "errorbar":
+        art_tuple = namedtuple("ErrorBarArtists", "errorbar")
         err_defaults = {
             "linestyle": "none",
             "marker": ".",
@@ -335,19 +358,24 @@ def histplot(
         for k, v in err_defaults.items():
             if k not in kwargs.keys():
                 kwargs[k] = v
+            for kwarg_row in _chunked_kwargs:
+                if k not in kwarg_row.keys():
+                    kwarg_row[k] = v
         if _nh == 1:
-            ax.errorbar(_bin_centers, h, yerr=_yerr, label=_labels[0], **kwargs)
+            _e = ax.errorbar(_bin_centers, h, yerr=_yerr, label=_labels[0], **kwargs)
+            return_artists.append(art_tuple(_e))
         else:
             for i in range(_nh):
-                ax.errorbar(
+                _e = ax.errorbar(
                     _bin_centers,
                     h[i],
                     yerr=_yerr[i],
-                    linestyle="none",
+                    # linestyle="none",
                     label=_labels[i],
                     **_chunked_kwargs[i]
                 )
-        _artist = ax.plot(_bin_centers, h, lw=0, ms=0, alpha=0)[0]
+                return_artists.append(art_tuple(_e))
+        _artist = ax.plot(_bin_centers, h if _nh == 1 else h[0], lw=0, ms=0, alpha=0)[0]
     # Add sticky edges for autoscale
     _artist.sticky_edges.y.append(0)
 
@@ -358,7 +386,7 @@ def histplot(
     if x_axes_label:
         ax.set_xlabel(x_axes_label)
 
-    return ax
+    return return_artists
 
 
 def hist2dplot(
@@ -466,7 +494,8 @@ def hist2dplot(
                 color = "black" if pc.norm(H[iy, ix]) > 0.5 else "lightgrey"
                 ax.text(xc, yc, _labels[iy, ix], ha="center", va="center", color=color)
 
-    return ax
+    art_tuple = namedtuple("Artist", "pcolormesh")
+    return art_tuple(pc)
 
 
 #############################################
