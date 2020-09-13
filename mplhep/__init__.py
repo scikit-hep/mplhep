@@ -16,6 +16,7 @@ from . import plot
 from . import label
 
 from . import tools
+from ._tools import Config
 
 # Get styles directly, also available within experiment helpers.
 from . import styles as style
@@ -33,6 +34,20 @@ from .plot import (
     append_axes,
     sort_legend,
     save_variations,
+)
+
+## Configs
+rcParams = Config(
+    label=Config(
+        data=None,
+        paper=None,
+        supplementary=None,
+        year=None,
+        lumi=None,
+        llabel=None,
+        rlabel=None,
+    ),
+    text=Config(text=None,),
 )
 
 # Make __version__ available
