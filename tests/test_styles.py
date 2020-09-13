@@ -2,6 +2,7 @@ import os
 import sys
 import pytest
 import matplotlib.pyplot as plt
+from matplotlib.testing.decorators import check_figures_equal
 import numpy as np
 
 os.environ["RUNNING_PYTEST"] = "true"
@@ -79,3 +80,18 @@ def test_label_loc():
     for i, ax in enumerate(axs.flatten()):
         hep.cms.text("Test", loc=i, ax=ax)
     return fig
+
+
+@check_figures_equal()
+def test_label_config(fig_test, fig_ref):
+
+    fig_test, test_ax = plt.subplots()
+    hep.rcParams.label.data = True
+    hep.rcParams.label.lumi = 30
+    hep.rcParams.label.paper = True
+    fig, ax = plt.subplots()
+    hep.cms.label(data=False)
+
+    fig_ref, ref_ax = plt.subplots()
+    hep.rcParams.clear()
+    hep.cms.label(data=False, lumi=30)
