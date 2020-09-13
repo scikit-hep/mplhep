@@ -14,10 +14,10 @@ from .error_estimation import poisson_interval
 from .utils import get_histogram_axes_title
 
 # mpl updated to new methods
-from packaging import version
+# from packaging import version
 
-_mpl_up_version = "3.3.3"
-_mpl_up = version.parse(mpl.__version__) >= version.parse(_mpl_up_version)
+# _mpl_up_version = "3.3.3"
+# _mpl_up = version.parse(mpl.__version__) >= version.parse(_mpl_up_version)
 
 ########################################
 # Histogram plotter
@@ -245,12 +245,7 @@ def histplot(
         _labels = _labels[::-1]
         _chunked_kwargs = _chunked_kwargs[::-1]
 
-    if not _mpl_up:
-        _where = "post"
-    elif edges:
-        _where = "edges"
-    else:
-        _where = "between"
+    _where = "post"
 
     # Iterate rows even if only 1
     h = h.reshape(_nh, -1)
@@ -299,10 +294,7 @@ def histplot(
     elif histtype == "fill":
         art_tuple = namedtuple("FillArtists", "fill_between")
         for i in range(_nh):
-            if not _mpl_up:
-                _h = np.r_[h[i], h[i][-1]]
-            else:
-                _h = h[i]
+            _h = np.r_[h[i], h[i][-1]]
             _kwargs = _chunked_kwargs[i]
             _f = ax.fill_between(bins, _h, step=_where, label=_labels[i], **_kwargs)
         return_artists.append(art_tuple(_f))
