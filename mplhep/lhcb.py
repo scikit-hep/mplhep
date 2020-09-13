@@ -6,7 +6,6 @@ from . import styles_lhcb as style
 from . import label as label_base
 from .label import lumitext
 import mplhep
-import mplhep._deprecate as deprecate
 
 __all__ = [style, lumitext]
 
@@ -47,17 +46,6 @@ def _lhcb_label(**kwargs):
         loc=1,
         **kwargs
     )
-
-
-# Change to snake_case
-@deprecate.deprecate("Naming convention is changing. Use ``mplhep.lhcb.label``.")
-def lhcblabel(*args, **kwargs):
-    return _lhcb_label(*args, **kwargs)
-
-
-@deprecate.deprecate("Naming convention is changing. Use ``mplhep.lhcb.text``.")
-def lhcbtext(**kwargs):
-    return _lhcb_text(**kwargs)
 
 
 @docstring.copy(label_base._exp_text)
