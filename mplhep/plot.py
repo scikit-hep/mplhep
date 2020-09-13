@@ -176,6 +176,8 @@ def histplot(
     _bin_widths = np.diff(bins)
     _bin_centers = bins[1:] - _bin_widths / float(2)
 
+    ############################
+    # yerr processing
     if yerr is not None:
         # yerr is array
         if hasattr(yerr, "__len__"):
@@ -204,6 +206,8 @@ def histplot(
     else:
         _yerr = None
 
+    ############################
+    # Stacking, norming, density
     def get_stack(_h):
         if _nh > 1:
             return np.cumsum(_h, axis=0)
@@ -252,6 +256,8 @@ def histplot(
     if yerr is not None and _yerr.ndim == 1:
         _yerr = _yerr.reshape(_nh, -1)
 
+    ##########
+    # Plotting
     return_artists = []
     if histtype == "step":
         art_tuple = namedtuple("StepArtists", "step errorbar legend_artist")
