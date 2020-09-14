@@ -17,6 +17,7 @@ extras_require = {
         "pytest-mpl",
         "papermill~=1.0",
         "nteract-scrapbook~=0.3",
+        "uproot",
         "uproot4",
         "boost_histogram",
         "scikit-hep-testdata",
