@@ -107,6 +107,7 @@ jobs:
       uses: ad-m/github-push-action@v0.6.0
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
+        tags: true
     - name: Comment that something failed
       if: failure()
       uses: actions/github-script@v1.1.0
