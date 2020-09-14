@@ -2,6 +2,7 @@ import os
 import sys
 import pytest
 import matplotlib.pyplot as plt
+from matplotlib.testing.decorators import check_figures_equal
 import numpy as np
 
 os.environ["RUNNING_PYTEST"] = "true"
@@ -48,6 +49,27 @@ def test_inputs_uproot():
     hep.hist2dplot(TH2, ax=axs[1], cbar=False)
 
     return fig
+
+
+@check_figures_equal()
+def test_label_config(fig_test, fig_ref):
+    import uproot
+    import uproot4
+    from skhep_testdata import data_path
+
+    fname = data_path("uproot-hepdata-example.root")
+    f4 = uproot4.open(fname)
+    f3 = uproot.open(fname)
+
+    fig_test, test_axs = plt.subplots(1, 2, figsize=(14, 5))
+    TH1u4, TH2u4 = f4["hpx"], f4["hpxpy"]
+    hep.histplot(TH1u4, ax=test_axs[0])
+    hep.hist2dplot(TH2u4, ax=test_axs[1], cbar=False)
+
+    fig_ref, ref_axs = plt.subplots(1, 2, figsize=(14, 5))
+    TH1u3, TH2u3 = f3["hpx"], f3["hpxpy"]
+    hep.histplot(TH1u3, ax=ref_axs[0])
+    hep.hist2dplot(TH2u3, ax=ref_axs[1], cbar=False)
 
 
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
