@@ -41,7 +41,9 @@ rcParams = Config(
         llabel=None,
         rlabel=None,
     ),
-    text=Config(text=None,),
+    text=Config(
+        text=None,
+    ),
 )
 
 # Make __version__ available
