@@ -324,22 +324,20 @@ def histplot(
             "markersize": 10.0,
             "elinewidth": 1,
         }
-        if _yerr is None:
-            _yerr = np.zeros_like(h)
         for k, v in err_defaults.items():
             if k not in kwargs.keys():
                 kwargs[k] = v
             for kwarg_row in _chunked_kwargs:
                 if k not in kwarg_row.keys():
                     kwarg_row[k] = v
+
         for i in range(NH):
+            if yerr is None:
+                _yerri = None
+            else:
+                _yerri = [_yerr_lo[i], _yerr_hi[i]]
             _e = ax.errorbar(
-                _bin_centers,
-                h[i],
-                yerr=[_yerr_lo[i], _yerr_hi[i]],
-                # linestyle="none",
-                label=_labels[i],
-                **_chunked_kwargs[i]
+                _bin_centers, h[i], yerr=_yerri, label=_labels[i], **_chunked_kwargs[i]
             )
             return_artists.append(art_tuple(_e))
         _artist = ax.plot(_bin_centers, h[0], lw=0, ms=0, alpha=0)[0]
