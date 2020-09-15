@@ -129,7 +129,9 @@ def test_histplot_stack():
     hep.histplot([h, 1.5 * h], bins, edges=False, stack=True, ax=axs[1])
 
     axs[2].set_title("Plot Errorbars", fontsize=18)
-    hep.histplot([h, 1.5 * h], bins, yerr=np.sqrt(h), stack=True, ax=axs[2])
+    hep.histplot(
+        [h, 1.5 * h], bins, yerr=[np.sqrt(h), np.sqrt(h)], stack=True, ax=axs[2]
+    )
 
     axs[3].set_title("Filled Histogram", fontsize=18)
     hep.histplot([1.5 * h, h], bins, histtype="fill", stack=True, ax=axs[3])
@@ -260,5 +262,18 @@ def test_histplot_real():
     axs[1].set_title("Data/MC")
     axs[2].set_title("Data/MC binwnorm")
     axs[3].set_title("Data/MC Density")
+
+    return fig
+
+
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_histplot_types():
+    hs, bins = [[2, 3, 4], [5, 4, 3]], [0, 1, 2, 3]
+    fig, axs = plt.subplots(3, 2, figsize=(8, 12))
+    axs = axs.flatten()
+
+    for i, htype in enumerate(["step", "fill", "errorbar"]):
+        hep.histplot(hs[0], bins, yerr=True, histtype=htype, ax=axs[i * 2], alpha=0.7)
+        hep.histplot(hs, bins, yerr=True, histtype=htype, ax=axs[i * 2 + 1], alpha=0.7)
 
     return fig

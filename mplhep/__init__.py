@@ -1,8 +1,4 @@
 import os
-
-# Import counter
-import requests as req
-
 from packaging import version
 import matplotlib as mpl
 import matplotlib.font_manager as fm
@@ -24,7 +20,6 @@ from .plot import (
     histplot,
     hist2dplot,
     mpl_magic,
-    r_align,
     yscale_legend,
     ylow,
     rescale_to_axessize,
@@ -46,7 +41,9 @@ rcParams = Config(
         llabel=None,
         rlabel=None,
     ),
-    text=Config(text=None,),
+    text=Config(
+        text=None,
+    ),
 )
 
 # Make __version__ available
@@ -98,21 +95,3 @@ __all__ = [
     "append_axes",
     "sort_legend",
 ]
-
-# Ping import counter for stats
-# Check if CI
-istravis = os.environ.get("TRAVIS") == "true"
-isactions = os.environ.get("GITHUB_ACTIONS") == "true"
-istests = os.environ.get("RUNNING_PYTEST") == "true"
-if not (istravis | isactions | istests):
-    try:
-        # This exists solely to justify my work on the package
-        # to my boss. If you have concerns, feel free to open
-        # an issue
-        __ping__ = req.get(
-            "https://countimports.pythonanywhere.com/"
-            "count/tag.svg?url=count_mplhep_imports",
-            timeout=1,
-        )
-    except Exception:
-        pass

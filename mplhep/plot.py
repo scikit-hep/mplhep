@@ -1,5 +1,6 @@
 import warnings
 import collections
+from collections import namedtuple
 import mplhep._deprecate as deprecate
 
 import matplotlib as mpl
@@ -13,10 +14,10 @@ from .error_estimation import poisson_interval
 from .utils import get_histogram_axes_title
 
 # mpl updated to new methods
-from packaging import version
+# from packaging import version
 
-_mpl_up_version = "3.3.3"
-_mpl_up = version.parse(mpl.__version__) >= version.parse(_mpl_up_version)
+# _mpl_up_version = "3.3.3"
+# _mpl_up = version.parse(mpl.__version__) >= version.parse(_mpl_up_version)
 
 ########################################
 # Histogram plotter
@@ -120,7 +121,7 @@ def histplot(
 
     # Input handling
     h = np.asarray(h).astype(float)
-    bins = np.asarray(bins)
+    bins = np.asarray(bins).astype(float)
     # Convert 1/0 etc to real bools
     stack = bool(stack)
     density = bool(density)
@@ -132,23 +133,18 @@ def histplot(
     )
     assert w2 is None or yerr is None, "Can only supply errors or w2"
 
-    if h.ndim == 1:
-        _nh = 1
-    elif h.ndim > 1:
-        _nh = len(h)
+    # Get number of histograms
+    if hasattr(h, "__len__") and hasattr(h, "ndim"):
+        NH = len(h) if h.ndim > 1 else 1
     else:
         raise ValueError("Input not recognized")
 
-    # Find a better way to unwrap to "real" dimentionality
-    if h.ndim == 2 and len(h) == 1:  # Unwrap if [[1,2,3]]
-        h = h[0]
-
     if label is None:
-        _labels = [None] * _nh
+        _labels = [None] * NH
     elif isinstance(label, str):
-        _labels = [label] * _nh
+        _labels = [label] * NH
     elif not np.iterable(label):
-        _labels = [str(label)] * _nh
+        _labels = [str(label)] * NH
     else:
         _labels = [str(lab) for lab in label]
 
@@ -156,7 +152,7 @@ def histplot(
         return isinstance(arg, collections.abc.Iterable) and not isinstance(arg, str)
 
     _chunked_kwargs = []
-    for _i in range(_nh):
+    for _i in range(NH):
         _chunked_kwargs.append({})
     for kwarg in kwargs:
         # Check if iterable
@@ -175,12 +171,12 @@ def histplot(
     _bin_widths = np.diff(bins)
     _bin_centers = bins[1:] - _bin_widths / float(2)
 
+    ############################
+    # yerr calculation
     if yerr is not None:
         # yerr is array
         if hasattr(yerr, "__len__"):
             _yerr = np.asarray(yerr)
-            if _yerr.ndim == 3 and len(_yerr) == 1:  # Unwrap if [[1,2,3]]
-                _yerr = _yerr[0][0]
         # yerr is a number
         elif isinstance(yerr, (int, float)) and not isinstance(yerr, bool):
             _yerr = np.ones_like(h) * yerr
@@ -203,8 +199,10 @@ def histplot(
     else:
         _yerr = None
 
+    ############################
+    # Stacking, norming, density
     def get_stack(_h):
-        if _nh > 1:
+        if NH > 1:
             return np.cumsum(_h, axis=0)
         else:
             return _h
@@ -213,11 +211,11 @@ def histplot(
         assert (not density) ^ (
             binwnorm is None
         ), "Can only calculate density or binwnorm"
-        per_hist_norm = np.sum(h, axis=1 if _nh > 1 else 0)
+        per_hist_norm = np.sum(h, axis=1 if NH > 1 else 0)
         if binwnorm is not None:
             overallnorm = binwnorm * per_hist_norm
         else:
-            overallnorm = np.ones(_nh)
+            overallnorm = np.ones(NH)
         binnorms = np.outer(overallnorm, np.ones_like(bins[:-1]))
         binnorms /= np.outer(np.diff(bins), per_hist_norm).T
         if binnorms.ndim == 2 and len(binnorms) == 1:  # Unwrap if [[1,2,3]]
@@ -239,91 +237,87 @@ def histplot(
         h = get_stack(h)
 
     # Stack
-    if stack and _nh > 1:
+    if stack and NH > 1:
         h = h[::-1]
         _labels = _labels[::-1]
         _chunked_kwargs = _chunked_kwargs[::-1]
 
-    if not _mpl_up:
-        _where = "post"
-    elif edges:
-        _where = "edges"
-    else:
-        _where = "between"
-
-    if histtype == "step":
-        if _nh == 1:
-            if edges:
-                # 3.6 and up
-                # _bins = [bins[0], *bins, bins[-1]]
-                # _h = [0, *np.r_[h, h[-1]], 0]
-                _bins = np.r_[bins[0], bins, bins[-1]]
-                _h = np.r_[0, h, h[-1], 0]
+    #################################
+    # Split and reshape for iteration
+    h = h.reshape(NH, -1)
+    if yerr is not None:
+        if _yerr.ndim == 3:
+            # Already correct format
+            pass
+        elif _yerr.ndim == 2 and NH == 1:
+            # Broadcast ndim 2 to ndim 3
+            if _yerr.shape[-2] == 2:  # [[1,1], [1,1]]
+                _yerr = _yerr.reshape(NH, 2, _yerr.shape[-1])
+            elif _yerr.shape[-2] == 1:  # [[1,1]]
+                _yerr = np.tile(_yerr, 2).reshape(NH, 2, _yerr.shape[-1])
             else:
-                _bins, _h = bins, np.r_[h, h[-1]]
-            _label = _labels[0]
+                raise ValueError("yerr format is not understood")
+        elif _yerr.ndim == 2:
+            # Broadcast yerr (nh, N) to (nh, 2, N)
+            _yerr = np.tile(_yerr, 2).reshape(NH, 2, _yerr.shape[-1])
+        elif _yerr.ndim == 1:
+            # Broadcast yerr (1, N) to (nh, 2, N)
+            _yerr = np.tile(_yerr, 2 * NH).reshape(NH, 2, _yerr.shape[-1])
+        else:
+            raise ValueError("yerr format is not understood")
+        # Split
+        _yerr_lo = _yerr[:, 0]
+        _yerr_hi = _yerr[:, 1]
+
+    ##########
+    # Plotting
+    return_artists = []
+    if histtype == "step":
+        art_tuple = namedtuple("StepArtists", "step errorbar legend_artist")
+        for i in range(NH):
+            if edges:
+                _bins = [bins[0], *bins, bins[-1]]
+                _h = [0, *h[i], h[i][-1], 0]
+            else:
+                _bins, _h = bins, [*h[i], h[i][-1]]
+            _kwargs = _chunked_kwargs[i]
+            _label = _labels[i]
             _step_label = _label if yerr is None else None
             (_s,) = ax.step(
-                _bins, _h, where=_where, label=_step_label, marker="", **kwargs
+                _bins, _h, where="post", label=_step_label, marker="", **_kwargs
             )
             if yerr is not None or w2 is not None:
-                ax.errorbar(
+                _e = ax.errorbar(
                     _bin_centers,
-                    h,
-                    yerr=_yerr,
+                    h[i],
+                    yerr=[_yerr_lo[i], _yerr_hi[i]],
                     color=_s.get_color(),
                     linestyle="none",
                     **kwargs
                 )
-                ax.errorbar([], [], yerr=1, xerr=1, color=_s.get_color(), label=_label)
-        else:
-            for i in range(_nh):
-                if edges:
-                    # 3.6 and up
-                    # _bins = [bins[0], *bins, bins[-1]]
-                    # _h = [0, *np.r_[h[i], h[i][-1]], 0]
-                    _bins = np.r_[bins[0], bins, bins[-1]]
-                    _h = np.r_[0, h[i], h[i][-1], 0]
-                else:
-                    _bins, _h = bins, np.r_[h[i], h[i][-1]]
-                _kwargs = _chunked_kwargs[i]
-                _label = _labels[i]
-                _step_label = _label if yerr is None else None
-                (_s,) = ax.step(
-                    _bins, _h, where=_where, label=_step_label, marker="", **_kwargs
+                _eleg = ax.errorbar(
+                    [], [], yerr=1, xerr=1, color=_s.get_color(), label=_label
                 )
-                if yerr is not None or w2 is not None:
-                    ax.errorbar(
-                        _bin_centers,
-                        h[i],
-                        yerr=_yerr[i],
-                        color=_s.get_color(),
-                        linestyle="none",
-                        **kwargs
-                    )
-                    ax.errorbar(
-                        [], [], yerr=1, xerr=1, color=_s.get_color(), label=_label
-                    )
+            return_artists.append(
+                art_tuple(
+                    _s,
+                    _e if yerr is not None or w2 is not None else None,
+                    _eleg if yerr is not None or w2 is not None else None,
+                )
+            )
         _artist = _s
 
     elif histtype == "fill":
-        if _nh == 1:
-            if not _mpl_up:
-                _h = np.r_[h, h[-1]]
-            else:
-                _h = h
-            _f = ax.fill_between(bins, _h, step=_where, label=_labels[0], **kwargs)
-        else:
-            for i in range(_nh):
-                if not _mpl_up:
-                    _h = np.r_[h[i], h[i][-1]]
-                else:
-                    _h = h[i]
-                _kwargs = _chunked_kwargs[i]
-                _f = ax.fill_between(bins, _h, step=_where, label=_labels[i], **_kwargs)
+        art_tuple = namedtuple("FillArtists", "fill_between")
+        for i in range(NH):
+            _h = np.r_[h[i], h[i][-1]]
+            _kwargs = _chunked_kwargs[i]
+            _f = ax.fill_between(bins, _h, step="post", label=_labels[i], **_kwargs)
+        return_artists.append(art_tuple(_f))
         _artist = _f
 
     elif histtype == "errorbar":
+        art_tuple = namedtuple("ErrorBarArtists", "errorbar")
         err_defaults = {
             "linestyle": "none",
             "marker": ".",
@@ -335,19 +329,20 @@ def histplot(
         for k, v in err_defaults.items():
             if k not in kwargs.keys():
                 kwargs[k] = v
-        if _nh == 1:
-            ax.errorbar(_bin_centers, h, yerr=_yerr, label=_labels[0], **kwargs)
-        else:
-            for i in range(_nh):
-                ax.errorbar(
-                    _bin_centers,
-                    h[i],
-                    yerr=_yerr[i],
-                    linestyle="none",
-                    label=_labels[i],
-                    **_chunked_kwargs[i]
-                )
-        _artist = ax.plot(_bin_centers, h, lw=0, ms=0, alpha=0)[0]
+            for kwarg_row in _chunked_kwargs:
+                if k not in kwarg_row.keys():
+                    kwarg_row[k] = v
+        for i in range(NH):
+            _e = ax.errorbar(
+                _bin_centers,
+                h[i],
+                yerr=[_yerr_lo[i], _yerr_hi[i]],
+                # linestyle="none",
+                label=_labels[i],
+                **_chunked_kwargs[i]
+            )
+            return_artists.append(art_tuple(_e))
+        _artist = ax.plot(_bin_centers, h[0], lw=0, ms=0, alpha=0)[0]
     # Add sticky edges for autoscale
     _artist.sticky_edges.y.append(0)
 
@@ -358,7 +353,7 @@ def histplot(
     if x_axes_label:
         ax.set_xlabel(x_axes_label)
 
-    return ax
+    return return_artists
 
 
 def hist2dplot(
@@ -466,24 +461,12 @@ def hist2dplot(
                 color = "black" if pc.norm(H[iy, ix]) > 0.5 else "lightgrey"
                 ax.text(xc, yc, _labels[iy, ix], ha="center", va="center", color=color)
 
-    return ax
+    art_tuple = namedtuple("Artist", "pcolormesh")
+    return art_tuple(pc)
 
 
 #############################################
 # Utils
-def r_align(ax=None):
-    """
-    Align axes labels to the right
-    """
-    if ax is None:
-        ax = plt.gca()
-
-    ax.set_xlabel(ax.get_xlabel(), ha="right", x=1)
-    ax.set_ylabel(ax.get_ylabel(), ha="right", y=1)
-
-    return ax
-
-
 def overlap(ax, bbox, get_vertices=False):
     """
     Find overlap of bbox for drawn elements an axes.
@@ -614,7 +597,6 @@ def ylow(ax=None, ylow=None):
 def mpl_magic(ax=None, info=True):
     """
     Consolidate all ex-post style adjustments:
-        r_align
         ylow
         yscale_legend
     """
@@ -623,7 +605,6 @@ def mpl_magic(ax=None, info=True):
     if not info:
         print("Running ROOT/CMS style adjustments (hide with info=False):")
 
-    ax = r_align(ax)
     ax = ylow(ax)
     ax = yscale_legend(ax)
     ax = yscale_text(ax)
