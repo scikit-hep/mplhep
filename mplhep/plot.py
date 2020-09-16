@@ -287,13 +287,14 @@ def histplot(
                 _bins, _h, where="post", label=_step_label, marker="", **_kwargs
             )
             if yerr is not None or w2 is not None:
+                if "color" not in _kwargs:
+                    _kwargs["color"] = _s.get_color()
                 _e = ax.errorbar(
                     _bin_centers,
                     h[i],
                     yerr=[_yerr_lo[i], _yerr_hi[i]],
-                    color=_s.get_color(),
                     linestyle="none",
-                    **kwargs
+                    **_kwargs
                 )
                 _eleg = ax.errorbar(
                     [], [], yerr=1, xerr=1, color=_s.get_color(), label=_label
