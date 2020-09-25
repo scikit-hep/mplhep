@@ -3,8 +3,7 @@ name: CI/CD
 on:
   push:
     branches:
-      - master
-      - master-py27
+      - 'master*'
   pull_request:
   # Run daily at 0:01 UTC
   schedule:
@@ -12,66 +11,42 @@ on:
 
 jobs:
   linter:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        python-version: [3.7]
-    name: linter - flake8 - python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    name: pre-commit (linter)
 
     steps:
-    - uses: actions/checkout@master
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Lint with flake8
-      run: |
-        python -m pip install -q flake8
-        flake8 mplhep
-
-  black:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        python-version: [3.7]
-    name: black - python ${{ matrix.python-version }}
-
-    steps:
-    - uses: actions/checkout@master
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Check black
-      run: |
-        python -m pip install -q black
-        black --check .
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+    - uses: pre-commit/action@v2.0.0
 
   test:
-    runs-on: ${{ matrix.os }}
+    name: "🐍 ${{ matrix.python-version }} • ${{ matrix.runs-on }}"
+    runs-on: ${{ matrix.runs-on }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macOS-latest]
+        runs-on: [ubuntu-latest, macOS-latest]
         python-version: [3.6, 3.7, 3.8]
 
     steps:
     - uses: actions/checkout@master
+
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+
     - name: Install core fonts
-      if: matrix.os == 'ubuntu-latest'
+      if: runner.os == 'Linux'
       run: |
         echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
         sudo apt-get install ttf-mscorefonts-installer
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip setuptools wheel
-        python -m pip install -q --no-cache-dir -e .[complete]
+        python -m pip install -q --no-cache-dir -e .[all]
         python -m pip list
+
     - name: Test with pytest
       run: |
         python -m pytest -r sx --mpl
