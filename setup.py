@@ -11,9 +11,9 @@ extras_require = {
         "boost_histogram",
         "scikit-hep-testdata",
     ],
-    "develop": ["flake8", "jupyter", "bumpversion", "twine", "black", "pre-commit"],
+    "dev": ["flake8", "jupyter", "bumpversion", "twine", "black", "pre-commit"],
 }
-extras_require["complete"] = sorted(set(sum(extras_require.values(), [])))
+extras_require["all"] = sorted(set(sum(extras_require.values(), [])))
 
 
 setup(
