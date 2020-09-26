@@ -16,22 +16,20 @@ from .utils import get_histogram_axes_title
 
 # mpl updated to new methods
 # from packaging import version
-
 # _mpl_up_version = "3.3.3"
 # _mpl_up = version.parse(mpl.__version__) >= version.parse(_mpl_up_version)
 
 StepArtists = namedtuple("StepArtists", "step errorbar legend_artist")
 FillArtists = namedtuple("FillArtists", "fill_between")
 ErrorBarArtists = namedtuple("ErrorBarArtists", "errorbar")
-ColormeshArtist = namedtuple("ColormeshArtist", "pcolormesh")
+ColormeshArtists = namedtuple("ColormeshArtists", "pcolormesh cbar")
 
 Hist1DArtists = Union[StepArtists, FillArtists, ErrorBarArtists]
-Hist2DArtists = ColormeshArtist
+Hist2DArtists = ColormeshArtists
+
 
 ########################################
 # Histogram plotter
-
-
 def histplot(
     h,  # Histogram object, tuple or array
     bins=None,  # Bins to be supplied when h is a value array or iterable of arrays
@@ -48,14 +46,17 @@ def histplot(
     ax=None,
     **kwargs
 ):
-    """Create a 1D histogram plot from `np.histogram`-like inputs.
+    """
+    Create a 1D histogram plot from `np.histogram`-like inputs.
     Parameters
     ----------
         h : object
-            Histogram object with at containing values and bins. Can be:
+            Histogram object with containing values and optionally bins. Can be:
+
             - `np.histogram` tuple
             - `boost_histogram` histogram object
             - raw histogram values, provided `bins` is specified.
+
         bins : iterable, optional
             Histogram bins, if not part of ``h``.
         yerr : iterable or bool, optional
@@ -72,6 +73,13 @@ def histplot(
             (Note: this option conflicts with ``binwnorm``)de
         binwnorm : float, optional
             If true, convert sum weights to bin-width-normalized, with unit equal to supplied value (usually you want to specify 1.)
+        histtype: {'step', 'fill', 'errorbar'}, default: "step", optional
+            Type of histogram to plots:
+
+            - "step": skyline/step/outline of a histogram using `plt.step <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.step.html#matplotlib.axes.Axes.step>`_
+            - "fill": filled histogram using `plt.fill_between <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.step.html#matplotlib.axes.Axes.step> _
+            - "errorbar": single marker histogram using `plt.errorbar <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.step.html#matplotlib.axes.Axes.step>` _
+
         label : str or list, optional
         edges : bool, default: True, optional
             Specifies whether to draw first and last edges of the histogram
@@ -80,11 +88,12 @@ def histplot(
         ax : matplotlib.axes.Axes, optional
             Axes object (if None, last one is fetched or one is created)
         **kwargs :
-            Keyword arguments passed to underlying matplotlib artist - ``Line2D``.
+            Keyword arguments passed to underlying matplotlib functions -
+            {'step', 'fill_between', 'errorbar'}.
     Returns
     -------
-        ax : List[Hist1DArtists]
-            A matplotlib `Axes <https://matplotlib.org/3.1.1/api/axes_api.html>`_ object
+        artists : List[Hist1DArtists]
+
     """
     # ax check
     if ax is None:
@@ -375,6 +384,49 @@ def hist2dplot(
     ax=None,
     **kwargs
 ):
+    """
+    Create a 2D histogram plot from `np.histogram`-like inputs.
+
+    Parameters
+    ----------
+    H : object
+        Histogram object with containing values and optionally bins. Can be:
+
+        - `np.histogram` tuple
+        - `boost_histogram` histogram object
+        - raw histogram values, provided `bins` is specified.
+
+    xbins : 1D array-like, optional, default None
+        Histogram bins along x axis, if not part of ``H``.
+    ybins : 1D array-like, optional, default None
+        Histogram bins along y axis, if not part of ``H``.
+    labels : 2D array (H-like) or bool, default None, optional
+        Array of per-bin labels to display. If ``True`` will
+        display numerical values
+    cbar : bool, optional, default True
+        Draw a colorbar. In contrast to mpl behavious the cbar axes is
+        appended in such a way that it doesn't modify the original axes
+        width:height ratio.
+    cbarsize : str or float, optional, default "7%"
+        Colorbar width.
+    cbarpad : float, optional, default 0.2
+        Colorbar distance from main axis.
+    cbarpos : {'right', 'left', 'bottom', 'top'}, optional,  default "right"
+        Colorbar position w.r.t main axis.
+    cmin : float, optional
+        Colorbar minimum.
+    cmax : float, optional
+        Colorbar maximum.
+    ax : matplotlib.axes.Axes, optional
+        Axes object (if None, last one is fetched or one is created)
+    **kwargs :
+        Keyword arguments passed to underlying matplotlib function - pcolormesh.
+
+    Returns
+    -------
+        artist : Hist2DArtist
+
+    """
 
     x_axes_label = ""
     y_axes_label = ""
@@ -444,7 +496,9 @@ def hist2dplot(
 
     if cbar:
         cax = append_axes(ax, size=cbarsize, pad=cbarpad, position=cbarpos)
-        plt.colorbar(pc, cax=cax)
+        cb_obj = plt.colorbar(pc, cax=cax)
+    else:
+        cb_obj = None
 
     plt.sca(ax)
 
@@ -466,7 +520,7 @@ def hist2dplot(
                 color = "black" if pc.norm(H[iy, ix]) > 0.5 else "lightgrey"
                 ax.text(xc, yc, _labels[iy, ix], ha="center", va="center", color=color)
 
-    return ColormeshArtist(pc)
+    return ColormeshArtists(pc, cb_obj)
 
 
 #############################################

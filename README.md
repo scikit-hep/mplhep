@@ -7,12 +7,13 @@
 
 [sk-badge]: https://scikit-hep.org/assets/images/Scikit--HEP-Project-blue.svg
 
+[![Docs](https://readthedocs.org/projects/mplhep/badge/?version=latest)](https://mplhep.readthedocs.io/en/latest/?badge=latest)
+[![PyPI version](https://badge.fury.io/py/mplhep.svg)](https://badge.fury.io/py/mplhep)
+[![Supported Python versions](https://img.shields.io/pypi/pyversions/mplhep.svg)](https://pypi.org/project/mplhep/)
+
 [![Build Status](https://travis-ci.org/scikit-hep/mplhep.svg?branch=master)](https://travis-ci.org/scikit-hep/mplhep)
 [![GitHub Actions Status: CI](https://github.com/scikit-hep/mplhep/workflows/CI/CD/badge.svg)](https://github.com/scikit-hep/mplhep/actions?query=workflow%3ACI%2FCD+branch%3Amaster)
 [![GitHub Actions Status: Publish](https://github.com/scikit-hep/mplhep/workflows/publish%20distributions/badge.svg)](https://github.com/scikit-hep/mplhep/actions?query=workflow%3A%22publish+distributions%22+branch%3Amaster)
-
-[![PyPI version](https://badge.fury.io/py/mplhep.svg)](https://badge.fury.io/py/mplhep)
-[![Supported Python versions](https://img.shields.io/pypi/pyversions/mplhep.svg)](https://pypi.org/project/mplhep/)
 
 [![PyPI download week](https://img.shields.io/pypi/dw/mplhep?label=downloads%20%28incl%20CI%29)](https://img.shields.io/pypi/dw/mplhep?label=downloads%20%28incl%20CI%29)
 
