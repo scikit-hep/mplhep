@@ -77,8 +77,8 @@ def histplot(
             Type of histogram to plots:
 
             - "step": skyline/step/outline of a histogram using `plt.step <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.step.html#matplotlib.axes.Axes.step>`_
-            - "fill": filled histogram using `plt.fill_between <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.step.html#matplotlib.axes.Axes.step> _
-            - "errorbar": single marker histogram using `plt.errorbar <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.step.html#matplotlib.axes.Axes.step>` _
+            - "fill": filled histogram using `plt.fill_between <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.step.html#matplotlib.axes.Axes.step>`_
+            - "errorbar": single marker histogram using `plt.errorbar <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.step.html#matplotlib.axes.Axes.step>`_
 
         label : str or list, optional
         edges : bool, default: True, optional
@@ -92,7 +92,7 @@ def histplot(
             {'step', 'fill_between', 'errorbar'}.
     Returns
     -------
-        artists : List[Hist1DArtists]
+        List[Hist1DArtists]
 
     """
     # ax check
@@ -424,7 +424,7 @@ def hist2dplot(
 
     Returns
     -------
-        artist : Hist2DArtist
+        Hist2DArtist
 
     """
 
