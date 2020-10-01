@@ -25,12 +25,16 @@ collaboration requirements (ROOT-like plots for CMS, ATLAS, LHCb, ALICE).
 
 
 # Installation
-```
+
+```bash
 pip install mplhep
 ```
+
 # Getting Started
+
 ### Styling
-```
+
+```python
 import matplotlib.pyplot as plt
 import mplhep as hep
 plt.style.use(hep.style.ROOT) # For now ROOT defaults to CMS
@@ -43,10 +47,12 @@ plt.style.use(hep.style.LHCb)
 # or
 plt.style.use(hep.style.ALICE)
 ```
+
 Experiment specific style are also available. **If the default styles are not what you need, I'd be happy to merge in new styles or modify the current ones.**
 
-Default experiment labels are also available
-```
+Default experiment labels are also available.
+
+```python
 # Overall - both left and right annotation
 hep.<experiment>.label()
 # Just experiment label and <text> such as 'Preliminary' or 'Simulation'
@@ -55,21 +61,27 @@ hep.<experiment>.text(<text>)
 
 ### Plotting
 #### 1D Histograms
-```
+
+```python
 h, bins = [2, 3, 2], [0, 1, 2, 3]
 hep.histplot(h, bins)
 ```
+
 #### 2D Histograms
-```
+
+```python
 import numpy as np
 xbins, ybins = [0, 1, 2, 3], [0, 1, 2, 3]
 H = np.array([[2,3,2], [1,2,1], [3,1,3]])
 hep.hist2dplot(H, xbins, ybins)
 ```
-Several useful style adjustments differing form mpl defaults are also available separately or within
-```
+
+Several useful style adjustments differing form mpl defaults are also available separately or within.
+
+```python
 hep.mpl_magic()
 ```
+
 - align axis labels to the right
 - Set lower ylim to 0, if no data is obscured
 - Autoscale upper ylim to fit legend without overlapping with plots
@@ -77,6 +89,7 @@ hep.mpl_magic()
 # Basic Use
 ## Styling
 #### Minimal Example
+
 ```diff
 import numpy as np
 import matplotlib.pyplot as plt
@@ -113,11 +126,13 @@ f, ax = plt.subplots()
 + hep.histplot(h, bins)
 
 ```
+
 Additional functionality is also wrapped inside.
+
 - if `h` is a list of arrays or a 2d array, separate histograms will be plotted
 - `stack=True` stack plots
 - `yerr={None | True | array of ndim = h.ndim | array of ndim = h.ndim + 1}` is
-available to plot `{ no | Poisson | one-sided | two-sided }` errors.
+   available to plot `{ no | Poisson | one-sided | two-sided }` errors.
 - `density=True` show density
 - `weights`
 - `histype={'step' | 'fill'}`
@@ -127,7 +142,7 @@ An effort has been made to provide API as close as possible to `plt.hist()`
 
 ### 2D Histogram plotter is also included
 
-```
+```python
 import numpy as np
 import matplotlib.pyplot as plt
 import mplhep as hep
@@ -234,14 +249,16 @@ https://github.com/firamath/firamath
 ## What doesn't work
 
 ### Context styles and fonts
-```
+
+```python
 with pyplot.style.context(style.ROOT):
     plotting...
 ```
 - This syntax would be ideal, however, it doesn't work properly for fonts and there are no plans by mpl devs to fix this behaviour https://github.com/matplotlib/matplotlib/issues/11673
 
-For now one has to set the style globally
-```
+For now one has to set the style globally:
+
+```python
 plt.style.use(style.ROOT)
 ```
 
