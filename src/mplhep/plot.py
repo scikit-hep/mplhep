@@ -73,14 +73,15 @@ def histplot(
             (Note: this option conflicts with ``binwnorm``)de
         binwnorm : float, optional
             If true, convert sum weights to bin-width-normalized, with unit equal to supplied value (usually you want to specify 1.)
-        histtype: {'step', 'fill', 'errorbar'}, default: "step", optional
-            Type of histogram to plots:
+        histtype: {'step', 'fill', 'errorbar'}, optional, default: "step"
+            Type of histogram to plot:
 
             - "step": skyline/step/outline of a histogram using `plt.step <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.step.html#matplotlib.axes.Axes.step>`_
             - "fill": filled histogram using `plt.fill_between <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.step.html#matplotlib.axes.Axes.step>`_
             - "errorbar": single marker histogram using `plt.errorbar <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.step.html#matplotlib.axes.Axes.step>`_
 
         label : str or list, optional
+            Label for legend entry.
         edges : bool, default: True, optional
             Specifies whether to draw first and last edges of the histogram
         binticks : bool, optional
