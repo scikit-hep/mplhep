@@ -1,4 +1,3 @@
-from packaging import version
 import matplotlib as mpl
 
 ALICE = {
@@ -41,8 +40,5 @@ ALICE = {
     "yaxis.labellocation": "top",
 }
 
-# Remove backcomp incompatible configs
-if version.parse(mpl.__version__) < version.parse("3.2"):
-    # mpl < 3.2
-    del ALICE["xaxis.labellocation"]
-    del ALICE["yaxis.labellocation"]
+# Filter extra (labellocation) items if needed
+ALICE = {k: v for k, v in ALICE.items() if k in mpl.rcParams}

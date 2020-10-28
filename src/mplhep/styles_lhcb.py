@@ -1,6 +1,5 @@
 from cycler import cycler
 from ._deprecate import deprecated_dict
-from packaging import version
 import matplotlib as mpl
 
 colors = [
@@ -86,16 +85,12 @@ LHCb = {
     "yaxis.labellocation": "top",
 }
 
-# Remove backcomp incompatible configs
-if version.parse(mpl.__version__) < version.parse("3.2"):
-    # mpl < 3.2
-    del LHCb["xaxis.labellocation"]
-    del LHCb["yaxis.labellocation"]
+# Filter extra (labellocation) items if needed
+LHCb = {k: v for k, v in LHCb.items() if k in mpl.rcParams}
 
 ROOT = deprecated_dict(
     LHCb, message="'ROOT' style dict is deprecated, please use 'LHCb' instead"
 )
-
 
 LHCbTex = {
     **LHCb,
