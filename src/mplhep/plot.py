@@ -31,7 +31,7 @@ Hist2DArtists = ColormeshArtists
 ########################################
 # Histogram plotter
 def histplot(
-    h,  # Histogram object, tuple or array
+    H,  # Histogram object, tuple or array
     bins=None,  # Bins to be supplied when h is a value array or iterable of arrays
     *,
     yerr=None,
@@ -50,7 +50,7 @@ def histplot(
     Create a 1D histogram plot from `np.histogram`-like inputs.
     Parameters
     ----------
-        h : object
+        H : object
             Histogram object with containing values and optionally bins. Can be:
 
             - `np.histogram` tuple
@@ -110,53 +110,97 @@ def histplot(
     _err_message = "Select 'histtype' from: {}".format(_allowed_histtype)
     assert histtype in _allowed_histtype, _err_message
 
-    # Input check
-    if hasattr(h, "axes") and hasattr(h, "to_numpy"):
-        # Boost histogram / Hist compat
-        # TODO: support different storages
-        if len(h.axes) != 1:
-            raise ValueError("Must have only 1 axis")
-        x_axes_label = get_histogram_axes_title(h.axes[0])
-        h, bins = h.to_numpy()
+    def hist_object_handler(h, check_only=False):
+        if hasattr(h, "axes") and hasattr(h, "to_numpy"):
+            # Boost histogram / Hist compat
+            # TODO: support different storages
+            if len(h.axes) != 1:
+                raise ValueError("Must have only 1 axis")
+            # FIXME x_axes_label = get_histogram_axes_title(h.axes[0])
+            h, bins = h.to_numpy()
 
-    elif hasattr(h, "to_numpy"):
-        # Generic (possibly Uproot 4)
-        _tup = h.to_numpy(flow=False)
-        if len(_tup) != 2:
-            raise ValueError("to_numpy() method not understood")
+        elif hasattr(h, "to_numpy"):
+            # Generic (possibly Uproot 4)
+            _tup = h.to_numpy(flow=False)
+            if len(_tup) != 2:
+                raise ValueError("to_numpy() method not understood")
+            else:
+                h, bins = _tup
+
+        elif hasattr(h, "numpy"):
+            # uproot/TH1
+            _tup = h.numpy()
+            if len(_tup) != 2:
+                raise ValueError("numpy() method not understood")
+            else:
+                h, bins = _tup
+
+        elif isinstance(h, tuple):
+            # Numpy histogram tuple
+            h, bins = h
+
         else:
-            h, bins = _tup
+            h = h
+            bins = None
 
-    elif hasattr(h, "numpy"):
-        # uproot/TH1
-        _tup = h.numpy()
-        if len(_tup) != 2:
-            raise ValueError("numpy() method not understood")
+        if check_only:
+            return True if bins is not None else False
         else:
-            h, bins = _tup
-    elif isinstance(h, tuple):
-        # Numpy histogram tuple
-        h, bins = h
+            return np.asarray(h).astype(float), np.asarray(bins).astype(float)
 
-    # Input handling
-    h = np.asarray(h).astype(float)
-    bins = np.asarray(bins).astype(float)
+    # Try to understand input
+    if isinstance(H, list):
+        # A list of objects
+        type_check = [hist_object_handler(h, check_only=True) for h in H]
+
+        if all(type_check):
+            # All objects are understandable
+            NH = len(type_check)
+            _H, _bins = [], []
+            for h in H:
+                h, bins = hist_object_handler(h)
+                _H.append(h)
+                _bins.append(bins)
+            if len(set(map(len, _H))) != 1:
+                raise ValueError(
+                    "Plotting multiple histograms with different binning is not supported"
+                )
+            h = np.asarray(_H).astype(float)
+            bins = _bins[0]
+        elif any(type_check):
+            # Some objects are not understandable
+            raise ValueError("Some hist objects were not recognized")
+        else:
+            # List of lists or arrays
+            h = np.asarray(H).astype(float)
+            bins = np.asarray(bins).astype(float) if bins is not None else None
+            NH = len(h) if h.ndim > 1 else 1
+    else:
+        # Single object, numpy array, 2D array
+        if hist_object_handler(H, check_only=True):
+            NH = 1
+            h, bins = hist_object_handler(H)
+        else:
+            # 2D array
+            h = np.asarray(H).astype(float)
+            bins = np.asarray(bins).astype(float) if bins is not None else None
+            NH = len(h) if h.ndim > 1 else 1
+
+    if bins is None and NH == 1:
+        bins = np.arange(len(h) + 1)
+    elif bins is None and NH > 1:
+        bins = [np.arange(len(_h) + 1) for _h in h][0]
+
     # Convert 1/0 etc to real bools
     stack = bool(stack)
     density = bool(density)
     edges = bool(edges)
     binticks = bool(binticks)
     assert bins.ndim == 1, "bins need to be 1 dimensional"
-    assert bins.shape[0] == h.shape[-1] + 1, (
-        "len along main axis of h has " "to be smaller by 1 than len " "of bins"
-    )
+    # assert bins.shape[0] == h.shape[-1] + 1, (
+    #     "len along main axis of h has " "to be smaller by 1 than len " "of bins"
+    # )
     assert w2 is None or yerr is None, "Can only supply errors or w2"
-
-    # Get number of histograms
-    if hasattr(h, "__len__") and hasattr(h, "ndim"):
-        NH = len(h) if h.ndim > 1 else 1
-    else:
-        raise ValueError("Input not recognized")
 
     if label is None:
         _labels = [None] * NH
