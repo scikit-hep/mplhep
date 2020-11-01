@@ -52,7 +52,7 @@ def test_inputs_uproot():
 
 
 @check_figures_equal()
-def test_label_config(fig_test, fig_ref):
+def test_uproot_versions(fig_test, fig_ref):
     import uproot
     import uproot4
     from skhep_testdata import data_path
