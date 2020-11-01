@@ -149,7 +149,7 @@ def histplot(
             return np.asarray(h).astype(float), np.asarray(bins).astype(float)
 
     # Try to understand input
-    if isinstance(H, list):
+    if type(H) is list:
         # A list of objects
         type_check = [hist_object_handler(h, check_only=True) for h in H]
 
