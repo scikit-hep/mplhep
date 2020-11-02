@@ -8,7 +8,7 @@ from .styles_alice import ALICE
 from .styles_lhcb import LHCb, LHCbTex
 
 
-def set_style(style):
+def set_style(styles):
     """
     Set the experiment specific plotting style
 
@@ -20,10 +20,15 @@ def set_style(style):
 
     Parameters
     ----------
-        style (`str` or `mplhep.style` `dict`): The experiment sytle
+        styles (`str` or `mplhep.style` `dict`): The experiment style
     """
-    if isinstance(style, dict):
-        # passed in experiment mplhep.style dict
-        plt_style.use(style)
-    else:
-        plt_style.use(getattr(sys.modules[__name__], f"{style}"))
+    if not isinstance(styles, list):
+        styles = [styles]
+
+    # passed in experiment mplhep.style dict or str alias
+    styles = [
+        style if isinstance(style, dict) else getattr(sys.modules[__name__], f"{style}")
+        for style in styles
+    ]
+
+    plt_style.use(styles)
