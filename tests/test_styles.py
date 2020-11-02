@@ -87,11 +87,11 @@ def test_set_style(fig_test, fig_ref):
 
     hep.rcParams.clear()
     plt.style.use(hep.style.CMS)
-    ref_ax = fig_ref.subplots()
+    fig_ref.subplots()
 
     hep.rcParams.clear()
     hep.set_style(hep.style.CMS)
-    test_ax = fig_test.subplots()
+    fig_test.subplots()
 
 
 @check_figures_equal(extensions=["pdf"])
@@ -101,11 +101,11 @@ def test_set_style_str_alias(fig_test, fig_ref):
 
     hep.rcParams.clear()
     plt.style.use(hep.style.ATLAS)
-    ref_ax = fig_ref.subplots()
+    fig_ref.subplots()
 
     hep.rcParams.clear()
     hep.set_style("ATLAS")
-    test_ax = fig_test.subplots()
+    fig_test.subplots()
 
 
 @check_figures_equal(extensions=["pdf"])
@@ -115,11 +115,11 @@ def test_set_style_self_consistent(fig_test, fig_ref):
 
     hep.rcParams.clear()
     hep.set_style(hep.style.LHCb)
-    ref_ax = fig_ref.subplots()
+    fig_ref.subplots()
 
     hep.rcParams.clear()
     hep.set_style("LHCb")
-    test_ax = fig_test.subplots()
+    fig_test.subplots()
 
 
 @check_figures_equal(extensions=["pdf"])
@@ -129,11 +129,11 @@ def test_set_style_style_list(fig_test, fig_ref):
 
     hep.rcParams.clear()
     plt.style.use([hep.style.CMS, {"font.sans-serif": "Comic Sans MS"}])
-    ref_ax = fig_ref.subplots()
+    fig_ref.subplots()
 
     hep.rcParams.clear()
     hep.set_style(["CMS", {"font.sans-serif": "Comic Sans MS"}])
-    test_ax = fig_test.subplots()
+    fig_test.subplots()
 
 
 @pytest.mark.mpl_image_compare(style="default")
