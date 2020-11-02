@@ -15,6 +15,7 @@ from ._tools import Config
 
 # Get styles directly, also available within experiment helpers.
 from . import styles as style
+from .styles import set_style
 
 from .plot import (
     histplot,
