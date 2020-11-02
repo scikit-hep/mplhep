@@ -89,10 +89,10 @@ hep.hist2dplot(H, xbins, ybins)
 
 ### Other styles:
 - `hep.set_style("fira")` - use Fira Sans
-- `hep.set_style(style.firamath)` - use Fira Math
+- `hep.set_style("firamath")` - use Fira Math
 
 #### Styles can be chained:
-- e.g. `hep.set_style(["CMS", mplhep.style.fira, mplhep.style.firamath])`
+- e.g. `hep.set_style(["CMS", "fira", "firamath"])`
 - reappearing `rcParams` get overwritten silently
 
 #### Styles can be modified on the fly
