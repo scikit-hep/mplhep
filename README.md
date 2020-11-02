@@ -76,139 +76,32 @@ H = np.array([[2,3,2], [1,2,1], [3,1,3]])
 hep.hist2dplot(H, xbins, ybins)
 ```
 
-Several useful style adjustments differing form mpl defaults are also available separately or within.
 
-```python
-hep.mpl_magic()
-```
-
-- align axis labels to the right
-- Set lower ylim to 0, if no data is obscured
-- Autoscale upper ylim to fit legend without overlapping with plots
-
-# Basic Use
-## Styling
-#### Minimal Example
-
-```diff
-import numpy as np
-import matplotlib.pyplot as plt
-+ import mplhep as hep
-
-x = np.random.uniform(0, 10, 240)
-y = np.random.normal(512, 112, 240)
-z = np.random.normal(0.5, 0.1, 240)
-
-+ plt.style.use(hep.style.ROOT)
-f, ax = plt.subplots()
-ax.scatter(x,y, c=z);
-
-```
-<p float="center">
-  <img src="img/style0.png" width="300" />
-  <img src="img/style1.png" width="300" />
-</p>
-*(gray padded to see figure size)
-
-## Plotting
-A pre-binned histogram plotter is provided, as this functionality is currently
-awkward in `mpl`.
-
-```diff
-import numpy as np
-import matplotlib.pyplot as plt
-+ import mplhep as hep
-
-h, bins = np.histogram(np.random.normal(10,3,1000))
-
-f, ax = plt.subplots()
-- ax.step(bins, np.r_[h, h[-1]], step='post')
-+ hep.histplot(h, bins)
-
-```
-
-Additional functionality is also wrapped inside.
-
-- if `h` is a list of arrays or a 2d array, separate histograms will be plotted
-- `stack=True` stack plots
-- `yerr={None | True | array of ndim = h.ndim | array of ndim = h.ndim + 1}` is
-   available to plot `{ no | Poisson | one-sided | two-sided }` errors.
-- `density=True` show density
-- `weights`
-- `histype={'step' | 'fill'}`
-- `edges` when plotting with `'step'` close the shape outside
-
-An effort has been made to provide API as close as possible to `plt.hist()`
-
-### 2D Histogram plotter is also included
-
-```python
-import numpy as np
-import matplotlib.pyplot as plt
-import mplhep as hep
-
-fig, ax = plt.subplots()
-
-xedges = [0, 1, 3, 5]
-yedges = [0, 2, 3, 4, 6,7]
-x = np.random.normal(2, 1, 100)
-y = np.random.normal(4, 1, 100)
-H, xedges, yedges = np.histogram2d(x, y, bins=(xedges, yedges))
-
-hep.hist2dplot(H, xedges, yedges)
-
-```
 
 # More Information
 
-### Available styles:
-
-- `plt.style.use(style.ROOT)` - Default (figure 10x10 inches, full column size)
-- `plt.style.use(style.ROOTlegacy)` - Same as ROOT style above, but use ROOT fonts - Helvetica, fallback to Arial - instead of TeX Gyre Heros, requires font to be already available on the system
-- `plt.style.use(style.ROOTs)` - Default (figure 6x6 inches, half column size)
-- `plt.style.use(style.fira)` - use Fira Sans
-
+### Other styles:
+- `plt.style.use(mplhep.style.fira)` - use Fira Sans
 - `plt.style.use(style.firamath)` - use Fira Math
 
-- `plt.style.use(style.ATLAS)` - use default ATLAS style from https://github.com/kratsg/ATLASstylempl, note it defaults to Helvetica, which is not supplied in this package as explained below, and will only work properly if already available on the system
-
 #### Styles can be chained:
-- e.g. `plt.style.use([style.ROOT, style.fira, style.firamath])`
+- e.g. `plt.style.use([mplhep.style.CMS, mplhep.style.fira, mplhep.style.firamath])`
 - reappearing rcParams get overwritten silently
 
 #### Styles can be modified on the fly
 - Since styles are dictionaries and they can be chained/overwritten they can be easiely modified on the fly. e.g.
 ```
-plt.style.use(style.ROOT)
+plt.style.use(mplhep.style.CMS)
 plt.style.use({"font.sans-serif":'Comic Sans MS'})
 ```
 
 #### Styling with LaTeX
-- `plt.style.use(style.ROOTtex)` - Use LaTeX to produce all text labels
+- `plt.style.use(mplhep.style.CMStex)` - Use LaTeX to produce all text labels
 - Requires having the full tex-live distro
 - True Helvetica
 - Use sansmath as the math font
 - Takes longer and not always better
 - In general more possibilities, but a bit more difficult to get everything working properly
-
-## Experiment annotations
-```diff
-+ plt.style.use(hep.cms.style.ROOT)
-+ ax = hep.cms.label(data=False, paper=False, year='2017', ax=ax)
-```
-<p float="center">
-  <img src="img/style1.png" width="400" />
-  <img src="img/style2.png" width="400" />
-</p>
-
-
-## Plot helper functions
-
-#### Box (or other) aspect
-
-#### Square plot with subplot (works with `tight_layout()`)
-
-#### Append a new axes, without modifying the original
 
 # Notes
 
@@ -257,11 +150,6 @@ with pyplot.style.context(style.ROOT):
 - This syntax would be ideal, however, it doesn't work properly for fonts and there are no plans by mpl devs to fix this behaviour https://github.com/matplotlib/matplotlib/issues/11673
 
 For now one has to set the style globally:
-
-```python
-plt.style.use(style.ROOT)
-```
-
 
 ### Use in publications
 
