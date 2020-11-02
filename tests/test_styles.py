@@ -74,6 +74,68 @@ def test_style_lhcb():
     return fig
 
 
+@check_figures_equal(extensions=["pdf"])
+# @pytest.mark.parametrize(
+#     "experiment_style",
+#     [hep.style.ALICE, hep.style.ATLAS, hep.style.CMS, hep.style.LHCb, hep.style.ROOT,],
+#     ids=["ALICE", "ATLAS", "CMS", "LHCb", "ROOT"],
+# )
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+# def test_set_style(experiment_style, fig_test, fig_ref):
+def test_set_style(fig_test, fig_ref):
+    plt.rcParams.update(plt.rcParamsDefault)
+
+    hep.rcParams.clear()
+    plt.style.use(hep.style.CMS)
+    ref_ax = fig_ref.subplots()
+
+    hep.rcParams.clear()
+    hep.set_style(hep.style.CMS)
+    test_ax = fig_test.subplots()
+
+
+@check_figures_equal(extensions=["pdf"])
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+def test_set_style_str_alias(fig_test, fig_ref):
+    plt.rcParams.update(plt.rcParamsDefault)
+
+    hep.rcParams.clear()
+    plt.style.use(hep.style.ATLAS)
+    ref_ax = fig_ref.subplots()
+
+    hep.rcParams.clear()
+    hep.set_style("ATLAS")
+    test_ax = fig_test.subplots()
+
+
+@check_figures_equal(extensions=["pdf"])
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+def test_set_style_self_consistent(fig_test, fig_ref):
+    plt.rcParams.update(plt.rcParamsDefault)
+
+    hep.rcParams.clear()
+    hep.set_style(hep.style.LHCb)
+    ref_ax = fig_ref.subplots()
+
+    hep.rcParams.clear()
+    hep.set_style("LHCb")
+    test_ax = fig_test.subplots()
+
+
+@check_figures_equal(extensions=["pdf"])
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+def test_set_style_style_list(fig_test, fig_ref):
+    plt.rcParams.update(plt.rcParamsDefault)
+
+    hep.rcParams.clear()
+    plt.style.use([hep.style.CMS, {"font.sans-serif": "Comic Sans MS"}])
+    ref_ax = fig_ref.subplots()
+
+    hep.rcParams.clear()
+    hep.set_style(["CMS", {"font.sans-serif": "Comic Sans MS"}])
+    test_ax = fig_test.subplots()
+
+
 @pytest.mark.mpl_image_compare(style="default")
 def test_label_loc():
     fig, axs = plt.subplots(1, 4, figsize=(16, 4))
