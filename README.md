@@ -103,7 +103,7 @@ hep.set_style({"font.sans-serif":'Comic Sans MS'})
 ```
 
 #### Styling with LaTeX
-- `hep.set_style("CMStex")` - Use LaTeX to produce all text labels
+- `hep.set_style("CMSTex")` - Use LaTeX to produce all text labels
 - Requires having the full tex-live distro
 - True Helvetica
 - Use sansmath as the math font
