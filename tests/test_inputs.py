@@ -52,7 +52,7 @@ def test_inputs_uproot():
 
 
 @check_figures_equal()
-def test_label_config(fig_test, fig_ref):
+def test_uproot_versions(fig_test, fig_ref):
     import uproot
     import uproot4
     from skhep_testdata import data_path
@@ -61,12 +61,15 @@ def test_label_config(fig_test, fig_ref):
     f4 = uproot4.open(fname)
     f3 = uproot.open(fname)
 
-    fig_test, test_axs = plt.subplots(1, 2, figsize=(14, 5))
+    fig_test.set_size_inches(14, 5)
+    fig_ref.set_size_inches(14, 5)
+
+    test_axs = fig_test.subplots(1, 2)
     TH1u4, TH2u4 = f4["hpx"], f4["hpxpy"]
     hep.histplot(TH1u4, ax=test_axs[0])
     hep.hist2dplot(TH2u4, ax=test_axs[1], cbar=False)
 
-    fig_ref, ref_axs = plt.subplots(1, 2, figsize=(14, 5))
+    ref_axs = fig_ref.subplots(1, 2)
     TH1u3, TH2u3 = f3["hpx"], f3["hpxpy"]
     hep.histplot(TH1u3, ax=ref_axs[0])
     hep.hist2dplot(TH2u3, ax=ref_axs[1], cbar=False)

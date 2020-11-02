@@ -33,12 +33,12 @@ jobs:
       run: |
         if [ $IS_MAJOR == 'true' ]
         then
-          echo "::set-env name=BV_PART::major"
+          echo "BV_PART=major" >> $GITHUB_ENV
         elif [ $IS_MINOR == 'true' ]
         then
-          echo "::set-env name=BV_PART::minor"
+          echo "BV_PART=minor" >> $GITHUB_ENV
         else
-          echo "::set-env name=BV_PART::patch"
+          echo "BV_PART=patch" >> $GITHUB_ENV
         fi
     - name: Checkout repository
       uses: actions/checkout@v2.2.0
@@ -59,35 +59,36 @@ jobs:
       run: |
         git merge --squash "origin/${GITHUB_HEAD_REF}"
         git commit -m "${PR_TITLE} (#${PR_NUMBER})"
-    - name: Set up Python 3.7
+    - name: Set up Python 3.8
       uses: actions/setup-python@v2
       with:
-        python-version: 3.7
-    - name: Install bumpversion
+        python-version: 3.8
+    - name: Install bump2version
       run: |
         python -m pip install --upgrade pip setuptools wheel
-        python -m pip install bumpversion
-    - name: Run bumpversion ${{ env['BV_PART'] }}
+        python -m pip install "bump2version~=1.0"
+    - name: Run bump2version ${{ env['BV_PART'] }}
       run: |
         OLD_TAG=$(git describe --tags --abbrev=0)
-        echo "::set-env name=OLD_TAG::${OLD_TAG}"
-        bumpversion $BV_PART --message "Bump version: {current_version} → {new_version}
+        echo "OLD_TAG=${OLD_TAG}" >> $GITHUB_ENV
+        bump2version $BV_PART --message "Bump version: {current_version} → {new_version}
+
         Triggered by #${PR_NUMBER} via GitHub Actions."
         NEW_TAG=$(git describe --tags --abbrev=0)
-        echo "::set-env name=NEW_TAG::${NEW_TAG}"
+        echo "NEW_TAG=${NEW_TAG}" >> $GITHUB_ENV
         git tag -n99 -l $NEW_TAG
+
         CHANGES=$(git log --pretty=format:'%s' $OLD_TAG..HEAD -i -E --grep='^([a-z]*?):')
         echo "CHANGES:"$CHANGES";"
         if [ -z "${CHANGES// }" ]; then echo "CHANGES is empty, will substitute a dummy"; fi
         if [ -z "${CHANGES// }" ]; then CHANGES="dummy: didn't find valid semantic labels"; fi
         CHANGES_NEWLINE="$(echo "${CHANGES}" | sed -e 's/^/  - /')"
         SANITIZED_CHANGES=$(echo "${CHANGES}" | sed -e 's/^/<li>/' -e 's|$|</li>|' -e 's/(#[0-9]\+)//' -e 's/"/'"'"'/g')
-        echo "::set-env name=CHANGES::${SANITIZED_CHANGES//$'\n'/}"
+        echo "CHANGES=${SANITIZED_CHANGES//$'\n'/}" >> $GITHUB_ENV
         NUM_CHANGES=$(echo -n "$CHANGES" | grep -c '^')
-        echo "::set-env name=NUM_CHANGES::${NUM_CHANGES}"
+        echo "NUM_CHANGES=${NUM_CHANGES}" >> $GITHUB_ENV
         git tag $NEW_TAG $NEW_TAG^{} -f -m "$(printf "This is a $BV_PART release from $OLD_TAG → $NEW_TAG.\n\nChanges:\n$CHANGES_NEWLINE")"
         git tag -n99 -l $NEW_TAG
-
     - name: Comment on issue
       if: >-
         github.event.action == 'labeled'
@@ -107,7 +108,6 @@ jobs:
       uses: ad-m/github-push-action@v0.6.0
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        tags: true
     - name: Comment that something failed
       if: failure()
       uses: actions/github-script@v1.1.0
@@ -126,6 +126,7 @@ jobs:
               repo: context.repo.repo,
               name: "bumpversion/${{ env['BV_PART'] }}"
             })
+
   always_job:
     name: Always run job
     runs-on: ubuntu-latest

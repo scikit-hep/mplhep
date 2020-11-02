@@ -82,16 +82,15 @@ def test_label_loc():
     return fig
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=["pdf"])
 def test_label_config(fig_test, fig_ref):
-
-    fig_test, test_ax = plt.subplots()
     hep.rcParams.label.data = True
     hep.rcParams.label.lumi = 30
     hep.rcParams.label.paper = True
-    fig, ax = plt.subplots()
-    hep.cms.label(data=False)
 
-    fig_ref, ref_ax = plt.subplots()
+    test_ax = fig_test.subplots()
+    hep.cms.label(data=False, ax=test_ax)
+
+    ref_ax = fig_ref.subplots()
     hep.rcParams.clear()
-    hep.cms.label(data=False, lumi=30)
+    hep.cms.label(data=False, lumi=30, paper=True, ax=ref_ax)
