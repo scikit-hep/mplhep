@@ -35,17 +35,24 @@ pip install mplhep
 ### Styling
 
 ```python
+import mplhep as hep
+hep.set_style(hep.style.ROOT) # For now ROOT defaults to CMS
+# Or choose one of the experiment styles
+hep.set_style(hep.style.CMS)
+# or
+hep.set_style("ATLAS") # string aliases work too
+# or
+hep.set_style("LHCb")
+# or
+hep.set_style("ALICE")
+```
+
+The style can be set directly from the `matplotlib` API as well
+
+```python
 import matplotlib.pyplot as plt
 import mplhep as hep
-plt.style.use(hep.style.ROOT) # For now ROOT defaults to CMS
-# Or choose one of the experiment styles
-plt.style.use(hep.style.CMS)
-# or
-plt.style.use(hep.style.ATLAS)
-# or
-plt.style.use(hep.style.LHCb)
-# or
-plt.style.use(hep.style.ALICE)
+plt.style.use(hep.style.ROOT)
 ```
 
 Experiment specific style are also available. **If the default styles are not what you need, I'd be happy to merge in new styles or modify the current ones.**
@@ -81,22 +88,22 @@ hep.hist2dplot(H, xbins, ybins)
 # More Information
 
 ### Other styles:
-- `plt.style.use(mplhep.style.fira)` - use Fira Sans
-- `plt.style.use(style.firamath)` - use Fira Math
+- `hep.set_style("fira")` - use Fira Sans
+- `hep.set_style(style.firamath)` - use Fira Math
 
 #### Styles can be chained:
-- e.g. `plt.style.use([mplhep.style.CMS, mplhep.style.fira, mplhep.style.firamath])`
-- reappearing rcParams get overwritten silently
+- e.g. `hep.set_style(["CMS", mplhep.style.fira, mplhep.style.firamath])`
+- reappearing `rcParams` get overwritten silently
 
 #### Styles can be modified on the fly
-- Since styles are dictionaries and they can be chained/overwritten they can be easiely modified on the fly. e.g.
+- Since styles are dictionaries and they can be chained/overwritten they can be easily modified on the fly. e.g.
 ```
-plt.style.use(mplhep.style.CMS)
-plt.style.use({"font.sans-serif":'Comic Sans MS'})
+hep.set_style("CMS")
+hep.set_style({"font.sans-serif":'Comic Sans MS'})
 ```
 
 #### Styling with LaTeX
-- `plt.style.use(mplhep.style.CMStex)` - Use LaTeX to produce all text labels
+- `hep.set_style("CMStex")` - Use LaTeX to produce all text labels
 - Requires having the full tex-live distro
 - True Helvetica
 - Use sansmath as the math font
