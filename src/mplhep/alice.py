@@ -2,7 +2,7 @@ import inspect
 from matplotlib import docstring
 
 # Log styles
-from . import styles_alice as style
+from .styles import styles_alice as style
 from . import label as label_base
 from .label import lumitext
 import mplhep

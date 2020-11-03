@@ -1,5 +1,5 @@
 from cycler import cycler
-from ._deprecate import deprecated_dict
+from .._deprecate import deprecated_dict
 import matplotlib as mpl
 
 colors = [
