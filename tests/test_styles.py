@@ -77,19 +77,19 @@ def test_style_lhcb():
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @check_figures_equal(extensions=["pdf"])
 @pytest.mark.parametrize(
-    "style",
+    "mplhep_style",
     [hep.style.ALICE, hep.style.ATLAS, hep.style.CMS, hep.style.LHCb, hep.style.ROOT],
     ids=["ALICE", "ATLAS", "CMS", "LHCb", "ROOT"],
 )
-def test_set_style(fig_test, fig_ref, style):
+def test_set_style(fig_test, fig_ref, mplhep_style):
     plt.rcParams.update(plt.rcParamsDefault)
 
     hep.rcParams.clear()
-    plt.style.use(style)
+    plt.style.use(mplhep_style)
     fig_ref.subplots()
 
     hep.rcParams.clear()
-    hep.set_style(style)
+    hep.set_style(mplhep_style)
     fig_test.subplots()
 
 
