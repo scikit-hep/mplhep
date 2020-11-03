@@ -74,65 +74,97 @@ def test_style_lhcb():
     return fig
 
 
-@check_figures_equal(extensions=["pdf"])
-# @pytest.mark.parametrize(
-#     "experiment_style",
-#     [hep.style.ALICE, hep.style.ATLAS, hep.style.CMS, hep.style.LHCb, hep.style.ROOT,],
-#     ids=["ALICE", "ATLAS", "CMS", "LHCb", "ROOT"],
-# )
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
-# def test_set_style(experiment_style, fig_test, fig_ref):
-def test_set_style(fig_test, fig_ref):
+@check_figures_equal(extensions=["pdf"])
+@pytest.mark.parametrize(
+    "style",
+    [hep.style.ALICE, hep.style.ATLAS, hep.style.CMS, hep.style.LHCb, hep.style.ROOT,],
+    ids=["ALICE", "ATLAS", "CMS", "LHCb", "ROOT"],
+)
+def test_set_style(fig_test, fig_ref, style):
     plt.rcParams.update(plt.rcParamsDefault)
 
     hep.rcParams.clear()
-    plt.style.use(hep.style.CMS)
+    plt.style.use(style)
     fig_ref.subplots()
 
     hep.rcParams.clear()
-    hep.set_style(hep.style.CMS)
+    hep.set_style(style)
     fig_test.subplots()
 
 
-@check_figures_equal(extensions=["pdf"])
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
-def test_set_style_str_alias(fig_test, fig_ref):
+@check_figures_equal(extensions=["pdf"])
+@pytest.mark.parametrize(
+    "mplhep_style, str_alias",
+    [
+        (hep.style.ALICE, "ALICE"),
+        (hep.style.ATLAS, "ATLAS"),
+        (hep.style.CMS, "CMS"),
+        (hep.style.LHCb, "LHCb"),
+        (hep.style.ROOT, "ROOT"),
+    ],
+    ids=["ALICE", "ATLAS", "CMS", "LHCb", "ROOT"],
+)
+def test_set_style_str_alias(fig_test, fig_ref, mplhep_style, str_alias):
     plt.rcParams.update(plt.rcParamsDefault)
 
     hep.rcParams.clear()
-    plt.style.use(hep.style.ATLAS)
+    plt.style.use(mplhep_style)
     fig_ref.subplots()
 
     hep.rcParams.clear()
-    hep.set_style("ATLAS")
+    hep.set_style(str_alias)
     fig_test.subplots()
 
 
-@check_figures_equal(extensions=["pdf"])
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
-def test_set_style_self_consistent(fig_test, fig_ref):
+@check_figures_equal(extensions=["pdf"])
+@pytest.mark.parametrize(
+    "mplhep_style, str_alias",
+    [
+        (hep.style.ALICE, "ALICE"),
+        (hep.style.ATLAS, "ATLAS"),
+        (hep.style.CMS, "CMS"),
+        (hep.style.LHCb, "LHCb"),
+        (hep.style.ROOT, "ROOT"),
+    ],
+    ids=["ALICE", "ATLAS", "CMS", "LHCb", "ROOT"],
+)
+def test_set_style_self_consistent(fig_test, fig_ref, mplhep_style, str_alias):
     plt.rcParams.update(plt.rcParamsDefault)
 
     hep.rcParams.clear()
-    hep.set_style(hep.style.LHCb)
+    hep.set_style(mplhep_style)
     fig_ref.subplots()
 
     hep.rcParams.clear()
-    hep.set_style("LHCb")
+    hep.set_style(str_alias)
     fig_test.subplots()
 
 
-@check_figures_equal(extensions=["pdf"])
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
-def test_set_style_style_list(fig_test, fig_ref):
+@check_figures_equal(extensions=["pdf"])
+@pytest.mark.parametrize(
+    "mplhep_style, str_alias",
+    [
+        (hep.style.ALICE, "ALICE"),
+        (hep.style.ATLAS, "ATLAS"),
+        (hep.style.CMS, "CMS"),
+        (hep.style.LHCb, "LHCb"),
+        (hep.style.ROOT, "ROOT"),
+    ],
+    ids=["ALICE", "ATLAS", "CMS", "LHCb", "ROOT"],
+)
+def test_set_style_style_list(fig_test, fig_ref, mplhep_style, str_alias):
     plt.rcParams.update(plt.rcParamsDefault)
 
     hep.rcParams.clear()
-    plt.style.use([hep.style.CMS, {"font.sans-serif": "Comic Sans MS"}])
+    plt.style.use([mplhep_style, {"font.sans-serif": "Comic Sans MS"}])
     fig_ref.subplots()
 
     hep.rcParams.clear()
-    hep.set_style(["CMS", {"font.sans-serif": "Comic Sans MS"}])
+    hep.set_style([str_alias, {"font.sans-serif": "Comic Sans MS"}])
     fig_test.subplots()
 
 
