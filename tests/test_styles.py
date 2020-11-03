@@ -78,7 +78,7 @@ def test_style_lhcb():
 @check_figures_equal(extensions=["pdf"])
 @pytest.mark.parametrize(
     "style",
-    [hep.style.ALICE, hep.style.ATLAS, hep.style.CMS, hep.style.LHCb, hep.style.ROOT,],
+    [hep.style.ALICE, hep.style.ATLAS, hep.style.CMS, hep.style.LHCb, hep.style.ROOT],
     ids=["ALICE", "ATLAS", "CMS", "LHCb", "ROOT"],
 )
 def test_set_style(fig_test, fig_ref, style):
