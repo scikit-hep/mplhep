@@ -2,10 +2,10 @@ import sys
 from matplotlib.pyplot import style as plt_style
 
 # Short cut to all styles
-from .styles_cms import CMS, CMSTex, ROOT, ROOTTex, firamath, fabiola
-from .styles_atlas import ATLAS
-from .styles_alice import ALICE
-from .styles_lhcb import LHCb, LHCbTex
+from .cms import CMS, CMSTex, ROOT, ROOTTex
+from .atlas import ATLAS
+from .alice import ALICE
+from .lhcb import LHCb, LHCbTex
 
 
 def set_style(styles):
@@ -32,3 +32,19 @@ def set_style(styles):
     ]
 
     plt_style.use(styles)
+
+
+fira = {"font.sans-serif": "Fira Sans"}
+
+firamath = {
+    "mathtext.fontset": "custom",
+    "mathtext.rm": "Fira Math:regular",
+    "mathtext.bf": "Fira Math:medium",
+    "mathtext.sf": "Fira Math",
+    "mathtext.it": "Fira Math:regular:italic",
+    "mathtext.tt": "Fira Mono",
+}
+
+fabiola = {
+    "font.sans-serif": "Comic Sans MS",
+}
