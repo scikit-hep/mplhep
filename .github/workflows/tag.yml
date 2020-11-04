@@ -107,7 +107,8 @@ jobs:
         github.event.action == 'closed' && github.event.pull_request.merged
       uses: ad-m/github-push-action@v0.6.0
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        # Needs to use pat token to trigger next workflow on pushed tag
+        github_token: ${{ secrets.GITHUB_PAT }}
     - name: Comment that something failed
       if: failure()
       uses: actions/github-script@v1.1.0
