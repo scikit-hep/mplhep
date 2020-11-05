@@ -548,10 +548,10 @@ def hist2dplot(
     plt.sca(ax)
 
     if labels is not None:
-        if H.shape == labels.shape:
-            _labels = labels
-        elif labels is True:
+        if labels is True:
             _labels = H
+        elif H.shape == labels.shape:
+            _labels = labels
         elif labels is False:
             pass
         else:
