@@ -129,7 +129,9 @@ def test_histplot_stack():
     hep.histplot([h, 1.5 * h], bins, edges=False, stack=True, ax=axs[1])
 
     axs[2].set_title("Plot Errorbars", fontsize=18)
-    hep.histplot([h, 1.5 * h], bins, yerr=[np.sqrt(h), np.sqrt(h)], stack=True, ax=axs[2])
+    hep.histplot(
+        [h, 1.5 * h], bins, yerr=[np.sqrt(h), np.sqrt(h)], stack=True, ax=axs[2]
+    )
 
     axs[3].set_title("Filled Histogram", fontsize=18)
     hep.histplot([1.5 * h, h], bins, histtype="fill", stack=True, ax=axs[3])
@@ -241,11 +243,17 @@ def test_histplot_real():
     axs = axs.flatten()
     a, b, c = h, h * 2, np.random.poisson(h * 3)
 
-    hep.histplot([a, b, c], bins=bins, ax=axs[0], yerr=True, label=["MC1", "MC2", "Data"])
+    hep.histplot(
+        [a, b, c], bins=bins, ax=axs[0], yerr=True, label=["MC1", "MC2", "Data"]
+    )
     hep.histplot([a, b], bins=bins, ax=axs[1], stack=True, label=["MC1", "MC2"])
-    hep.histplot([c], bins=bins, ax=axs[1], yerr=True, histtype="errorbar", label="Data")
+    hep.histplot(
+        [c], bins=bins, ax=axs[1], yerr=True, histtype="errorbar", label="Data"
+    )
 
-    hep.histplot([a, b], bins=bins, ax=axs[2], stack=True, label=["MC1", "MC2"], binwnorm=[2, 1])
+    hep.histplot(
+        [a, b], bins=bins, ax=axs[2], stack=True, label=["MC1", "MC2"], binwnorm=[2, 1]
+    )
     hep.histplot(
         c,
         bins=bins,
@@ -255,7 +263,9 @@ def test_histplot_real():
         label="Data",
         binwnorm=1,
     )
-    hep.histplot([a, b], bins=bins, ax=axs[3], stack=True, label=["MC1", "MC2"], density=True)
+    hep.histplot(
+        [a, b], bins=bins, ax=axs[3], stack=True, label=["MC1", "MC2"], density=True
+    )
     hep.histplot(
         c,
         bins=bins,
