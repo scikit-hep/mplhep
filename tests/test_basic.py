@@ -129,9 +129,7 @@ def test_histplot_stack():
     hep.histplot([h, 1.5 * h], bins, edges=False, stack=True, ax=axs[1])
 
     axs[2].set_title("Plot Errorbars", fontsize=18)
-    hep.histplot(
-        [h, 1.5 * h], bins, yerr=[np.sqrt(h), np.sqrt(h)], stack=True, ax=axs[2]
-    )
+    hep.histplot([h, 1.5 * h], bins, yerr=[np.sqrt(h), np.sqrt(h)], stack=True, ax=axs[2])
 
     axs[3].set_title("Filled Histogram", fontsize=18)
     hep.histplot([1.5 * h, h], bins, histtype="fill", stack=True, ax=axs[3])
@@ -151,6 +149,25 @@ def test_hist2dplot():
 
     fig, ax = plt.subplots()
     hep.hist2dplot(H, xedges, yedges, labels=True)
+    return fig
+
+
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_hist2dplot_custom_labels():
+    np.random.seed(0)
+    xedges = np.arange(0, 11.5, 1.5)
+    yedges = [0, 2, 3, 4, 6, 7]
+    x = np.random.normal(5, 1.5, 100)
+    y = np.random.normal(4, 1, 100)
+    H, xedges, yedges = np.histogram2d(x, y, bins=(xedges, yedges))
+
+    fig, ax = plt.subplots()
+
+    @np.vectorize
+    def _fmt(x):
+        return f"${x:.2f}$"
+
+    hep.hist2dplot(H, xedges, yedges, labels=_fmt(H).T)
     return fig
 
 
@@ -224,17 +241,11 @@ def test_histplot_real():
     axs = axs.flatten()
     a, b, c = h, h * 2, np.random.poisson(h * 3)
 
-    hep.histplot(
-        [a, b, c], bins=bins, ax=axs[0], yerr=True, label=["MC1", "MC2", "Data"]
-    )
+    hep.histplot([a, b, c], bins=bins, ax=axs[0], yerr=True, label=["MC1", "MC2", "Data"])
     hep.histplot([a, b], bins=bins, ax=axs[1], stack=True, label=["MC1", "MC2"])
-    hep.histplot(
-        [c], bins=bins, ax=axs[1], yerr=True, histtype="errorbar", label="Data"
-    )
+    hep.histplot([c], bins=bins, ax=axs[1], yerr=True, histtype="errorbar", label="Data")
 
-    hep.histplot(
-        [a, b], bins=bins, ax=axs[2], stack=True, label=["MC1", "MC2"], binwnorm=[2, 1]
-    )
+    hep.histplot([a, b], bins=bins, ax=axs[2], stack=True, label=["MC1", "MC2"], binwnorm=[2, 1])
     hep.histplot(
         c,
         bins=bins,
@@ -244,9 +255,7 @@ def test_histplot_real():
         label="Data",
         binwnorm=1,
     )
-    hep.histplot(
-        [a, b], bins=bins, ax=axs[3], stack=True, label=["MC1", "MC2"], density=True
-    )
+    hep.histplot([a, b], bins=bins, ax=axs[3], stack=True, label=["MC1", "MC2"], density=True)
     hep.histplot(
         c,
         bins=bins,
