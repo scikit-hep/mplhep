@@ -548,7 +548,7 @@ def hist2dplot(
     plt.sca(ax)
 
     if labels is not None:
-        if np.array_equiv(H, labels):
+        if H.shape == labels.shape:
             _labels = labels
         elif labels is True:
             _labels = H
