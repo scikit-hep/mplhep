@@ -7,6 +7,7 @@ import matplotlib.font_manager as fm
 from . import cms
 from . import atlas
 from . import lhcb
+from . import lhcb2
 from . import alice
 from . import plot
 from . import label
