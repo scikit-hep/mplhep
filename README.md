@@ -44,6 +44,8 @@ hep.set_style("ATLAS") # string aliases work too
 # or
 hep.set_style("LHCb")
 # or
+hep.set_style("LHCb2")
+# or
 hep.set_style("ALICE")
 ```
 
