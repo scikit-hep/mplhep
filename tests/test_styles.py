@@ -1,9 +1,9 @@
 import os
 import sys
-import pytest
+
 import matplotlib.pyplot as plt
+import pytest
 from matplotlib.testing.decorators import check_figures_equal
-import numpy as np
 
 os.environ["RUNNING_PYTEST"] = "true"
 
@@ -67,6 +67,19 @@ def test_style_lhcb():
     plt.rcParams.update(plt.rcParamsDefault)
 
     plt.style.use([hep.style.LHCb, {"figure.autolayout": False}])
+    fig, ax = plt.subplots()
+    # Doesn't work for now
+    # hep.lhcb.text()
+    plt.rcParams.update(plt.rcParamsDefault)
+    return fig
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+@pytest.mark.mpl_image_compare(style="default", remove_text=False)
+def test_style_lhcb2():
+    plt.rcParams.update(plt.rcParamsDefault)
+
+    plt.style.use([hep.style.LHCb2, {"figure.autolayout": False}])
     fig, ax = plt.subplots()
     # Doesn't work for now
     # hep.lhcb.text()
