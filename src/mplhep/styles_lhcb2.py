@@ -18,9 +18,6 @@ based on the works of Kevin Dungs, Tim Head, Thomas Schietinger,
 
 import matplotlib as mpl
 from cycler import cycler
-from packaging import version
-
-from ._deprecate import deprecated_dict
 
 colors = [
     "#0078FF",
@@ -101,18 +98,11 @@ LHCb2 = {
     # (i.e. histograms and so on)
     "patch.linewidth": 2,
     "xaxis.labellocation": "right",
-    # "yaxis.labellocation": "top",  # TODO: 'center'?
+    "yaxis.labellocation": "top",  # TODO: 'center'?
 }
 
-# Remove backcomp incompatible configs
-if version.parse(mpl.__version__) < version.parse("3.2"):
-    # mpl < 3.2
-    del LHCb2["xaxis.labellocation"]
-    del LHCb2["yaxis.labellocation"]
-
-ROOT = deprecated_dict(
-    LHCb2, message="'ROOT' style dict is deprecated, please use 'LHCb' instead"
-)
+# Filter extra (labellocation) items if needed
+LHCb2 = {k: v for k, v in LHCb2.items() if k in mpl.rcParams}
 
 LHCbTex2 = {
     **LHCb2,
@@ -123,7 +113,3 @@ LHCbTex2 = {
     "text.latex.preamble": r"\usepackage{txfonts}",
     "pgf.rcfonts": False,
 }
-
-ROOTTex = deprecated_dict(
-    LHCbTex2, message="'ROOT' style dict is deprecated, please use 'LHCb' instead"
-)
