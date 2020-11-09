@@ -91,7 +91,14 @@ def test_style_lhcb2():
 @check_figures_equal(extensions=["pdf"])
 @pytest.mark.parametrize(
     "mplhep_style",
-    [hep.style.ALICE, hep.style.ATLAS, hep.style.CMS, hep.style.LHCb, hep.style.LHCb2, hep.style.ROOT],
+    [
+        hep.style.ALICE,
+        hep.style.ATLAS,
+        hep.style.CMS,
+        hep.style.LHCb,
+        hep.style.LHCb2,
+        hep.style.ROOT,
+    ],
     ids=["ALICE", "ATLAS", "CMS", "LHCb", "LHCb2", "ROOT"],
 )
 def test_set_style(fig_test, fig_ref, mplhep_style):
