@@ -91,8 +91,8 @@ def test_style_lhcb2():
 @check_figures_equal(extensions=["pdf"])
 @pytest.mark.parametrize(
     "mplhep_style",
-    [hep.style.ALICE, hep.style.ATLAS, hep.style.CMS, hep.style.LHCb, hep.style.ROOT],
-    ids=["ALICE", "ATLAS", "CMS", "LHCb", "ROOT"],
+    [hep.style.ALICE, hep.style.ATLAS, hep.style.CMS, hep.style.LHCb, hep.style.LHCb2, hep.style.ROOT],
+    ids=["ALICE", "ATLAS", "CMS", "LHCb", "LHCb2", "ROOT"],
 )
 def test_set_style(fig_test, fig_ref, mplhep_style):
     plt.rcParams.update(plt.rcParamsDefault)
@@ -115,9 +115,10 @@ def test_set_style(fig_test, fig_ref, mplhep_style):
         (hep.style.ATLAS, "ATLAS"),
         (hep.style.CMS, "CMS"),
         (hep.style.LHCb, "LHCb"),
+        (hep.style.LHCb2, "LHCb2"),
         (hep.style.ROOT, "ROOT"),
     ],
-    ids=["ALICE", "ATLAS", "CMS", "LHCb", "ROOT"],
+    ids=["ALICE", "ATLAS", "CMS", "LHCb", "LHCb2", "ROOT"],
 )
 def test_set_style_str_alias(fig_test, fig_ref, mplhep_style, str_alias):
     plt.rcParams.update(plt.rcParamsDefault)

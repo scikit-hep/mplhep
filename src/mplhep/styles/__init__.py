@@ -6,6 +6,7 @@ from .cms import CMS, CMSTex, ROOT, ROOTTex
 from .atlas import ATLAS
 from .alice import ALICE
 from .lhcb import LHCb, LHCbTex
+from .lhcb2 import LHCb2, LHCbTex2
 
 
 def set_style(styles):
