@@ -28,9 +28,9 @@ __all__ = [style, lumitext, "label", "text"]
 def _lhcb_text(text="", **kwargs):
     for key, value in dict(mplhep.rcParams.text._get_kwargs()).items():
         if (
-                value is not None
-                and key not in kwargs.keys()
-                and key in inspect.getfullargspec(label_base._exp_text).args
+            value is not None
+            and key not in kwargs.keys()
+            and key in inspect.getfullargspec(label_base._exp_text).args
         ):
             kwargs[key] = value
     return label_base._exp_text(
@@ -47,9 +47,9 @@ def _lhcb_text(text="", **kwargs):
 def _lhcb_label(**kwargs):
     for key, value in dict(mplhep.rcParams.label._get_kwargs()).items():
         if (
-                value is not None
-                and key not in kwargs.keys()
-                and key in inspect.getfullargspec(label_base._exp_label).args
+            value is not None
+            and key not in kwargs.keys()
+            and key in inspect.getfullargspec(label_base._exp_label).args
         ):
             kwargs[key] = value
     return label_base._exp_label(
