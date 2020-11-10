@@ -20,7 +20,6 @@ import matplotlib as mpl
 from cycler import cycler
 
 colors = [
-    "#000000",
     "#0078FF",
     "#FF6600",
     "#0AAFB6",
