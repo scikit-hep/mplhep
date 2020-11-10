@@ -20,6 +20,7 @@ import matplotlib as mpl
 from cycler import cycler
 
 colors = [
+    "#000000",
     "#0078FF",
     "#FF6600",
     "#0AAFB6",
@@ -31,7 +32,6 @@ colors = [
     "#FF7733",
     "#BFD1D4",
 ]
-markers = ["o", "s", "D", "^", "v", "<", ">", "P", "X", "*"]
 
 LHCb2 = {
     # Plot properties
@@ -40,11 +40,11 @@ LHCb2 = {
     "axes.facecolor": "white",
     # Custom colors
     "axes.prop_cycle": cycler("color", colors),
-    # + cycler("marker", markers)  # TODO: markers?
     "axes.formatter.min_exponent": 3,
+    "axes.titlesize": 28,
     # Figure properties
-    "figure.figsize": (8, 8),
-    "figure.dpi": 2500,
+    "figure.figsize": (12, 9),
+    "figure.dpi": 300,
     # Outer frame color
     "figure.facecolor": "white",
     "figure.autolayout": True,
@@ -54,22 +54,22 @@ LHCb2 = {
     "font.size": 14,
     "font.weight": 400,
     # Draw the legend on a solid background
-    "legend.frameon": True,
+    "legend.frameon": False,
+    "legend.fancybox": True,
     # Inherit the background color from the plot
     "legend.facecolor": "inherit",
     "legend.numpoints": 1,
     "legend.labelspacing": 0.2,
     "legend.fontsize": 28,
-    # "legend.title_fontsize": 28,  # TODO: needed?
+    "legend.title_fontsize": 28,
     # Automatically choose the best location
     "legend.loc": "best",
     # Space between the handles and their labels
     "legend.handletextpad": 0.75,
     # Space between the borders of the plot and the legend
     "legend.borderaxespad": 1.0,
-    # "legend.edgecolor": "white",  # TODO: needed?
     # Lines settings
-    "lines.linewidth": 3,
+    "lines.linewidth": 3.5,
     "lines.markeredgewidth": 0,
     "lines.markersize": 8,
     # Saved figure settings
@@ -77,6 +77,9 @@ LHCb2 = {
     "savefig.pad_inches": 0.3,
     "savefig.format": "pdf",
     # Ticks settings
+    # xticks
+    "xtick.minor.visible": True,
+    "xtick.top": True,
     "xtick.major.size": 14,
     "xtick.minor.size": 7,
     "xtick.major.width": 2,
@@ -85,6 +88,9 @@ LHCb2 = {
     "xtick.minor.pad": 10,
     "xtick.labelsize": 30,
     "xtick.direction": "in",
+    # yticks
+    "ytick.minor.visible": True,
+    "ytick.right": True,
     "ytick.major.size": 14,
     "ytick.minor.size": 7,
     "ytick.major.width": 2,
@@ -98,7 +104,7 @@ LHCb2 = {
     # (i.e. histograms and so on)
     "patch.linewidth": 2,
     "xaxis.labellocation": "right",
-    "yaxis.labellocation": "top",  # TODO: 'center'?
+    "yaxis.labellocation": "top",
 }
 
 # Filter extra (labellocation) items if needed
