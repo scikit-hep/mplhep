@@ -2,10 +2,9 @@ import sys
 
 from matplotlib.pyplot import style as plt_style
 
+# Short cut to all styles
 from .alice import ALICE
 from .atlas import ATLAS
-
-# Short cut to all styles
 from .cms import CMS, CMSTex, ROOT, ROOTTex
 from .lhcb import LHCb, LHCbTex, LHCb2, LHCbTex2
 
