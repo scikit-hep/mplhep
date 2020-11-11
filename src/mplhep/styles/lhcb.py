@@ -129,6 +129,8 @@ LHCb2 = {
     "axes.prop_cycle": cycler("color", colors2),
     "axes.formatter.min_exponent": 3,
     "axes.titlesize": 28,
+    # Errorbar properties
+    "errorbar.capsize": 2.5,
     # Figure properties
     "figure.figsize": (12, 9),
     "figure.dpi": 300,
@@ -156,9 +158,10 @@ LHCb2 = {
     # Space between the borders of the plot and the legend
     "legend.borderaxespad": 1.0,
     # Lines settings
-    "lines.linewidth": 3.5,
-    "lines.markeredgewidth": 0,
-    "lines.markersize": 8,
+    "lines.linewidth": 3.3,
+    "lines.markeredgewidth": 1.5,
+    "lines.markersize": 17,
+    "lines.elinewidth": 1.8,
     # Saved figure settings
     "savefig.bbox": "tight",
     "savefig.pad_inches": 0.3,
