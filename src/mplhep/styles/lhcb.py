@@ -160,8 +160,8 @@ LHCb2 = {
     # Lines settings
     "lines.linewidth": 3.3,
     "lines.markeredgewidth": 1.5,
-    "lines.markersize": 17,
-    "lines.elinewidth": 1.8,
+    "lines.markersize": 16,
+    "lines.elinewidth": 1.5,
     # Saved figure settings
     "savefig.bbox": "tight",
     "savefig.pad_inches": 0.3,
