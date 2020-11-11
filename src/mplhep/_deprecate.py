@@ -65,9 +65,22 @@ class deprecated_dict(dict):
     """
     A dictionary that emits a deprecation warning. NOT a decorator!
     """
-    __slots__ = ("message", "_already_warned", "_warn_once", "_warning")  # no __dict__ - would be redundant
 
-    def __init__(self, *args, message: str = None, warn_once: bool = False, warning=DeprecationWarning, **kwargs):
+    __slots__ = (
+        "message",
+        "_already_warned",
+        "_warn_once",
+        "_warning",
+    )  # no __dict__ - would be redundant
+
+    def __init__(
+        self,
+        *args,
+        message: str = None,
+        warn_once: bool = False,
+        warning=DeprecationWarning,
+        **kwargs
+    ):
         super().__init__(*args, **kwargs)
         self._warn_once = warn_once
         self._already_warned = False
