@@ -11,18 +11,21 @@ class deprecate(object):
     Decorator indicating that function is being deprecated.
     """
 
-    def __init__(self, reason):
+    def __init__(self, reason: str, warn_once: bool = True, warning=FutureWarning):
+        self._already_warned = False
+        self._warn_once = warn_once
+        self._warning = warning
         self._reason = reason
 
     def __call__(self, func):
         def decorated_func(*args, **kwargs):
-            warnings.simplefilter("always", DeprecationWarning)
-            warnings.warn(
-                "``{0}`` is deprecated: {1}".format(func.__name__, self._reason),
-                category=DeprecationWarning,
-                stacklevel=2,
-            )
-            warnings.simplefilter("default", DeprecationWarning)
+            if not (self._warn_once and self._already_warned):
+                warnings.warn(
+                    "``{0}`` is deprecated: {1}".format(func.__name__, self._reason),
+                    category=self._warning,
+                    stacklevel=2,
+                )
+                self._already_warned = True
             return func(*args, **kwargs)
 
         decorated_func.__name__ = func.__name__
@@ -35,22 +38,25 @@ class deprecate_parameter(object):
     Decorator indicating that parameter *name* is being deprecated.
     """
 
-    def __init__(self, name, reason=""):
+    def __init__(self, name, reason="", warn_once: bool = True, warning=FutureWarning):
+        self._warning = warning
+        self._already_warned = False
+        self._warn_once = warn_once
         self._name = name
         self._reason = reason
 
     def __call__(self, func):
         def decorated_func(*args, **kwargs):
             if self._name in kwargs.keys():
-                warnings.simplefilter("always", DeprecationWarning)
-                warnings.warn(
-                    'kwarg "{0}" in function ``{1}`` is deprecated and may be removed in future versions: {2}'.format(
-                        self._name, func.__name__, self._reason
-                    ),
-                    category=DeprecationWarning,
-                    stacklevel=2,
-                )
-                warnings.simplefilter("default", DeprecationWarning)
+                if not (self._warn_once and self._already_warned):
+                    warnings.warn(
+                        'kwarg "{0}" in function ``{1}`` is deprecated and may be removed in future versions: {2}'.format(
+                            self._name, func.__name__, self._reason
+                        ),
+                        category=self._warning,
+                        stacklevel=2,
+                    )
+                    self._already_warned = True
             return func(*args, **kwargs)
 
         decorated_func.__name__ = func.__name__
