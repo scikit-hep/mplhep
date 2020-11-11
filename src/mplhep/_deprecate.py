@@ -77,8 +77,8 @@ class deprecated_dict(dict):
         self,
         *args,
         message: str = None,
-        warn_once: bool = False,
-        warning=DeprecationWarning,
+        warn_once: bool = True,
+        warning=FutureWarning,
         **kwargs
     ):
         super().__init__(*args, **kwargs)
@@ -118,9 +118,11 @@ class deprecated_dict(dict):
         return super().get(k, default)
 
     def setdefault(self, k, default=None):
+        self._warn_deprecation()
         return super().setdefault(k, default)
 
     def pop(self, k, default=_NoArgumentGiven):
+        self._warn_deprecation()
         if default is _NoArgumentGiven:
             return super().pop(k)
         return super().pop(k, default)
