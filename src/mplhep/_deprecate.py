@@ -6,7 +6,7 @@ import warnings
 # https://github.com/matplotlib/matplotlib/blob/717d1fa3e51e8d397030882779244f8fa33caae9/lib/matplotlib/cbook/deprecation.py
 
 
-class deprecate(object):
+class deprecate:
     """
     Decorator indicating that function is being deprecated.
     """
@@ -33,7 +33,7 @@ class deprecate(object):
         return decorated_func
 
 
-class deprecate_parameter(object):
+class deprecate_parameter:
     """
     Decorator indicating that parameter *name* is being deprecated.
     """
