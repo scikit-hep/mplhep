@@ -1,16 +1,33 @@
+"""LHCb-like plot styles
+
+All of this styles resemble the LHCb plotting style; however it is an approximation and
+not an official style. The style `LHCb` should improve over time by inputs and may be changed in the future in favor of
+ a style that resembles morethe actual LHCb style.
+
+ To use a specific style, use `LHCb1`, `LHCb2` etc. as they won't change in the future.
+
+Notes on LHCb2 style:
+
+An updated version of `LHCb` that includes minor ticks by default on and on all axes as well as improved legends and
+larger minus sign (by using unicode).
+
+Contributed and adjusted by Jonas Eschle <Jonas.Eschle@cern.ch>
+based on the works of Kevin Dungs, Tim Head, Thomas Schietinger,
+                      Andrew Powell, Chris Parkes, Elena Graverini
+                      and Niels Tuning
+"""
 import inspect
-from matplotlib import docstring
 
-# Log styles
-from .styles import lhcb as style
-from . import label as label_base
-from .label import lumitext
 import mplhep
+from matplotlib import docstring
+from mplhep import label as label_base
 
-__all__ = [style, lumitext]
+from .label import lumitext
+from .styles import lhcb as style
+
+__all__ = [style, lumitext, "label", "text"]
 
 
-# Experiment wrappers:
 def _lhcb_text(text="", **kwargs):
     for key, value in dict(mplhep.rcParams.text._get_kwargs()).items():
         if (

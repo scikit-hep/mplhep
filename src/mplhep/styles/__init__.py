@@ -1,11 +1,12 @@
 import sys
+
 from matplotlib.pyplot import style as plt_style
 
 # Short cut to all styles
-from .cms import CMS, CMSTex, ROOT, ROOTTex
-from .atlas import ATLAS
 from .alice import ALICE
-from .lhcb import LHCb, LHCbTex
+from .atlas import ATLAS
+from .cms import CMS, CMSTex, ROOT, ROOTTex
+from .lhcb import LHCb, LHCbTex, LHCb1, LHCbTex1, LHCb2, LHCbTex2
 
 
 def set_style(styles):
