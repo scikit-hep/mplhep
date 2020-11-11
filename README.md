@@ -42,9 +42,7 @@ hep.set_style(hep.style.CMS)
 # or
 hep.set_style("ATLAS") # string aliases work too
 # or
-hep.set_style("LHCb")
-# or
-hep.set_style("LHCb2")
+hep.set_style("LHCb2")  # or "LHCb1"
 # or
 hep.set_style("ALICE")
 ```
