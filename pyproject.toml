@@ -2,3 +2,13 @@
 # Minimum requirements for the build system (setup.py) to execute.
 requires = ["wheel", "setuptools>=39.2.0"]
 build-backend = "setuptools.build_meta"
+
+[tool.nbqa.config]
+black = "pyproject.toml"
+
+[tool.nbqa.mutate]
+black = 1
+pyupgrade = 1
+
+[tool.nbqa.addopts]
+pyupgrade = ["--py36-plus"]
