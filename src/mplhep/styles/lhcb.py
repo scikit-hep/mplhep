@@ -1,8 +1,9 @@
-from cycler import cycler
-from .._deprecate import deprecated_dict
 import matplotlib as mpl
+from cycler import cycler
 
-colors = [
+from .._deprecate import deprecated_dict
+
+colors1 = [
     "#1f77b4",
     "#ff7f0e",
     "#2ca02c",
@@ -14,15 +15,15 @@ colors = [
     "#bcbd22",
     "#17becf",
 ]
-markers = ["o", "s", "D", "^", "v", "<", ">", "P", "X", "*"]
+markers1 = ["o", "s", "D", "^", "v", "<", ">", "P", "X", "*"]
 
-LHCb = {
+LHCb1 = {
     # Plot properties
     "axes.labelsize": 32,
     "axes.linewidth": 2,
     "axes.facecolor": "white",
     # Custom colors
-    "axes.prop_cycle": cycler("color", colors) + cycler("marker", markers),
+    "axes.prop_cycle": cycler("color", colors1) + cycler("marker", markers1),
     "axes.formatter.min_exponent": 3,
     "axes.unicode_minus": False,
     # Figure properties
@@ -86,14 +87,14 @@ LHCb = {
 }
 
 # Filter extra (labellocation) items if needed
-LHCb = {k: v for k, v in LHCb.items() if k in mpl.rcParams}
+LHCb1 = {k: v for k, v in LHCb1.items() if k in mpl.rcParams}
 
 ROOT = deprecated_dict(
-    LHCb, message="'ROOT' style dict is deprecated, please use 'LHCb' instead"
+    LHCb1, message="'ROOT' style dict is deprecated, please use 'LHCb' instead"
 )
 
-LHCbTex = {
-    **LHCb,
+LHCbTex1 = {
+    **LHCb1,
     # Use LaTeX rendering by default
     # (overrides default font)
     "text.usetex": True,
@@ -103,7 +104,7 @@ LHCbTex = {
 }
 
 ROOTTex = deprecated_dict(
-    LHCbTex, message="'ROOT' style dict is deprecated, please use 'LHCb' instead"
+    LHCbTex1, message="'ROOT' style dict is deprecated, please use 'LHCb' instead"
 )
 
 colors2 = [
@@ -205,3 +206,10 @@ LHCbTex2 = {
     "text.latex.preamble": r"\usepackage{txfonts}",
     "pgf.rcfonts": False,
 }
+
+# alias LHCb Style
+
+lhcb_depr_msg = "'LHCb' style is deprecated as it may change in the future. Please use 'LHCb1' (which is" \
+                " the same as currently 'LHCb') or 'LHCb2'."
+LHCb = deprecated_dict(LHCb1, message=lhcb_depr_msg)
+LHCbTex = deprecated_dict(LHCbTex1, message=lhcb_depr_msg)

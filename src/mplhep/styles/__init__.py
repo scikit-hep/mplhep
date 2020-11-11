@@ -6,7 +6,7 @@ from matplotlib.pyplot import style as plt_style
 from .alice import ALICE
 from .atlas import ATLAS
 from .cms import CMS, CMSTex, ROOT, ROOTTex
-from .lhcb import LHCb, LHCbTex, LHCb2, LHCbTex2
+from .lhcb import LHCb, LHCbTex, LHCb1, LHCbTex1, LHCb2, LHCbTex2
 
 
 def set_style(styles):
