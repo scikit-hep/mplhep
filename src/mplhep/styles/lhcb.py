@@ -213,5 +213,5 @@ lhcb_depr_msg = (
     "'LHCb' style is deprecated as it may change in the future. Please use 'LHCb1' (which is"
     " the same as currently 'LHCb') or 'LHCb2'."
 )
-LHCb = deprecated_dict(LHCb1, message=lhcb_depr_msg)
-LHCbTex = deprecated_dict(LHCbTex1, message=lhcb_depr_msg)
+LHCb = deprecated_dict(LHCb1, message=lhcb_depr_msg, warning=FutureWarning)
+LHCbTex = deprecated_dict(LHCbTex1, message=lhcb_depr_msg, warning=FutureWarning)
