@@ -44,7 +44,7 @@ def histplot(
     edges=True,
     binticks=False,
     ax=None,
-    **kwargs
+    **kwargs,
 ):
     """
     Create a 1D histogram plot from `np.histogram`-like inputs.
@@ -107,7 +107,7 @@ def histplot(
 
     # arg check
     _allowed_histtype = ["fill", "step", "errorbar"]
-    _err_message = "Select 'histtype' from: {}".format(_allowed_histtype)
+    _err_message = f"Select 'histtype' from: {_allowed_histtype}"
     assert histtype in _allowed_histtype, _err_message
 
     def hist_object_handler(h, check_only=False):
@@ -356,7 +356,7 @@ def histplot(
                     h[i],
                     yerr=[_yerr_lo[i], _yerr_hi[i]],
                     linestyle="none",
-                    **_kwargs
+                    **_kwargs,
                 )
                 _eleg = ax.errorbar(
                     [], [], yerr=1, xerr=1, color=_s.get_color(), label=_label
@@ -427,7 +427,7 @@ def hist2dplot(
     cmin=None,
     cmax=None,
     ax=None,
-    **kwargs
+    **kwargs,
 ):
     """
     Create a 2D histogram plot from `np.histogram`-like inputs.

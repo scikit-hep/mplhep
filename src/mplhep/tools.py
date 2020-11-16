@@ -10,9 +10,7 @@ import mplhep._deprecate as deprecate
 def hardcopy_styles():
     path = os.path.abspath(__file__)
     pkg_dir = "/" + "/".join(path.split("/")[:-1])
-    os.system(
-        "cp -r {}/stylelib/ ".format(pkg_dir) + os.path.join(mpl.get_configdir() + "/")
-    )
+    os.system(f"cp -r {pkg_dir}/stylelib/ " + os.path.join(mpl.get_configdir() + "/"))
 
 
 @deprecate.deprecate(
@@ -23,15 +21,15 @@ def hardcopy_fonts():
     path = os.path.abspath(__file__)
     pkg_dir = "/" + "/".join(path.split("/")[:-1])
     os.system(
-        "cp -r {}/fonts/firasans/* ".format(pkg_dir)
+        f"cp -r {pkg_dir}/fonts/firasans/* "
         + os.path.join(mpl.rcParams["datapath"] + "/fonts/ttf/")
     )
     os.system(
-        "cp -r {}/fonts/firamath/* ".format(pkg_dir)
+        f"cp -r {pkg_dir}/fonts/firamath/* "
         + os.path.join(mpl.rcParams["datapath"] + "/fonts/ttf/")
     )
     os.system(
-        "cp -r {}/fonts/texgyreheros/* ".format(pkg_dir)
+        f"cp -r {pkg_dir}/fonts/texgyreheros/* "
         + os.path.join(mpl.rcParams["datapath"] + "/fonts/ttf/")
     )
     os.system("rm " + os.path.join(mpl.get_cachedir() + "/font*"))

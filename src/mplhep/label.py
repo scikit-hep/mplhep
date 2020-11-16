@@ -9,12 +9,14 @@ import mplhep
 
 class ExpText(mtext.Text):
     def __repr__(self):
-        return "exptext: Custom Text(%s, %s, %s)" % (self._x, self._y, repr(self._text))
+        return "exptext: Custom Text({}, {}, {})".format(
+            self._x, self._y, repr(self._text)
+        )
 
 
 class ExpSuffix(mtext.Text):
     def __repr__(self):
-        return "expsuffix: Custom Text(%s, %s, %s)" % (
+        return "expsuffix: Custom Text({}, {}, {})".format(
             self._x,
             self._y,
             repr(self._text),

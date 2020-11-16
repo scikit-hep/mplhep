@@ -21,7 +21,7 @@ class deprecate:
         def decorated_func(*args, **kwargs):
             if not (self._warn_once and self._already_warned):
                 warnings.warn(
-                    "``{0}`` is deprecated: {1}".format(func.__name__, self._reason),
+                    f"``{func.__name__}`` is deprecated: {self._reason}",
                     category=self._warning,
                     stacklevel=2,
                 )
@@ -50,7 +50,7 @@ class deprecate_parameter:
             if self._name in kwargs.keys():
                 if not (self._warn_once and self._already_warned):
                     warnings.warn(
-                        'kwarg "{0}" in function ``{1}`` is deprecated and may be removed in future versions: {2}'.format(
+                        'kwarg "{}" in function ``{}`` is deprecated and may be removed in future versions: {}'.format(
                             self._name, func.__name__, self._reason
                         ),
                         category=self._warning,
@@ -85,7 +85,7 @@ class deprecated_dict(dict):
         message: str = None,
         warn_once: bool = True,
         warning=FutureWarning,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(*args, **kwargs)
         self._warn_once = warn_once
