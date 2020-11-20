@@ -262,52 +262,6 @@ def histplot(
     else:
         _yerr = None
 
-    ############################
-    # Stacking, norming, density
-    def get_stack(_h):
-        if NH > 1:
-            return np.cumsum(_h, axis=0)
-        else:
-            return _h
-
-    def get_density(h, density=True, binwnorm=None, bins=bins):
-        assert (not density) ^ (
-            binwnorm is None
-        ), "Can only calculate density or binwnorm"
-        per_hist_norm = np.sum(h, axis=1 if NH > 1 else 0)
-        if binwnorm is not None:
-            overallnorm = binwnorm * per_hist_norm
-        else:
-            overallnorm = np.ones(NH)
-        binnorms = np.outer(overallnorm, np.ones_like(bins[:-1]))
-        binnorms /= np.outer(np.diff(bins), per_hist_norm).T
-        if binnorms.ndim == 2 and len(binnorms) == 1:  # Unwrap if [[1,2,3]]
-            binnorms = binnorms[0]
-        return binnorms
-
-    if density or binwnorm is not None:
-        density_arr = get_density(h, density, binwnorm)
-        if stack:
-            h = get_stack(h)
-            h *= get_density(h, density, binwnorm)[-1]
-        else:
-            h *= density_arr
-        if _yerr is not None:
-            for i in range(len(density_arr)):
-                _yerr[i] = _yerr[i] * density_arr[i]
-
-    if stack and not density and binwnorm is None:
-        h = get_stack(h)
-
-    # Stack
-    if stack and NH > 1:
-        h = h[::-1]
-        _labels = _labels[::-1]
-        _chunked_kwargs = _chunked_kwargs[::-1]
-
-    #################################
-    # Split and reshape for iteration
-    h = h.reshape(NH, -1)
     if yerr is not None:
         if _yerr.ndim == 3:
             # Already correct format
@@ -331,6 +285,54 @@ def histplot(
         # Split
         _yerr_lo = _yerr[:, 0]
         _yerr_hi = _yerr[:, 1]
+
+    ############################
+    # Stacking, norming, density
+    def get_stack(_h):
+        if NH > 1:
+            return np.cumsum(_h, axis=0)
+        else:
+            return _h
+
+    def get_density(h, density=True, binwnorm=None, bins=bins):
+        assert (not density) ^ (
+            binwnorm is None
+        ), "Can only calculate density or binwnorm"
+        per_hist_norm = np.sum(h, axis=(1 if h.ndim > 1 else 0))
+        if binwnorm is not None:
+            overallnorm = binwnorm * per_hist_norm
+        else:
+            overallnorm = np.ones(NH)
+        binnorms = np.outer(overallnorm, np.ones_like(bins[:-1]))
+        binnorms /= np.outer(np.diff(bins), per_hist_norm).T
+        if binnorms.ndim == 2 and len(binnorms) == 1:  # Unwrap if [[1,2,3]]
+            binnorms = binnorms[0]
+        return binnorms
+
+    if density or binwnorm is not None:
+        density_arr = get_density(h, density, binwnorm)
+        if stack:
+            h = get_stack(h)
+            h *= get_density(h, density, binwnorm)[-1]
+        else:
+            h *= density_arr
+        if _yerr is not None:
+            for i in range(NH):
+                _yerr_lo[i] = _yerr_lo[i] * density_arr[i]
+                _yerr_hi[i] = _yerr_hi[i] * density_arr[i]
+
+    if stack and not density and binwnorm is None:
+        h = get_stack(h)
+
+    # Stack
+    if stack and NH > 1:
+        h = h[::-1]
+        _labels = _labels[::-1]
+        _chunked_kwargs = _chunked_kwargs[::-1]
+
+    #################################
+    # Split and reshape for iteration
+    h = h.reshape(NH, -1)
 
     ##########
     # Plotting
