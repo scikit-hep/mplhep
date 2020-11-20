@@ -296,3 +296,16 @@ def test_histplot_types():
         hep.histplot(hs, bins, yerr=True, histtype=htype, ax=axs[i * 2 + 1], alpha=0.7)
 
     return fig
+
+
+h = np.geomspace(1, 10, 10)
+
+
+@pytest.mark.parametrize("h", [h, [h, h], [h]])
+@pytest.mark.parametrize("yerr", [h / 4, [h / 4, h / 4], 4])
+@pytest.mark.parametrize("htype", ["step", "fill", "errorbar"])
+def test_histplot_inputs_pass(h, yerr, htype):
+    bins = np.linspace(1, 10, 11)
+
+    fig, ax = plt.subplots()
+    hep.histplot(h, bins, yerr=yerr, histtype=htype)
