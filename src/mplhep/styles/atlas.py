@@ -58,8 +58,6 @@ _base = {
     "xtick.major.size": 5,
     "xtick.minor.size": 3,
     "xtick.color": "#000000",
-    "xtick.major.size": 10,
-    "xtick.minor.size": 5,
     # yticks
     "ytick.direction": "in",
     "ytick.left": True,
