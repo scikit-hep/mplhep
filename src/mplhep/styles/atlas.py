@@ -35,7 +35,7 @@ _base = {
     "axes.linewidth": 1,
     "axes.grid": False,
     "axes.axisbelow": False,
-    "axes.labelpad": 24,
+    "axes.labelpad": 10,
     "axes.facecolor": "#FFFFFF",
     "axes.labelcolor": "#000000",
     "axes.formatter.limits": "-2, 4",
