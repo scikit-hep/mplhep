@@ -1,5 +1,5 @@
 import inspect
-from matplotlib import docstring
+import matplotlib as mpl
 
 # Log styles
 from .styles import atlas as style
@@ -33,11 +33,49 @@ def _atlas_label(**kwargs):
     return label_base._exp_label(exp="ATLAS", italic=(True, False), **kwargs)
 
 
-@docstring.copy(label_base._exp_text)
+@mpl.docstring.copy(label_base._exp_text)
 def text(*args, **kwargs):
     return _atlas_text(*args, **kwargs)
 
 
-@docstring.copy(label_base._exp_label)
+@mpl.docstring.copy(label_base._exp_label)
 def label(**kwargs):
     return _atlas_label(**kwargs)
+
+
+# set_xlabel / set_ylabel copied from atlas-mpl
+def set_xlabel(label, ax=None, *args, **kwargs):
+    """
+    Set x label in ATLAS style (right aligned).
+
+    Additional parameters are passed through to `ax.set_xlabel`.
+
+    Parameters
+    ----------
+    label : str
+        Label (LaTeX permitted)
+    ax : mpl.axes.Axes, optional
+        Axes to set x label on
+    """
+    ax = ax or mpl.pyplot.gca()
+    # update settings
+    kwargs.update({"ha": "right", "va": "top", "x": 1.0})
+    ax.set_xlabel(label, *args, **kwargs)
+
+
+def set_ylabel(label, ax=None, *args, **kwargs):
+    """
+    Set y label in ATLAS style (top aligned).
+
+    Additional parameters are passed through to ``ax.set_ylabel``.
+
+    Parameters
+    ----------
+    label : str
+        Label (LaTeX permitted)
+    ax : mpl.axes.Axes, optional
+        Axes to set y label on
+    """
+    ax = ax or mpl.pyplot.gca()
+    kwargs.update({"ha": "right", "va": "bottom", "y": 1.0})
+    ax.set_ylabel(label, *args, **kwargs)
