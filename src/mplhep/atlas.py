@@ -42,6 +42,7 @@ def text(*args, **kwargs):
 def label(**kwargs):
     return _atlas_label(**kwargs)
 
+
 # set_xlabel / set_ylabel copied from atlas-mpl
 def set_xlabel(label, ax=None, *args, **kwargs):
     """
