@@ -99,11 +99,13 @@ ATLAS = {
     "mathtext.fontset": "custom",
 }
 
+# use dejavusans (default math fontset)
 ATLASAlt = {
     **_base,
     "mathtext.default": "rm",
 }
 
+# use LaTeX
 ATLASTex = {
     **_base,
     "text.usetex": True,
