@@ -682,6 +682,9 @@ def ylow(ax=None, ylow=None):
     if ax is None:
         ax = plt.gca()
 
+    if ax.get_yaxis().get_scale() == "log":
+        return ax
+
     if ylow is None:
         # Check full figsize below 0
         bbox = Bbox.from_bounds(
