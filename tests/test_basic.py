@@ -286,6 +286,13 @@ def test_histplot_real():
 
 
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_histplot_w2():
+    fig, ax = plt.subplots()
+    hep.histplot([0, 3, 0], range(4), w2=np.array([0, 3, 0]))
+    return fig
+
+
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_histplot_types():
     hs, bins = [[2, 3, 4], [5, 4, 3]], [0, 1, 2, 3]
     fig, axs = plt.subplots(3, 2, figsize=(8, 12))

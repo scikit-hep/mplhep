@@ -262,7 +262,7 @@ def histplot(
     else:
         _yerr = None
 
-    if yerr is not None:
+    if _yerr is not None:
         if _yerr.ndim == 3:
             # Already correct format
             pass
