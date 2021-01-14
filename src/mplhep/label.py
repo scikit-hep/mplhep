@@ -227,7 +227,7 @@ def _exp_label(
     data=False,
     paper=False,
     supplementary=False,
-    year=2017,
+    year=None,
     lumi=None,
     llabel=None,
     rlabel=None,
@@ -287,10 +287,10 @@ def _exp_label(
         if lumi is not None:
             _lumi = r"{lumi}{year} (13 TeV)".format(
                 lumi=str(lumi) + r" $\mathrm{fb^{-1}}$",
-                year=", " + str(year) if len(str(year)) > 0 else "",
+                year=", " + str(year) if year is not None else "",
             )
         else:
-            _lumi = "{} (13 TeV)".format(str(year))
+            _lumi = "{} (13 TeV)".format(str(year) if year is not None else "")
 
     lumitext(text=_lumi, ax=ax, fontname=fontname, fontsize=fontsize)
 
