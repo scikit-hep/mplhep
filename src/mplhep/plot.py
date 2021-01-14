@@ -353,11 +353,11 @@ def histplot(
             if yerr is not None or w2 is not None:
                 if "color" not in _kwargs:
                     _kwargs["color"] = _s.get_color()
+                _kwargs["linestyle"] = "none"
                 _e = ax.errorbar(
                     _bin_centers,
                     h[i],
                     yerr=[_yerr_lo[i], _yerr_hi[i]],
-                    linestyle="none",
                     **_kwargs,
                 )
                 _eleg = ax.errorbar(
