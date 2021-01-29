@@ -36,6 +36,7 @@ def histplot(
     *,
     yerr=None,
     w2=None,
+    w2method=poisson_interval,
     stack=False,
     density=False,
     binwnorm=None,
@@ -66,6 +67,9 @@ def histplot(
             - shape(Nx2) array of for two sided errors or list thereof
         w2 : iterable, optional
             Sum of the histogram weights squared for poissonian interval error caclulation
+        w2method: callable, optional
+            Function calulating CLs with signature ``low, high = fcn(w, w2)``. Here
+            ``low`` and ``high`` are given in absolute terms, not relative to w.
         stack : bool, optional
             Whether to stack or overlay non-axis dimension (if it exists
         density : bool, optional
@@ -252,13 +256,8 @@ def histplot(
                 _yerr = np.sqrt(h)
 
     elif w2 is not None:
-        int_w2 = np.around(w2).astype(int)
-        if np.all(np.isclose(w2, int_w2, 0.000001)):
-            # If w2 are integers (true data hist), calculate Garwood interval
-            _yerr = np.abs(poisson_interval(h, w2) - h)
-        else:
-            # w2 to errors directly if specified previously
-            _yerr = np.sqrt(w2)
+        # If w2 are integers (true data hist), calculate Garwood interval
+        _yerr = np.abs(w2method(h, w2) - h)
     else:
         _yerr = None
 
@@ -395,10 +394,10 @@ def histplot(
                     kwarg_row[k] = v
 
         for i in range(NH):
-            if yerr is None:
-                _yerri = None
-            else:
+            if yerr is not None or w2 is not None:
                 _yerri = [_yerr_lo[i], _yerr_hi[i]]
+            else:
+                _yerri = None
             _e = ax.errorbar(
                 _bin_centers, h[i], yerr=_yerri, label=_labels[i], **_chunked_kwargs[i]
             )
