@@ -12,7 +12,11 @@ from matplotlib.offsetbox import AnchoredText
 from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
 
 from .error_estimation import poisson_interval
-from .utils import get_histogram_axes_title
+from .utils import (
+    get_histogram_axes_title,
+    process_histogram_parts,
+    get_1d_plottable_protocol_bins,
+)
 
 # mpl updated to new methods
 # from packaging import version
@@ -55,7 +59,8 @@ def histplot(
             Histogram object with containing values and optionally bins. Can be:
 
             - `np.histogram` tuple
-            - `boost_histogram` histogram object
+            - PlottableProtocol histogram object
+            - `boost_histogram` classic (<0.13) histogram object
             - raw histogram values, provided `bins` is specified.
 
         bins : iterable, optional
@@ -66,9 +71,9 @@ def histplot(
             - shape(N) array of for one sided errors or list thereof
             - shape(Nx2) array of for two sided errors or list thereof
         w2 : iterable, optional
-            Sum of the histogram weights squared for poissonian interval error caclulation
+            Sum of the histogram weights squared for poissonian interval error calculation
         w2method: callable, optional
-            Function calulating CLs with signature ``low, high = fcn(w, w2)``. Here
+            Function calculating CLs with signature ``low, high = fcn(w, w2)``. Here
             ``low`` and ``high`` are given in absolute terms, not relative to w.
             Default is ``None``. If w2 has integer values (likely to be data) poisson
             interval is calculated, otherwise the resulting error is symmetric ``sqrt(w2)``.
@@ -116,104 +121,32 @@ def histplot(
     _err_message = f"Select 'histtype' from: {_allowed_histtype}"
     assert histtype in _allowed_histtype, _err_message
 
-    def hist_object_handler(h, check_only=False):
-        if hasattr(h, "axes") and hasattr(h, "to_numpy"):
-            # Boost histogram / Hist compat
-            # TODO: support different storages
-            if len(h.axes) != 1:
-                raise ValueError("Must have only 1 axis")
-            # FIXME x_axes_label = get_histogram_axes_title(h.axes[0])
-            h, bins = h.to_numpy()
+    hists = list(process_histogram_parts(H, bins))
+    final_bins = get_1d_plottable_protocol_bins(hists[0])
 
-        elif hasattr(h, "to_numpy"):
-            # Generic (possibly Uproot 4)
-            _tup = h.to_numpy(flow=False)
-            if len(_tup) != 2:
-                raise ValueError("to_numpy() method not understood")
-            else:
-                h, bins = _tup
-
-        elif hasattr(h, "numpy"):
-            # uproot/TH1
-            _tup = h.numpy()
-            if len(_tup) != 2:
-                raise ValueError("numpy() method not understood")
-            else:
-                h, bins = _tup
-
-        elif isinstance(h, tuple):
-            # Numpy histogram tuple
-            h, bins = h
-
-        else:
-            h = h
-            bins = None
-
-        if check_only:
-            return True if bins is not None else False
-        else:
-            return np.asarray(h).astype(float), np.asarray(bins).astype(float)
-
-    # Try to understand input
-    if type(H) is list:
-        # A list of objects
-        type_check = [hist_object_handler(h, check_only=True) for h in H]
-
-        if all(type_check):
-            # All objects are understandable
-            NH = len(type_check)
-            _H, _bins = [], []
-            for h in H:
-                h, bins = hist_object_handler(h)
-                _H.append(h)
-                _bins.append(bins)
-            if len(set(map(len, _H))) != 1:
-                raise ValueError(
-                    "Plotting multiple histograms with different binning is not supported"
-                )
-            h = np.asarray(_H).astype(float)
-            bins = _bins[0]
-        elif any(type_check):
-            # Some objects are not understandable
-            raise ValueError("Some hist objects were not recognized")
-        else:
-            # List of lists or arrays
-            h = np.asarray(H).astype(float)
-            bins = np.asarray(bins).astype(float) if bins is not None else None
-            NH = len(h) if h.ndim > 1 else 1
-    else:
-        # Single object, numpy array, 2D array
-        if hist_object_handler(H, check_only=True):
-            NH = 1
-            h, bins = hist_object_handler(H)
-        else:
-            # 2D array
-            h = np.asarray(H).astype(float)
-            bins = np.asarray(bins).astype(float) if bins is not None else None
-            NH = len(h) if h.ndim > 1 else 1
-
-    if bins is None and NH == 1:
-        bins = np.arange(len(h) + 1)
-    elif bins is None and NH > 1:
-        bins = [np.arange(len(_h) + 1) for _h in h][0]
+    # TODO: use hists everywhere
+    h = np.stack([h.values() for h in hists])
+    if yerr is None and all(h.variances() is not None for h in hists):
+        yerr = np.stack([np.sqrt(h.variances()) for h in hists])
 
     # Convert 1/0 etc to real bools
     stack = bool(stack)
     density = bool(density)
     edges = bool(edges)
     binticks = bool(binticks)
-    assert bins.ndim == 1, "bins need to be 1 dimensional"
-    # assert bins.shape[0] == h.shape[-1] + 1, (
-    #     "len along main axis of h has " "to be smaller by 1 than len " "of bins"
-    # )
-    assert w2 is None or yerr is None, "Can only supply errors or w2"
+
+    assert final_bins.ndim == 1, "bins need to be 1 dimensional"
+    # TODO: can check validity of bin length elsewhere
+
+    if w2 is None or yerr is None:
+        raise ValueError("Can only supply errors or w2")
 
     if label is None:
-        _labels = [None] * NH
+        _labels = [None] * len(hists)
     elif isinstance(label, str):
-        _labels = [label] * NH
+        _labels = [label] * len(hists)
     elif not np.iterable(label):
-        _labels = [str(label)] * NH
+        _labels = [str(label)] * len(hists)
     else:
         _labels = [str(lab) for lab in label]
 
@@ -221,7 +154,7 @@ def histplot(
         return isinstance(arg, collections.abc.Iterable) and not isinstance(arg, str)
 
     _chunked_kwargs = []
-    for _i in range(NH):
+    for _i in range(len(hists)):
         _chunked_kwargs.append({})
     for kwarg in kwargs:
         # Check if iterable
@@ -237,8 +170,8 @@ def histplot(
             for i in range(len(_chunked_kwargs)):
                 _chunked_kwargs[i][kwarg] = kwargs[kwarg]
 
-    _bin_widths = np.diff(bins)
-    _bin_centers = bins[1:] - _bin_widths / float(2)
+    _bin_widths = np.diff(final_bins)
+    _bin_centers = final_bins[1:] - _bin_widths / float(2)
 
     ############################
     # yerr calculation
@@ -252,10 +185,13 @@ def histplot(
         # yerr is automatic
         else:
             if yerr is True:
-                assert stack is False, (
-                    "Automatic errorbars not defined for " "stacked plot"
-                )
+                if stack:
+                    raise RuntimeError(
+                        "Automatic errorbars not defined for " "stacked plot"
+                    )
                 _yerr = np.sqrt(h)
+            else:
+                raise RuntimeError("Empty code path")
 
     elif w2 is not None:
         if w2method is None:
@@ -273,23 +209,26 @@ def histplot(
         _yerr = None
 
     if _yerr is not None:
+        assert isinstance(_yerr, np.ndarray)
         if _yerr.ndim == 3:
             # Already correct format
             pass
-        elif _yerr.ndim == 2 and NH == 1:
+        elif _yerr.ndim == 2 and len(hists) == 1:
             # Broadcast ndim 2 to ndim 3
             if _yerr.shape[-2] == 2:  # [[1,1], [1,1]]
-                _yerr = _yerr.reshape(NH, 2, _yerr.shape[-1])
+                _yerr = _yerr.reshape(len(hists), 2, _yerr.shape[-1])
             elif _yerr.shape[-2] == 1:  # [[1,1]]
-                _yerr = np.tile(_yerr, 2).reshape(NH, 2, _yerr.shape[-1])
+                _yerr = np.tile(_yerr, 2).reshape(len(hists), 2, _yerr.shape[-1])
             else:
                 raise ValueError("yerr format is not understood")
         elif _yerr.ndim == 2:
             # Broadcast yerr (nh, N) to (nh, 2, N)
-            _yerr = np.tile(_yerr, 2).reshape(NH, 2, _yerr.shape[-1])
+            _yerr = np.tile(_yerr, 2).reshape(len(hists), 2, _yerr.shape[-1])
         elif _yerr.ndim == 1:
             # Broadcast yerr (1, N) to (nh, 2, N)
-            _yerr = np.tile(_yerr, 2 * NH).reshape(NH, 2, _yerr.shape[-1])
+            _yerr = np.tile(_yerr, 2 * len(hists)).reshape(
+                len(hists), 2, _yerr.shape[-1]
+            )
         else:
             raise ValueError("yerr format is not understood")
         # Split
@@ -299,20 +238,19 @@ def histplot(
     ############################
     # Stacking, norming, density
     def get_stack(_h):
-        if NH > 1:
+        if len(hists) > 1:
             return np.cumsum(_h, axis=0)
         else:
             return _h
 
     def get_density(h, density=True, binwnorm=None, bins=bins):
-        assert (not density) ^ (
-            binwnorm is None
-        ), "Can only calculate density or binwnorm"
+        if (not density) or binwnorm is None:
+            raise ValueError("Can only calculate density or binwnorm")
         per_hist_norm = np.sum(h, axis=(1 if h.ndim > 1 else 0))
         if binwnorm is not None:
             overallnorm = binwnorm * per_hist_norm
         else:
-            overallnorm = np.ones(NH)
+            overallnorm = np.ones(len(hists))
         binnorms = np.outer(overallnorm, np.ones_like(bins[:-1]))
         binnorms /= np.outer(np.diff(bins), per_hist_norm).T
         if binnorms.ndim == 2 and len(binnorms) == 1:  # Unwrap if [[1,2,3]]
@@ -327,7 +265,7 @@ def histplot(
         else:
             h *= density_arr
         if _yerr is not None:
-            for i in range(NH):
+            for i in range(len(hists)):
                 _yerr_lo[i] = _yerr_lo[i] * density_arr[i]
                 _yerr_hi[i] = _yerr_hi[i] * density_arr[i]
 
@@ -335,20 +273,20 @@ def histplot(
         h = get_stack(h)
 
     # Stack
-    if stack and NH > 1:
+    if stack and len(hists) > 1:
         h = h[::-1]
         _labels = _labels[::-1]
         _chunked_kwargs = _chunked_kwargs[::-1]
 
     #################################
     # Split and reshape for iteration
-    h = h.reshape(NH, -1)
+    h = h.reshape(len(hists), -1)
 
     ##########
     # Plotting
     return_artists = []
     if histtype == "step":
-        for i in range(NH):
+        for i in range(len(hists)):
             if edges:
                 _bins = [bins[0], *bins, bins[-1]]
                 _h = [0, *h[i], h[i][-1], 0]
@@ -383,7 +321,7 @@ def histplot(
         _artist = _s
 
     elif histtype == "fill":
-        for i in range(NH):
+        for i in range(len(hists)):
             _h = np.r_[h[i], h[i][-1]]
             _kwargs = _chunked_kwargs[i]
             _f = ax.fill_between(bins, _h, step="post", label=_labels[i], **_kwargs)
@@ -403,8 +341,6 @@ def histplot(
             for kwarg_row in _chunked_kwargs:
                 if k not in kwarg_row.keys():
                     kwarg_row[k] = v
-
-        for i in range(NH):
             if yerr is not None or w2 is not None:
                 _yerri = [_yerr_lo[i], _yerr_hi[i]]
             else:
