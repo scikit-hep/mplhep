@@ -36,7 +36,7 @@ def histplot(
     *,
     yerr=None,
     w2=None,
-    w2method=poisson_interval,
+    w2method=None,
     stack=False,
     density=False,
     binwnorm=None,
@@ -70,6 +70,8 @@ def histplot(
         w2method: callable, optional
             Function calulating CLs with signature ``low, high = fcn(w, w2)``. Here
             ``low`` and ``high`` are given in absolute terms, not relative to w.
+            Default is ``None``. If w2 has integer values (likely to be data) poisson
+            interval is calculated, otherwise the resulting error is symmetric ``sqrt(w2)``.
         stack : bool, optional
             Whether to stack or overlay non-axis dimension (if it exists
         density : bool, optional
@@ -256,8 +258,17 @@ def histplot(
                 _yerr = np.sqrt(h)
 
     elif w2 is not None:
-        # If w2 are integers (true data hist), calculate Garwood interval
-        _yerr = np.abs(w2method(h, w2) - h)
+        if w2method is None:
+            int_w2 = np.around(w2).astype(int)
+            if np.all(np.isclose(w2, int_w2, 0.000001)):
+                # If w2 are integers (true data hist), calculate Garwood interval
+                _yerr = np.abs(poisson_interval(h, w2) - h)
+            else:
+                # w2 to errors directly if specified previously
+                _yerr = np.sqrt(w2)
+        else:
+            _yerr = np.abs(w2method(h, w2) - h)
+
     else:
         _yerr = None
 
