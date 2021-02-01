@@ -48,10 +48,7 @@ rcParams = Config(
 )
 
 # Make __version__ available
-try:
-    _base_dir = os.path.dirname(os.path.abspath(__file__))
-except NameError:
-    _base_dir = None
+_base_dir = os.path.dirname(os.path.abspath(__file__))
 
 with open(os.path.join(_base_dir, ".VERSION")) as version_file:
     __version__ = version_file.read().strip()
@@ -76,13 +73,13 @@ else:
 
 # Log submodules
 __all__ = [
-    cms,
-    atlas,
-    lhcb,
-    alice,
-    plot,
-    style,
-    label,
+    "cms",
+    "atlas",
+    "lhcb",
+    "alice",
+    "plot",
+    "style",
+    "label",
     # Log plot functions
     "histplot",
     "hist2dplot",

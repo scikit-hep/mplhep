@@ -1,3 +1,5 @@
+from typing import Dict, Any
+
 import matplotlib as mpl
 
 _base = {
@@ -85,7 +87,7 @@ _base = {
     "savefig.transparent": False,
 }
 
-ATLAS = {
+ATLAS: Dict[str, Any] = {
     **_base,
     "mathtext.fontset": "custom",
     "mathtext.rm": "TeX Gyre Heros",
@@ -99,13 +101,13 @@ ATLAS = {
 }
 
 # use dejavusans (default math fontset)
-ATLASAlt = {
+ATLASAlt: Dict[str, Any] = {
     **_base,
     "mathtext.default": "rm",
 }
 
 # use LaTeX
-ATLASTex = {
+ATLASTex: Dict[str, Any] = {
     **_base,
     "text.usetex": True,
     "text.latex.preamble": "\n".join(

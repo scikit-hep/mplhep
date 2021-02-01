@@ -25,7 +25,7 @@ from mplhep import label as label_base
 from .label import lumitext
 from .styles import lhcb as style
 
-__all__ = [style, lumitext, "label", "text"]
+__all__ = ("style", "lumitext", "label", "text")
 
 
 def _lhcb_text(text="", **kwargs):

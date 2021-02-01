@@ -9,7 +9,7 @@ import mplhep
 
 # import mplhep._deprecate as deprecate
 
-__all__ = [style, lumitext]
+__all__ = ("style", "lumitext")
 
 
 # Experiment wrappers:
