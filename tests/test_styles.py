@@ -11,7 +11,7 @@ import mplhep as hep  # noqa
 
 """
 To test run:
-py.test --mpl
+b
 
 When adding new tests, run:
 py.test --mpl-generate-path=tests/baseline
@@ -95,12 +95,11 @@ def test_style_lhcb2():
         hep.style.ALICE,
         hep.style.ATLAS,
         hep.style.CMS,
-        hep.style.LHCb,
         hep.style.LHCb1,
         hep.style.LHCb2,
         hep.style.ROOT,
     ],
-    ids=["ALICE", "ATLAS", "CMS", "LHCb", "LHCb1", "LHCb2", "ROOT"],
+    ids=["ALICE", "ATLAS", "CMS", "LHCb1", "LHCb2", "ROOT"],
 )
 def test_set_style(fig_test, fig_ref, mplhep_style):
     plt.rcParams.update(plt.rcParamsDefault)
@@ -111,6 +110,22 @@ def test_set_style(fig_test, fig_ref, mplhep_style):
 
     hep.rcParams.clear()
     hep.set_style(mplhep_style)
+    fig_test.subplots()
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+@check_figures_equal(extensions=["pdf"])
+def test_set_style_LHCb_dep(fig_test, fig_ref):
+    plt.rcParams.update(plt.rcParamsDefault)
+
+    hep.rcParams.clear()
+    with pytest.warns(FutureWarning):
+        plt.style.use(hep.style.LHCb)
+    fig_ref.subplots()
+
+    hep.rcParams.clear()
+    with pytest.warns(FutureWarning):
+        hep.set_style(hep.style.LHCb)
     fig_test.subplots()
 
 
@@ -127,7 +142,7 @@ def test_set_style(fig_test, fig_ref, mplhep_style):
         (hep.style.LHCb2, "LHCb2"),
         (hep.style.ROOT, "ROOT"),
     ],
-    ids=["ALICE", "ATLAS", "CMS", "LHCb1", "LHCb1", "LHCb2", "ROOT"],
+    ids=["ALICE", "ATLAS", "CMS", "LHCb", "LHCb1", "LHCb2", "ROOT"],
 )
 def test_set_style_str_alias(fig_test, fig_ref, mplhep_style, str_alias):
     plt.rcParams.update(plt.rcParamsDefault)

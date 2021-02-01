@@ -316,3 +316,4 @@ def test_histplot_inputs_pass(h, yerr, htype):
 
     fig, ax = plt.subplots()
     hep.histplot(h, bins, yerr=yerr, histtype=htype)
+    plt.close(fig)
