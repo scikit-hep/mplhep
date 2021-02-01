@@ -4,7 +4,11 @@ import numpy as np
 import enum
 
 if TYPE_CHECKING:
-    from uhi.typing.plottable import PlottableHistogram, PlottableAxisGeneric, PlottableTraits
+    from uhi.typing.plottable import (
+        PlottableHistogram,
+        PlottableAxisGeneric,
+        PlottableTraits,
+    )
 
     # Only added in NumPy 1.20
     ArrayLike = Any
@@ -21,6 +25,7 @@ class Traits:
     def __init__(self, circular: bool = False, discrete: bool = False) -> None:
         self.circular = circular
         self.discrete = discrete
+
 
 if TYPE_CHECKING:
     _traits: PlottableTraits = cast(Traits, None)
@@ -47,6 +52,7 @@ class NumPyPlottableAxis:
 
     def __eq__(self, other: Any) -> bool:
         return np.allclose(self.vals, other.vals)
+
 
 if TYPE_CHECKING:
     _axis: PlottableAxisGeneric[Tuple[float, float]] = cast(NumPyPlottableAxis, None)
@@ -102,7 +108,7 @@ def get_1d_plottable_protocol_bins(h: "PlottableHistogram") -> np.ndarray:
     (ax,) = h.axes
     assert isinstance(ax[0], tuple), "Currently only support discrete axes"
     out[0] = ax[0][0]
-    out[1:] = [ax[i][1] for i in range(len(ax))]   # type: ignore
+    out[1:] = [ax[i][1] for i in range(len(ax))]  # type: ignore
     return out
 
 
