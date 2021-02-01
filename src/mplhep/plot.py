@@ -138,7 +138,7 @@ def histplot(
     assert final_bins.ndim == 1, "bins need to be 1 dimensional"
     # TODO: can check validity of bin length elsewhere
 
-    if w2 is None or yerr is None:
+    if w2 is not None and yerr is not None:
         raise ValueError("Can only supply errors or w2")
 
     _labels: List[Optional[str]]
