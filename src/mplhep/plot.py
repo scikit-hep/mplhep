@@ -1,8 +1,8 @@
 import warnings
-import collections
-from collections import namedtuple
+import collections.abc
+from collections import OrderedDict, namedtuple
 import mplhep._deprecate as deprecate
-from typing import Union
+from typing import Union, List, Optional, Dict, Any
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -141,6 +141,7 @@ def histplot(
     if w2 is None or yerr is None:
         raise ValueError("Can only supply errors or w2")
 
+    _labels: List[Optional[str]]
     if label is None:
         _labels = [None] * len(hists)
     elif isinstance(label, str):
@@ -153,7 +154,7 @@ def histplot(
     def iterable_not_string(arg):
         return isinstance(arg, collections.abc.Iterable) and not isinstance(arg, str)
 
-    _chunked_kwargs = []
+    _chunked_kwargs: List[Dict[str, Any]] = []
     for _i in range(len(hists)):
         _chunked_kwargs.append({})
     for kwarg in kwargs:
@@ -284,7 +285,7 @@ def histplot(
 
     ##########
     # Plotting
-    return_artists = []
+    return_artists: List[Union[FillArtists, StepArtists, ErrorBarArtists]] = []
     if histtype == "step":
         for i in range(len(hists)):
             if edges:
@@ -335,6 +336,7 @@ def histplot(
             "markersize": 10.0,
             "elinewidth": 1,
         }
+        _yerri: Optional[List[float]]
         for k, v in err_defaults.items():
             if k not in kwargs.keys():
                 kwargs[k] = v
@@ -829,7 +831,6 @@ def sort_legend(ax, order=None):
     ax : axes with legend labels in it
     order : Ordered dict with renames or array with order
     """
-    from collections import OrderedDict
 
     handles, labels = ax.get_legend_handles_labels()
     by_label = OrderedDict(zip(labels, handles))

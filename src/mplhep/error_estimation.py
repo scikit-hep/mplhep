@@ -39,7 +39,7 @@ def poisson_interval(sumw, sumw2, coverage=_coverage1sd):
                 RuntimeWarning,
             )
             return np.vstack([sumw, sumw])
-        nearest = sum(
+        nearest = np.sum(
             [np.subtract.outer(d, d0) ** 2 for d, d0 in zip(available, missing)]
         ).argmin(axis=0)
         argnearest = tuple(dim[nearest] for dim in available)

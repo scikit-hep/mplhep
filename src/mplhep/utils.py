@@ -1,10 +1,10 @@
-from typing import Optional, TYPE_CHECKING, Iterable, cast, Any, Sequence
+from typing import Optional, TYPE_CHECKING, Iterable, cast, Any, Sequence, Tuple
 
 import numpy as np
 import enum
 
 if TYPE_CHECKING:
-    from uhi.typing.plottable import PlottableHistogram, PlottableAxisGeneric
+    from uhi.typing.plottable import PlottableHistogram, PlottableAxisGeneric, PlottableTraits
 
     # Only added in NumPy 1.20
     ArrayLike = Any
@@ -22,13 +22,16 @@ class Traits:
         self.circular = circular
         self.discrete = discrete
 
+if TYPE_CHECKING:
+    _traits: PlottableTraits = cast(Traits, None)
+
 
 class NumPyPlottableAxis:
     def __init__(self, vals):
-        self.traits = Traits()
+        self.traits: "PlottableTraits" = Traits()
         self.vals = vals
 
-    def __getitem__(self, index: int) -> "tuple[float, float]":
+    def __getitem__(self, index: int) -> Tuple[float, float]:
         """
         Get the pair of edges (not discrete) or bin label (discrete).
         """
@@ -45,6 +48,9 @@ class NumPyPlottableAxis:
     def __eq__(self, other: Any) -> bool:
         return np.allclose(self.vals, other.vals)
 
+if TYPE_CHECKING:
+    _axis: PlottableAxisGeneric[Tuple[float, float]] = cast(NumPyPlottableAxis, None)
+
 
 # TODO: Support bins for ND histograms
 class NumPyPlottableProtocol:
@@ -59,7 +65,7 @@ class NumPyPlottableProtocol:
         self._variances = variances
         self.kind = kind
 
-        self.axes: "Sequence[PlottableAxisGeneric[tuple[float, float]] | PlottableAxisGeneric[int] | PlottableAxisGeneric[str]]"
+        self.axes: "Sequence[PlottableAxisGeneric[Tuple[float, float]] | PlottableAxisGeneric[int] | PlottableAxisGeneric[str]]"
 
         if bins is None:
             self.axes = [
@@ -91,17 +97,18 @@ if TYPE_CHECKING:
 
 
 # TODO: only supporting non-discrete, 1D histograms here
-def get_1d_plottable_protocol_bins(h: PlottableHistogram) -> np.ndarray:
+def get_1d_plottable_protocol_bins(h: "PlottableHistogram") -> np.ndarray:
     out = np.empty(len(h.axes[0]) + 1)
     (ax,) = h.axes
+    assert isinstance(ax[0], tuple), "Currently only support discrete axes"
     out[0] = ax[0][0]
-    out[1:] = [ax[i][1] for i in range(len(ax))]
+    out[1:] = [ax[i][1] for i in range(len(ax))]   # type: ignore
     return out
 
 
 def hist_object_handler(
     hist: "ArrayLike | PlottableHistogram", bins: Optional[np.ndarray]
-) -> PlottableHistogram:
+) -> "PlottableHistogram":
     if hasattr(hist, "values") and hasattr(hist, "axes") and hasattr(hist, "variances"):
         # Protocol
         if len(hist.axes) != 1:
@@ -114,7 +121,7 @@ def hist_object_handler(
         # Generic (possibly Uproot 4)
         if bins is not None:
             raise ValueError("Must not specify bins with a hist.to_numpy() object")
-        _tup = hist.to_numpy(flow=False)
+        _tup = hist.to_numpy(flow=False)  # type: ignore
         if len(_tup) != 2:
             raise ValueError("to_numpy() method not understood")
         else:
@@ -124,7 +131,7 @@ def hist_object_handler(
         # uproot/TH1
         if bins is not None:
             raise ValueError("Must not specify bins with a hist.numpy() object")
-        _tup = hist.numpy()
+        _tup = hist.numpy()  # type: ignore
         if len(_tup) != 2:
             raise ValueError("numpy() method not understood")
         else:
