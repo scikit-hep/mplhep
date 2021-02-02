@@ -49,7 +49,7 @@ jobs:
 
     - name: Test with pytest
       run: |
-        python -m pytest -r sx --mpl --mpl-results-path=pytest_results
+        python -m pytest -r sa --mpl --mpl-results-path=pytest_results
 
     - name: Upload pytest test results
       uses: actions/upload-artifact@v2

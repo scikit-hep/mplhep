@@ -124,8 +124,7 @@ def test_set_style_LHCb_dep(fig_test, fig_ref):
     fig_ref.subplots()
 
     hep.rcParams.clear()
-    with pytest.warns(FutureWarning):
-        hep.set_style(hep.style.LHCb)
+    hep.set_style(hep.style.LHCb)
     fig_test.subplots()
 
 

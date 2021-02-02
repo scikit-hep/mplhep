@@ -86,7 +86,7 @@ class NumPyPlottableProtocol:
                 self.axes = [NumPyPlottableAxis(np.array([bins[:-1], bins[1:]]).T)]
             else:
                 raise ValueError(
-                    f"Bins not understood, should be 2d array of min/max edges or 1D array of edges or None"
+                    "Bins not understood, should be 2d array of min/max edges or 1D array of edges or None"
                 )
 
     def values(self) -> np.ndarray:
@@ -104,7 +104,7 @@ if TYPE_CHECKING:
     _: PlottableHistogram = cast(NumPyPlottableProtocol, None)
 
 
-# TODO: only supporting non-discrete, 1D histograms here:w
+# TODO: only supporting non-discrete, 1D histograms here
 
 
 def get_1d_plottable_protocol_bins(h: "PlottableHistogram") -> np.ndarray:
