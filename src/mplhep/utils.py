@@ -41,7 +41,7 @@ class NumPyPlottableAxis:
         Get the pair of edges (not discrete) or bin label (discrete).
         """
 
-        return self.vals[index]
+        return tuple(self.vals[index])
 
     def __len__(self) -> int:
         """
@@ -63,7 +63,7 @@ class NumPyPlottableProtocol:
     def __init__(
         self,
         hist: np.ndarray,
-        bins: Optional[np.ndarray],
+        bins: "np.ndarray | None",
         variances: Optional[np.ndarray] = None,
         kind: str = Kind.COUNT,
     ) -> None:
@@ -78,14 +78,16 @@ class NumPyPlottableProtocol:
                 NumPyPlottableAxis(np.array([np.arange(0, s), np.arange(1, s + 1)]).T)
                 for s in hist.shape
             ]
-        elif bins.ndim == 2 and hist.ndim == 1:
-            self.axes = [NumPyPlottableAxis(bins)]
-        elif bins.ndim == 1 and hist.ndim == 1:
-            self.axes = [NumPyPlottableAxis(np.array([bins[:-1], bins[1:]]).T)]
         else:
-            raise ValueError(
-                "Bins not understood, should be 2d array of min/max edges or 1D array of edges or None"
-            )
+
+            if bins.ndim == 2 and hist.ndim == 1:
+                self.axes = [NumPyPlottableAxis(bins)]
+            elif bins.ndim == 1 and hist.ndim == 1:
+                self.axes = [NumPyPlottableAxis(np.array([bins[:-1], bins[1:]]).T)]
+            else:
+                raise ValueError(
+                    f"Bins not understood, should be 2d array of min/max edges or 1D array of edges or None"
+                )
 
     def values(self) -> np.ndarray:
         return self._values
@@ -102,11 +104,12 @@ if TYPE_CHECKING:
     _: PlottableHistogram = cast(NumPyPlottableProtocol, None)
 
 
-# TODO: only supporting non-discrete, 1D histograms here
+# TODO: only supporting non-discrete, 1D histograms here:w
+
 def get_1d_plottable_protocol_bins(h: "PlottableHistogram") -> np.ndarray:
     out = np.empty(len(h.axes[0]) + 1)
     (ax,) = h.axes
-    assert isinstance(ax[0], tuple), "Currently only support discrete axes"
+    assert isinstance(ax[0], tuple), f"Currently only support discrete axes {ax[0]}"
     out[0] = ax[0][0]
     out[1:] = [ax[i][1] for i in range(len(ax))]  # type: ignore
     return out
@@ -152,7 +155,7 @@ def hist_object_handler(
         return NumPyPlottableProtocol(*hist)
 
     else:
-        return NumPyPlottableProtocol(hist, bins)
+        return NumPyPlottableProtocol(np.asarray(hist), None if bins is None else np.asarray(bins, dtype=float))
 
 
 def process_histogram_parts(
@@ -181,7 +184,7 @@ def process_histogram_parts(
     """
 
     # Try to understand input
-    if not isinstance(H, (list, tuple)):
+    if not isinstance(H, list) or isinstance(H[0], (float, int)):
         return _process_histogram_parts_iter((H,), bins)
     else:
         return _process_histogram_parts_iter(H, bins)
@@ -198,7 +201,7 @@ def _process_histogram_parts_iter(
         if original_bins is None:
             original_bins = current_bins
 
-        if not np.allclose(original_bins, current_bins):
+        if len(original_bins) != len(current_bins) or not np.allclose(original_bins, current_bins):
             raise ValueError(
                 "Plotting multiple histograms with different binning is not supported"
             )

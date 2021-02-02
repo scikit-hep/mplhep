@@ -20,7 +20,7 @@ plt.switch_backend("Agg")
 
 
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
-def test_basic():
+def test_simple():
     fig, ax = plt.subplots(figsize=(10, 10))
     h = [1, 3, 2]
     bins = [0, 1, 2, 3]
