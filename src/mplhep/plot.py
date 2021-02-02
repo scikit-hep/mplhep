@@ -31,6 +31,26 @@ ColormeshArtists = namedtuple("ColormeshArtists", "pcolormesh cbar")
 Hist1DArtists = Union[StepArtists, FillArtists, ErrorBarArtists]
 Hist2DArtists = ColormeshArtists
 
+def get_density(h, density: bool = True, binwnorm: Optional[float] = None, *, bins, hists):
+    if density and binwnorm is not None:
+        raise ValueError("Can only calculate density or binwnorm")
+    per_hist_norm = np.sum(h, axis=(1 if h.ndim > 1 else 0))
+    if binwnorm is not None:
+        overallnorm = binwnorm * per_hist_norm
+    else:
+        overallnorm = np.ones(len(hists))
+    binnorms = np.outer(overallnorm, np.ones_like(bins[:-1]))
+    binnorms /= np.outer(np.diff(bins), per_hist_norm).T
+    if binnorms.ndim == 2 and len(binnorms) == 1:  # Unwrap if [[1,2,3]]
+        binnorms = binnorms[0]
+    return binnorms
+
+def get_stack(_h, hists):
+    if len(hists) > 1:
+        return np.cumsum(_h, axis=0)
+    else:
+        return _h
+
 
 ########################################
 # Histogram plotter
@@ -125,7 +145,7 @@ def histplot(
     final_bins = get_1d_plottable_protocol_bins(hists[0])
 
     # TODO: use hists everywhere
-    h = np.stack([h.values() for h in hists])
+    h = np.stack([h.values().astype(float) for h in hists])
     if yerr is None and all(h.variances() is not None for h in hists):
         yerr = np.stack([np.sqrt(h.variances()) for h in hists])
 
@@ -199,7 +219,7 @@ def histplot(
             int_w2 = np.around(w2).astype(int)
             if np.all(np.isclose(w2, int_w2, 0.000001)):
                 # If w2 are integers (true data hist), calculate Garwood interval
-                _yerr = np.abs(poisson_interval(h, w2) - h)
+                _yerr = np.abs(poisson_interval(h[0], w2) - h[0])
             else:
                 # w2 to errors directly if specified previously
                 _yerr = np.sqrt(w2)
@@ -238,31 +258,12 @@ def histplot(
 
     ############################
     # Stacking, norming, density
-    def get_stack(_h):
-        if len(hists) > 1:
-            return np.cumsum(_h, axis=0)
-        else:
-            return _h
-
-    def get_density(h, density=True, binwnorm=None, bins=bins):
-        if (not density) or binwnorm is None:
-            raise ValueError("Can only calculate density or binwnorm")
-        per_hist_norm = np.sum(h, axis=(1 if h.ndim > 1 else 0))
-        if binwnorm is not None:
-            overallnorm = binwnorm * per_hist_norm
-        else:
-            overallnorm = np.ones(len(hists))
-        binnorms = np.outer(overallnorm, np.ones_like(bins[:-1]))
-        binnorms /= np.outer(np.diff(bins), per_hist_norm).T
-        if binnorms.ndim == 2 and len(binnorms) == 1:  # Unwrap if [[1,2,3]]
-            binnorms = binnorms[0]
-        return binnorms
 
     if density or binwnorm is not None:
-        density_arr = get_density(h, density, binwnorm)
+        density_arr = get_density(h, density, binwnorm, bins=final_bins, hists=hists)
         if stack:
-            h = get_stack(h)
-            h *= get_density(h, density, binwnorm)[-1]
+            h = get_stack(h, hists)
+            h *= get_density(h, density, binwnorm, bins=final_bins, hists=hists)[-1]
         else:
             h *= density_arr
         if _yerr is not None:
@@ -271,7 +272,7 @@ def histplot(
                 _yerr_hi[i] = _yerr_hi[i] * density_arr[i]
 
     if stack and not density and binwnorm is None:
-        h = get_stack(h)
+        h = get_stack(h, hists)
 
     # Stack
     if stack and len(hists) > 1:
@@ -289,10 +290,10 @@ def histplot(
     if histtype == "step":
         for i in range(len(hists)):
             if edges:
-                _bins = [bins[0], *bins, bins[-1]]
+                _bins = [final_bins[0], *final_bins, final_bins[-1]]
                 _h = [0, *h[i], h[i][-1], 0]
             else:
-                _bins, _h = bins, [*h[i], h[i][-1]]
+                _bins, _h = final_bins, [*h[i], h[i][-1]]
             _kwargs = _chunked_kwargs[i]
             _label = _labels[i]
             _step_label = _label if yerr is None else None
@@ -325,7 +326,9 @@ def histplot(
         for i in range(len(hists)):
             _h = np.r_[h[i], h[i][-1]]
             _kwargs = _chunked_kwargs[i]
-            _f = ax.fill_between(bins, _h, step="post", label=_labels[i], **_kwargs)
+            _f = ax.fill_between(
+                final_bins, _h, step="post", label=_labels[i], **_kwargs
+            )
         return_artists.append(FillArtists(_f))
         _artist = _f
 
@@ -344,6 +347,7 @@ def histplot(
                 if k not in kwarg_row.keys():
                     kwarg_row[k] = v
             if yerr is not None or w2 is not None:
+                i = 0
                 _yerri = [_yerr_lo[i], _yerr_hi[i]]
             else:
                 _yerri = None
@@ -356,8 +360,8 @@ def histplot(
     _artist.sticky_edges.y.append(0)
 
     if binticks:
-        _slice = int(round(float(len(bins)) / len(ax.get_xticks()))) + 1
-        ax.set_xticks(bins[::_slice])
+        _slice = int(round(float(len(final_bins)) / len(ax.get_xticks()))) + 1
+        ax.set_xticks(final_bins[::_slice])
 
     if x_axes_label:
         ax.set_xlabel(x_axes_label)
