@@ -106,6 +106,7 @@ if TYPE_CHECKING:
 
 # TODO: only supporting non-discrete, 1D histograms here:w
 
+
 def get_1d_plottable_protocol_bins(h: "PlottableHistogram") -> np.ndarray:
     out = np.empty(len(h.axes[0]) + 1)
     (ax,) = h.axes
@@ -155,7 +156,9 @@ def hist_object_handler(
         return NumPyPlottableProtocol(*hist)
 
     else:
-        return NumPyPlottableProtocol(np.asarray(hist), None if bins is None else np.asarray(bins, dtype=float))
+        return NumPyPlottableProtocol(
+            np.asarray(hist), None if bins is None else np.asarray(bins, dtype=float)
+        )
 
 
 def process_histogram_parts(
@@ -201,7 +204,9 @@ def _process_histogram_parts_iter(
         if original_bins is None:
             original_bins = current_bins
 
-        if len(original_bins) != len(current_bins) or not np.allclose(original_bins, current_bins):
+        if len(original_bins) != len(current_bins) or not np.allclose(
+            original_bins, current_bins
+        ):
             raise ValueError(
                 "Plotting multiple histograms with different binning is not supported"
             )

@@ -31,7 +31,10 @@ ColormeshArtists = namedtuple("ColormeshArtists", "pcolormesh cbar")
 Hist1DArtists = Union[StepArtists, FillArtists, ErrorBarArtists]
 Hist2DArtists = ColormeshArtists
 
-def get_density(h, density: bool = True, binwnorm: Optional[float] = None, *, bins, hists):
+
+def get_density(
+    h, density: bool = True, binwnorm: Optional[float] = None, *, bins, hists
+):
     if density and binwnorm is not None:
         raise ValueError("Can only calculate density or binwnorm")
     per_hist_norm = np.sum(h, axis=(1 if h.ndim > 1 else 0))
@@ -44,6 +47,7 @@ def get_density(h, density: bool = True, binwnorm: Optional[float] = None, *, bi
     if binnorms.ndim == 2 and len(binnorms) == 1:  # Unwrap if [[1,2,3]]
         binnorms = binnorms[0]
     return binnorms
+
 
 def get_stack(_h, hists):
     if len(hists) > 1:
