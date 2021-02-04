@@ -93,6 +93,7 @@ ATLAS = {
     "mathtext.sf": "TeX Gyre Heros",
     "mathtext.it": "TeX Gyre Heros:italic",
     "mathtext.tt": "TeX Gyre Heros",
+    "mathtext.cal": "TeX Gyre Heros",
     "mathtext.default": "regular",
     "mathtext.fontset": "custom",
 }
