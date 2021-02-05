@@ -49,4 +49,12 @@ jobs:
 
     - name: Test with pytest
       run: |
-        python -m pytest -r sx --mpl
+        python -m pytest -r sx --mpl --mpl-results-path=pytest_results
+
+    - name: Upload pytest test results
+      uses: actions/upload-artifact@v2
+      if: failure()
+      with:
+        name: pytest_results-${{ matrix.python-version }}-${{ matrix.runs-on }}
+        retention-days: 3
+        path: pytest_results
