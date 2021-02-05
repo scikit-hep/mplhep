@@ -4,6 +4,7 @@ extras_require = {
     "test": [
         "pytest",
         "pytest-mpl",
+        "pytest-mock",
         "papermill~=1.0",
         "nteract-scrapbook~=0.3",
         "uproot",
