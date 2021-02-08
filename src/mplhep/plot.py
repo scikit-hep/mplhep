@@ -28,6 +28,7 @@ FillArtists = namedtuple("FillArtists", "fill_between")
 ErrorBarArtists = namedtuple("ErrorBarArtists", "errorbar")
 ColormeshArtists = namedtuple("ColormeshArtists", "pcolormesh cbar")
 
+
 Hist1DArtists = Union[StepArtists, FillArtists, ErrorBarArtists]
 Hist2DArtists = ColormeshArtists
 
@@ -350,8 +351,9 @@ def histplot(
             for kwarg_row in _chunked_kwargs:
                 if k not in kwarg_row.keys():
                     kwarg_row[k] = v
+
+        for i in range(len(hists)):
             if yerr is not None or w2 is not None:
-                i = 0
                 _yerri = [_yerr_lo[i], _yerr_hi[i]]
             else:
                 _yerri = None
@@ -359,7 +361,9 @@ def histplot(
                 _bin_centers, h[i], yerr=_yerri, label=_labels[i], **_chunked_kwargs[i]
             )
             return_artists.append(ErrorBarArtists(_e))
+
         _artist = ax.plot(_bin_centers, h[0], lw=0, ms=0, alpha=0)[0]
+
     # Add sticky edges for autoscale
     _artist.sticky_edges.y.append(0)
 
