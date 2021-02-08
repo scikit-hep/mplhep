@@ -153,6 +153,8 @@ def histplot(
     h = np.stack([h.values().astype(float) for h in hists])
     if yerr is None and all(h.variances() is not None for h in hists):
         yerr = np.stack([np.sqrt(h.variances()) for h in hists])
+    elif yerr is False:
+        yerr = None
 
     # Convert 1/0 etc to real bools
     stack = bool(stack)
