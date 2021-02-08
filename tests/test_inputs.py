@@ -45,7 +45,7 @@ def test_inputs_uproot():
 
     fig, axs = plt.subplots(1, 2, figsize=(14, 5))
     TH1, TH2 = f["hpx"], f["hpxpy"]
-    hep.histplot(TH1, ax=axs[0])
+    hep.histplot(TH1, yerr=False, ax=axs[0])
     hep.hist2dplot(TH2, ax=axs[1], cbar=False)
 
     return fig
