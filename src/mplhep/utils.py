@@ -7,6 +7,7 @@ if TYPE_CHECKING:
     from uhi.typing.plottable import (
         PlottableHistogram,
         PlottableAxisGeneric,
+        PlottableAxis,
         PlottableTraits,
     )
 
@@ -32,7 +33,7 @@ if TYPE_CHECKING:
 
 
 class NumPyPlottableAxis:
-    def __init__(self, vals):
+    def __init__(self, vals: np.ndarray) -> None:
         self.traits: "PlottableTraits" = Traits()
         self.vals = vals
 
@@ -41,7 +42,7 @@ class NumPyPlottableAxis:
         Get the pair of edges (not discrete) or bin label (discrete).
         """
 
-        return tuple(self.vals[index])
+        return tuple(self.vals[index])  # type: ignore
 
     def __len__(self) -> int:
         """
@@ -58,36 +59,38 @@ if TYPE_CHECKING:
     _axis: PlottableAxisGeneric[Tuple[float, float]] = cast(NumPyPlottableAxis, None)
 
 
+def _bin_helper(shape: int, bins: "np.ndarray | None") -> NumPyPlottableAxis:
+    if bins is None:
+        return NumPyPlottableAxis(
+            np.array([np.arange(0, shape), np.arange(1, shape + 1)]).T
+        )
+    elif bins.ndim == 2:
+        return NumPyPlottableAxis(bins)
+    elif bins.ndim == 1:
+        return NumPyPlottableAxis(np.array([bins[:-1], bins[1:]]).T)
+    else:
+        raise ValueError(
+            "Bins not understood, should be 2d array of min/max edges or 1D array of edges or None"
+        )
+
+
 # TODO: Support bins for ND histograms
 class NumPyPlottableProtocol:
     def __init__(
         self,
         hist: np.ndarray,
-        bins: "np.ndarray | None",
+        *bins: "np.ndarray | None",
         variances: Optional[np.ndarray] = None,
         kind: str = Kind.COUNT,
     ) -> None:
+
         self._values = hist
         self._variances = variances
         self.kind = kind
 
-        self.axes: "Sequence[PlottableAxisGeneric[Tuple[float, float]] | PlottableAxisGeneric[int] | PlottableAxisGeneric[str]]"
-
-        if bins is None:
-            self.axes = [
-                NumPyPlottableAxis(np.array([np.arange(0, s), np.arange(1, s + 1)]).T)
-                for s in hist.shape
-            ]
-        else:
-
-            if bins.ndim == 2 and hist.ndim == 1:
-                self.axes = [NumPyPlottableAxis(bins)]
-            elif bins.ndim == 1 and hist.ndim == 1:
-                self.axes = [NumPyPlottableAxis(np.array([bins[:-1], bins[1:]]).T)]
-            else:
-                raise ValueError(
-                    "Bins not understood, should be 2d array of min/max edges or 1D array of edges or None"
-                )
+        self.axes: "Sequence[PlottableAxis]" = [
+            _bin_helper(shape, b) for shape, b in zip(hist.shape, bins)
+        ]
 
     def values(self) -> np.ndarray:
         return self._values
@@ -104,66 +107,66 @@ if TYPE_CHECKING:
     _: PlottableHistogram = cast(NumPyPlottableProtocol, None)
 
 
-# TODO: only supporting non-discrete, 1D histograms here
-
-
-def get_1d_plottable_protocol_bins(h: "PlottableHistogram") -> np.ndarray:
-    out = np.empty(len(h.axes[0]) + 1)
-    (ax,) = h.axes
-    assert isinstance(ax[0], tuple), f"Currently only support discrete axes {ax[0]}"
-    out[0] = ax[0][0]
-    out[1:] = [ax[i][1] for i in range(len(ax))]  # type: ignore
+def get_plottable_protocol_bins(axis: "PlottableAxis") -> np.ndarray:
+    out = np.empty(len(axis) + 1)
+    assert isinstance(
+        axis[0], tuple
+    ), f"Currently only support non-discrete axes {axis}"
+    # TODO: Support discreete axes
+    out[0] = axis[0][0]
+    out[1:] = [axis[i][1] for i in range(len(axis))]  # type: ignore
     return out
 
 
 def hist_object_handler(
-    hist: "ArrayLike | PlottableHistogram", bins: Optional[np.ndarray]
+    hist: "ArrayLike | PlottableHistogram", *bins: "Sequence[float] | None"
 ) -> "PlottableHistogram":
     if hasattr(hist, "values") and hasattr(hist, "axes") and hasattr(hist, "variances"):
         # Protocol
-        if len(hist.axes) != 1:
-            raise ValueError("Must have only 1 axis")
-        if bins is not None:
+        if len(hist.axes) not in {1, 2}:
+            raise ValueError("Must have only 1 or 2 axes")
+        if not all(b is None for b in bins):
             raise ValueError("Must not specify bins with a PlottableHistogram object")
         return hist
 
     elif hasattr(hist, "to_numpy"):
         # Generic (possibly Uproot 4)
-        if bins is not None:
+        if not all(b is None for b in bins):
             raise ValueError("Must not specify bins with a hist.to_numpy() object")
         _tup = hist.to_numpy(flow=False)  # type: ignore
-        if len(_tup) != 2:
+        if len(_tup) not in {2, 3}:
             raise ValueError("to_numpy() method not understood")
         else:
             return NumPyPlottableProtocol(*_tup)
 
     elif hasattr(hist, "numpy"):
         # uproot/TH1
-        if bins is not None:
+        if not all(b is None for b in bins):
             raise ValueError("Must not specify bins with a hist.numpy() object")
         _tup = hist.numpy()  # type: ignore
-        if len(_tup) != 2:
+        if len(_tup) not in {2, 3}:
             raise ValueError("numpy() method not understood")
         else:
             return NumPyPlottableProtocol(*_tup)
 
     elif isinstance(hist, tuple):
         # Numpy histogram tuple
-        if bins is not None:
+        if not all(b is None for b in bins):
             raise ValueError("Must not specify bins with a NumPy tuple object")
-        if len(hist) != 2:
+        if len(hist) not in {2, 3}:
             raise ValueError("numpy() method not understood")
         return NumPyPlottableProtocol(*hist)
 
     else:
         return NumPyPlottableProtocol(
-            np.asarray(hist), None if bins is None else np.asarray(bins, dtype=float)
+            np.asarray(hist),
+            *(np.asarray(b, dtype=float) for b in bins if b is not None),
         )
 
 
 def process_histogram_parts(
     H: "ArrayLike | PlottableHistogram | Iterable[ArrayLike] | Iterable[PlottableHistogram]",
-    bins: Optional[Iterable[float]],
+    *bins: "Sequence[float] | None",
 ):
     """
     Parameters
@@ -177,8 +180,8 @@ def process_histogram_parts(
             - `boost_histogram` classic (<0.13) histogram object
             - raw histogram values, provided `bins` is specified.
 
-        bins : iterable, optional
-            Histogram bins, if not part of ``h``.
+        *bins : Sequence[float], optional
+            Histogram bins, if not part of ``h``. One iterable per histogram dimension.
 
     Returns
     -------
@@ -188,28 +191,31 @@ def process_histogram_parts(
 
     # Try to understand input
     if not isinstance(H, list) or isinstance(H[0], (float, int)):
-        return _process_histogram_parts_iter((H,), bins)
+        return _process_histogram_parts_iter((H,), *bins)
     else:
-        return _process_histogram_parts_iter(H, bins)
+        return _process_histogram_parts_iter(H, *bins)
 
 
 def _process_histogram_parts_iter(
     hists: "Iterable[ArrayLike] | Iterable[PlottableHistogram]",
-    bins: Optional[Iterable[float]],
+    *bins: "Sequence[float] | None",
 ) -> "Iterable[PlottableHistogram]":
-    original_bins = bins
+    original_bins: Tuple[Sequence[float], ...] = bins  # type: ignore
+
     for hist in hists:
-        h = hist_object_handler(hist, bins)
-        current_bins = get_1d_plottable_protocol_bins(h)
-        if original_bins is None:
+        h = hist_object_handler(hist, *bins)
+        current_bins: Tuple[Sequence[float], ...] = tuple(get_plottable_protocol_bins(a) for a in h.axes)  # type: ignore
+        if any(b is None for b in original_bins):
             original_bins = current_bins
 
-        if len(original_bins) != len(current_bins) or not np.allclose(
-            original_bins, current_bins
-        ):
-            raise ValueError(
-                "Plotting multiple histograms with different binning is not supported"
-            )
+        if len(current_bins) != len(original_bins):
+            msg = "Plotting multiple histograms must have the same dimensionality"
+            raise ValueError(msg)
+        for i in range(len(current_bins)):
+            diff_lengths = len(original_bins[i]) != len(current_bins[i])
+            if diff_lengths or not np.allclose(original_bins[i], current_bins[i]):
+                msg = "Plotting multiple histograms with different binning is not supported"
+                raise ValueError(msg)
 
         yield h
 

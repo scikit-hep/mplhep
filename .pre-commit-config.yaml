@@ -29,7 +29,7 @@ repos:
   hooks:
   - id: mypy
     files: src
-    additional_dependencies: [uhi]
+    additional_dependencies: [uhi, numpy~=1.20.1]
     stages: [manual]
 
 - repo: https://github.com/asottile/pyupgrade
