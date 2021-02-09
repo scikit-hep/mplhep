@@ -2,7 +2,7 @@ import warnings
 import collections.abc
 from collections import OrderedDict, namedtuple
 import mplhep._deprecate as deprecate
-from typing import Union, List, Optional, Dict, Any
+from typing import Union, List, Optional, Dict, Any, TYPE_CHECKING
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -15,8 +15,12 @@ from .error_estimation import poisson_interval
 from .utils import (
     get_histogram_axes_title,
     process_histogram_parts,
-    get_1d_plottable_protocol_bins,
+    get_plottable_protocol_bins,
+    hist_object_handler,
 )
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
 
 # mpl updated to new methods
 # from packaging import version
@@ -63,7 +67,7 @@ def histplot(
     H,  # Histogram object, tuple or array
     bins=None,  # Bins to be supplied when h is a value array or iterable of arrays
     *,
-    yerr=None,
+    yerr: "ArrayLike | bool | None" = None,
     w2=None,
     w2method=None,
     stack=False,
@@ -147,7 +151,7 @@ def histplot(
     assert histtype in _allowed_histtype, _err_message
 
     hists = list(process_histogram_parts(H, bins))
-    final_bins = get_1d_plottable_protocol_bins(hists[0])
+    final_bins = get_plottable_protocol_bins(hists[0].axes[0])
 
     # TODO: use hists everywhere
     h = np.stack([h.values().astype(float) for h in hists])
@@ -203,6 +207,7 @@ def histplot(
 
     ############################
     # yerr calculation
+    _yerr: "np.ndarray | None"
     if yerr is not None:
         # yerr is array
         if hasattr(yerr, "__len__"):
@@ -259,6 +264,8 @@ def histplot(
             )
         else:
             raise ValueError("yerr format is not understood")
+
+        assert _yerr is not None
         # Split
         _yerr_lo = _yerr[:, 0]
         _yerr_hi = _yerr[:, 1]
@@ -300,7 +307,8 @@ def histplot(
                 _bins = [final_bins[0], *final_bins, final_bins[-1]]
                 _h = [0, *h[i], h[i][-1], 0]
             else:
-                _bins, _h = final_bins, [*h[i], h[i][-1]]
+                _bins = list(final_bins)
+                _h = [*h[i], h[i][-1]]
             _kwargs = _chunked_kwargs[i]
             _label = _labels[i]
             _step_label = _label if yerr is None else None
@@ -437,48 +445,27 @@ def hist2dplot(
 
     """
 
+    # ax check
+    if ax is None:
+        ax = plt.gca()
+    else:
+        if not isinstance(ax, plt.Axes):
+            raise ValueError("ax must be a matplotlib Axes object")
+
     x_axes_label = ""
     y_axes_label = ""
 
-    # Input check
-    if hasattr(H, "axes") and hasattr(H, "to_numpy"):
-        # Hist compat
-        if len(H.axes) != 2:
-            raise ValueError("Not a 2D histogram")
+    hist = hist_object_handler(H, xbins, ybins)
 
-        x_axes_label = get_histogram_axes_title(H.axes[0])
-        y_axes_label = get_histogram_axes_title(H.axes[1])
+    # TODO: use Histogram everywhere
+    H = hist.values()
+    xbins = get_plottable_protocol_bins(hist.axes[0])
+    ybins = get_plottable_protocol_bins(hist.axes[1])
 
-        H, xbins, ybins = H.to_numpy()
-
-    elif hasattr(H, "to_numpy"):
-        # Generic (Uproot 4) support
-        H, xbins, ybins = H.to_numpy(flow=False)
-
-    elif hasattr(H, "numpy"):
-        # uproot/TH2
-        _tup = H.numpy()
-        if len(_tup) != 2:
-            raise ValueError("numpy() method not understood")
-        else:
-            H, xy = _tup
-            if len(xy) == 1 and isinstance(xy, list):
-                if len(xy[0]) == 2 and isinstance(xy[0], tuple):
-                    xbins, ybins = xy[0]
-                else:
-                    raise ValueError("Input not understood")
-            else:
-                raise ValueError("Input not understood")
+    x_axes_label = get_histogram_axes_title(hist.axes[0])
+    y_axes_label = get_histogram_axes_title(hist.axes[1])
 
     H = H.T
-
-    if ax is None:
-        ax = plt.gca()
-
-    if xbins is None:
-        xbins = np.arange(H.shape[1] + 1)
-    if ybins is None:
-        ybins = np.arange(H.shape[0] + 1)
 
     if cmin is not None:
         H[H < cmin] = None
@@ -852,7 +839,7 @@ def sort_legend(ax, order=None):
     if isinstance(order, OrderedDict):
         ordered_label_list = list(order.keys())
     elif isinstance(order, (list, tuple, np.ndarray)):
-        ordered_label_list = order
+        ordered_label_list = list(order)
     elif order is None:
         ordered_label_list = labels
     else:
