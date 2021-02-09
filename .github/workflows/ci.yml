@@ -10,14 +10,6 @@ on:
   - cron:  '1 0 * * *'
 
 jobs:
-  linter:
-    runs-on: ubuntu-latest
-    name: pre-commit (linter)
-
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
-    - uses: pre-commit/action@v2.0.0
 
   test:
     name: "🐍 ${{ matrix.python-version }} • ${{ matrix.runs-on }}"
