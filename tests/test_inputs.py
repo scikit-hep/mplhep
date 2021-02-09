@@ -11,10 +11,10 @@ import mplhep as hep  # noqa
 
 """
 To test run:
-py.test --mpl
+pytest --mpl
 
 When adding new tests, run:
-py.test --mpl-generate-path=tests/baseline
+pytest --mpl-generate-path=tests/baseline
 """
 
 plt.switch_backend("Agg")
