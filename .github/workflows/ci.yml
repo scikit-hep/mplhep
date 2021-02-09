@@ -24,8 +24,13 @@ jobs:
     runs-on: ${{ matrix.runs-on }}
     strategy:
       matrix:
-        runs-on: [ubuntu-latest, macOS-latest]
-        python-version: [3.6, 3.7, 3.8]
+        runs-on: [ubuntu-latest]
+        python-version: [3.6, 3.7, 3.8, 3.9]
+        include:
+        - runs-on: macOS-latest
+          python-version: 3.6
+        - runs-on: macOS-latest
+          python-version: 3.9
 
     steps:
     - uses: actions/checkout@master
