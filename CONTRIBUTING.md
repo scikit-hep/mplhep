@@ -36,15 +36,15 @@ This will run `black` over your code each time you attempt to make a commit and 
 
 You can run the unit tests (which should be fast!) via the following command.
 
-```
-py.test --mpl --ignore=tests/test_notebooks.py
+```bash
+pytest --mpl --ignore=tests/test_notebooks.py
 ```
 
 Note: This ignores the notebook tests (which are run via [papermill](https://github.com/nteract/papermill) which run somewhat slow.
 Make sure to run the complete suite before submitting a PR
 
-```
-py.test --mpl
+```bash
+pytest --mpl
 ```
 
 ## Making a pull request
@@ -55,8 +55,8 @@ We try to follow [Conventional Commit](https://www.conventionalcommits.org/) for
 
 If you modified expected outcomes of the test. New baseline visuals can be generated using this command:
 
-```
-py.test --mpl-generate-path=tests/baseline
+```bash
+pytest --mpl-generate-path=tests/baseline
 ```
 
 * This contrib was shamelessly stolen from https://github.com/scikit-hep/pyhf
