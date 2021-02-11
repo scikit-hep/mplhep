@@ -605,7 +605,7 @@ def yscale_legend(ax=None):
         ax = plt.gca()
 
     if ax.get_yscale() == "log":
-        scale_factor = 10**(1.05)
+        scale_factor = 10 ** (1.05)
     else:
         scale_factor = 1.05
 
