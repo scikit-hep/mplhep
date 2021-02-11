@@ -604,8 +604,13 @@ def yscale_legend(ax=None):
     if ax is None:
         ax = plt.gca()
 
+    if ax.get_yscale() == "log":
+        scale_factor = 10**(1.05)
+    else:
+        scale_factor = 1.05
+
     while overlap(ax, _draw_leg_bbox(ax)) > 0:
-        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[-1] * 1.05)
+        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[-1] * scale_factor)
         ax.figure.canvas.draw()
     return ax
 
