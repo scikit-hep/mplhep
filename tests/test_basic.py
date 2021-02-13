@@ -154,6 +154,36 @@ def test_hist2dplot():
     return fig
 
 
+@pytest.mark.parametrize("cbarextend", [False, True])
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_hist2dplot_cbar(cbarextend):
+    np.random.seed(0)
+    xedges = np.arange(0, 11.5, 1.5)
+    yedges = [0, 2, 3, 4, 6, 7]
+    x = np.random.normal(5, 1.5, 100)
+    y = np.random.normal(4, 1, 100)
+    H, xedges, yedges = np.histogram2d(x, y, bins=(xedges, yedges))
+
+    fig, ax = plt.subplots()
+    hep.hist2dplot(H, xedges, yedges, labels=True, cbar=True, cbarextend=cbarextend)
+    return fig
+
+
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_hist2dplot_cbar_subplots():
+    np.random.seed(0)
+    xedges = np.arange(0, 11.5, 1.5)
+    yedges = [0, 2, 3, 4, 6, 7]
+    x = np.random.normal(5, 1.5, 100)
+    y = np.random.normal(4, 1, 100)
+    H, xedges, yedges = np.histogram2d(x, y, bins=(xedges, yedges))
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+    hep.hist2dplot(H, xedges, yedges, labels=True, cbar=True, ax=ax1)
+    hep.hist2dplot(H * 2, xedges, yedges, labels=True, cbar=True, ax=ax2)
+    return fig
+
+
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_hist2dplot_custom_labels():
     np.random.seed(0)
