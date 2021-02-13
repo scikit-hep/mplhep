@@ -396,6 +396,7 @@ def hist2dplot(
     cbarsize="7%",
     cbarpad=0.2,
     cbarpos="right",
+    cbarextend=False,
     cmin=None,
     cmax=None,
     ax=None,
@@ -430,6 +431,9 @@ def hist2dplot(
         Colorbar distance from main axis.
     cbarpos : {'right', 'left', 'bottom', 'top'}, optional,  default "right"
         Colorbar position w.r.t main axis.
+    cbarextend : bool, optional, default False
+        Extends figure size to keep original axes size same as without cbar.
+        Only safe for 1 axes per fig.
     cmin : float, optional
         Colorbar minimum.
     cmax : float, optional
@@ -491,7 +495,9 @@ def hist2dplot(
         ax.set_yticks(ybins)
 
     if cbar:
-        cax = append_axes(ax, size=cbarsize, pad=cbarpad, position=cbarpos)
+        cax = append_axes(
+            ax, size=cbarsize, pad=cbarpad, position=cbarpos, extend=cbarextend
+        )
         cb_obj = plt.colorbar(pc, cax=cax)
     else:
         cb_obj = None
@@ -747,7 +753,7 @@ def make_square_add_cbar(ax, size=0.4, pad=0.1):
     return cax
 
 
-def append_axes(ax, size=0.1, pad=0.1, position="right"):
+def append_axes(ax, size=0.1, pad=0.1, position="right", extend=False):
     """
     Append a side ax to the current figure and return it.
     Figure is automatically extended along the direction of the added axes to
@@ -777,37 +783,43 @@ def append_axes(ax, size=0.1, pad=0.1, position="right"):
         xsizes = xsizes[::-1]
     yhax = divider.append_axes(position, size=margin_size, pad=pad_size)
 
-    def extend_ratio(ax):
-        ax.figure.canvas.draw()
-        orig_size = ax.get_position().size
-        new_size = 0
-        for itax in ax.figure.axes:
-            new_size += itax.get_position().size
+    if extend:
 
-        return new_size / orig_size
+        def extend_ratio(ax, yhax):
+            ax.figure.canvas.draw()
+            orig_size = ax.get_position().size
+            new_size = 0
+            for itax in [ax, yhax]:
+                new_size += itax.get_position().size
 
-    if position in ["right"]:
-        divider.set_horizontal([axes_size.Fixed(width)] + xsizes)
-        fig.set_size_inches(
-            fig.get_size_inches()[0] * extend_ratio(ax)[0], fig.get_size_inches()[1]
-        )
-    elif position in ["left"]:
-        divider.set_horizontal(xsizes[::-1] + [axes_size.Fixed(width)])
-        fig.set_size_inches(
-            fig.get_size_inches()[0] * extend_ratio(ax)[0], fig.get_size_inches()[1]
-        )
-    elif position in ["top"]:
-        divider.set_vertical([axes_size.Fixed(height)] + xsizes[::-1])
-        fig.set_size_inches(
-            fig.get_size_inches()[0], fig.get_size_inches()[1] * extend_ratio(ax)[1]
-        )
-        ax.get_shared_x_axes().join(ax, yhax)
-    elif position in ["bottom"]:
-        divider.set_vertical(xsizes + [axes_size.Fixed(height)])
-        fig.set_size_inches(
-            fig.get_size_inches()[0], fig.get_size_inches()[1] * extend_ratio(ax)[1]
-        )
-        ax.get_shared_x_axes().join(ax, yhax)
+            return new_size / orig_size
+
+        if position in ["right"]:
+            divider.set_horizontal([axes_size.Fixed(width)] + xsizes)
+            fig.set_size_inches(
+                fig.get_size_inches()[0] * extend_ratio(ax, yhax)[0],
+                fig.get_size_inches()[1],
+            )
+        elif position in ["left"]:
+            divider.set_horizontal(xsizes[::-1] + [axes_size.Fixed(width)])
+            fig.set_size_inches(
+                fig.get_size_inches()[0] * extend_ratio(ax, yhax)[0],
+                fig.get_size_inches()[1],
+            )
+        elif position in ["top"]:
+            divider.set_vertical([axes_size.Fixed(height)] + xsizes[::-1])
+            fig.set_size_inches(
+                fig.get_size_inches()[0],
+                fig.get_size_inches()[1] * extend_ratio(ax, yhax)[1],
+            )
+            ax.get_shared_x_axes().join(ax, yhax)
+        elif position in ["bottom"]:
+            divider.set_vertical(xsizes + [axes_size.Fixed(height)])
+            fig.set_size_inches(
+                fig.get_size_inches()[0],
+                fig.get_size_inches()[1] * extend_ratio(ax, yhax)[1],
+            )
+            ax.get_shared_x_axes().join(ax, yhax)
 
     return yhax
 
