@@ -81,6 +81,7 @@ jobs:
         git tag -n99 -l $NEW_TAG
 
         CHANGES=$(git log --pretty=format:'%s' $OLD_TAG..HEAD -i -E --grep='^([a-z]*?):')
+        CHANGES="$(echo "${CHANGES}" | sed -e 's/^//'| sort -d)"  # Sort them
         echo "CHANGES:"$CHANGES";"
         if [ -z "${CHANGES// }" ]; then echo "CHANGES is empty, will substitute a dummy"; fi
         if [ -z "${CHANGES// }" ]; then CHANGES="dummy: didn't find valid semantic labels"; fi
