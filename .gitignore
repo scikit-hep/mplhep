@@ -1,3 +1,6 @@
+# Package specific
+src/mplhep/fonts/downloaded/*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

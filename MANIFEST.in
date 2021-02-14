@@ -1,4 +1,3 @@
 include src/mplhep/.VERSION
-include src/mplhep/stylelib/*.mplstyle
-recursive-include src/mplhep/fonts/ *
+recursive-include src/mplhep/fonts/LICENSE*
 include LICENSE
