@@ -32,13 +32,13 @@ repos:
     additional_dependencies: [uhi, numpy~=1.20.1]
 
 - repo: https://github.com/asottile/pyupgrade
-  rev: v2.7.4
+  rev: v2.10.0
   hooks:
   - id: pyupgrade
     args: ["--py36-plus"]
 
 - repo: https://github.com/nbQA-dev/nbQA
-  rev: 0.5.6
+  rev: 0.5.7
   hooks:
   - id: nbqa-black
     additional_dependencies: [black==20.8b1]
