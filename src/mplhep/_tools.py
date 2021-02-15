@@ -69,14 +69,14 @@ class FontLoader:
                     import requests
 
                     r = requests.get(self.github_url, allow_redirects=True)
-                    with open(file_path, "wb") as temp_file:
-                        temp_file.write(r.content)
+                    with open(file_path, "wb") as font_file:
+                        font_file.write(r.content)
                     self._prop = fm.FontProperties(fname=file_path)
             else:
                 from urllib.request import urlopen
                 from tempfile import NamedTemporaryFile
 
-                with NamedTemporaryFile(delete=False, suffix=".ttf") as temp_file:  # type: ignore
+                with NamedTemporaryFile(delete=False, suffix=".ttf") as temp_file:
                     temp_file.write(urlopen(self.github_url).read())
                     self._prop = fm.FontProperties(fname=temp_file.name)
         return self._prop
