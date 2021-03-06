@@ -83,7 +83,7 @@ def test_inputs_bh():
     hist2d.fill(np.random.normal(0.5, 0.2, 1000), np.random.normal(0.5, 0.2, 1000))
 
     fig, axs = plt.subplots(1, 2, figsize=(14, 5))
-    hep.histplot(hist2d.project(0), ax=axs[0])
+    hep.histplot(hist2d.project(0), yerr=False, ax=axs[0])
     hep.hist2dplot(hist2d, labels=True, cbar=False, ax=axs[1])
 
     return fig
