@@ -88,6 +88,8 @@ class NumPyPlottableProtocol:
         self._variances = variances
         self.kind = kind
 
+        if len(bins) == 0:
+            bins = tuple([None] * len(hist.shape))
         self.axes: "Sequence[PlottableAxis]" = [
             _bin_helper(shape, b) for shape, b in zip(hist.shape, bins)
         ]

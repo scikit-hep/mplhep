@@ -30,6 +30,14 @@ def test_simple():
 
 
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_simple2d():
+    fig, ax = plt.subplots()
+    h = [[1, 3, 2], [1, 3, 2]]
+    hep.hist2dplot(h)
+    return fig
+
+
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_log():
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
     for ax in axs[0]:
