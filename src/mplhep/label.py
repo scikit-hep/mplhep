@@ -79,16 +79,16 @@ def exp_text(
         1: {"xy": (0.05, 0.9550 - pad), "va": "bottom"},
         2: {"xy": (0.05, 0.9450 - pad), "va": "top"},
         3: {"xy": (0.05, 0.95 - pad), "va": "top"},
+        4: {"xy": (0.05, 0.9550 - pad), "va": "bottom"},
     }
 
-    if loc not in [0, 1, 2, 3]:
+    if loc not in [0, 1, 2, 3, 4]:
         raise ValueError(
             "loc must be in {0, 1, 2}:\n"
             "0 : Above axes, left aligned\n"
             "1 : Top left corner\n"
             "2 : Top left corner, multiline\n"
-            "3 : Split EXP above axes, rest of label in"
-            "top left corner"
+            "3 : Split EXP above axes, rest of label in top left corner\n"
         )
 
     def pixel_to_axis(extent, ax=None):
@@ -145,7 +145,7 @@ def exp_text(
         _t = mtransforms.offset_copy(
             exptext._transform, x=_exp_xoffset, units="inches", fig=ax.figure
         )
-    elif loc == 1:
+    elif loc in [1, 4]:
         _t = mtransforms.offset_copy(
             exptext._transform,
             x=_exp_xoffset,
@@ -248,6 +248,7 @@ def exp_label(
             - 1 : Top left corner
             - 2 : Top left corner, multiline
             - 3 : Split EXP above axes, rest of label in top left corner"
+            - 4 : (1) Top left corner, but align "rlabel" underneath
         ax : matplotlib.axes.Axes, optional
             Axes object (if None, last one is fetched)
         data : bool, optional
@@ -281,6 +282,9 @@ def exp_label(
             A matplotlib `Axes <https://matplotlib.org/3.1.1/api/axes_api.html>`_ object
     """
 
+    if ax is None:
+        ax = plt.gca()
+
     # Right label
     if rlabel is not None:
         _lumi = rlabel
@@ -293,7 +297,8 @@ def exp_label(
         else:
             _lumi = "{} (13 TeV)".format(str(year) if year is not None else "")
 
-    lumitext(text=_lumi, ax=ax, fontname=fontname, fontsize=fontsize)
+    if loc < 4:
+        lumitext(text=_lumi, ax=ax, fontname=fontname, fontsize=fontsize)
 
     # Left label
     if llabel is not None:
@@ -309,7 +314,7 @@ def exp_label(
 
         _label = " ".join(_label.split())
 
-    exp = exp_text(
+    exptext, expsuffix = exp_text(
         exp=exp,
         text=_label,
         loc=loc,
@@ -319,5 +324,25 @@ def exp_label(
         italic=italic,
         pad=pad,
     )
+    if loc == 4:
+        _t = mtransforms.offset_copy(
+            exptext._transform,
+            y=-exptext.get_window_extent().height / ax.figure.dpi,
+            units="inches",
+            fig=ax.figure,
+        )
+        _lumi = r"$\sqrt{s} = \mathrm{13\ TeV}, " + str(lumi) + r"\ \mathrm{fb}^{-1}$"
+        explumi = ExpSuffix(
+            *exptext.get_position(),
+            text=rlabel if rlabel is not None else _lumi,
+            transform=_t,
+            ha=exptext.get_ha(),
+            va="top",
+            fontsize=fontsize,
+            fontname=fontname,
+            fontstyle="normal",
+        )
+        ax._add_text(explumi)
+        return exptext, expsuffix, explumi
 
-    return exp
+    return exptext, expsuffix
