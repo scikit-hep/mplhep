@@ -4,6 +4,7 @@ types:
   - docs
   - style
   - refactor
+  - deprecate
   - perf
   - test
   - build
