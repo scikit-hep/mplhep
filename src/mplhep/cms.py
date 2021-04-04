@@ -18,10 +18,10 @@ def _cms_text(text="", **kwargs):
         if (
             value is not None
             and key not in kwargs.keys()
-            and key in inspect.getfullargspec(label_base._exp_text).args
+            and key in inspect.getfullargspec(label_base.exp_text).kwonlyargs
         ):
             kwargs[key] = value
-    return label_base._exp_text("CMS", text=text, italic=(False, True), **kwargs)
+    return label_base.exp_text("CMS", text=text, italic=(False, True), **kwargs)
 
 
 def _cms_label(**kwargs):
@@ -29,10 +29,11 @@ def _cms_label(**kwargs):
         if (
             value is not None
             and key not in kwargs.keys()
-            and key in inspect.getfullargspec(label_base._exp_label).args
+            and key in inspect.getfullargspec(label_base.exp_label).kwonlyargs
         ):
             kwargs[key] = value
-    return label_base._exp_label(exp="CMS", italic=(False, True), **kwargs)
+        print(kwargs)
+    return label_base.exp_label(exp="CMS", **kwargs)
 
 
 # Deprecation example
@@ -41,11 +42,10 @@ def _cms_label(**kwargs):
 #     return _cms_label(*args, **kwargs)
 
 
-@docstring.copy(label_base._exp_text)
+@docstring.copy(label_base.exp_text)
 def text(*args, **kwargs):
     return _cms_text(*args, **kwargs)
 
 
-@docstring.copy(label_base._exp_label)
 def label(**kwargs):
     return _cms_label(**kwargs)
