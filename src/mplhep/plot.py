@@ -11,7 +11,6 @@ from matplotlib.transforms import Bbox
 from matplotlib.offsetbox import AnchoredText
 from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
 
-from .error_estimation import poisson_interval
 from .utils import (
     get_histogram_axes_title,
     process_histogram_parts,
@@ -240,7 +239,17 @@ def histplot(
             int_w2 = np.around(w2).astype(int)
             if np.all(np.isclose(w2, int_w2, 0.000001)):
                 # If w2 are integers (true data hist), calculate Garwood interval
-                _yerr = np.abs(poisson_interval(h[0], w2) - h[0])
+                try:
+                    from .error_estimation import poisson_interval
+
+                    _yerr = np.abs(poisson_interval(h[0], w2) - h[0])
+                except ImportError:
+                    warnings.warn(
+                        "Integer weights indicate poissonian data. Will calculate "
+                        "Garwood interval if ``scipy`` is installed. Otherwise errors "
+                        "will be set to ``sqrt(w2)``."
+                    )
+                    _yerr = np.sqrt(w2)
             else:
                 # w2 to errors directly if specified previously
                 _yerr = np.sqrt(w2)

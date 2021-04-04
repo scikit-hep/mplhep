@@ -2,6 +2,7 @@ import pytest
 import numpy as np
 from pytest import approx
 import matplotlib.pyplot
+import matplotlib.pyplot as plt
 import matplotlib.lines
 import mplhep as hep
 import copy

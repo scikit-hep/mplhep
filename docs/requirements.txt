@@ -1,6 +1,4 @@
 matplotlib>=3.2
 numpy>=1.16.0
 packaging
-requests~=2.21
-scipy>=1.1.0
 uhi>=0.2.0

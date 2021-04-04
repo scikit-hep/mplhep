@@ -2,6 +2,7 @@ from setuptools import setup
 
 extras_require = {
     "test": [
+        "scipy>=1.1.0",
         "pytest",
         "pytest-mpl",
         "pytest-mock",
