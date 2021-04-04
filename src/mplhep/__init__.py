@@ -3,6 +3,8 @@ from packaging import version
 import matplotlib as mpl
 import matplotlib.font_manager as fm
 
+import mplhep_data
+
 # Get helper functions
 from . import cms
 from . import atlas
@@ -53,23 +55,12 @@ _base_dir = os.path.dirname(os.path.abspath(__file__))
 with open(os.path.join(_base_dir, ".VERSION")) as version_file:
     __version__ = version_file.read().strip()
 
+path = os.path.abspath(__file__)
+font_path = os.path.join(os.path.dirname(mplhep_data.__file__), "fonts")
+font_files = fm.findSystemFonts(fontpaths=font_path)
+for font in font_files:
+    fm.fontManager.addfont(font)
 
-# Make package fonts available to matplotlib
-if version.parse(mpl.__version__) >= version.parse("3.2"):
-    # mpl 3.2 and up
-    path = os.path.abspath(__file__)
-    font_path = "/".join(path.split("/")[:-1]) + "/fonts/"
-    font_files = fm.findSystemFonts(fontpaths=font_path)
-    for font in font_files:
-        fm.fontManager.addfont(font)
-else:
-    # Back-comp for mpl<3.2
-    # Deprecated in 3.2, removed in 3.3
-    path = os.path.abspath(__file__)
-    font_path = "/" + "/".join(path.split("/")[:-1]) + "/fonts/"
-    font_files = fm.findSystemFonts(fontpaths=font_path)
-    font_list = fm.createFontList(font_files)
-    fm.fontManager.ttflist.extend(font_list)
 
 # Log submodules
 __all__ = [
