@@ -23,10 +23,11 @@ class ExpSuffix(mtext.Text):
         )
 
 
-def _exp_text(
+def exp_text(
     exp="",
     text="",
     loc=0,
+    *,
     ax=None,
     fontname=None,
     fontsize=None,
@@ -126,7 +127,6 @@ def _exp_text(
 
     exptext = ExpText(
         *loc1_dict[_exp_loc]["xy"],
-        # s=exp,
         text=exp,
         transform=ax.transAxes,
         ha="left",
@@ -134,7 +134,7 @@ def _exp_text(
         fontsize=_font_size * 1.3,
         fontweight="bold",
         fontstyle="italic" if italic[0] else "normal",
-        fontname=fontname
+        fontname=fontname,
     )
     ax._add_text(exptext)
 
@@ -171,7 +171,7 @@ def _exp_text(
         va=loc2_dict[loc]["va"],
         fontsize=_font_size,
         fontname=fontname,
-        fontstyle="italic" if italic[1] else "normal"
+        fontstyle="italic" if italic[1] else "normal",
     )
     ax._add_text(expsuffix)
 
@@ -221,9 +221,10 @@ def lumitext(text="", ax=None, fontname=None, fontsize=None):
 
 
 # Wrapper
-def _exp_label(
-    ax=None,
+def exp_label(
+    exp="",
     loc=0,
+    *,
     data=False,
     paper=False,
     supplementary=False,
@@ -234,15 +235,15 @@ def _exp_label(
     fontname=None,
     fontsize=None,
     pad=0,
-    exp="",
     italic=(False, False),
+    ax=None,
 ):
     """A convenience wrapper combining ``<exp>.text`` and ``lumitext`` providing for
     the most common use cases.
     Parameters
     ----------
         loc : int, optional
-            Label positon of ``_exp_text`` label:
+            Label positon of ``exp_text`` label:
             - 0 : Above axes, left aligned
             - 1 : Top left corner
             - 2 : Top left corner, multiline
@@ -308,7 +309,7 @@ def _exp_label(
 
         _label = " ".join(_label.split())
 
-    exp = _exp_text(
+    exp = exp_text(
         exp=exp,
         text=_label,
         loc=loc,

@@ -16,10 +16,10 @@ def _atlas_text(text="", **kwargs):
         if (
             value is not None
             and key not in kwargs.keys()
-            and key in inspect.getfullargspec(label_base._exp_text).args
+            and key in inspect.getfullargspec(label_base.exp_text).kwonlyargs
         ):
             kwargs[key] = value
-    return label_base._exp_text("ATLAS", text=text, italic=(True, False), **kwargs)
+    return label_base.exp_text("ATLAS", text=text, italic=(True, False), **kwargs)
 
 
 def _atlas_label(**kwargs):
@@ -27,18 +27,18 @@ def _atlas_label(**kwargs):
         if (
             value is not None
             and key not in kwargs.keys()
-            and key in inspect.getfullargspec(label_base._exp_label).args
+            and key in inspect.getfullargspec(label_base.exp_label).kwonlyargs
         ):
             kwargs[key] = value
-    return label_base._exp_label(exp="ATLAS", italic=(True, False), **kwargs)
+    return label_base.exp_label(exp="ATLAS", italic=(True, False), **kwargs)
 
 
-@mpl.docstring.copy(label_base._exp_text)
+@mpl.docstring.copy(label_base.exp_text)
 def text(*args, **kwargs):
     return _atlas_text(*args, **kwargs)
 
 
-@mpl.docstring.copy(label_base._exp_label)
+@mpl.docstring.copy(label_base.exp_label)
 def label(**kwargs):
     return _atlas_label(**kwargs)
 
