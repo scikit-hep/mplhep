@@ -30,19 +30,24 @@ def test_simple(mock_matplotlib):
     bins = [0, 1, 2, 3]
     hep.histplot(h, bins, yerr=True, label="X", ax=ax)
 
-    assert len(ax.mock_calls) == 3
+    assert len(ax.mock_calls) == 6
 
-    ax.step.assert_called_once_with(
-        approx([0.0, 0.0, 1.0, 2.0, 3.0, 3.0]),
-        approx([0, 1.0, 3.0, 2.0, 2.0, 0]),
-        where="post",
+    ax.stairs.assert_called_once_with(
+        approx([1.0, 3.0, 2.0]),
+        approx([0.0, 1.0, 2.0, 3.0]),
+        baseline=0,
         label=None,
-        marker="",
+        linewidth=1.5,
     )
 
     assert ax.errorbar.call_count == 2
     ax.errorbar.assert_any_call(
-        approx([]), approx([]), yerr=1, xerr=1, color="current-color", label="X"
+        approx([]),
+        approx([]),
+        yerr=1,
+        xerr=1,
+        color=ax.stairs().get_edgecolor(),
+        label="X",
     )
     ax.errorbar.assert_any_call(
         approx([0.5, 1.5, 2.5]),
@@ -51,8 +56,9 @@ def test_simple(mock_matplotlib):
             approx([1.0, 1.73205081, 1.41421356]),
             approx([1.0, 1.73205081, 1.41421356]),
         ],
-        color="current-color",
+        color=ax.stairs().get_edgecolor(),
         linestyle="none",
+        linewidth=1.5,
     )
 
 
@@ -66,7 +72,7 @@ def test_histplot_real(mock_matplotlib):
     hep.histplot([a, b, c], bins=bins, ax=ax, yerr=True, label=["MC1", "MC2", "Data"])
     ax.legend()
     ax.set_title("Raw")
-    assert len(ax.mock_calls) == 11
+    assert len(ax.mock_calls) == 18
 
     ax.reset_mock()
 
@@ -74,7 +80,7 @@ def test_histplot_real(mock_matplotlib):
     hep.histplot([c], bins=bins, ax=ax, yerr=True, histtype="errorbar", label="Data")
     ax.legend()
     ax.set_title("Data/MC")
-    assert len(ax.mock_calls) == 6
+    assert len(ax.mock_calls) == 7
     ax.reset_mock()
 
     hep.histplot(
@@ -91,7 +97,7 @@ def test_histplot_real(mock_matplotlib):
     )
     ax.legend()
     ax.set_title("Data/MC binwnorm")
-    assert len(ax.mock_calls) == 6
+    assert len(ax.mock_calls) == 7
     ax.reset_mock()
 
     hep.histplot(
@@ -108,4 +114,4 @@ def test_histplot_real(mock_matplotlib):
     )
     ax.legend()
     ax.set_title("Data/MC Density")
-    assert len(ax.mock_calls) == 6
+    assert len(ax.mock_calls) == 7

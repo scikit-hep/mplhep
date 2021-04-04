@@ -42,10 +42,10 @@ def test_log():
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
     for ax in axs[0]:
         hep.histplot([1, 2, 3, 2], range(5), ax=ax)
-    plt.semilogy()
+    ax.semilogy()
     for ax in axs[1]:
         hep.histplot([1, 2, 3, 2], range(5), ax=ax, edges=False)
-    plt.semilogy()
+    ax.semilogy()
     return fig
 
 

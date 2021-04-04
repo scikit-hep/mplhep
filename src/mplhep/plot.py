@@ -61,6 +61,17 @@ def get_stack(_h, hists):
         return _h
 
 
+def soft_update_kwargs(kwargs, mods, rc=True):
+    not_default = [k for k, v in mpl.rcParamsDefault.items() if v != mpl.rcParams[k]]
+    for key, val in mods.items():
+        rc_modded = (key in not_default) or (
+            key in [k.split(".")[-1] for k in not_default]
+        )
+        if key not in kwargs and (rc and not rc_modded):
+            kwargs[key] = val
+    return kwargs
+
+
 ########################################
 # Histogram plotter
 def histplot(
@@ -272,7 +283,6 @@ def histplot(
 
     ############################
     # Stacking, norming, density
-
     if density or binwnorm is not None:
         density_arr = get_density(h, density, binwnorm, bins=final_bins, hists=hists)
         if stack:
@@ -303,47 +313,45 @@ def histplot(
     return_artists: List[Union[FillArtists, StepArtists, ErrorBarArtists]] = []
     if histtype == "step":
         for i in range(len(hists)):
-            if edges:
-                _bins = [final_bins[0], *final_bins, final_bins[-1]]
-                _h = [0, *h[i], h[i][-1], 0]
-            else:
-                _bins = list(final_bins)
-                _h = [*h[i], h[i][-1]]
             _kwargs = _chunked_kwargs[i]
             _label = _labels[i]
             _step_label = _label if yerr is None else None
-            (_s,) = ax.step(
-                _bins, _h, where="post", label=_step_label, marker="", **_kwargs
+            _kwargs = soft_update_kwargs(_kwargs, {"linewidth": 1.5})
+
+            _s = ax.stairs(
+                h[i],
+                final_bins,
+                baseline=None if not edges else 0,
+                label=_step_label,
+                **_kwargs,
             )
+
             if yerr is not None or w2 is not None:
-                if "color" not in _kwargs:
-                    _kwargs["color"] = _s.get_color()
-                _kwargs["linestyle"] = "none"
+                _kwargs = soft_update_kwargs(
+                    _kwargs, {"color": _s.get_edgecolor(), "linestyle": "none"}
+                )
                 _e = ax.errorbar(
                     _bin_centers,
                     h[i],
                     yerr=[_yerr_lo[i], _yerr_hi[i]],
                     **_kwargs,
                 )
-                _eleg = ax.errorbar(
-                    [], [], yerr=1, xerr=1, color=_s.get_color(), label=_label
+                _e_leg = ax.errorbar(
+                    [], [], yerr=1, xerr=1, color=_s.get_edgecolor(), label=_label
                 )
             return_artists.append(
                 StepArtists(
                     _s,
                     _e if yerr is not None or w2 is not None else None,
-                    _eleg if yerr is not None or w2 is not None else None,
+                    _e_leg if yerr is not None or w2 is not None else None,
                 )
             )
         _artist = _s
 
     elif histtype == "fill":
         for i in range(len(hists)):
-            _h = np.r_[h[i], h[i][-1]]
             _kwargs = _chunked_kwargs[i]
-            _f = ax.fill_between(
-                final_bins, _h, step="post", label=_labels[i], **_kwargs
-            )
+            _f = ax.stairs(h[i], final_bins, label=_labels[i], fill=True, **_kwargs)
         return_artists.append(FillArtists(_f))
         _artist = _f
 
@@ -355,12 +363,6 @@ def histplot(
             "elinewidth": 1,
         }
         _yerri: Optional[List[float]]
-        for k, v in err_defaults.items():
-            if k not in kwargs.keys():
-                kwargs[k] = v
-            for kwarg_row in _chunked_kwargs:
-                if k not in kwarg_row.keys():
-                    kwarg_row[k] = v
 
         for i in range(len(hists)):
             if yerr is not None or w2 is not None:
@@ -368,7 +370,11 @@ def histplot(
             else:
                 _yerri = None
             _e = ax.errorbar(
-                _bin_centers, h[i], yerr=_yerri, label=_labels[i], **_chunked_kwargs[i]
+                _bin_centers,
+                h[i],
+                yerr=_yerri,
+                label=_labels[i],
+                **soft_update_kwargs(_chunked_kwargs[i], err_defaults),
             )
             return_artists.append(ErrorBarArtists(_e))
 
