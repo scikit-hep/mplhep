@@ -210,10 +210,18 @@ def test_set_style_style_list(fig_test, fig_ref, mplhep_style, str_alias):
 
 
 @pytest.mark.mpl_image_compare(style="default")
-def test_label_loc():
+def test_labeltext_loc():
     fig, axs = plt.subplots(1, 4, figsize=(16, 4))
     for i, ax in enumerate(axs.flatten()):
         hep.cms.text("Test", loc=i, ax=ax)
+    return fig
+
+
+@pytest.mark.mpl_image_compare(style="default")
+def test_label_loc():
+    fig, axs = plt.subplots(1, 5, figsize=(20, 4))
+    for i, ax in enumerate(axs.flatten()):
+        hep.cms.label(loc=i, ax=ax, lumi=50, data=True)
     return fig
 
 
