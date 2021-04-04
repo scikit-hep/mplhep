@@ -22,13 +22,12 @@ from .utils import (
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
 
-StepArtists = namedtuple("StepArtists", "step errorbar legend_artist")
-FillArtists = namedtuple("FillArtists", "fill_between")
+StairsArtists = namedtuple("StairsArtists", "stairs errorbar legend_artist")
 ErrorBarArtists = namedtuple("ErrorBarArtists", "errorbar")
 ColormeshArtists = namedtuple("ColormeshArtists", "pcolormesh cbar")
 
 
-Hist1DArtists = Union[StepArtists, FillArtists, ErrorBarArtists]
+Hist1DArtists = Union[StairsArtists, ErrorBarArtists]
 Hist2DArtists = ColormeshArtists
 
 
@@ -305,7 +304,7 @@ def histplot(
 
     ##########
     # Plotting
-    return_artists: List[Union[FillArtists, StepArtists, ErrorBarArtists]] = []
+    return_artists: List[Union[StairsArtists, ErrorBarArtists]] = []
     if histtype == "step":
         for i in range(len(hists)):
             _kwargs = _chunked_kwargs[i]
@@ -335,7 +334,7 @@ def histplot(
                     [], [], yerr=1, xerr=1, color=_s.get_edgecolor(), label=_label
                 )
             return_artists.append(
-                StepArtists(
+                StairsArtists(
                     _s,
                     _e if yerr is not None or w2 is not None else None,
                     _e_leg if yerr is not None or w2 is not None else None,
@@ -347,7 +346,7 @@ def histplot(
         for i in range(len(hists)):
             _kwargs = _chunked_kwargs[i]
             _f = ax.stairs(h[i], final_bins, label=_labels[i], fill=True, **_kwargs)
-        return_artists.append(FillArtists(_f))
+        return_artists.append(StairsArtists(_f, None, None))
         _artist = _f
 
     elif histtype == "errorbar":
