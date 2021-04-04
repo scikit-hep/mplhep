@@ -22,11 +22,6 @@ from .utils import (
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
 
-# mpl updated to new methods
-# from packaging import version
-# _mpl_up_version = "3.3.3"
-# _mpl_up = version.parse(mpl.__version__) >= version.parse(_mpl_up_version)
-
 StepArtists = namedtuple("StepArtists", "step errorbar legend_artist")
 FillArtists = namedtuple("FillArtists", "fill_between")
 ErrorBarArtists = namedtuple("ErrorBarArtists", "errorbar")
