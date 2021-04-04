@@ -30,6 +30,17 @@ def test_simple():
 
 
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_simple_xerr():
+    fig, ax = plt.subplots(figsize=(10, 10))
+    h = np.array([1, 3, 2])
+    bins = [0, 1, 2, 4]
+    hep.histplot(h, bins, yerr=True, histtype="errorbar")
+    hep.histplot(h * 2, bins, yerr=True, histtype="errorbar", xerr=0.1)
+    hep.histplot(h * 3, bins, yerr=True, histtype="errorbar", xerr=True)
+    return fig
+
+
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_simple2d():
     fig, ax = plt.subplots()
     h = [[1, 3, 2], [1, 3, 2]]
