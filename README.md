@@ -33,6 +33,8 @@ pip install mplhep
 ```
 
 # Getting Started
+A tutorial given at PyHEP 2020 is available as a binder [here](https://github.com/andrzejnovak/2020-07-17-pyhep2020-mplhep)
+or you can watch the recording [here](https://www.youtube.com/watch?v=gUziXqCGe0o).
 
 ### Styling
 
