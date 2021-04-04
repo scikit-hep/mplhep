@@ -57,6 +57,8 @@ def get_stack(_h, hists):
 
 def soft_update_kwargs(kwargs, mods, rc=True):
     not_default = [k for k, v in mpl.rcParamsDefault.items() if v != mpl.rcParams[k]]
+    aliases = {"ls": "linestyle"}
+    kwargs = {aliases[k] if k in aliases else k: v for k, v in kwargs.items()}
     for key, val in mods.items():
         rc_modded = (key in not_default) or (
             key in [k.split(".")[-1] for k in not_default]
@@ -79,6 +81,7 @@ def histplot(
     density=False,
     binwnorm=None,
     histtype="step",
+    xerr=False,
     label=None,
     edges=True,
     binticks=False,
@@ -124,7 +127,8 @@ def histplot(
             - "step": skyline/step/outline of a histogram using `plt.step <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.step.html#matplotlib.axes.Axes.step>`_
             - "fill": filled histogram using `plt.fill_between <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.step.html#matplotlib.axes.Axes.step>`_
             - "errorbar": single marker histogram using `plt.errorbar <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.step.html#matplotlib.axes.Axes.step>`_
-
+        xerr:  bool or float, optional
+            Size of xerr if ``histtype == 'errorbar'``. If ``True``, bin-width will be used.
         label : str or list, optional
             Label for legend entry.
         edges : bool, default: True, optional
@@ -357,6 +361,10 @@ def histplot(
             "elinewidth": 1,
         }
         _yerri: Optional[List[float]]
+        if xerr is True:
+            _xerr = _bin_widths / 2
+        elif isinstance(xerr, (int, float)):
+            _xerr = xerr
 
         for i in range(len(hists)):
             if yerr is not None or w2 is not None:
@@ -367,6 +375,7 @@ def histplot(
                 _bin_centers,
                 h[i],
                 yerr=_yerri,
+                xerr=_xerr if xerr else None,
                 label=_labels[i],
                 **soft_update_kwargs(_chunked_kwargs[i], err_defaults),
             )
