@@ -515,9 +515,7 @@ def hist2dplot(
             _labels = H
         elif H.shape == labels.shape:
             _labels = labels
-        elif labels is False:
-            pass
-        else:
+        elif labels is not False:
             raise ValueError(
                 "Labels not understood, either specify a bool or a" "Histlike array "
             )
@@ -583,9 +581,7 @@ def _draw_leg_bbox(ax):
     leg = ax.get_legend()
 
     fig.canvas.draw()
-    bbox = leg.get_frame().get_bbox()
-
-    return bbox
+    return leg.get_frame().get_bbox()
 
 
 def _draw_text_bbox(ax):
@@ -593,11 +589,7 @@ def _draw_text_bbox(ax):
     Draw legend() and fetch it's bbox
     """
     fig = ax.figure
-    textboxes = []
-    for k in ax.get_children():
-        if type(k) == AnchoredText:
-            textboxes.append(k)
-
+    textboxes = [k for k in ax.get_children() if type(k) == AnchoredText]
     if len(textboxes) > 1:
         print("Warning: More than one textbox found")
         for box in textboxes:
@@ -616,11 +608,7 @@ def yscale_legend(ax=None):
     if ax is None:
         ax = plt.gca()
 
-    if ax.get_yscale() == "log":
-        scale_factor = 10 ** (1.05)
-    else:
-        scale_factor = 1.05
-
+    scale_factor = 10 ** (1.05) if ax.get_yscale() == "log" else 1.05
     while overlap(ax, _draw_leg_bbox(ax)) > 0:
         ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[-1] * scale_factor)
         ax.figure.canvas.draw()
@@ -770,12 +758,11 @@ def append_axes(ax, size=0.1, pad=0.1, position="right", extend=False):
     width, height = bbox.width, bbox.height
 
     def convert(fraction, position=position):
-        if isinstance(fraction, str):
-            if fraction.endswith("%"):
-                if position in ["right", "left"]:
-                    fraction = width * float(fraction.strip("%")) / 100
-                elif position in ["top", "bottom"]:
-                    fraction = height * float(fraction.strip("%")) / 100
+        if isinstance(fraction, str) and fraction.endswith("%"):
+            if position in ["right", "left"]:
+                fraction = width * float(fraction.strip("%")) / 100
+            elif position in ["top", "bottom"]:
+                fraction = height * float(fraction.strip("%")) / 100
         return fraction
 
     size = convert(size)
@@ -794,10 +781,7 @@ def append_axes(ax, size=0.1, pad=0.1, position="right", extend=False):
         def extend_ratio(ax, yhax):
             ax.figure.canvas.draw()
             orig_size = ax.get_position().size
-            new_size = 0
-            for itax in [ax, yhax]:
-                new_size += itax.get_position().size
-
+            new_size = sum(itax.get_position().size for itax in [ax, yhax])
             return new_size / orig_size
 
         if position in ["right"]:
@@ -906,10 +890,7 @@ def save_variations(fig, name, text_list=None, exp=None):
                 if exp is not None:
                     exp_label.set_text(exp)
                 suffix_text.set_text(text)
-        if text == "":
-            name_ext = ""
-        else:
-            name_ext = "_" + text.lower()
+        name_ext = "" if text == "" else "_" + text.lower()
         if exp is not None:
             name_ext = exp.lower() + name_ext
         save_name = name.split(".")[0] + name_ext + "." + name.split(".")[1]
