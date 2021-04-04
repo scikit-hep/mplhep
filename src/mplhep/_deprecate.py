@@ -47,16 +47,17 @@ class deprecate_parameter:
 
     def __call__(self, func):
         def decorated_func(*args, **kwargs):
-            if self._name in kwargs.keys():
-                if not (self._warn_once and self._already_warned):
-                    warnings.warn(
-                        'kwarg "{}" in function ``{}`` is deprecated and may be removed in future versions: {}'.format(
-                            self._name, func.__name__, self._reason
-                        ),
-                        category=self._warning,
-                        stacklevel=2,
-                    )
-                    self._already_warned = True
+            if self._name in kwargs.keys() and not (
+                self._warn_once and self._already_warned
+            ):
+                warnings.warn(
+                    'kwarg "{}" in function ``{}`` is deprecated and may be removed in future versions: {}'.format(
+                        self._name, func.__name__, self._reason
+                    ),
+                    category=self._warning,
+                    stacklevel=2,
+                )
+                self._already_warned = True
             return func(*args, **kwargs)
 
         decorated_func.__name__ = func.__name__
