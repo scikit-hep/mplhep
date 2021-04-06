@@ -56,11 +56,17 @@ def get_stack(_h, hists):
 
 def soft_update_kwargs(kwargs, mods, rc=True):
     not_default = [k for k, v in mpl.rcParamsDefault.items() if v != mpl.rcParams[k]]
+    respect = [
+        "hatch.linewidth",
+        "lines.linewidth",
+        "patch.linewidth",
+        "lines.linestyle",
+    ]
     aliases = {"ls": "linestyle", "lw": "linewidth"}
     kwargs = {aliases[k] if k in aliases else k: v for k, v in kwargs.items()}
     for key, val in mods.items():
         rc_modded = (key in not_default) or (
-            key in [k.split(".")[-1] for k in not_default]
+            key in [k.split(".")[-1] for k in not_default if k in respect]
         )
         if key not in kwargs and (rc and not rc_modded):
             kwargs[key] = val

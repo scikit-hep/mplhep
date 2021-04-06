@@ -32,7 +32,6 @@ def _cms_label(**kwargs):
             and key in inspect.getfullargspec(label_base.exp_label).kwonlyargs
         ):
             kwargs[key] = value
-        print(kwargs)
     return label_base.exp_label(exp="CMS", **kwargs)
 
 
