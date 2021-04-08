@@ -90,7 +90,7 @@ _base = {
     "savefig.transparent": False,
 }
 
-ATLAS: Dict[str, Any] = {
+ATLAS: dict[str, Any] = {
     **_base,
     "mathtext.fontset": "custom",
     "mathtext.rm": "TeX Gyre Heros",
@@ -104,13 +104,13 @@ ATLAS: Dict[str, Any] = {
 }
 
 # use dejavusans (default math fontset)
-ATLASAlt: Dict[str, Any] = {
+ATLASAlt: dict[str, Any] = {
     **_base,
     "mathtext.default": "rm",
 }
 
 # use LaTeX
-ATLASTex: Dict[str, Any] = {
+ATLASTex: dict[str, Any] = {
     **_base,
     "text.usetex": True,
     "text.latex.preamble": "\n".join(
