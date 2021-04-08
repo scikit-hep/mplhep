@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import builtins
 import os
-import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -10,7 +8,7 @@ import pytest
 
 os.environ["RUNNING_PYTEST"] = "true"
 
-import mplhep as hep  # noqa
+import mplhep as hep  # noqa: E402
 
 """
 To test run:

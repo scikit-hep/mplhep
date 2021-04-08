@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -10,7 +9,7 @@ from matplotlib.testing.decorators import check_figures_equal
 
 os.environ["RUNNING_PYTEST"] = "true"
 
-import mplhep as hep  # noqa
+import mplhep as hep  # noqa: E402
 
 """
 To test run:

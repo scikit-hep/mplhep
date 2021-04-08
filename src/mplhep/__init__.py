@@ -2,10 +2,8 @@ from __future__ import annotations
 
 import os
 
-import matplotlib as mpl
 import matplotlib.font_manager as fm
 import mplhep_data
-from packaging import version
 
 # Get styles directly, also available within experiment helpers.
 # Get helper functions
@@ -77,4 +75,6 @@ __all__ = [
     "make_square_add_cbar",
     "append_axes",
     "sort_legend",
+    "save_variations",
+    "set_style",
 ]

@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-import copy
 from types import SimpleNamespace
 
 import matplotlib.lines
 import matplotlib.pyplot
-import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 from pytest import approx

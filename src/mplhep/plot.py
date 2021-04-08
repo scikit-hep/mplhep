@@ -3,7 +3,7 @@ from __future__ import annotations
 import collections.abc
 import warnings
 from collections import OrderedDict, namedtuple
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Union
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -11,8 +11,6 @@ import numpy as np
 from matplotlib.offsetbox import AnchoredText
 from matplotlib.transforms import Bbox
 from mpl_toolkits.axes_grid1 import axes_size, make_axes_locatable
-
-import mplhep._deprecate as deprecate
 
 from .utils import (
     get_histogram_axes_title,

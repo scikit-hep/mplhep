@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import sys
 
-import papermill as pm
+# import papermill as pm
 import pytest
 
 os.environ["RUNNING_PYTEST"] = "true"

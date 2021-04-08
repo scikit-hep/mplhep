@@ -6,8 +6,6 @@ import matplotlib.text as mtext
 import matplotlib.transforms as mtransforms
 from matplotlib import rcParams
 
-import mplhep
-
 
 class ExpText(mtext.Text):
     def __repr__(self):
