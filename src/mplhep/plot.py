@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import collections.abc
 import warnings
 from collections import OrderedDict, namedtuple
