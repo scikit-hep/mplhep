@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import matplotlib as mpl
 
 # PRL figsize / Elsevier figsize, Nature is somewhere in between
