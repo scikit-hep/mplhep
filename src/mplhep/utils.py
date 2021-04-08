@@ -36,13 +36,10 @@ def get_plottable_protocol_bins(axis: PlottableAxis) -> np.ndarray:
 
 
 def hist_object_handler(
-    hist: Union[
-        ArrayLike,
-        PlottableHistogram,
-        Tuple[Union[ArrayLike, None], ...],
-        List[ArrayLike],
-    ],
-    *bins: Sequence[Optional[float]],
+    hist: (
+        ArrayLike | PlottableHistogram | tuple[ArrayLike | None, ...] | list[ArrayLike]
+    ),
+    *bins: Sequence[float | None],
 ) -> PlottableHistogram:
 
     if not bins or all(b is None for b in bins):
@@ -64,10 +61,10 @@ def hist_object_handler(
 
 
 def process_histogram_parts(
-    H: Union[
-        ArrayLike, PlottableHistogram, Iterable[ArrayLike], List[PlottableHistogram]
-    ],
-    *bins: Sequence[Optional[float]],
+    H: (
+        ArrayLike | PlottableHistogram | Iterable[ArrayLike] | list[PlottableHistogram]
+    ),
+    *bins: Sequence[float | None],
 ):
     """
     Parameters
@@ -99,14 +96,14 @@ def process_histogram_parts(
 
 
 def _process_histogram_parts_iter(
-    hists: Union[Iterable[ArrayLike], Iterable[PlottableHistogram]],
-    *bins: Sequence[Optional[float]],
+    hists: Iterable[ArrayLike] | Iterable[PlottableHistogram],
+    *bins: Sequence[float | None],
 ) -> Iterable[PlottableHistogram]:
-    original_bins: Tuple[Sequence[float], ...] = bins  # type: ignore
+    original_bins: tuple[Sequence[float], ...] = bins  # type: ignore
 
     for hist in hists:
         h = hist_object_handler(hist, *bins)
-        current_bins: Tuple[Sequence[float], ...] = tuple(get_plottable_protocol_bins(a) for a in h.axes)  # type: ignore
+        current_bins: tuple[Sequence[float], ...] = tuple(get_plottable_protocol_bins(a) for a in h.axes)  # type: ignore
         if any(b is None for b in original_bins):
             original_bins = current_bins
 

@@ -33,9 +33,7 @@ Hist1DArtists = Union[StairsArtists, ErrorBarArtists]
 Hist2DArtists = ColormeshArtists
 
 
-def get_density(
-    h, density: bool = True, binwnorm: Optional[float] = None, *, bins, hists
-):
+def get_density(h, density: bool = True, binwnorm: float | None = None, *, bins, hists):
     if density and binwnorm is not None:
         raise ValueError("Can only calculate density or binwnorm")
     per_hist_norm = np.sum(h, axis=(1 if h.ndim > 1 else 0))
@@ -82,7 +80,7 @@ def histplot(
     H,  # Histogram object, tuple or array
     bins=None,  # Bins to be supplied when h is a value array or iterable of arrays
     *,
-    yerr: "ArrayLike | bool | None" = None,
+    yerr: ArrayLike | bool | None = None,
     w2=None,
     w2method=None,
     stack=False,
@@ -189,7 +187,7 @@ def histplot(
     if w2 is not None and yerr is not None:
         raise ValueError("Can only supply errors or w2")
 
-    _labels: List[Optional[str]]
+    _labels: list[str | None]
     if label is None:
         _labels = [None] * len(hists)
     elif isinstance(label, str):
@@ -202,7 +200,7 @@ def histplot(
     def iterable_not_string(arg):
         return isinstance(arg, collections.abc.Iterable) and not isinstance(arg, str)
 
-    _chunked_kwargs: List[Dict[str, Any]] = []
+    _chunked_kwargs: list[dict[str, Any]] = []
     for _i in range(len(hists)):
         _chunked_kwargs.append({})
     for kwarg in kwargs:
@@ -224,7 +222,7 @@ def histplot(
 
     ############################
     # yerr calculation
-    _yerr: "np.ndarray | None"
+    _yerr: np.ndarray | None
     if yerr is not None:
         # yerr is array
         if hasattr(yerr, "__len__"):
@@ -326,7 +324,7 @@ def histplot(
 
     ##########
     # Plotting
-    return_artists: List[Union[StairsArtists, ErrorBarArtists]] = []
+    return_artists: list[StairsArtists | ErrorBarArtists] = []
     if histtype == "step":
         for i in range(len(hists)):
             _kwargs = _chunked_kwargs[i]
@@ -378,7 +376,7 @@ def histplot(
             "markersize": 10.0,
             "elinewidth": 1,
         }
-        _yerri: Optional[List[float]]
+        _yerri: list[float] | None
         if xerr is True:
             _xerr = _bin_widths / 2
         elif isinstance(xerr, (int, float)):
