@@ -20,7 +20,7 @@ from functools import reduce
 # Add mplhep to path for sphinx-automodapi
 sys.path.insert(0, os.path.abspath("../../src"))
 
-import mplhep  # noqa
+import mplhep  # noqa: E402
 
 print("sys.path:", sys.path)
 print("mplhep version:", mplhep.__version__)

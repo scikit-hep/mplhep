@@ -10,6 +10,27 @@ from .atlas import ATLAS, ATLASAlt, ATLASTex
 from .cms import CMS, ROOT, CMSTex, ROOTTex
 from .lhcb import LHCb, LHCb1, LHCb2, LHCbTex, LHCbTex1, LHCbTex2
 
+__all__ = (
+    "ALICE",
+    "ATLAS",
+    "ATLASAlt",
+    "ATLASTex",
+    "CMS",
+    "ROOT",
+    "CMSTex",
+    "ROOTTex",
+    "LHCb",
+    "LHCb1",
+    "LHCb2",
+    "LHCbTex",
+    "LHCbTex1",
+    "LHCbTex2",
+    "set_style",
+    "fira",
+    "firamath",
+    "fabiola",
+)
+
 
 def set_style(styles):
     """

@@ -1,18 +1,7 @@
 from __future__ import annotations
 
-import enum
 from numbers import Real
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Iterable,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
-    Union,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
 import numpy as np
 from uhi.numpy_plottable import ensure_plottable_histogram
