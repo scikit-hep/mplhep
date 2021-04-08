@@ -1,8 +1,7 @@
 import warnings
 
-import scipy.stats
 import numpy as np
-
+import scipy.stats
 
 _coverage1sd = scipy.stats.norm.cdf(1) - scipy.stats.norm.cdf(-1)
 

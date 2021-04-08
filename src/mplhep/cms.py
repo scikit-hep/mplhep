@@ -1,11 +1,14 @@
 import inspect
+
 from matplotlib import docstring
+
+import mplhep
+
+from . import label as label_base
+from .label import lumitext
 
 # Log styles
 from .styles import cms as style
-from . import label as label_base
-from .label import lumitext
-import mplhep
 
 # import mplhep._deprecate as deprecate
 

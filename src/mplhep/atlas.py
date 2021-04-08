@@ -1,11 +1,14 @@
 import inspect
+
 import matplotlib as mpl
+
+import mplhep
+
+from . import label as label_base
+from .label import lumitext
 
 # Log styles
 from .styles import atlas as style
-from . import label as label_base
-from .label import lumitext
-import mplhep
 
 __all__ = ("style", "lumitext")
 

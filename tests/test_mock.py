@@ -1,12 +1,14 @@
-import pytest
-import numpy as np
-from pytest import approx
-import matplotlib.pyplot
-import matplotlib.pyplot as plt
-import matplotlib.lines
-import mplhep as hep
 import copy
 from types import SimpleNamespace
+
+import matplotlib.lines
+import matplotlib.pyplot
+import matplotlib.pyplot as plt
+import numpy as np
+import pytest
+from pytest import approx
+
+import mplhep as hep
 
 
 @pytest.fixture
