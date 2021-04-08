@@ -6,16 +6,17 @@
 
 # -- Path setup --------------------------------------------------------------
 
+import importlib
+import inspect
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
-import sys
-import importlib
-from functools import reduce
-import inspect
 import subprocess
+import sys
+from functools import reduce
 
 # Add mplhep to path for sphinx-automodapi
 sys.path.insert(0, os.path.abspath("../../src"))

@@ -1,21 +1,20 @@
+import enum
+from numbers import Real
 from typing import (
-    Optional,
     TYPE_CHECKING,
-    Iterable,
-    cast,
     Any,
+    Iterable,
+    List,
+    Optional,
     Sequence,
     Tuple,
     Union,
-    List,
+    cast,
 )
 
 import numpy as np
-import enum
-from numbers import Real
-
-from uhi.typing.plottable import PlottableHistogram, PlottableAxis
 from uhi.numpy_plottable import ensure_plottable_histogram
+from uhi.typing.plottable import PlottableAxis, PlottableHistogram
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike

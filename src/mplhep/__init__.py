@@ -1,37 +1,29 @@
 import os
-from packaging import version
+
 import matplotlib as mpl
 import matplotlib.font_manager as fm
-
 import mplhep_data
-
-# Get helper functions
-from . import cms
-from . import atlas
-from . import lhcb
-from . import alice
-from . import plot
-from . import label
-
-from ._tools import Config
+from packaging import version
 
 # Get styles directly, also available within experiment helpers.
+# Get helper functions
+from . import alice, atlas, cms, label, lhcb, plot
 from . import styles as style
-from .styles import set_style
-
+from ._tools import Config
 from .plot import (
-    histplot,
-    hist2dplot,
-    mpl_magic,
-    yscale_legend,
-    ylow,
-    rescale_to_axessize,
-    box_aspect,
-    make_square_add_cbar,
     append_axes,
-    sort_legend,
+    box_aspect,
+    hist2dplot,
+    histplot,
+    make_square_add_cbar,
+    mpl_magic,
+    rescale_to_axessize,
     save_variations,
+    sort_legend,
+    ylow,
+    yscale_legend,
 )
+from .styles import set_style
 
 ## Configs
 rcParams = Config(

@@ -18,8 +18,9 @@ based on the works of Kevin Dungs, Tim Head, Thomas Schietinger,
 """
 import inspect
 
-import mplhep
 from matplotlib import docstring
+
+import mplhep
 from mplhep import label as label_base
 
 from .label import lumitext

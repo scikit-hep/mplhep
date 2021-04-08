@@ -1,9 +1,10 @@
+import builtins
 import os
 import sys
-import pytest
+
 import matplotlib.pyplot as plt
 import numpy as np
-import builtins
+import pytest
 
 os.environ["RUNNING_PYTEST"] = "true"
 

@@ -1,21 +1,22 @@
-import warnings
 import collections.abc
+import warnings
 from collections import OrderedDict, namedtuple
-import mplhep._deprecate as deprecate
-from typing import Union, List, Optional, Dict, Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.transforms import Bbox
 from matplotlib.offsetbox import AnchoredText
-from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
+from matplotlib.transforms import Bbox
+from mpl_toolkits.axes_grid1 import axes_size, make_axes_locatable
+
+import mplhep._deprecate as deprecate
 
 from .utils import (
     get_histogram_axes_title,
-    process_histogram_parts,
     get_plottable_protocol_bins,
     hist_object_handler,
+    process_histogram_parts,
 )
 
 if TYPE_CHECKING:
@@ -898,7 +899,7 @@ def save_variations(fig, name, text_list=None, exp=None):
     if text_list is None:
         text_list = ["Preliminary", ""]
 
-    from mplhep.label import ExpText, ExpSuffix
+    from mplhep.label import ExpSuffix, ExpText
 
     for text in text_list:
         for ax in fig.get_axes():

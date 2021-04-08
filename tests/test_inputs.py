@@ -1,9 +1,10 @@
 import os
 import sys
-import pytest
+
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import check_figures_equal
 import numpy as np
+import pytest
+from matplotlib.testing.decorators import check_figures_equal
 
 os.environ["RUNNING_PYTEST"] = "true"
 

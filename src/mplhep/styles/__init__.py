@@ -4,11 +4,9 @@ from matplotlib.pyplot import style as plt_style
 
 # Short cut to all styles
 from .alice import ALICE
-from .atlas import ATLAS
-from .atlas import ATLASAlt
-from .atlas import ATLASTex
-from .cms import CMS, CMSTex, ROOT, ROOTTex
-from .lhcb import LHCb, LHCbTex, LHCb1, LHCbTex1, LHCb2, LHCbTex2
+from .atlas import ATLAS, ATLASAlt, ATLASTex
+from .cms import CMS, ROOT, CMSTex, ROOTTex
+from .lhcb import LHCb, LHCb1, LHCb2, LHCbTex, LHCbTex1, LHCbTex2
 
 
 def set_style(styles):
