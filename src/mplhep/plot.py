@@ -868,7 +868,7 @@ def sort_legend(ax, order=None):
     elif order is None:
         ordered_label_list = labels
     else:
-        raise TypeError("Unexpected values type of order: {}".format(type(order)))
+        raise TypeError(f"Unexpected values type of order: {type(order)}")
 
     ordered_label_list = [entry for entry in ordered_label_list if entry in labels]
     ordered_label_values = [by_label[k] for k in ordered_label_list]
