@@ -327,7 +327,7 @@ def histplot(
         for i in range(len(hists)):
             _kwargs = _chunked_kwargs[i]
             _label = _labels[i]
-            _step_label = _label if yerr is None else None
+            _step_label = _label if (yerr is None and w2 is None) else None
             _kwargs = soft_update_kwargs(_kwargs, {"linewidth": 1.5})
 
             _s = ax.stairs(
