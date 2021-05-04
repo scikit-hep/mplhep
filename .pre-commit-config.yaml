@@ -1,3 +1,6 @@
+ci:
+  autoupdate_commit_msg: "chore(deps): pre-commit.ci autoupdate"
+
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v3.4.0
