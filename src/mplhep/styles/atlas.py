@@ -99,14 +99,14 @@ ATLAS: dict[str, Any] = {
     "mathtext.it": "TeX Gyre Heros:italic",
     "mathtext.tt": "TeX Gyre Heros",
     "mathtext.cal": "TeX Gyre Heros",
-    "mathtext.default": "regular",
+    "mathtext.default": "it",
     "mathtext.fontset": "custom",
 }
 
 # use dejavusans (default math fontset)
 ATLASAlt: dict[str, Any] = {
     **_base,
-    "mathtext.default": "rm",
+    "mathtext.default": "it",
 }
 
 # use LaTeX
