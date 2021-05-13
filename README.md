@@ -93,7 +93,7 @@ hep.hist2dplot(H, xbins, ybins)
 
 ### Save all labels at once
 - `hep.savelabels('test.png')` will produces 4 variation on experiment label
-  - "" -> "test_paper.png"
+  - "" -> "test.png"
   - "Preliminary" -> "test_pas.png"
   - "Supplementary" -> "test_supp.png"
   - "Work in Progress" -> "test_wip.png"
