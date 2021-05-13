@@ -39,15 +39,11 @@ def _lhcb_text(text="", **kwargs):
             and key in inspect.getfullargspec(label_base.exp_text).kwonlyargs
         ):
             kwargs[key] = value
-    return label_base.exp_text(
-        "LHCb",
-        text=text,
-        italic=(False, False),
-        fontsize=28,
-        fontname="Times New Roman",
-        loc=1,
-        **kwargs
-    )
+        kwargs.setdefault("italic", (False, False))
+        kwargs.setdefault("fontsize", 28)
+        kwargs.setdefault("fontname", "Times New Roman")
+        kwargs.setdefault("loc", 1)
+    return label_base.exp_text("LHCb", text=text, **kwargs)
 
 
 def _lhcb_label(**kwargs):
@@ -58,14 +54,11 @@ def _lhcb_label(**kwargs):
             and key in inspect.getfullargspec(label_base.exp_label).kwonlyargs
         ):
             kwargs[key] = value
-    return label_base.exp_label(
-        exp="LHCb",
-        italic=(False, False),
-        fontsize=28,
-        fontname="Times New Roman",
-        loc=1,
-        **kwargs
-    )
+        kwargs.setdefault("italic", (False, False))
+        kwargs.setdefault("fontsize", 28)
+        kwargs.setdefault("fontname", "Times New Roman")
+        kwargs.setdefault("loc", 1)
+    return label_base.exp_label("LHCb", **kwargs)
 
 
 @docstring.copy(label_base.exp_text)

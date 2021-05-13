@@ -24,7 +24,9 @@ def _atlas_text(text="", **kwargs):
             and key in inspect.getfullargspec(label_base.exp_text).kwonlyargs
         ):
             kwargs[key] = value
-    return label_base.exp_text("ATLAS", text=text, italic=(True, False), **kwargs)
+        kwargs.setdefault("italic", (True, False))
+        kwargs.setdefault("loc", 4)
+    return label_base.exp_text("ATLAS", text=text, **kwargs)
 
 
 def _atlas_label(**kwargs):
@@ -35,7 +37,9 @@ def _atlas_label(**kwargs):
             and key in inspect.getfullargspec(label_base.exp_label).kwonlyargs
         ):
             kwargs[key] = value
-    return label_base.exp_label(exp="ATLAS", italic=(True, False), **kwargs)
+        kwargs.setdefault("italic", (True, False))
+        kwargs.setdefault("loc", 4)
+    return label_base.exp_label(exp="ATLAS", **kwargs)
 
 
 @mpl.docstring.copy(label_base.exp_text)

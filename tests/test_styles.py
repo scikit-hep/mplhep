@@ -31,7 +31,7 @@ def test_style_atlas():
     # Test suite does not have Helvetica
     plt.style.use([hep.style.ATLAS, {"font.sans-serif": ["Tex Gyre Heros"]}])
     fig, ax = plt.subplots()
-    hep.atlas.text()
+    hep.atlas.label()
 
     plt.rcParams.update(plt.rcParamsDefault)
     return fig
@@ -44,7 +44,7 @@ def test_style_cms():
 
     plt.style.use(hep.style.CMS)
     fig, ax = plt.subplots()
-    hep.cms.text()
+    hep.cms.label()
 
     plt.rcParams.update(plt.rcParamsDefault)
     return fig
@@ -57,7 +57,7 @@ def test_style_alice():
 
     plt.style.use(hep.style.ALICE)
     fig, ax = plt.subplots()
-    hep.alice.text()
+    hep.alice.label()
 
     plt.rcParams.update(plt.rcParamsDefault)
     return fig
@@ -231,11 +231,11 @@ def test_label_loc():
 def test_label_config(fig_test, fig_ref):
     hep.rcParams.label.data = True
     hep.rcParams.label.lumi = 30
-    hep.rcParams.label.paper = True
+    hep.rcParams.label.kind = "paper"
 
     test_ax = fig_test.subplots()
     hep.cms.label(data=False, ax=test_ax)
 
     ref_ax = fig_ref.subplots()
     hep.rcParams.clear()
-    hep.cms.label(data=False, lumi=30, paper=True, ax=ref_ax)
+    hep.cms.label(data=False, lumi=30, kind="paper", ax=ref_ax)

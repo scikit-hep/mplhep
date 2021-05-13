@@ -10,6 +10,7 @@ import mplhep_data
 from . import alice, atlas, cms, label, lhcb, plot
 from . import styles as style
 from ._tools import Config
+from .label import savelabels
 from .plot import (
     append_axes,
     box_aspect,
@@ -29,7 +30,7 @@ from .styles import set_style
 rcParams = Config(
     label=Config(
         data=None,
-        paper=None,
+        kind=None,
         supplementary=None,
         year=None,
         lumi=None,
@@ -63,6 +64,7 @@ __all__ = [
     "plot",
     "style",
     "label",
+    "savelabels",
     # Log plot functions
     "histplot",
     "hist2dplot",

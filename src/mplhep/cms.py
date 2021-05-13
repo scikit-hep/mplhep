@@ -26,7 +26,8 @@ def _cms_text(text="", **kwargs):
             and key in inspect.getfullargspec(label_base.exp_text).kwonlyargs
         ):
             kwargs[key] = value
-    return label_base.exp_text("CMS", text=text, italic=(False, True), **kwargs)
+        kwargs.setdefault("italic", (False, True))
+    return label_base.exp_text("CMS", text=text, **kwargs)
 
 
 def _cms_label(**kwargs):
@@ -37,6 +38,7 @@ def _cms_label(**kwargs):
             and key in inspect.getfullargspec(label_base.exp_label).kwonlyargs
         ):
             kwargs[key] = value
+        kwargs.setdefault("italic", (False, True))
     return label_base.exp_label(exp="CMS", **kwargs)
 
 

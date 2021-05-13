@@ -226,8 +226,7 @@ def exp_label(
     loc=0,
     *,
     data=False,
-    paper=False,
-    supplementary=False,
+    kind=None,
     year=None,
     lumi=None,
     llabel=None,
@@ -253,11 +252,11 @@ def exp_label(
             Axes object (if None, last one is fetched)
         data : bool, optional
             Prevents appending "Simulation" to experiment label.
-        paper : bool, optional
-            Prevents appending "Preliminary" to experiment label.
-        supplementary : bool, optional
-            Appends "Supplementary" to experiment label for public plots, included
-            in supplementary materials, but not paper body.
+        kind : str, optional
+            Options are:
+            - 'paper' : Without "Preliminary"
+            - 'supp' : Attaches "Supplementary"
+            - 'wip' : Attaches "Work in Progress"
         year : int, optional
             Year when data was collected
         lumi : float, optional
@@ -307,11 +306,12 @@ def exp_label(
         _label = ""
         if not data:
             _label = " ".join(["Simulation", _label])
-        if not paper:
-            _label = " ".join([_label, "Preliminary"])
-        if supplementary:
+        if kind == "supp":
             _label = " ".join([_label, "Supplementary"])
-
+        elif kind == "wip":
+            _label = " ".join([_label, "Work in Progress"])
+        elif kind != "paper":
+            _label = " ".join([_label, "Preliminary"])
         _label = " ".join(_label.split())
 
     exptext, expsuffix = exp_text(
@@ -331,7 +331,12 @@ def exp_label(
             units="inches",
             fig=ax.figure,
         )
-        _lumi = r"$\sqrt{s} = \mathrm{13\ TeV}, " + str(lumi) + r"\ \mathrm{fb}^{-1}$"
+        if lumi is not None:
+            _lumi = (
+                r"$\sqrt{s} = \mathrm{13\ TeV}, " + str(lumi) + r"\ \mathrm{fb}^{-1}$"
+            )
+        else:
+            _lumi = r"$\sqrt{s} = \mathrm{13\ TeV}$"
         explumi = ExpSuffix(
             *exptext.get_position(),
             text=rlabel if rlabel is not None else _lumi,
@@ -346,3 +351,74 @@ def exp_label(
         return exptext, expsuffix, explumi
 
     return exptext, expsuffix
+
+
+def savelabels(
+    fname: str,
+    ax: plt.Axes | None = None,
+    labels: list[str] | None = None,
+    suffixes: list[str] | None = None,
+    **kwargs,
+):
+    """
+    Save multiple copies of a figure on which axes is located with the
+    most commonly used label combinations (or user supplied).
+
+    Example:
+        >>> import mplhep as hep
+        >>> hep.cms.label(data=False)
+        >>> hep.savelabels('test.png')
+
+        This will produces 4 variation on experiment label:
+            - "" -> "test_paper.png"
+            - "Preliminary" -> "test_pas.png"
+            - "Supplementary" -> "test_supp.png"
+            - "Work in Progress" -> "test_wip.png"
+
+        Or the combination of labels and filenames can be set manually
+
+        >>> hep.savelabels('test', labels=["FOO", "BAR"], suffixes=["foo.pdf", "bar"])
+
+        Which will produce:
+        - "FOO" -> "foo.pdf"
+        - "BAR" -> "test_bar.png"
+
+    Parameters
+    ----------
+    fname : str
+        Primary filename to be passed to ``plt.savefig``.
+    ax : matplotlib.axes.Axes, optional
+            Axes object (if None, last one is fetched)
+    labels : list, optional
+        List of label versions to be produced.
+        By default ["", "Preliminary", "Supplementary", "Work in Progress"]
+    suffixes : list, optional
+        A matching list of suffixes to be appended to names of saved files. If
+        supplied strings contain suffixes such as ".png" the names will be assumed
+        to be absolute and will not incorporate ``fname``.
+        By default ["paper", "pas", "supp", "wip"]
+    """
+    if labels is None:
+        labels = ["", "Preliminary", "Supplementary", "Work in Progress"]
+    if suffixes is None:
+        suffixes = ["paper", "pas", "supp", "wip"]
+    if len(labels) != len(suffixes):
+        raise ValueError("Number of variations must match number of suffixes")
+    if ax is None:
+        ax = plt.gca()
+
+    label = [ch for ch in ax.get_children() if isinstance(ch, ExpSuffix)][0]
+    _sim = "Simulation" if "Simulation" in label.get_text() else ""
+
+    for label_text, suffix in zip(labels, suffixes):
+        label.set_text(" ".join([_sim, label_text]))
+
+        if "." in suffix:  # Expect full names
+            save_name = suffix
+        else:
+            if "." in fname:  # Expect
+                save_name = f"{fname.split('.')[0]}_{suffix}.{fname.split('.')[1]}"
+            else:
+                save_name = f"{fname}_{suffix}"
+
+        ax.figure.savefig(save_name, **kwargs)

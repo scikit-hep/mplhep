@@ -59,7 +59,7 @@ import mplhep as hep
 plt.style.use(hep.style.ROOT)
 ```
 
-Experiment specific style are also available. **If the default styles are not what you need, I'd be happy to merge in new styles or modify the current ones.**
+Experiment specific style are also available. **If the default styles are not what you need, please open an issue.**
 
 Default experiment labels are also available.
 
@@ -90,6 +90,18 @@ hep.hist2dplot(H, xbins, ybins)
 
 
 # More Information
+
+### Save all labels at once
+- `hep.savelabels('test.png')` will produces 4 variation on experiment label
+  - "" -> "test_paper.png"
+  - "Preliminary" -> "test_pas.png"
+  - "Supplementary" -> "test_supp.png"
+  - "Work in Progress" -> "test_wip.png"
+- Options can also be specified manually
+  - `hep.savelabels('test', labels=["FOO", "BAR"], suffixes=["foo.pdf", "bar"])` will produce
+    - "FOO" -> "foo.pdf"
+    - "BAR" -> "test_bar.png"
+- Other components of `<experiment>.label()` will remain unchanged.
 
 ### Other styles:
 - `hep.set_style("fira")` - use Fira Sans
@@ -130,7 +142,7 @@ http://www.gust.org.pl/projects/e-foundry/tex-gyre/heros
 You can compare yourself if the differences are meanigful below.
 
 <p float="center">
-  <img src="FontComp.png" width="400" />
+  <img src="img/FontComp.png" width="400" />
 </p>
 
 They are Tex Gyre Heros, Helvetica and Arial respecively.

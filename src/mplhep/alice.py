@@ -24,9 +24,7 @@ def _alice_text(text="", **kwargs):
             and key in inspect.getfullargspec(label_base.exp_text).kwonlyargs
         ):
             kwargs[key] = value
-    return label_base.exp_text(
-        "ALICE", text=text, fontsize=28, loc=1, italic=(False, False), **kwargs
-    )
+    return label_base.exp_text("ALICE", text=text, fontsize=28, loc=1, **kwargs)
 
 
 def _alice_label(**kwargs):
@@ -37,9 +35,7 @@ def _alice_label(**kwargs):
             and key in inspect.getfullargspec(label_base.exp_label).kwonlyargs
         ):
             kwargs[key] = value
-    return label_base.exp_label(
-        exp="ALICE", fontsize=28, loc=1, italic=(False, False), rlabel="", **kwargs
-    )
+    return label_base.exp_label(exp="ALICE", fontsize=28, loc=1, rlabel="", **kwargs)
 
 
 @docstring.copy(label_base.exp_text)
