@@ -31,41 +31,37 @@ from .styles import lhcb as style
 __all__ = ("style", "lumitext", "label", "text")
 
 
-def _lhcb_text(text="", **kwargs):
+@docstring.copy(label_base.exp_text)
+def text(text="", **kwargs):
     for key, value in dict(mplhep.rcParams.text._get_kwargs()).items():
         if (
             value is not None
             and key not in kwargs.keys()
             and key in inspect.getfullargspec(label_base.exp_text).kwonlyargs
         ):
-            kwargs[key] = value
-        kwargs.setdefault("italic", (False, False))
-        kwargs.setdefault("fontsize", 28)
-        kwargs.setdefault("fontname", "Times New Roman")
-        kwargs.setdefault("loc", 1)
+            kwargs.setdefault(key, value)
+    kwargs.setdefault("italic", (False, False))
+    kwargs.setdefault("fontsize", 28)
+    kwargs.setdefault("fontname", "Times New Roman")
+    kwargs.setdefault("loc", 1)
+    kwargs.setdefault("exp_weight", "normal")
     return label_base.exp_text("LHCb", text=text, **kwargs)
 
 
-def _lhcb_label(**kwargs):
+@docstring.copy(label_base.exp_label)
+def label(label=None, **kwargs):
     for key, value in dict(mplhep.rcParams.label._get_kwargs()).items():
         if (
             value is not None
             and key not in kwargs.keys()
             and key in inspect.getfullargspec(label_base.exp_label).kwonlyargs
         ):
-            kwargs[key] = value
-        kwargs.setdefault("italic", (False, False))
-        kwargs.setdefault("fontsize", 28)
-        kwargs.setdefault("fontname", "Times New Roman")
-        kwargs.setdefault("loc", 1)
+            kwargs.setdefault(key, value)
+    kwargs.setdefault("italic", (False, False))
+    kwargs.setdefault("fontsize", 28)
+    kwargs.setdefault("fontname", "Times New Roman")
+    kwargs.setdefault("exp_weight", "normal")
+    kwargs.setdefault("loc", 1)
+    if label is not None:
+        kwargs["label"] = label
     return label_base.exp_label("LHCb", **kwargs)
-
-
-@docstring.copy(label_base.exp_text)
-def text(*args, **kwargs):
-    return _lhcb_text(*args, **kwargs)
-
-
-@docstring.copy(label_base.exp_label)
-def label(**kwargs):
-    return _lhcb_label(**kwargs)

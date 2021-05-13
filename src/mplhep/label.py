@@ -31,6 +31,7 @@ def exp_text(
     ax=None,
     fontname=None,
     fontsize=None,
+    exp_weight="bold",
     italic=(False, False),
     pad=0,
 ):
@@ -52,6 +53,8 @@ def exp_text(
             Name of font to be used.
         fontsize : string, optional
             Defines size of "secondary label". Experiment label is 1.3x larger.
+        exp_weight : string, optional
+            Set fontweight of <exp> label. Default "bold".
         italic : (bool, bool), optional
             Tuple of bools to switch which label is italicized
         pad : float, optional
@@ -132,7 +135,7 @@ def exp_text(
         ha="left",
         va=loc1_dict[_exp_loc]["va"],
         fontsize=_font_size * 1.3,
-        fontweight="bold",
+        fontweight=exp_weight,
         fontstyle="italic" if italic[0] else "normal",
         fontname=fontname,
     )
@@ -226,13 +229,14 @@ def exp_label(
     loc=0,
     *,
     data=False,
-    kind=None,
+    label="",
     year=None,
     lumi=None,
     llabel=None,
     rlabel=None,
     fontname=None,
     fontsize=None,
+    exp_weight="bold",
     pad=0,
     italic=(False, False),
     ax=None,
@@ -251,25 +255,25 @@ def exp_label(
         ax : matplotlib.axes.Axes, optional
             Axes object (if None, last one is fetched)
         data : bool, optional
-            Prevents appending "Simulation" to experiment label.
-        kind : str, optional
-            Options are:
-            - 'paper' : Without "Preliminary"
-            - 'supp' : Attaches "Supplementary"
-            - 'internal' : Attaches "Internal"
-            - 'wip' : Attaches "Work in Progress"
+            Prevents prepending "Simulation" to experiment label. Default ``False``.
+        label : str, optional
+            Text to append after <exp> (Simulation) <label>. Typically "Preliminary"
+            "Supplementary", "Private Work" or "Work in Progress"
         year : int, optional
             Year when data was collected
         lumi : float, optional
             Aggregate luminosity shown. Should require ``"data"`` to be ``True``.
         llabel : string, optional
-            String to manually set left-hand label text.
+            String to manually set left-hand label text. Will overwrite "data" and
+            "label" kwargs.
         rlabel : string, optional
             String to manually set right-hand label text.
         fontname : string, optional
             Name of font to be used.
         fontsize : string, optional
             Defines size of "secondary label". Experiment label is 1.3x larger.
+        exp_weight : string, optional
+            Set fontweight of <exp> label. Default "bold".
         italic : (bool, bool), optional
             Tuple of bools to switch which label is italicized
         pad : float, optional
@@ -284,11 +288,6 @@ def exp_label(
 
     if ax is None:
         ax = plt.gca()
-    _allowed_kinds = ["paper", "supp", "internal", "wip"]
-    if kind is not None and kind not in _allowed_kinds:
-        raise ValueError(
-            f"kind='{kind}' is not allowed. Please choose from {_allowed_kinds}."
-        )
 
     # Right label
     if rlabel is not None:
@@ -311,15 +310,9 @@ def exp_label(
     else:
         _label = ""
         if not data:
-            _label = " ".join(["Simulation", _label])
-        if kind == "supp":
-            _label = " ".join([_label, "Supplementary"])
-        elif kind == "wip":
-            _label = " ".join([_label, "Work in Progress"])
-        elif kind == "internal":
-            _label = " ".join([_label, "Internal"])
-        elif kind != "paper":
-            _label = " ".join([_label, "Preliminary"])
+            _label = " ".join(["Simulation", label])
+        else:
+            _label = label
         _label = " ".join(_label.split())
 
     exptext, expsuffix = exp_text(
@@ -364,8 +357,7 @@ def exp_label(
 def savelabels(
     fname: str,
     ax: plt.Axes | None = None,
-    labels: list[str] | None = None,
-    suffixes: list[str] | None = None,
+    labels: list[str] | dict[str, str] | None = None,
     **kwargs,
 ):
     """
@@ -378,18 +370,21 @@ def savelabels(
         >>> hep.savelabels('test.png')
 
         This will produces 4 variation on experiment label:
-            - "" -> "test_paper.png"
+            - "" -> "test.png"
             - "Preliminary" -> "test_pas.png"
             - "Supplementary" -> "test_supp.png"
             - "Work in Progress" -> "test_wip.png"
 
         Or the combination of labels and filenames can be set manually
 
-        >>> hep.savelabels('test', labels=["FOO", "BAR"], suffixes=["foo.pdf", "bar"])
+        >>> hep.savelabels('test', labels={"FOO": "foo.pdf", "BAR": "bar"})
 
         Which will produce:
         - "FOO" -> "foo.pdf"
         - "BAR" -> "test_bar.png"
+
+        Passing a list of labels will generate file suffixes by casting
+        to snakecase.
 
     Parameters
     ----------
@@ -397,36 +392,45 @@ def savelabels(
         Primary filename to be passed to ``plt.savefig``.
     ax : matplotlib.axes.Axes, optional
             Axes object (if None, last one is fetched)
-    labels : list, optional
-        List of label versions to be produced.
-        By default ["", "Preliminary", "Supplementary", "Work in Progress"]
-    suffixes : list, optional
-        A matching list of suffixes to be appended to names of saved files. If
-        supplied strings contain suffixes such as ".png" the names will be assumed
+    labels : dict or list, optional
+        Mapping of label versions to be produced along with desired savename
+        modifications. By default:
+        {
+            "": "",
+            "Preliminary": "pas",
+            "Supplementary": "supp",
+            "Work in Progress": "wip"
+        }
+        If supplied strings contain suffixes such as ".png" the names will be assumed
         to be absolute and will not incorporate ``fname``.
-        By default ["paper", "pas", "supp", "wip"]
+        If current label contains "Simulation" this will be perserved.
     """
     if labels is None:
-        labels = ["", "Preliminary", "Supplementary", "Work in Progress"]
-    if suffixes is None:
-        suffixes = ["paper", "pas", "supp", "wip"]
-    if len(labels) != len(suffixes):
-        raise ValueError("Number of variations must match number of suffixes")
+        labels = {
+            "": "",
+            "Preliminary": "pas",
+            "Supplementary": "supp",
+            "Work in Progress": "wip",
+        }
+    if isinstance(labels, list):
+        labels = {label: label.replace(" ", "_").lower() for label in labels}
     if ax is None:
         ax = plt.gca()
 
     label = [ch for ch in ax.get_children() if isinstance(ch, ExpSuffix)][0]
     _sim = "Simulation" if "Simulation" in label.get_text() else ""
 
-    for label_text, suffix in zip(labels, suffixes):
-        label.set_text(" ".join([_sim, label_text]))
+    for label_text, suffix in labels.items():
+        label.set_text(" ".join([_sim, label_text]).lstrip())
 
-        if "." in suffix:  # Expect full names
+        if "." in suffix:
             save_name = suffix
         else:
-            if "." in fname:  # Expect
-                save_name = f"{fname.split('.')[0]}_{suffix}.{fname.split('.')[1]}"
+            if len(suffix) > 0:
+                suffix = "_" + suffix
+            if "." in fname:
+                save_name = f"{fname.split('.')[0]}{suffix}.{fname.split('.')[1]}"
             else:
-                save_name = f"{fname}_{suffix}"
+                save_name = f"{fname}{suffix}"
 
         ax.figure.savefig(save_name, **kwargs)
