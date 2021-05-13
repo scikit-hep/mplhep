@@ -58,10 +58,11 @@ def _lhcb_label(**kwargs):
             and key in inspect.getfullargspec(label_base.exp_label).kwonlyargs
         ):
             kwargs[key] = value
+    if "fontsize" not in kwargs:
+        kwargs["fontsize"] = 28
     return label_base.exp_label(
         exp="LHCb",
         italic=(False, False),
-        fontsize=28,
         fontname="Times New Roman",
         loc=1,
         **kwargs
