@@ -15,41 +15,34 @@ from .styles import atlas as style
 __all__ = ("style", "lumitext")
 
 
-# Experiment wrappers, full names made private
-def _atlas_text(text="", **kwargs):
+@mpl.docstring.copy(label_base.exp_text)
+def text(text="", **kwargs):
     for key, value in dict(mplhep.rcParams.text._get_kwargs()).items():
         if (
             value is not None
             and key not in kwargs.keys()
             and key in inspect.getfullargspec(label_base.exp_text).kwonlyargs
         ):
-            kwargs[key] = value
-        kwargs.setdefault("italic", (True, False))
-        kwargs.setdefault("loc", 4)
+            kwargs.setdefault(key, value)
+    kwargs.setdefault("italic", (True, False))
+    kwargs.setdefault("loc", 4)
     return label_base.exp_text("ATLAS", text=text, **kwargs)
 
 
-def _atlas_label(**kwargs):
+@mpl.docstring.copy(label_base.exp_label)
+def label(label=None, **kwargs):
     for key, value in dict(mplhep.rcParams.label._get_kwargs()).items():
         if (
             value is not None
             and key not in kwargs.keys()
             and key in inspect.getfullargspec(label_base.exp_label).kwonlyargs
         ):
-            kwargs[key] = value
-        kwargs.setdefault("italic", (True, False))
-        kwargs.setdefault("loc", 4)
+            kwargs.setdefault(key, value)
+    kwargs.setdefault("italic", (True, False))
+    kwargs.setdefault("loc", 4)
+    if label is not None:
+        kwargs["label"] = label
     return label_base.exp_label(exp="ATLAS", **kwargs)
-
-
-@mpl.docstring.copy(label_base.exp_text)
-def text(*args, **kwargs):
-    return _atlas_text(*args, **kwargs)
-
-
-@mpl.docstring.copy(label_base.exp_label)
-def label(**kwargs):
-    return _atlas_label(**kwargs)
 
 
 # set_xlabel / set_ylabel copied from atlas-mpl

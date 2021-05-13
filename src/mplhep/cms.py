@@ -17,28 +17,31 @@ from .styles import cms as style
 __all__ = ("style", "lumitext")
 
 
-# Experiment wrappers:
-def _cms_text(text="", **kwargs):
+@docstring.copy(label_base.exp_text)
+def text(text="", **kwargs):
     for key, value in dict(mplhep.rcParams.text._get_kwargs()).items():
         if (
             value is not None
             and key not in kwargs.keys()
             and key in inspect.getfullargspec(label_base.exp_text).kwonlyargs
         ):
-            kwargs[key] = value
-        kwargs.setdefault("italic", (False, True))
+            kwargs.setdefault(key, value)
+    kwargs.setdefault("italic", (False, True))
     return label_base.exp_text("CMS", text=text, **kwargs)
 
 
-def _cms_label(**kwargs):
+@docstring.copy(label_base.exp_label)
+def label(label=None, **kwargs):
     for key, value in dict(mplhep.rcParams.label._get_kwargs()).items():
         if (
             value is not None
             and key not in kwargs.keys()
             and key in inspect.getfullargspec(label_base.exp_label).kwonlyargs
         ):
-            kwargs[key] = value
-        kwargs.setdefault("italic", (False, True))
+            kwargs.setdefault(key, value)
+    kwargs.setdefault("italic", (False, True))
+    if label is not None:
+        kwargs["label"] = label
     return label_base.exp_label(exp="CMS", **kwargs)
 
 
@@ -46,12 +49,3 @@ def _cms_label(**kwargs):
 # @deprecate.deprecate("Naming convention is changing. Use ``mplhep.cms.label``.")
 # def cmslabel(*args, **kwargs):
 #     return _cms_label(*args, **kwargs)
-
-
-@docstring.copy(label_base.exp_text)
-def text(*args, **kwargs):
-    return _cms_text(*args, **kwargs)
-
-
-def label(**kwargs):
-    return _cms_label(**kwargs)

@@ -15,34 +15,27 @@ from .styles import alice as style
 __all__ = ("style", "lumitext")
 
 
-# Experiment wrappers, full names made private
-def _alice_text(text="", **kwargs):
+@docstring.copy(label_base.exp_text)
+def text(text="", **kwargs):
     for key, value in dict(mplhep.rcParams.text._get_kwargs()).items():
         if (
             value is not None
             and key not in kwargs.keys()
             and key in inspect.getfullargspec(label_base.exp_text).kwonlyargs
         ):
-            kwargs[key] = value
+            kwargs.setdefault(key, value)
     return label_base.exp_text("ALICE", text=text, fontsize=28, loc=1, **kwargs)
 
 
-def _alice_label(**kwargs):
+@docstring.copy(label_base.exp_label)
+def label(label=None, **kwargs):
     for key, value in dict(mplhep.rcParams.label._get_kwargs()).items():
         if (
             value is not None
             and key not in kwargs.keys()
             and key in inspect.getfullargspec(label_base.exp_label).kwonlyargs
         ):
-            kwargs[key] = value
+            kwargs.setdefault(key, value)
+    if label is not None:
+        kwargs["label"] = label
     return label_base.exp_label(exp="ALICE", fontsize=28, loc=1, rlabel="", **kwargs)
-
-
-@docstring.copy(label_base.exp_text)
-def text(*args, **kwargs):
-    return _alice_text(*args, **kwargs)
-
-
-@docstring.copy(label_base.exp_label)
-def label(**kwargs):
-    return _alice_label(**kwargs)

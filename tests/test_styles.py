@@ -31,7 +31,7 @@ def test_style_atlas():
     # Test suite does not have Helvetica
     plt.style.use([hep.style.ATLAS, {"font.sans-serif": ["Tex Gyre Heros"]}])
     fig, ax = plt.subplots()
-    hep.atlas.label()
+    hep.atlas.label(label="Preliminary")
 
     plt.rcParams.update(plt.rcParamsDefault)
     return fig
@@ -44,7 +44,7 @@ def test_style_cms():
 
     plt.style.use(hep.style.CMS)
     fig, ax = plt.subplots()
-    hep.cms.label()
+    hep.cms.label("Preliminary")
 
     plt.rcParams.update(plt.rcParamsDefault)
     return fig
@@ -57,7 +57,7 @@ def test_style_alice():
 
     plt.style.use(hep.style.ALICE)
     fig, ax = plt.subplots()
-    hep.alice.label()
+    hep.alice.label("Preliminary")
 
     plt.rcParams.update(plt.rcParamsDefault)
     return fig
@@ -71,7 +71,7 @@ def test_style_lhcb():
     plt.style.use([hep.style.LHCb1, {"figure.autolayout": False}])
     fig, ax = plt.subplots()
     # Doesn't work for now
-    # hep.lhcb.text()
+    hep.lhcb.label()
     plt.rcParams.update(plt.rcParamsDefault)
     return fig
 
@@ -84,7 +84,7 @@ def test_style_lhcb2():
     plt.style.use([hep.style.LHCb2, {"figure.autolayout": False}])
     fig, ax = plt.subplots()
     # Doesn't work for now
-    # hep.lhcb.text()
+    hep.lhcb.text()
     plt.rcParams.update(plt.rcParamsDefault)
     return fig
 
@@ -223,7 +223,7 @@ def test_labeltext_loc():
 def test_label_loc():
     fig, axs = plt.subplots(1, 5, figsize=(20, 4))
     for i, ax in enumerate(axs.flatten()):
-        hep.cms.label(loc=i, ax=ax, lumi=50, data=True)
+        hep.cms.label("Preliminary", loc=i, ax=ax, lumi=50, data=True)
     return fig
 
 
@@ -231,11 +231,11 @@ def test_label_loc():
 def test_label_config(fig_test, fig_ref):
     hep.rcParams.label.data = True
     hep.rcParams.label.lumi = 30
-    hep.rcParams.label.kind = "paper"
+    hep.rcParams.label.label = "Internal"
 
     test_ax = fig_test.subplots()
     hep.cms.label(data=False, ax=test_ax)
 
     ref_ax = fig_ref.subplots()
     hep.rcParams.clear()
-    hep.cms.label(data=False, lumi=30, kind="paper", ax=ref_ax)
+    hep.cms.label(data=False, lumi=30, label="Internal", ax=ref_ax)
