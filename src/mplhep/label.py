@@ -256,6 +256,7 @@ def exp_label(
             Options are:
             - 'paper' : Without "Preliminary"
             - 'supp' : Attaches "Supplementary"
+            - 'internal' : Attaches "Internal"
             - 'wip' : Attaches "Work in Progress"
         year : int, optional
             Year when data was collected
@@ -283,6 +284,11 @@ def exp_label(
 
     if ax is None:
         ax = plt.gca()
+    _allowed_kinds = ["paper", "supp", "internal", "wip"]
+    if kind is not None and kind not in _allowed_kinds:
+        raise ValueError(
+            f"kind='{kind}' is not allowed. Please choose from {_allowed_kinds}."
+        )
 
     # Right label
     if rlabel is not None:
@@ -310,6 +316,8 @@ def exp_label(
             _label = " ".join([_label, "Supplementary"])
         elif kind == "wip":
             _label = " ".join([_label, "Work in Progress"])
+        elif kind == "internal":
+            _label = " ".join([_label, "Internal"])
         elif kind != "paper":
             _label = " ".join([_label, "Preliminary"])
         _label = " ".join(_label.split())
