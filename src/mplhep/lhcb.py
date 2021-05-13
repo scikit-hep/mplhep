@@ -62,6 +62,7 @@ def label(label=None, **kwargs):
     kwargs.setdefault("fontname", "Times New Roman")
     kwargs.setdefault("exp_weight", "normal")
     kwargs.setdefault("loc", 1)
+    kwargs.setdefault("exp_weight", "normal")
     if label is not None:
         kwargs["label"] = label
     return label_base.exp_label("LHCb", **kwargs)

@@ -322,6 +322,7 @@ def exp_label(
         ax=ax,
         fontname=fontname,
         fontsize=fontsize,
+        exp_weight=exp_weight,
         italic=italic,
         pad=pad,
     )

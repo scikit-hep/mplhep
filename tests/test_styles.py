@@ -70,7 +70,6 @@ def test_style_lhcb():
 
     plt.style.use([hep.style.LHCb1, {"figure.autolayout": False}])
     fig, ax = plt.subplots()
-    # Doesn't work for now
     hep.lhcb.label()
     plt.rcParams.update(plt.rcParamsDefault)
     return fig
@@ -83,7 +82,6 @@ def test_style_lhcb2():
 
     plt.style.use([hep.style.LHCb2, {"figure.autolayout": False}])
     fig, ax = plt.subplots()
-    # Doesn't work for now
     hep.lhcb.text()
     plt.rcParams.update(plt.rcParamsDefault)
     return fig
