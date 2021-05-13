@@ -32,7 +32,7 @@ __all__ = (
 )
 
 
-def set_style(styles):
+def set_style(styles=None):
     """
     Set the experiment specific plotting style
 
@@ -44,8 +44,14 @@ def set_style(styles):
 
     Parameters
     ----------
-        styles (`str` or `mplhep.style` `dict`): The experiment style
+        styles: `str` or `mplhep.style` or `dict` None
+            The experiment style. Will understand a dictionary
+            of rcParams, a mplhep style or its string alias.
+            Pass ``None`` to reset to mpl defaults.
     """
+
+    if styles is None:
+        return plt_style.use("default")
     if not isinstance(styles, list):
         styles = [styles]
 
