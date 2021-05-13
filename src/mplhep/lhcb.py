@@ -61,11 +61,7 @@ def _lhcb_label(**kwargs):
     if "fontsize" not in kwargs:
         kwargs["fontsize"] = 28
     return label_base.exp_label(
-        exp="LHCb",
-        italic=(False, False),
-        fontname="Times New Roman",
-        loc=1,
-        **kwargs
+        exp="LHCb", italic=(False, False), fontname="Times New Roman", loc=1, **kwargs
     )
 
 
