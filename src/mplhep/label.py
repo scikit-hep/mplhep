@@ -31,6 +31,7 @@ def exp_text(
     ax=None,
     fontname=None,
     fontsize=None,
+    bold_exptext=True,
     italic=(False, False),
     pad=0,
 ):
@@ -132,7 +133,7 @@ def exp_text(
         ha="left",
         va=loc1_dict[_exp_loc]["va"],
         fontsize=_font_size * 1.3,
-        fontweight="bold",
+        fontweight="bold" if bold_exptext else "normal",
         fontstyle="italic" if italic[0] else "normal",
         fontname=fontname,
     )
