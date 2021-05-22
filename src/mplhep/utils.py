@@ -13,6 +13,12 @@ else:
     ArrayLike = Any
 
 
+def isLight(rgb):
+    # check if rgb color light or dark based on luma
+    r, g, b = rgb
+    return (0.212 * r + 0.701 * g + 0.087 * b) > 0.5
+
+
 def get_plottable_protocol_bins(axis: PlottableAxis) -> np.ndarray:
     out = np.empty(len(axis) + 1)
     assert isinstance(
@@ -37,6 +43,8 @@ def hist_object_handler(
                 hist = tuple(hist)
             else:
                 hist = (np.asarray(hist), None)
+        elif isinstance(hist, np.ndarray):
+            hist = (hist, None)
         hist_obj = ensure_plottable_histogram(hist)
     elif isinstance(hist, PlottableHistogram):
         raise TypeError("Cannot give bins with existing histogram")

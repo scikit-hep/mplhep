@@ -175,6 +175,18 @@ def test_hist2dplot():
     return fig
 
 
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_hist2dplot_inputs_nobin():
+    np.random.seed(0)
+    fig, axs = plt.subplots(2, 2, figsize=(10, 10))
+    axs = axs.flatten()
+    hep.hist2dplot([[1, 2, 3]], ax=axs[0])
+    hep.hist2dplot(np.array([[1, 2, 3]]), ax=axs[1])
+    hep.hist2dplot([[1, 2, 3], [3, 4, 1]], ax=axs[2])
+    hep.hist2dplot(np.array([[1, 2, 3], [3, 4, 1]]), ax=axs[3])
+    return fig
+
+
 @pytest.mark.parametrize("cbarextend", [False, True])
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_hist2dplot_cbar(cbarextend):
@@ -220,7 +232,7 @@ def test_hist2dplot_custom_labels():
     def _fmt(x):
         return f"${x:.2f}$"
 
-    hep.hist2dplot(H, xedges, yedges, labels=_fmt(H).T)
+    hep.hist2dplot(H, xedges, yedges, labels=_fmt(H))
     return fig
 
 
