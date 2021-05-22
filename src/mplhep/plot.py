@@ -138,7 +138,7 @@ def histplot(
             Label for legend entry.
         edges : bool, default: True, optional
             Specifies whether to draw first and last edges of the histogram
-        binticks : bool, optional
+        binticks : bool, default: False, optional
             Attempts to draw x-axis ticks coinciding with bin boundaries if feasible.
         ax : matplotlib.axes.Axes, optional
             Axes object (if None, last one is fetched or one is created)
@@ -165,7 +165,7 @@ def histplot(
     assert histtype in _allowed_histtype, _err_message
 
     hists = list(process_histogram_parts(H, bins))
-    final_bins = get_plottable_protocol_bins(hists[0].axes[0])
+    final_bins, xtick_labels = get_plottable_protocol_bins(hists[0].axes[0])
 
     # TODO: use hists everywhere
     h = np.stack([h.values().astype(float) for h in hists])
@@ -401,9 +401,13 @@ def histplot(
     # Add sticky edges for autoscale
     _artist.sticky_edges.y.append(0)
 
-    if binticks:
-        _slice = int(round(float(len(final_bins)) / len(ax.get_xticks()))) + 1
-        ax.set_xticks(final_bins[::_slice])
+    if xtick_labels is None:
+        if binticks:
+            _slice = int(round(float(len(final_bins)) / len(ax.get_xticks()))) + 1
+            ax.set_xticks(final_bins[::_slice])
+    else:
+        ax.set_xticks(_bin_centers)
+        ax.set_xticklabels(xtick_labels)
 
     if x_axes_label:
         ax.set_xlabel(x_axes_label)
@@ -487,8 +491,10 @@ def hist2dplot(
 
     # TODO: use Histogram everywhere
     H = hist.values()
-    xbins = get_plottable_protocol_bins(hist.axes[0])
-    ybins = get_plottable_protocol_bins(hist.axes[1])
+    xbins, xtick_labels = get_plottable_protocol_bins(hist.axes[0])
+    ybins, ytick_labels = get_plottable_protocol_bins(hist.axes[1])
+    xbin_centers = xbins[1:] - np.diff(xbins) / float(2)
+    ybin_centers = ybins[1:] - np.diff(ybins) / float(2)
 
     x_axes_label = get_histogram_axes_title(hist.axes[0])
     y_axes_label = get_histogram_axes_title(hist.axes[1])
@@ -513,10 +519,18 @@ def hist2dplot(
     ax.set_xlim(xbins[0], xbins[-1])
     ax.set_ylim(ybins[0], ybins[-1])
 
-    if len(ax.get_xticks()) > len(xbins) * 0.7:
-        ax.set_xticks(xbins)
-    if len(ax.get_yticks()) > len(ybins) * 0.7:
-        ax.set_yticks(ybins)
+    if xtick_labels is None:  # Ordered axis
+        if len(ax.get_xticks()) > len(xbins) * 0.7:
+            ax.set_xticks(xbins)
+    else:  # Categorical axis
+        ax.set_xticks(xbin_centers)
+        ax.set_xticklabels(xtick_labels)
+    if ytick_labels is None:
+        if len(ax.get_yticks()) > len(ybins) * 0.7:
+            ax.set_yticks(ybins)
+    else:  # Categorical axis
+        ax.set_yticks(ybin_centers)
+        ax.set_yticklabels(ytick_labels)
 
     if cbar:
         cax = append_axes(
@@ -538,11 +552,9 @@ def hist2dplot(
             raise ValueError(
                 "Labels not understood, either specify a bool or a Hist-like array"
             )
-        _xbin_centers = xbins[1:] - np.diff(xbins) / float(2)
-        _ybin_centers = ybins[1:] - np.diff(ybins) / float(2)
 
-        for ix, xc in enumerate(_xbin_centers):
-            for iy, yc in enumerate(_ybin_centers):
+        for ix, xc in enumerate(xbin_centers):
+            for iy, yc in enumerate(ybin_centers):
                 color = (
                     "black"
                     if isLight(pc.cmap(pc.norm(H[iy, ix]))[:-1])

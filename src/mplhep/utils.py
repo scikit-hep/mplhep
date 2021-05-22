@@ -19,15 +19,17 @@ def isLight(rgb):
     return (0.212 * r + 0.701 * g + 0.087 * b) > 0.5
 
 
-def get_plottable_protocol_bins(axis: PlottableAxis) -> np.ndarray:
-    out = np.empty(len(axis) + 1)
-    assert isinstance(
-        axis[0], tuple
-    ), f"Currently only support non-discrete axes {axis}"
-    # TODO: Support discrete axes
-    out[0] = axis[0][0]
-    out[1:] = [axis[i][1] for i in range(len(axis))]  # type: ignore
-    return out
+def get_plottable_protocol_bins(
+    axis: PlottableAxis,
+) -> tuple[np.ndarray, np.ndarray | None]:
+    out = np.arange(len(axis) + 1).astype(float)
+    if isinstance(axis[0], tuple):  # Regular axis
+        out[0] = axis[0][0]
+        out[1:] = [axis[i][1] for i in range(len(axis))]  # type: ignore
+        labels = None
+    else:  # Categorical axis
+        labels = np.array([axis[i] for i in range(len(axis))])
+    return out, labels
 
 
 def hist_object_handler(
@@ -100,10 +102,9 @@ def _process_histogram_parts_iter(
 
     for hist in hists:
         h = hist_object_handler(hist, *bins)
-        current_bins: tuple[Sequence[float], ...] = tuple(get_plottable_protocol_bins(a) for a in h.axes)  # type: ignore
+        current_bins: tuple[Sequence[float], ...] = tuple(get_plottable_protocol_bins(a)[0] for a in h.axes)  # type: ignore
         if any(b is None for b in original_bins):
             original_bins = current_bins
-
         if len(current_bins) != len(original_bins):
             msg = "Plotting multiple histograms must have the same dimensionality"
             raise ValueError(msg)

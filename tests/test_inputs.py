@@ -79,6 +79,7 @@ def test_uproot_versions(fig_test, fig_ref):
 
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_inputs_bh():
+    np.random.seed(0)
     import boost_histogram as bh
 
     hist2d = bh.Histogram(bh.axis.Regular(10, 0.0, 1.0), bh.axis.Regular(10, 0, 1))
@@ -87,5 +88,28 @@ def test_inputs_bh():
     fig, axs = plt.subplots(1, 2, figsize=(14, 5))
     hep.histplot(hist2d.project(0), yerr=False, ax=axs[0])
     hep.hist2dplot(hist2d, labels=True, cbar=False, ax=axs[1])
+
+    return fig
+
+
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_inputs_bh_cat():
+    np.random.seed(0)
+    import boost_histogram as bh
+
+    hist2d = bh.Histogram(
+        bh.axis.IntCategory(range(10)), bh.axis.StrCategory("", growth=True)
+    )
+
+    x = np.round(np.random.normal(5, 3, 1000))
+    A, Z = np.array(["A", "Z"]).view("int32")
+    y = list(
+        np.random.randint(low=A, high=Z, size=1000, dtype="int32").view(f"U{1000}")[0]
+    )
+    hist2d.fill(x, y)
+
+    fig, axs = plt.subplots(1, 2, figsize=(14, 5))
+    hep.histplot(hist2d.project(0), yerr=False, ax=axs[0])
+    hep.hist2dplot(hist2d, cbar=False, ax=axs[1])
 
     return fig
