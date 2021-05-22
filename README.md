@@ -36,39 +36,42 @@ pip install mplhep
 A tutorial given at PyHEP 2020 is available as a binder [here](https://github.com/andrzejnovak/2020-07-17-pyhep2020-mplhep)
 or you can watch the recording [here](https://www.youtube.com/watch?v=gUziXqCGe0o).
 
+Documentation can be found at [mplhep.readthedocs.io](https://www.youtube.com/watch?v=gUziXqCGe0o).
+
 ### Styling
 
 ```python
 import mplhep as hep
 hep.style.use(hep.style.ROOT) # For now ROOT defaults to CMS
 # Or choose one of the experiment styles
-hep.style.use(hep.style.CMS)
+hep.style.use(hep.style.ATLAS)
 # or
-hep.style.use("ATLAS") # string aliases work too
-# or
-hep.style.use("LHCb2")  # or "LHCb1"
-# or
-hep.style.use("ALICE")
+hep.style.use("CMS") # string aliases work too
+# {"ALICE" | "ATLAS" | "CMS" | "LHCb1" | "LHCb2"}
 ```
 
-The style can be set directly from the `matplotlib` API as well
+Or use `matplotlib` API directly
 
 ```python
-import matplotlib.pyplot as plt
-import mplhep as hep
 plt.style.use(hep.style.ROOT)
 ```
-
-Experiment specific style are also available. **If the default styles are not what you need, please open an issue.**
+**If the default styles are not what you need, please open an issue.**
 
 Default experiment labels are also available.
 
 ```python
 # Overall - both left and right annotation
-hep.<experiment>.label()
+hep.<experiment>.label(<text>, data=<True|False>, lumi=50, year=2017)
 # Just experiment label and <text> such as 'Preliminary' or 'Simulation'
 hep.<experiment>.text(<text>)
 ```
+
+You can use `loc={0..5}` to control the label positioning.
+
+<p float="left">
+  <img src="tests/baseline/test_label_loc.png" width="100%" />
+</p>
+
 
 ### Plotting
 #### 1D Histograms
@@ -86,8 +89,6 @@ xbins, ybins = [0, 1, 2, 3], [0, 1, 2, 3]
 H = np.array([[2,3,2], [1,2,1], [3,1,3]])
 hep.hist2dplot(H, xbins, ybins)
 ```
-
-
 
 # More Information
 
