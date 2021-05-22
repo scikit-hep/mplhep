@@ -101,7 +101,7 @@ def test_style_lhcb2():
     ],
     ids=["ALICE", "ATLAS", "CMS", "LHCb1", "LHCb2", "ROOT"],
 )
-def test_set_style(fig_test, fig_ref, mplhep_style):
+def test_use_style(fig_test, fig_ref, mplhep_style):
     plt.rcParams.update(plt.rcParamsDefault)
 
     hep.rcParams.clear()
@@ -109,13 +109,13 @@ def test_set_style(fig_test, fig_ref, mplhep_style):
     fig_ref.subplots()
 
     hep.rcParams.clear()
-    hep.set_style(mplhep_style)
+    hep.style.use(mplhep_style)
     fig_test.subplots()
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @check_figures_equal(extensions=["pdf"])
-def test_set_style_LHCb_dep(fig_test, fig_ref):
+def test_use_style_LHCb_dep(fig_test, fig_ref):
     plt.rcParams.update(plt.rcParamsDefault)
 
     hep.rcParams.clear()
@@ -124,7 +124,7 @@ def test_set_style_LHCb_dep(fig_test, fig_ref):
     fig_ref.subplots()
 
     hep.rcParams.clear()
-    hep.set_style(hep.style.LHCb)
+    hep.style.use(hep.style.LHCb)
     fig_test.subplots()
 
 
@@ -143,7 +143,7 @@ def test_set_style_LHCb_dep(fig_test, fig_ref):
     ],
     ids=["ALICE", "ATLAS", "CMS", "LHCb", "LHCb1", "LHCb2", "ROOT"],
 )
-def test_set_style_str_alias(fig_test, fig_ref, mplhep_style, str_alias):
+def test_use_style_str_alias(fig_test, fig_ref, mplhep_style, str_alias):
     plt.rcParams.update(plt.rcParamsDefault)
 
     hep.rcParams.clear()
@@ -151,7 +151,7 @@ def test_set_style_str_alias(fig_test, fig_ref, mplhep_style, str_alias):
     fig_ref.subplots()
 
     hep.rcParams.clear()
-    hep.set_style(str_alias)
+    hep.style.use(str_alias)
     fig_test.subplots()
 
 
@@ -170,15 +170,15 @@ def test_set_style_str_alias(fig_test, fig_ref, mplhep_style, str_alias):
     ],
     ids=["ALICE", "ATLAS", "CMS", "LHCb", "LHCb1", "LHCb2", "ROOT"],
 )
-def test_set_style_self_consistent(fig_test, fig_ref, mplhep_style, str_alias):
+def test_use_style_self_consistent(fig_test, fig_ref, mplhep_style, str_alias):
     plt.rcParams.update(plt.rcParamsDefault)
 
     hep.rcParams.clear()
-    hep.set_style(mplhep_style)
+    hep.style.use(mplhep_style)
     fig_ref.subplots()
 
     hep.rcParams.clear()
-    hep.set_style(str_alias)
+    hep.style.use(str_alias)
     fig_test.subplots()
 
 
@@ -197,7 +197,7 @@ def test_set_style_self_consistent(fig_test, fig_ref, mplhep_style, str_alias):
     ],
     ids=["ALICE", "ATLAS", "CMS", "LHCb", "LHCb1", "LHCb2", "ROOT"],
 )
-def test_set_style_style_list(fig_test, fig_ref, mplhep_style, str_alias):
+def test_use_style_style_list(fig_test, fig_ref, mplhep_style, str_alias):
     plt.rcParams.update(plt.rcParamsDefault)
 
     hep.rcParams.clear()
@@ -205,7 +205,7 @@ def test_set_style_style_list(fig_test, fig_ref, mplhep_style, str_alias):
     fig_ref.subplots()
 
     hep.rcParams.clear()
-    hep.set_style([str_alias, {"font.sans-serif": "Comic Sans MS"}])
+    hep.style.use([str_alias, {"font.sans-serif": "Comic Sans MS"}])
     fig_test.subplots()
 
 

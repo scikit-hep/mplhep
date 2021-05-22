@@ -40,15 +40,15 @@ or you can watch the recording [here](https://www.youtube.com/watch?v=gUziXqCGe0
 
 ```python
 import mplhep as hep
-hep.set_style(hep.style.ROOT) # For now ROOT defaults to CMS
+hep.style.use(hep.style.ROOT) # For now ROOT defaults to CMS
 # Or choose one of the experiment styles
-hep.set_style(hep.style.CMS)
+hep.style.use(hep.style.CMS)
 # or
-hep.set_style("ATLAS") # string aliases work too
+hep.style.use("ATLAS") # string aliases work too
 # or
-hep.set_style("LHCb2")  # or "LHCb1"
+hep.style.use("LHCb2")  # or "LHCb1"
 # or
-hep.set_style("ALICE")
+hep.style.use("ALICE")
 ```
 
 The style can be set directly from the `matplotlib` API as well
@@ -104,22 +104,22 @@ hep.hist2dplot(H, xbins, ybins)
 - Other components of `<experiment>.label()` will remain unchanged.
 
 ### Other styles:
-- `hep.set_style("fira")` - use Fira Sans
-- `hep.set_style("firamath")` - use Fira Math
+- `hep.style.use("fira")` - use Fira Sans
+- `hep.style.use("firamath")` - use Fira Math
 
 #### Styles can be chained:
-- e.g. `hep.set_style(["CMS", "fira", "firamath"])`
+- e.g. `hep.style.use(["CMS", "fira", "firamath"])`
 - reappearing `rcParams` get overwritten silently
 
 #### Styles can be modified on the fly
 - Since styles are dictionaries and they can be chained/overwritten they can be easily modified on the fly. e.g.
 ```
-hep.set_style("CMS")
-hep.set_style({"font.sans-serif":'Comic Sans MS'})
+hep.style.use("CMS")
+hep.style.use({"font.sans-serif":'Comic Sans MS'})
 ```
 
 #### Styling with LaTeX
-- `hep.set_style("CMSTex")` - Use LaTeX to produce all text labels
+- `hep.style.use("CMSTex")` - Use LaTeX to produce all text labels
 - Requires having the full tex-live distro
 - True Helvetica
 - Use sansmath as the math font

@@ -4,6 +4,8 @@ import sys
 
 from matplotlib.pyplot import style as plt_style
 
+import mplhep._deprecate as deprecate
+
 # Short cut to all styles
 from .alice import ALICE
 from .atlas import ATLAS, ATLASAlt, ATLASTex
@@ -26,21 +28,29 @@ __all__ = (
     "LHCbTex1",
     "LHCbTex2",
     "set_style",
+    "use",
     "fira",
     "firamath",
     "fabiola",
 )
 
 
+@deprecate.deprecate(
+    "Naming convention is changing to match mpl. Use ``mplhep.style.use()``."
+)
 def set_style(styles=None):
+    use(styles)
+
+
+def use(styles=None):
     """
     Set the experiment specific plotting style
 
     Example:
 
         >>> import mplhep as hep
-        >>> hep.set_style("ATLAS")
-        >>> hep.set_style(mplhep.style.CMS)
+        >>> hep.style.use("ATLAS")
+        >>> hep.style.use(hep.style.CMS)
 
     Parameters
     ----------
