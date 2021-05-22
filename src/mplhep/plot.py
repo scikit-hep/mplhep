@@ -16,6 +16,7 @@ from .utils import (
     get_histogram_axes_title,
     get_plottable_protocol_bins,
     hist_object_handler,
+    isLight,
     process_histogram_parts,
 )
 
@@ -24,7 +25,7 @@ if TYPE_CHECKING:
 
 StairsArtists = namedtuple("StairsArtists", "stairs errorbar legend_artist")
 ErrorBarArtists = namedtuple("ErrorBarArtists", "errorbar")
-ColormeshArtists = namedtuple("ColormeshArtists", "pcolormesh cbar")
+ColormeshArtists = namedtuple("ColormeshArtists", "pcolormesh cbar text")
 
 
 Hist1DArtists = Union[StairsArtists, ErrorBarArtists]
@@ -435,7 +436,7 @@ def hist2dplot(
 
         - `np.histogram` tuple
         - `boost_histogram` histogram object
-        - raw histogram values, provided `bins` is specified.
+        - raw histogram values as list of list or 2d-array
 
     xbins : 1D array-like, optional, default None
         Histogram bins along x axis, if not part of ``H``.
@@ -527,23 +528,33 @@ def hist2dplot(
 
     plt.sca(ax)
 
+    text_artists = []
     if labels is not None:
         if labels is True:
             _labels = H
-        elif H.shape == labels.shape:
-            _labels = labels
+        elif H.shape == labels.T.shape:
+            _labels = labels.T
         elif labels is not False:
             raise ValueError(
-                "Labels not understood, either specify a bool or a" "Histlike array "
+                "Labels not understood, either specify a bool or a Hist-like array"
             )
         _xbin_centers = xbins[1:] - np.diff(xbins) / float(2)
         _ybin_centers = ybins[1:] - np.diff(ybins) / float(2)
+
         for ix, xc in enumerate(_xbin_centers):
             for iy, yc in enumerate(_ybin_centers):
-                color = "black" if pc.norm(H[iy, ix]) > 0.5 else "lightgrey"
-                ax.text(xc, yc, _labels[iy, ix], ha="center", va="center", color=color)
+                color = (
+                    "black"
+                    if isLight(pc.cmap(pc.norm(H[iy, ix]))[:-1])
+                    else "lightgrey"
+                )
+                text_artists.append(
+                    ax.text(
+                        xc, yc, _labels[iy, ix], ha="center", va="center", color=color
+                    )
+                )
 
-    return ColormeshArtists(pc, cb_obj)
+    return ColormeshArtists(pc, cb_obj, text_artists)
 
 
 #############################################
@@ -693,8 +704,6 @@ def mpl_magic(ax=None, info=True):
 
 ########################################
 # Figure/axes helpers
-
-
 def rescale_to_axessize(ax, w, h):
     """
     Adjust figure size to axes size in inches
@@ -833,8 +842,6 @@ def append_axes(ax, size=0.1, pad=0.1, position="right", extend=False):
 
 ####################
 # Legend Helpers
-
-
 def hist_legend(ax=None, **kwargs):
     from matplotlib.lines import Line2D
 
