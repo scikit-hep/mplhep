@@ -157,8 +157,6 @@ def histplot(
         if not isinstance(ax, plt.Axes):
             raise ValueError("ax must be a matplotlib Axes object")
 
-    x_axes_label = ""  # Only added in if non-blank
-
     # arg check
     _allowed_histtype = ["fill", "step", "errorbar"]
     _err_message = f"Select 'histtype' from: {_allowed_histtype}"
@@ -166,6 +164,7 @@ def histplot(
 
     hists = list(process_histogram_parts(H, bins))
     final_bins, xtick_labels = get_plottable_protocol_bins(hists[0].axes[0])
+    x_axes_label = get_histogram_axes_title(hists[0].axes[0])
 
     # TODO: use hists everywhere
     h = np.stack([h.values().astype(float) for h in hists])
