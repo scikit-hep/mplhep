@@ -364,7 +364,7 @@ def histplot(
         for i in range(len(hists)):
             _kwargs = _chunked_kwargs[i]
             _f = ax.stairs(h[i], final_bins, label=_labels[i], fill=True, **_kwargs)
-        return_artists.append(StairsArtists(_f, None, None))
+            return_artists.append(StairsArtists(_f, None, None))
         _artist = _f
 
     elif histtype == "errorbar":
