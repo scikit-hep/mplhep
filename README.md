@@ -36,7 +36,7 @@ pip install mplhep
 A tutorial given at PyHEP 2020 is available as a binder [here](https://github.com/andrzejnovak/2020-07-17-pyhep2020-mplhep)
 or you can watch the recording [here](https://www.youtube.com/watch?v=gUziXqCGe0o).
 
-Documentation can be found at [mplhep.readthedocs.io](https://www.youtube.com/watch?v=gUziXqCGe0o).
+Documentation can be found at [mplhep.readthedocs.io](https://mplhep.readthedocs.io).
 
 ### Styling
 
