@@ -541,17 +541,21 @@ def hist2dplot(
 
     plt.sca(ax)
 
-    text_artists = []
-    if labels is not None:
+    _labels: np.ndarray
+    if (type(labels) == bool and labels is True) or (
+        isinstance(labels, (tuple, list, np.ndarray))
+    ):
         if labels is True:
             _labels = H
-        elif H.shape == labels.T.shape:
-            _labels = labels.T
-        elif labels is not False:
+        elif H.shape == np.asarray(labels).T.shape:
+            _labels = np.asarray(labels).T
+        else:
             raise ValueError(
                 "Labels not understood, either specify a bool or a Hist-like array"
             )
 
+    text_artists = []
+    if len(_labels) > 0:
         for ix, xc in enumerate(xbin_centers):
             for iy, yc in enumerate(ybin_centers):
                 color = (
