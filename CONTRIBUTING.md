@@ -21,7 +21,7 @@ TBD.
 ## Installing the development environment
 
 ```
-python -m pip install --ignore-installed -U -e .[complete]
+python -m pip install --upgrade --editable ".[all]"
 ```
 
 <!-- To make the PR process much smoother we also strongly recommend that you setup the Git pre-commit hook for [Black](https://github.com/psf/black) by running
