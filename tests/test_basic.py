@@ -239,7 +239,6 @@ def test_hist2dplot_custom_labels():
 def test_hist2dplot_labels_option():
     """
     Test the functionality of hist2dplot's label options.
-    As no plotting is tested here, use matplotlib Figure API.
     """
     np.random.seed(0)
 
