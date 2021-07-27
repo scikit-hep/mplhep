@@ -9,10 +9,10 @@ We are happy to accept contributions to `mplhep` via Pull Requests to the GitHub
 If you would like to make a pull request please:
 
 1. Make a fork of the project
-2. Commit your changes to a feature branch of your fork push to your branch
-3. Test your changes with `pytest`
-3. Test formatting with `flake8` and run `black`.
-4. Make a PR
+2. Install `pre-commit` and the project's `pre-commit` hooks
+3. Commit your changes to a feature branch of your fork push to your branch
+4. Test your changes with `pytest`
+5. Make a PR
 
 ## Bug Reports
 
@@ -21,7 +21,7 @@ TBD.
 ## Installing the development environment
 
 ```
-python -m pip install --ignore-installed -U -e .[complete]
+python -m pip install --upgrade --editable ".[all]"
 ```
 
 <!-- To make the PR process much smoother we also strongly recommend that you setup the Git pre-commit hook for [Black](https://github.com/psf/black) by running
@@ -58,5 +58,3 @@ If you modified expected outcomes of the test. New baseline visuals can be gener
 ```bash
 pytest --mpl-generate-path=tests/baseline
 ```
-
-* This contrib was shamelessly stolen from https://github.com/scikit-hep/pyhf
