@@ -236,6 +236,38 @@ def test_hist2dplot_custom_labels():
     return fig
 
 
+def test_hist2dplot_labels_option():
+    """
+    Test the functionality of hist2dplot's label options.
+    As no plotting is tested here, use matplotlib Figure API.
+    """
+    np.random.seed(0)
+
+    x = np.random.normal(5, 1.5, 100)
+    y = np.random.normal(4, 1, 100)
+    xedges = np.arange(0, 11.5, 1.5)
+    yedges = [0, 2, 3, 4, 6, 7]
+    H, xedges, yedges = np.histogram2d(x, y, bins=(xedges, yedges))
+
+    assert hep.hist2dplot(H, xedges, yedges, labels=True)
+
+    assert hep.hist2dplot(H, xedges, yedges, labels=False)
+
+    label_array = np.chararray(H.shape, itemsize=2)
+    label_array[:] = "hi"
+    assert hep.hist2dplot(H, xedges, yedges, labels=label_array)
+
+    label_array = np.chararray(H.shape[0], itemsize=2)
+    label_array[:] = "hi"
+    # Label array shape invalid
+    with pytest.raises(ValueError):
+        hep.hist2dplot(H, xedges, yedges, labels=label_array)
+
+    # Invalid label type
+    with pytest.raises(ValueError):
+        hep.hist2dplot(H, xedges, yedges, labels=5)
+
+
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_histplot_kwargs():
     np.random.seed(0)
