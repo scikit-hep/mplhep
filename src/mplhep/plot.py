@@ -541,9 +541,9 @@ def hist2dplot(
 
     plt.sca(ax)
 
-    _labels: np.ndarray
+    _labels: np.ndarray | None = None
     if (type(labels) == bool and labels is True) or (
-        isinstance(labels, (tuple, list, np.ndarray))
+        isinstance(labels, (list, np.ndarray))
     ):
         if labels is True:
             _labels = H
@@ -555,7 +555,7 @@ def hist2dplot(
             )
 
     text_artists = []
-    if len(_labels) > 0:
+    if _labels is not None:
         for ix, xc in enumerate(xbin_centers):
             for iy, yc in enumerate(ybin_centers):
                 color = (
