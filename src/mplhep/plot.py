@@ -542,16 +542,15 @@ def hist2dplot(
     plt.sca(ax)
 
     _labels: np.ndarray | None = None
-    if (type(labels) == bool) or (np.iterable(labels)):
-        if labels is True:
-            _labels = H
-        elif labels is False:
-            _labels = None
-        elif H.shape == np.asarray(labels).T.shape:
-            _labels = np.asarray(labels).T
+    if isinstance(labels, bool):
+        _labels = H if labels else None
+    elif np.iterable(labels):
+        label_array = np.asarray(labels).T
+        if H.shape == label_array.shape:
+            _labels = label_array
         else:
             raise ValueError(
-                f"Labels input has incorrect shape  (expect: {H.shape}, got: {np.asarray(labels).T.shape})"
+                f"Labels input has incorrect shape (expect: {H.shape}, got: {label_array.shape})"
             )
     elif labels is not None:
         raise ValueError(
