@@ -9,10 +9,10 @@ We are happy to accept contributions to `mplhep` via Pull Requests to the GitHub
 If you would like to make a pull request please:
 
 1. Make a fork of the project
-2. Commit your changes to a feature branch of your fork push to your branch
-3. Test your changes with `pytest`
-3. Test formatting with `flake8` and run `black`.
-4. Make a PR
+2. Install `pre-commit` and the project's `pre-commit` hooks
+3. Commit your changes to a feature branch of your fork push to your branch
+4. Test your changes with `pytest`
+5. Make a PR
 
 ## Bug Reports
 
