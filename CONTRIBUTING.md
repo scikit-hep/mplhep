@@ -58,5 +58,3 @@ If you modified expected outcomes of the test. New baseline visuals can be gener
 ```bash
 pytest --mpl-generate-path=tests/baseline
 ```
-
-* This contrib was shamelessly stolen from https://github.com/scikit-hep/pyhf
