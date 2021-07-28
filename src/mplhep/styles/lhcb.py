@@ -150,6 +150,11 @@ LHCb2 = {
     "mathtext.it": "Tex Gyre Termes:italic",
     "mathtext.tt": "Tex Gyre Termes",
     "mathtext.cal": "Tex Gyre Termes",
+    "font.cursive": "Times New Roman",
+    "mathtext.fontset": "custom",
+    "mathtext.rm": "Times New Roman",
+    "mathtext.it": "Times New Roman:italic",
+    "mathtext.bf": "Times New Roman:bold",
     "font.size": 14,
     "font.weight": 400,
     # Draw the legend on a solid background
