@@ -142,6 +142,11 @@ LHCb2 = {
     # Set default font to Times New Roman
     "font.family": "serif",
     "font.serif": ["Times New Roman"],
+    "font.cursive": "Times New Roman",
+    "mathtext.fontset": "custom",
+    "mathtext.rm": "Times New Roman",
+    "mathtext.it": "Times New Roman:italic",
+    "mathtext.bf": "Times New Roman:bold",
     "font.size": 14,
     "font.weight": 400,
     # Draw the legend on a solid background
