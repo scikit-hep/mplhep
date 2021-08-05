@@ -488,9 +488,6 @@ def hist2dplot(
         if not isinstance(ax, plt.Axes):
             raise ValueError("ax must be a matplotlib Axes object")
 
-    x_axes_label = ""
-    y_axes_label = ""
-
     hist = hist_object_handler(H, xbins, ybins)
 
     # TODO: use Histogram everywhere
@@ -500,8 +497,14 @@ def hist2dplot(
     xbin_centers = xbins[1:] - np.diff(xbins) / float(2)
     ybin_centers = ybins[1:] - np.diff(ybins) / float(2)
 
-    x_axes_label = get_histogram_axes_title(hist.axes[0])
-    y_axes_label = get_histogram_axes_title(hist.axes[1])
+    _x_axes_label = ax.get_xlabel()
+    x_axes_label = (
+        _x_axes_label if _x_axes_label != "" else get_histogram_axes_title(hist.axes[0])
+    )
+    _y_axes_label = ax.get_ylabel()
+    y_axes_label = (
+        _y_axes_label if _y_axes_label != "" else get_histogram_axes_title(hist.axes[1])
+    )
 
     H = H.T
 
