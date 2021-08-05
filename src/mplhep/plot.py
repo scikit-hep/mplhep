@@ -164,7 +164,12 @@ def histplot(
 
     hists = list(process_histogram_parts(H, bins))
     final_bins, xtick_labels = get_plottable_protocol_bins(hists[0].axes[0])
-    x_axes_label = get_histogram_axes_title(hists[0].axes[0])
+    _x_axes_label = ax.get_xlabel()
+    x_axes_label = (
+        _x_axes_label
+        if _x_axes_label != ""
+        else get_histogram_axes_title(hists[0].axes[0])
+    )
 
     # TODO: use hists everywhere
     h = np.stack([h.values().astype(float) for h in hists])
