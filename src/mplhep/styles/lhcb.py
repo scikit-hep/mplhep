@@ -135,18 +135,21 @@ LHCb2 = {
     "errorbar.capsize": 2.5,
     # Figure properties
     "figure.figsize": (12, 9),
-    "figure.dpi": 300,
+    "figure.dpi": 100,
     # Outer frame color
     "figure.facecolor": "white",
     "figure.autolayout": True,
     # Set default font to Times New Roman
     "font.family": "serif",
-    "font.serif": ["Times New Roman"],
-    "font.cursive": "Times New Roman",
+    "font.serif": ["Tex Gyre Termes"],
+    "font.cursive": ["Tex Gyre Termes"],
     "mathtext.fontset": "custom",
-    "mathtext.rm": "Times New Roman",
-    "mathtext.it": "Times New Roman:italic",
-    "mathtext.bf": "Times New Roman:bold",
+    "mathtext.rm": "Tex Gyre Termes",
+    "mathtext.bf": "Tex Gyre Termes:bold",
+    "mathtext.sf": "Tex Gyre Termes",
+    "mathtext.it": "Tex Gyre Termes:italic",
+    "mathtext.tt": "Tex Gyre Termes",
+    "mathtext.cal": "Tex Gyre Termes",
     "font.size": 14,
     "font.weight": 400,
     # Draw the legend on a solid background
