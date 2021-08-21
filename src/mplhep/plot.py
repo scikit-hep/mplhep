@@ -911,8 +911,6 @@ def sort_legend(ax, order=None):
 
 #########################
 # Other helpers
-
-
 def save_variations(fig, name, text_list=None, exp=None):
     """[summary]
 
