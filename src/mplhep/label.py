@@ -356,9 +356,9 @@ def exp_label(
 
 
 def savelabels(
-    fname: str,
+    fname: str = "",
     ax: plt.Axes | None = None,
-    labels: list[str] | dict[str, str] | None = None,
+    labels: list | None = None,
     **kwargs,
 ):
     """
@@ -378,7 +378,7 @@ def savelabels(
 
         Or the combination of labels and filenames can be set manually
 
-        >>> hep.savelabels('test', labels={"FOO": "foo.pdf", "BAR": "bar"})
+        >>> hep.savelabels('test', labels=[("FOO", "foo.pdf"), ("BAR", "bar")])
 
         Which will produce:
         - "FOO" -> "foo.pdf"
@@ -393,36 +393,36 @@ def savelabels(
         Primary filename to be passed to ``plt.savefig``.
     ax : matplotlib.axes.Axes, optional
             Axes object (if None, last one is fetched)
-    labels : dict or list, optional
+    labels : list, optional
         Mapping of label versions to be produced along with desired savename
         modifications. By default:
-        {
-            "": "",
-            "Preliminary": "pas",
-            "Supplementary": "supp",
-            "Work in Progress": "wip"
-        }
+        [
+            ("", ""),
+            ("Preliminary", "pas"),
+            ("Supplementary", "supp"),
+            ("Work in Progress", "wip"),
+        ]
         If supplied strings contain suffixes such as ".png" the names will be assumed
         to be absolute and will not incorporate ``fname``.
         If current label contains "Simulation" this will be perserved.
     """
     if labels is None:
-        labels = {
-            "": "",
-            "Preliminary": "pas",
-            "Supplementary": "supp",
-            "Work in Progress": "wip",
-        }
-    if isinstance(labels, list):
-        labels = {label: label.replace(" ", "_").lower() for label in labels}
+        labels = [
+            ("", ""),
+            ("Preliminary", "pas"),
+            ("Supplementary", "supp"),
+            ("Work in Progress", "wip"),
+        ]
+    if isinstance(labels, list) and isinstance(labels[0], str):
+        labels = [(label, label.replace(" ", "_").lower()) for label in labels]
     if ax is None:
         ax = plt.gca()
 
-    label = [ch for ch in ax.get_children() if isinstance(ch, ExpSuffix)][0]
-    _sim = "Simulation" if "Simulation" in label.get_text() else ""
+    label_base = [ch for ch in ax.get_children() if isinstance(ch, ExpSuffix)][0]
+    _sim = "Simulation" if "Simulation" in label_base.get_text() else ""
 
-    for label_text, suffix in labels.items():
-        label.set_text(" ".join([_sim, label_text]).lstrip())
+    for label_text, suffix in labels:
+        label_base.set_text(" ".join([_sim, label_text]).lstrip())
 
         if "." in suffix:
             save_name = suffix
