@@ -94,8 +94,7 @@ def histplot(
     **kwargs,
 ):
     """
-    Create a 1D histogram plot from `np.histogram`-like inputs.
-    Parameters
+    Create a 1D histogram plot from `np.histogram`-like inputs. Parameters
     ----------
         H : object
             Histogram object with containing values and optionally bins. Can be:
@@ -113,19 +112,24 @@ def histplot(
             - shape(N) array of for one sided errors or list thereof
             - shape(Nx2) array of for two sided errors or list thereof
         w2 : iterable, optional
-            Sum of the histogram weights squared for poissonian interval error calculation
+            Sum of the histogram weights squared for poissonian interval error
+            calculation
         w2method: callable, optional
             Function calculating CLs with signature ``low, high = fcn(w, w2)``. Here
             ``low`` and ``high`` are given in absolute terms, not relative to w.
             Default is ``None``. If w2 has integer values (likely to be data) poisson
-            interval is calculated, otherwise the resulting error is symmetric ``sqrt(w2)``.
+            interval is calculated, otherwise the resulting error is symmetric
+            ``sqrt(w2)``.
         stack : bool, optional
-            Whether to stack or overlay non-axis dimension (if it exists
+            Whether to stack or overlay non-axis dimension (if it exists). N.B. in
+            contrast to ROOT, stacking is performed in a single call aka
+            ``histplot([h1, h2, ...], stack=True)`` as opposed to multiple calls.
         density : bool, optional
-            If true, convert sum weights to probability density (i.e. integrates to 1 over domain of axis)
-            (Note: this option conflicts with ``binwnorm``)de
+            If true, convert sum weights to probability density (i.e. integrates to 1
+            over domain of axis) (Note: this option conflicts with ``binwnorm``)
         binwnorm : float, optional
-            If true, convert sum weights to bin-width-normalized, with unit equal to supplied value (usually you want to specify 1.)
+            If true, convert sum weights to bin-width-normalized, with unit equal to
+            supplied value (usually you want to specify 1.)
         histtype: {'step', 'fill', 'errorbar'}, optional, default: "step"
             Type of histogram to plot:
 
