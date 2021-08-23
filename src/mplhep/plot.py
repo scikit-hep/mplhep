@@ -129,7 +129,7 @@ def histplot(
             over domain of axis) (Note: this option conflicts with ``binwnorm``)
         binwnorm : float, optional
             If true, convert sum weights to bin-width-normalized, with unit equal to
-            supplied value (usually you want to specify 1.)
+                supplied value (usually you want to specify 1.)
         histtype: {'step', 'fill', 'errorbar'}, optional, default: "step"
             Type of histogram to plot:
 
@@ -322,8 +322,9 @@ def histplot(
     # Stack
     if stack and len(hists) > 1:
         h = h[::-1]
-        _yerr_lo = _yerr_lo[::-1]
-        _yerr_hi = _yerr_hi[::-1]
+        if yerr is not None:
+            _yerr_lo = _yerr_lo[::-1]
+            _yerr_hi = _yerr_hi[::-1]
         _labels = _labels[::-1]
         _chunked_kwargs = _chunked_kwargs[::-1]
 
