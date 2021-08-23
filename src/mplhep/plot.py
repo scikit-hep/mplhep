@@ -318,6 +318,8 @@ def histplot(
     # Stack
     if stack and len(hists) > 1:
         h = h[::-1]
+        _yerr_lo = _yerr_lo[::-1]
+        _yerr_hi = _yerr_hi[::-1]
         _labels = _labels[::-1]
         _chunked_kwargs = _chunked_kwargs[::-1]
 
