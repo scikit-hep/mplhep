@@ -25,5 +25,5 @@ setup(
 )
 
 # To push on pypi
-# python setup.py sdist
-# twine upload dist/*
+# pipx run build
+# pipx run twine upload dist/*
