@@ -435,3 +435,37 @@ def savelabels(
                 save_name = f"{fname}{suffix}"
 
         ax.figure.savefig(save_name, **kwargs)
+
+
+def save_variations(fig, name, text_list=None, exp=None):
+    """Lite ``savelabels``
+
+    Parameters
+    ----------
+    fig : figure
+    name : str
+        Savename to pass to `plt.savefig()`
+    text_list : list, optional
+        Variations of ExpSuffix text object to cycle
+        through
+    exp : str, optional
+        Change experiment name label
+    """
+    if text_list is None:
+        text_list = ["Preliminary", ""]
+
+    from mplhep.label import ExpSuffix, ExpText
+
+    for text in text_list:
+        for ax in fig.get_axes():
+            exp_labels = [t for t in ax.get_children() if isinstance(t, ExpText)]
+            suffixes = [t for t in ax.get_children() if isinstance(t, ExpSuffix)]
+            for exp_label, suffix_text in zip(exp_labels, suffixes):
+                if exp is not None:
+                    exp_label.set_text(exp)
+                suffix_text.set_text(text)
+        name_ext = "" if text == "" else "_" + text.lower()
+        if exp is not None:
+            name_ext = exp.lower() + name_ext
+        save_name = name.split(".")[0] + name_ext + "." + name.split(".")[1]
+        fig.savefig(save_name)
