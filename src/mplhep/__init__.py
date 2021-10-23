@@ -10,7 +10,7 @@ import mplhep_data
 from . import alice, atlas, cms, label, lhcb, plot
 from . import styles as style
 from ._tools import Config
-from .label import savelabels
+from .label import save_variations, savelabels
 from .plot import (
     append_axes,
     box_aspect,
@@ -19,7 +19,6 @@ from .plot import (
     make_square_add_cbar,
     mpl_magic,
     rescale_to_axessize,
-    save_variations,
     sort_legend,
     ylow,
     yscale_legend,
