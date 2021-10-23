@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.text as mtext
@@ -393,7 +395,7 @@ def savelabels(
         Primary filename to be passed to ``plt.savefig``.
     ax : matplotlib.axes.Axes, optional
             Axes object (if None, last one is fetched)
-    labels : list, optional
+    labels : list of tuples, optional
         Mapping of label versions to be produced along with desired savename
         modifications. By default:
         [
@@ -403,7 +405,7 @@ def savelabels(
             ("Work in Progress", "wip"),
         ]
         If supplied strings contain suffixes such as ".png" the names will be assumed
-        to be absolute and will not incorporate ``fname``.
+        to be absolute and will ignore ``fname``.
         If current label contains "Simulation" this will be perserved.
     """
     if labels is None:
@@ -424,7 +426,7 @@ def savelabels(
     for label_text, suffix in labels:
         label_base.set_text(" ".join([_sim, label_text]).lstrip())
 
-        if "." in suffix:
+        if "." in suffix:  # absolute paths
             save_name = suffix
         else:
             if len(suffix) > 0:
@@ -433,6 +435,10 @@ def savelabels(
                 save_name = f"{fname.split('.')[0]}{suffix}.{fname.split('.')[1]}"
             else:
                 save_name = f"{fname}{suffix}"
+
+        path_dir = os.path.join(save_name.split("/")[:-1])
+        if not os.path.exists(path_dir):
+            os.mkdir(path_dir)
 
         ax.figure.savefig(save_name, **kwargs)
 
