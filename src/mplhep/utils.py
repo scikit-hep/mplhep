@@ -88,7 +88,9 @@ def process_histogram_parts(
     """
 
     # Try to understand input
-    if isinstance(H, list) and not isinstance(H[0], (Real)):
+    if (isinstance(H, list) or isinstance(H, np.ndarray)) and not isinstance(
+        H[0], (Real)
+    ):
         return _process_histogram_parts_iter(H, *bins)
     else:
         return _process_histogram_parts_iter((H,), *bins)  # type: ignore
