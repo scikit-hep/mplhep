@@ -95,7 +95,9 @@ def histplot(
     **kwargs,
 ):
     """
-    Create a 1D histogram plot from `np.histogram`-like inputs. Parameters
+    Create a 1D histogram plot from `np.histogram`-like inputs.
+
+    Parameters
     ----------
         H : object
             Histogram object with containing values and optionally bins. Can be:
