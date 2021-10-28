@@ -88,6 +88,7 @@ def histplot(
     histtype="step",
     xerr=False,
     label=None,
+    sort=None,
     edges=True,
     binticks=False,
     ax=None,
@@ -140,6 +141,8 @@ def histplot(
             Size of xerr if ``histtype == 'errorbar'``. If ``True``, bin-width will be used.
         label : str or list, optional
             Label for legend entry.
+        sort: {'label'/'l', 'yield'/'y'}, optional
+            Append '_r' for reverse.
         edges : bool, default: True, optional
             Specifies whether to draw first and last edges of the histogram
         binticks : bool, default: False, optional
@@ -301,6 +304,24 @@ def histplot(
         # Split
         _yerr_lo = _yerr[:, 0]
         _yerr_hi = _yerr[:, 1]
+
+    # Sorting
+    if sort is not None:
+        if sort.split("_")[0] in ["l", "label"] and isinstance(_labels, list):
+            order = np.argsort(label)
+        elif sort.split("_")[0] in ["y", "yield"]:
+            _yields = [np.sum(_h) for _h in h]
+            order = np.argsort(_yields)[::-1]
+        else:
+            raise ValueError(f"Sort type: {sort} not understood.")
+        if len(sort.split("_")) == 2 and sort.split("_")[1] == "r":
+            order = order[::-1]
+
+        h = h[order]
+        _yerr_lo = _yerr_lo[order]
+        _yerr_hi = _yerr_hi[order]
+        _chunked_kwargs = [_chunked_kwargs[ix] for ix in order]
+        _labels = [_labels[ix] for ix in order]
 
     ############################
     # Stacking, norming, density
