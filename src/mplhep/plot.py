@@ -254,6 +254,7 @@ def histplot(
                 raise RuntimeError("Empty code path")
 
     elif w2 is not None:
+        w2 = np.asarray(w2).reshape(h.shape)
         if w2method is None:
             int_w2 = np.around(w2).astype(int)
             if np.all(np.isclose(w2, int_w2, 0.000001)):
@@ -261,19 +262,24 @@ def histplot(
                 try:
                     from .error_estimation import poisson_interval
 
-                    _yerr = np.abs(poisson_interval(h[0], w2) - h[0])
+                    _yerr = np.stack(
+                        [
+                            np.abs(poisson_interval(_h, _w2) - _h)
+                            for _h, _w2 in zip(h, w2)
+                        ]
+                    )
                 except ImportError:
                     warnings.warn(
                         "Integer weights indicate poissonian data. Will calculate "
                         "Garwood interval if ``scipy`` is installed. Otherwise errors "
                         "will be set to ``sqrt(w2)``."
                     )
-                    _yerr = np.sqrt(w2)
+                    _yerr = np.stack([np.sqrt(_w2) for _h, _w2 in zip(h, w2)])
             else:
                 # w2 to errors directly if specified previously
                 _yerr = np.sqrt(w2)
         else:
-            _yerr = np.abs(w2method(h, w2) - h)
+            _yerr = np.stack([np.abs(w2method(_h, _w2) - _h) for _h, _w2 in zip(h, w2)])
 
     else:
         _yerr = None
@@ -309,19 +315,27 @@ def histplot(
 
     # Sorting
     if sort is not None:
-        if sort.split("_")[0] in ["l", "label"] and isinstance(_labels, list):
-            order = np.argsort(label)
-        elif sort.split("_")[0] in ["y", "yield"]:
-            _yields = [np.sum(_h) for _h in h]
-            order = np.argsort(_yields)[::-1]
+        if isinstance(sort, str):
+            if sort.split("_")[0] in ["l", "label"] and isinstance(_labels, list):
+                order = np.argsort(label)[::-1]
+            elif sort.split("_")[0] in ["y", "yield"]:
+                _yields = [np.sum(_h) for _h in h]
+                order = np.argsort(_yields)
+            if len(sort.split("_")) == 2 and sort.split("_")[1] == "r":
+                order = order[::-1]
+        elif isinstance(sort, list) or isinstance(sort, np.ndarray):
+            if len(sort) != len(h):
+                raise ValueError(
+                    f"Sort indexing arrays is of the wrong size - {len(sort)}, {len(h)} expected."
+                )
+            order = np.asarray(sort)
         else:
             raise ValueError(f"Sort type: {sort} not understood.")
-        if len(sort.split("_")) == 2 and sort.split("_")[1] == "r":
-            order = order[::-1]
 
         h = h[order]
-        _yerr_lo = _yerr_lo[order]
-        _yerr_hi = _yerr_hi[order]
+        if _yerr is not None:
+            _yerr_lo = _yerr_lo[order]
+            _yerr_hi = _yerr_hi[order]
         _chunked_kwargs = [_chunked_kwargs[ix] for ix in order]
         _labels = [_labels[ix] for ix in order]
 
