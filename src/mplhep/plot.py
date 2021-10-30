@@ -388,9 +388,8 @@ def histplot(
             )
 
             if yerr is not None or w2 is not None:
-                _kwargs = soft_update_kwargs(
-                    _kwargs, {"color": _s.get_edgecolor(), "linestyle": "none"}
-                )
+                _kwargs = soft_update_kwargs(_kwargs, {"color": _s.get_edgecolor()})
+                _kwargs["linestyle"] = "none"
                 _e = ax.errorbar(
                     _bin_centers,
                     h[i],
