@@ -15,7 +15,7 @@ primary functionality can be accessed as follows:
    import mplhep as hep
 
    # Load style sheet
-   plt.style.use(hep.style.CMS)  # or ATLAS/LHCb
+   plt.style.use(hep.style.CMS)  # or ATLAS/LHCb2
 
    h, bins = np.histogram(np.random.random(1000))
    fig, ax = plt.subplots()
