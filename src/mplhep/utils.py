@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import copy
+import warnings
 from numbers import Real
 from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
@@ -131,3 +133,152 @@ def get_histogram_axes_title(axis: Any) -> str:
 
     # No axis title found
     return ""
+
+
+class Plottable:
+    def __init__(self, values, *, edges=None, variances=None, yerr=None):
+        self._values = np.array(values).astype(float)
+        self.variances = None
+        self._variances = None
+        if variances is not None:
+            self._variances = np.array(variances).astype(float)
+            self.variances = np.array(variances).astype(float)
+        self._density = False
+
+        self.values = np.array(values).astype(float)
+        self.baseline = np.zeros_like(self.values)
+        self.edges = np.array(edges)
+        if self.edges is None:
+            self.edges = np.arange(len(values) + 1)
+        self.centers = self.edges[:-1] + np.diff(self.edges) / 2
+        self.method = "poisson"
+
+        self.yerr = yerr
+        assert self.variances is None or self.yerr is None
+        if self.yerr is not None:
+            self._errors_present = True
+            self.yerr_lo, self.yerr_hi = yerr
+        else:
+            self._errors_present = False
+            self.yerr_lo, self.yerr_hi = np.zeros_like(self.values), np.zeros_like(
+                self.values
+            )
+
+    def __eq__(self, other):
+        return np.all(
+            [
+                np.array_equal(getattr(self, att), getattr(other, att))
+                for att in ["values", "variances", "edges"]
+            ]
+        )
+
+    def __repr__(self):
+        return f"Plottable({self.values}, {self.edges}, {self.variances}"
+
+    def errors(self, method=None):
+        """Calculate errors with a provided method(w, w2) -> (lower_abs_val, upper_abs_val)"""
+        assert method in ["poisson", "sqrt", None] or callable(method)
+        variances = self.variances if self.variances is not None else self.values
+        if method is None:
+            method = self.method
+            if method is None:
+                if np.allclose(variances, np.around(variances)):
+                    method = "poisson"
+                else:
+                    method = "sqrt"
+
+        if self._errors_present:
+            return
+
+        def sqrt_method(values, _):
+            return values - np.sqrt(values), values + np.sqrt(values)
+
+        def calculate_relative(method_fcn, variances):
+            print("X", np.abs(method_fcn(self.values, variances) - self.values))
+            return np.abs(method_fcn(self.values, variances) - self.values)
+
+        if method == "sqrt":
+            self.yerr_lo, self.yerr_hi = calculate_relative(sqrt_method, variances)
+        elif method == "poisson":
+            try:
+                from .error_estimation import poisson_interval
+
+                self.yerr_lo, self.yerr_hi = calculate_relative(
+                    poisson_interval, variances
+                )
+            except ImportError:
+                warnings.warn(
+                    "Integer weights indicate poissonian data. Will calculate "
+                    "Garwood interval if ``scipy`` is installed. Otherwise errors "
+                    "will be set to ``sqrt(w2)``."
+                )
+                self.yerr_lo, self.yerr_hi = calculate_relative(sqrt_method, variances)
+        elif callable(method):
+            self.yerr_lo, self.yerr_hi = calculate_relative(method, variances)
+        else:
+            raise RuntimeError(
+                "``method'' needs to be a callable or 'poisson' or 'sqrt'."
+            )
+        self.yerr_lo = np.nan_to_num(self.yerr_lo, 0)
+        self.yerr_hi = np.nan_to_num(self.yerr_hi, 0)
+
+    def fixed_errors(self, yerr_lo, yerr_hi):
+        self.yerr_lo = yerr_lo
+        self.yerr_hi = yerr_hi
+        self._errors_present = True
+
+    def scale(self, scale):
+        """Scale values and variances to match, errors are recalculated"""
+        self.values *= scale
+        if self.variances is not None:
+            self.variances *= scale * scale
+        self.errors()
+        return self
+
+    def flat_scale(self, scale):
+        """Scale values by a flat coefficient. Errors are scaled directly to match"""
+        self.errors()
+        self._errors_present = True
+        self.values *= scale
+        self.yerr_lo *= scale
+        self.yerr_hi *= scale
+        return self
+
+    def reset(self):
+        """Reset to original values"""
+        self.values = copy.deepcopy(self._values)
+        self.variances = copy.deepcopy(self._variances)
+        self._density = False
+        self.errors()
+        return self
+
+    @property
+    def density(self):
+        return self._density
+
+    @density.setter
+    def density(self, boolean: bool):
+        if boolean and not self._density:
+            self.flat_scale(1 / np.sum(self.values))
+        if not boolean:
+            self.reset()
+        self._density = boolean
+
+    def to_stairs(self):
+        return {"values": self.values, "edges": self.edges, "baseline": self.baseline}
+
+    def to_errorbar(self):
+        self.errors()
+        return {
+            "x": self.centers,
+            "y": self.values,
+            "yerr": [self.yerr_lo, self.yerr_hi],
+        }
+
+
+def stack(*plottables):
+    for i in range(1, len(plottables)):
+        plottables[i].baseline = copy.deepcopy(plottables[i - 1].values)
+        plottables[i].values += copy.deepcopy(plottables[i - 1].values)
+
+    return plottables
