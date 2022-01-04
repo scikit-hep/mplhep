@@ -12,6 +12,7 @@ from matplotlib.transforms import Bbox
 from mpl_toolkits.axes_grid1 import axes_size, make_axes_locatable
 
 from .utils import (
+    Plottable,
     get_histogram_axes_title,
     get_plottable_protocol_bins,
     hist_object_handler,
@@ -29,28 +30,6 @@ ColormeshArtists = namedtuple("ColormeshArtists", "pcolormesh cbar text")
 
 Hist1DArtists = Union[StairsArtists, ErrorBarArtists]
 Hist2DArtists = ColormeshArtists
-
-
-def get_density(h, density: bool = True, binwnorm: float | None = None, *, bins, hists):
-    if density and binwnorm is not None:
-        raise ValueError("Can only calculate density or binwnorm")
-    per_hist_norm = np.sum(h, axis=(1 if h.ndim > 1 else 0))
-    if binwnorm is not None:
-        overallnorm = binwnorm * per_hist_norm
-    else:
-        overallnorm = np.ones(len(hists))
-    binnorms = np.outer(overallnorm, np.ones_like(bins[:-1]))
-    binnorms /= np.outer(np.diff(bins), per_hist_norm).T
-    if binnorms.ndim == 2 and len(binnorms) == 1:  # Unwrap if [[1,2,3]]
-        binnorms = binnorms[0]
-    return binnorms
-
-
-def get_stack(_h, hists):
-    if len(hists) > 1:
-        return np.cumsum(_h, axis=0)
-    else:
-        return _h
 
 
 def soft_update_kwargs(kwargs, mods, rc=True):
@@ -122,7 +101,7 @@ def histplot(
             ``low`` and ``high`` are given in absolute terms, not relative to w.
             Default is ``None``. If w2 has integer values (likely to be data) poisson
             interval is calculated, otherwise the resulting error is symmetric
-            ``sqrt(w2)``. Specifying ``poisson`` or ``sqrt`` will force that behavious.
+            ``sqrt(w2)``. Specifying ``poisson`` or ``sqrt`` will force that behaviours.
         stack : bool, optional
             Whether to stack or overlay non-axis dimension (if it exists). N.B. in
             contrast to ROOT, stacking is performed in a single call aka
@@ -171,8 +150,16 @@ def histplot(
     _err_message = f"Select 'histtype' from: {_allowed_histtype}"
     assert histtype in _allowed_histtype, _err_message
 
+    # Convert 1/0 etc to real bools
+    stack = bool(stack)
+    density = bool(density)
+    edges = bool(edges)
+    binticks = bool(binticks)
+
+    # Process input
     hists = list(process_histogram_parts(H, bins))
     final_bins, xtick_labels = get_plottable_protocol_bins(hists[0].axes[0])
+    assert final_bins.ndim == 1, "bins need to be 1 dimensional"
     _x_axes_label = ax.get_xlabel()
     x_axes_label = (
         _x_axes_label
@@ -180,44 +167,28 @@ def histplot(
         else get_histogram_axes_title(hists[0].axes[0])
     )
 
-    # # TODO: use hists everywhere
-    # h = np.stack([h.values().astype(float) for h in hists])
-    # if yerr is None and all(h.variances() is not None for h in hists):
-    #     yerr = np.stack([np.sqrt(h.variances()) for h in hists])
-    # elif yerr is False:
-    #     yerr = None
-    from .utils import Plottable
-
+    # Cast to plottables
     plottables = [
         Plottable(h.values(), edges=final_bins, variances=h.variances()) for h in hists
     ]
 
     if w2 is not None:
         for _w2, _plottable in zip(
-            w2.reshape(len(hists), len(final_bins) - 1), plottables
+            w2.reshape(len(plottables), len(final_bins) - 1), plottables
         ):
             _plottable.variances = _w2
             _plottable.method = w2method
-
-    # Convert 1/0 etc to real bools
-    stack = bool(stack)
-    density = bool(density)
-    edges = bool(edges)
-    binticks = bool(binticks)
-
-    assert final_bins.ndim == 1, "bins need to be 1 dimensional"
-    # TODO: can check validity of bin length elsewhere
 
     if w2 is not None and yerr is not None:
         raise ValueError("Can only supply errors or w2")
 
     _labels: list[str | None]
     if label is None:
-        _labels = [None] * len(hists)
+        _labels = [None] * len(plottables)
     elif isinstance(label, str):
-        _labels = [label] * len(hists)
+        _labels = [label] * len(plottables)
     elif not np.iterable(label):
-        _labels = [str(label)] * len(hists)
+        _labels = [str(label)] * len(plottables)
     else:
         _labels = [str(lab) for lab in label]
 
@@ -225,7 +196,7 @@ def histplot(
         return isinstance(arg, collections.abc.Iterable) and not isinstance(arg, str)
 
     _chunked_kwargs: list[dict[str, Any]] = []
-    for _i in range(len(hists)):
+    for _ in range(len(plottables)):
         _chunked_kwargs.append({})
     for kwarg in kwargs:
         # Check if iterable
@@ -253,7 +224,7 @@ def histplot(
             _yerr = np.asarray(yerr)
         # yerr is a number
         elif isinstance(yerr, (int, float)) and not isinstance(yerr, bool):
-            _yerr = np.ones((len(hists), len(final_bins) - 1)) * yerr
+            _yerr = np.ones((len(plottables), len(final_bins) - 1)) * yerr
         # yerr is automatic
         else:
             _yerr = None
@@ -265,21 +236,21 @@ def histplot(
         if _yerr.ndim == 3:
             # Already correct format
             pass
-        elif _yerr.ndim == 2 and len(hists) == 1:
+        elif _yerr.ndim == 2 and len(plottables) == 1:
             # Broadcast ndim 2 to ndim 3
             if _yerr.shape[-2] == 2:  # [[1,1], [1,1]]
-                _yerr = _yerr.reshape(len(hists), 2, _yerr.shape[-1])
+                _yerr = _yerr.reshape(len(plottables), 2, _yerr.shape[-1])
             elif _yerr.shape[-2] == 1:  # [[1,1]]
-                _yerr = np.tile(_yerr, 2).reshape(len(hists), 2, _yerr.shape[-1])
+                _yerr = np.tile(_yerr, 2).reshape(len(plottables), 2, _yerr.shape[-1])
             else:
                 raise ValueError("yerr format is not understood")
         elif _yerr.ndim == 2:
             # Broadcast yerr (nh, N) to (nh, 2, N)
-            _yerr = np.tile(_yerr, 2).reshape(len(hists), 2, _yerr.shape[-1])
+            _yerr = np.tile(_yerr, 2).reshape(len(plottables), 2, _yerr.shape[-1])
         elif _yerr.ndim == 1:
             # Broadcast yerr (1, N) to (nh, 2, N)
-            _yerr = np.tile(_yerr, 2 * len(hists)).reshape(
-                len(hists), 2, _yerr.shape[-1]
+            _yerr = np.tile(_yerr, 2 * len(plottables)).reshape(
+                len(plottables), 2, _yerr.shape[-1]
             )
         else:
             raise ValueError("yerr format is not understood")
@@ -288,7 +259,7 @@ def histplot(
         for yrs, _plottable in zip(_yerr, plottables):
             _plottable.fixed_errors(*yrs)
 
-    # # Sorting
+    # Sorting
     if sort is not None:
         if isinstance(sort, str):
             if sort.split("_")[0] in ["l", "label"] and isinstance(_labels, list):
@@ -299,9 +270,9 @@ def histplot(
             if len(sort.split("_")) == 2 and sort.split("_")[1] == "r":
                 order = order[::-1]
         elif isinstance(sort, list) or isinstance(sort, np.ndarray):
-            if len(sort) != len(hists):
+            if len(sort) != len(plottables):
                 raise ValueError(
-                    f"Sort indexing arrays is of the wrong size - {len(sort)}, {len(hists)} expected."
+                    f"Sort indexing arrays is of the wrong size - {len(sort)}, {len(plottables)} expected."
                 )
             order = np.asarray(sort)
         else:
@@ -329,7 +300,7 @@ def histplot(
             plottable.flat_scale(norm / np.diff(final_bins))
 
     # Stack
-    if stack and len(hists) > 1:
+    if stack and len(plottables) > 1:
         from .utils import stack as stack_fun
 
         plottables = stack_fun(*plottables)
@@ -338,7 +309,7 @@ def histplot(
     # Plotting
     return_artists: list[StairsArtists | ErrorBarArtists] = []
     if histtype == "step":
-        for i in range(len(hists)):
+        for i in range(len(plottables)):
             _kwargs = _chunked_kwargs[i]
             _label = _labels[i]
             _step_label = _label if (yerr is None and w2 is None) else None
@@ -377,7 +348,7 @@ def histplot(
         _artist = _s
 
     elif histtype == "fill":
-        for i in range(len(hists)):
+        for i in range(len(plottables)):
             _kwargs = _chunked_kwargs[i]
             _f = ax.stairs(
                 **plottables[i].to_stairs(), label=_labels[i], fill=True, **_kwargs
@@ -392,13 +363,12 @@ def histplot(
             "markersize": 10.0,
             "elinewidth": 1,
         }
-        _yerri: list[float] | None
         if xerr is True:
             _xerr = _bin_widths / 2
         elif isinstance(xerr, (int, float)):
             _xerr = xerr
 
-        for i in range(len(hists)):
+        for i in range(len(plottables)):
             _plot_info = plottables[i].to_errorbar()
             _plot_info["xerr"] = _xerr
             _e = ax.errorbar(
@@ -462,7 +432,7 @@ def hist2dplot(
         Array of per-bin labels to display. If ``True`` will
         display numerical values
     cbar : bool, optional, default True
-        Draw a colorbar. In contrast to mpl behavious the cbar axes is
+        Draw a colorbar. In contrast to mpl behaviours the cbar axes is
         appended in such a way that it doesn't modify the original axes
         width:height ratio.
     cbarsize : str or float, optional, default "7%"
