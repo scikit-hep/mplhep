@@ -10,6 +10,7 @@ import mplhep_data
 from . import alice, atlas, cms, label, lhcb, plot
 from . import styles as style
 from ._tools import Config
+from ._version import version as __version__  # noqa: F401
 from .label import save_variations, savelabels
 from .plot import (
     append_axes,
@@ -40,12 +41,6 @@ rcParams = Config(
         text=None,
     ),
 )
-
-# Make __version__ available
-_base_dir = os.path.dirname(os.path.abspath(__file__))
-
-with open(os.path.join(_base_dir, ".VERSION")) as version_file:
-    __version__ = version_file.read().strip()
 
 path = os.path.abspath(__file__)
 font_path = os.path.join(os.path.dirname(mplhep_data.__file__), "fonts")

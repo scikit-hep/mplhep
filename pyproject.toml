@@ -1,7 +1,10 @@
 [build-system]
 # Minimum requirements for the build system (setup.py) to execute.
-requires = ["wheel", "setuptools>=39.2.0"]
+requires = ["wheel", "setuptools>=42", "setuptools_scm[toml]>=3.4",]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+write_to = "src/mplhep/_version.py"
 
 [tool.nbqa.config]
 black = "pyproject.toml"
