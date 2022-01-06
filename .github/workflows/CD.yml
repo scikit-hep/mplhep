@@ -1,0 +1,42 @@
+name: CD
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+  release:
+    types:
+    - published
+
+jobs:
+  dist:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Build wheel and SDist
+      run: pipx run build
+
+    - uses: actions/upload-artifact@v2
+      with:
+        path: dist/*
+
+    - name: Check metadata
+      run: pipx run twine check dist/*
+
+
+  publish:
+    needs: [dist]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'published'
+
+    steps:
+    - uses: actions/download-artifact@v2
+      with:
+        name: artifact
+        path: dist
+
+    - uses: pypa/gh-action-pypi-publish@v1.4.2
+      with:
+        password: ${{ secrets.pypi_password }}
