@@ -327,7 +327,7 @@ def histplot(
                 label=_step_label,
                 **_kwargs,
             )
-            
+
             if do_errors:
                 _kwargs = soft_update_kwargs(_kwargs, {"color": _s.get_edgecolor()})
                 _kwargs["linestyle"] = "none"
