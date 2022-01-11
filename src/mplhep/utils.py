@@ -194,7 +194,6 @@ class Plottable:
             return values - np.sqrt(values), values + np.sqrt(values)
 
         def calculate_relative(method_fcn, variances):
-            print("X", np.abs(method_fcn(self.values, variances) - self.values))
             return np.abs(method_fcn(self.values, variances) - self.values)
 
         if method == "sqrt":

@@ -310,9 +310,14 @@ def histplot(
     return_artists: list[StairsArtists | ErrorBarArtists] = []
     if histtype == "step":
         for i in range(len(plottables)):
+            do_errors = yerr is not False and (
+                (yerr is not None or w2 is not None)
+                or (plottables[i].variances is not None)
+            )
+
             _kwargs = _chunked_kwargs[i]
-            _label = _labels[i]
-            _step_label = _label if (yerr is None and w2 is None) else None
+            _label = _labels[i] if do_errors else None
+            _step_label = _labels[i] if not do_errors else None
             _kwargs = soft_update_kwargs(_kwargs, {"linewidth": 1.5})
 
             _plot_info = plottables[i].to_stairs()
@@ -322,11 +327,7 @@ def histplot(
                 label=_step_label,
                 **_kwargs,
             )
-
-            do_errors = yerr is not False and (
-                (yerr is not None or w2 is not None)
-                or (plottables[i].variances is not None)
-            )
+            
             if do_errors:
                 _kwargs = soft_update_kwargs(_kwargs, {"color": _s.get_edgecolor()})
                 _kwargs["linestyle"] = "none"
