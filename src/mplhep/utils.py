@@ -27,7 +27,7 @@ def get_plottable_protocol_bins(
     out = np.arange(len(axis) + 1).astype(float)
     if isinstance(axis[0], tuple):  # Regular axis
         out[0] = axis[0][0]
-        out[1:] = [axis[i][1] for i in range(len(axis))]  # type: ignore
+        out[1:] = [axis[i][1] for i in range(len(axis))]  # type: ignore[index]
         labels = None
     else:  # Categorical axis
         labels = np.array([axis[i] for i in range(len(axis))])
@@ -95,18 +95,20 @@ def process_histogram_parts(
     ):
         return _process_histogram_parts_iter(H, *bins)
     else:
-        return _process_histogram_parts_iter((H,), *bins)  # type: ignore
+        return _process_histogram_parts_iter((H,), *bins)  # type: ignore[arg-type]
 
 
 def _process_histogram_parts_iter(
     hists: Iterable[ArrayLike] | Iterable[PlottableHistogram],
     *bins: Sequence[float | None],
 ) -> Iterable[PlottableHistogram]:
-    original_bins: tuple[Sequence[float], ...] = bins  # type: ignore
+    original_bins: tuple[Sequence[float], ...] = bins  # type: ignore[assignment]
 
     for hist in hists:
         h = hist_object_handler(hist, *bins)
-        current_bins: tuple[Sequence[float], ...] = tuple(get_plottable_protocol_bins(a)[0] for a in h.axes)  # type: ignore
+        current_bins: tuple[Sequence[float], ...] = tuple(
+            get_plottable_protocol_bins(a)[0] for a in h.axes  # type: ignore[misc]
+        )
         if any(b is None for b in original_bins):
             original_bins = current_bins
         if len(current_bins) != len(original_bins):
