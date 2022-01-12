@@ -26,7 +26,7 @@ from .plot import (
 )
 from .styles import set_style
 
-## Configs
+# Configs
 rcParams = Config(
     label=Config(
         data=None,
