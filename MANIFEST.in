@@ -1,4 +1,4 @@
-include src/mplhep/.VERSION
+include src/mplhep/version.pyi
 include src/mplhep/stylelib/*.mplstyle
 recursive-include src/mplhep/fonts/ *
 include LICENSE

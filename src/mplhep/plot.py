@@ -364,10 +364,15 @@ def histplot(
             "markersize": 10.0,
             "elinewidth": 1,
         }
+
+        _xerr: np.ndarray | float | int | None
+
         if xerr is True:
             _xerr = _bin_widths / 2
         elif isinstance(xerr, (int, float)):
             _xerr = xerr
+        else:
+            _xerr = None
 
         for i in range(len(plottables)):
             _plot_info = plottables[i].to_errorbar()
