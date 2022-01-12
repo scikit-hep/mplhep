@@ -438,7 +438,7 @@ def hist2dplot(
         Array of per-bin labels to display. If ``True`` will
         display numerical values
     cbar : bool, optional, default True
-        Draw a colorbar. In contrast to mpl behaviours the cbar axes is
+        Draw a colorbar. In contrast to mpl behaviors the cbar axes is
         appended in such a way that it doesn't modify the original axes
         width:height ratio.
     cbarsize : str or float, optional, default "7%"

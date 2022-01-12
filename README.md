@@ -130,7 +130,7 @@ hep.style.use({"font.sans-serif":'Comic Sans MS'})
 # Notes
 
 ## Consistency \& Fonts
-As it is ROOT does not come with any fonts and therefore relies on using system fonts. Therfore the font in a figure can be dependent on whether it was produced on OSX or PC. The default sans-serif font used is Helvetica, but it only comes with OSX, in Windows this will silently fallback to Arial.
+As it is ROOT does not come with any fonts and therefore relies on using system fonts. Therefore the font in a figure can be dependent on whether it was produced on OSX or PC. The default sans-serif font used is Helvetica, but it only comes with OSX, in Windows this will silently fallback to Arial.
 
 ### License
 Both Helvetica and Arial are proprietary, which as far as fonts go means you can use it to create any text/graphics once you have the license, but you cannot redistribute the font files as part of other software. That means we cannot just package Helvetica with this to make sure everyone has the same font in plots.
@@ -146,7 +146,7 @@ You can compare yourself if the differences are meanigful below.
   <img src="img/FontComp.png" width="400" />
 </p>
 
-They are Tex Gyre Heros, Helvetica and Arial respecively.
+They are Tex Gyre Heros, Helvetica and Arial respectively.
 
 ### Math Fonts
 - Math fonts are a separate set from regular fonts due to the amount of special characters

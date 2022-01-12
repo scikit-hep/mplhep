@@ -58,3 +58,10 @@ repos:
     files: src
     additional_dependencies: [uhi~=0.3.0, numpy~=1.22.0]
     args: [--show-error-codes]
+
+- repo: https://github.com/codespell-project/codespell
+  rev: "v2.1.0"
+  hooks:
+  - id: codespell
+    args: ["-L", "hist,heros"]
+    exclude: "^examples/Examples.ipynb$"
