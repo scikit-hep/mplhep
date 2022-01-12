@@ -11,7 +11,7 @@ Primary functions.
 
 .. autofunction:: mplhep.hist2dplot
 
-.. # List all modules when apropriately privatized
+.. # List all modules when appropriately privatized
    .. automodule:: mplhep.plot
       :members:
 

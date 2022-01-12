@@ -44,7 +44,7 @@ def exp_text(
             Secondary experiment label, typically not-bold and smaller
             font-size. For example "Simulation" or "Preliminary"
         loc : int, optional
-            Label positon:
+            Label position:
             - 0 : Above axes, left aligned
             - 1 : Top left corner
             - 2 : Top left corner, multiline
@@ -248,7 +248,7 @@ def exp_label(
     Parameters
     ----------
         loc : int, optional
-            Label positon of ``exp_text`` label:
+            Label position of ``exp_text`` label:
             - 0 : Above axes, left aligned
             - 1 : Top left corner
             - 2 : Top left corner, multiline
@@ -406,7 +406,7 @@ def savelabels(
         ]
         If supplied strings contain suffixes such as ".png" the names will be assumed
         to be absolute and will ignore ``fname``.
-        If current label contains "Simulation" this will be perserved.
+        If current label contains "Simulation" this will be preserved.
     """
     if labels is None:
         labels = [
