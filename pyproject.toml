@@ -38,3 +38,14 @@ check_untyped_defs = true
 [[tool.mypy.overrides]]
 module = ["matplotlib.*", "cycler", "scipy.*", "mpl_toolkits.*", "mplhep_data"]
 ignore_missing_imports = true
+
+
+# Additional configuration is in matplotlib/testing/conftest.py.
+[tool.pytest.ini_config]
+minversion = 6.0
+testpaths = ["tests"]
+python_files = "test*.py"
+
+
+[tool.isort]
+profile = "black"
