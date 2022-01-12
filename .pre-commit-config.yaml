@@ -28,18 +28,16 @@ repos:
     args: ["--py37-plus"]
 
 - repo: https://github.com/nbQA-dev/nbQA
-  rev: 1.2.2
+  rev: 1.2.3
   hooks:
-  - id: nbqa-black
-    additional_dependencies: [black==20.8b1]
   - id: nbqa-pyupgrade
-    additional_dependencies: [pyupgrade==2.7.3]
+    additional_dependencies: [pyupgrade==2.31.0]
     args: ["--py37-plus"]
 
 - repo: https://github.com/psf/black
   rev: 21.12b0
   hooks:
-  - id: black
+  - id: black-jupyter
 
 - repo: https://github.com/PyCQA/flake8
   rev: 4.0.1
@@ -52,4 +50,5 @@ repos:
   hooks:
   - id: mypy
     files: src
-    additional_dependencies: [uhi~=0.2.0, numpy~=1.20.1]
+    additional_dependencies: [uhi~=0.3.0, numpy~=1.22.0]
+    args: [--show-error-codes]
