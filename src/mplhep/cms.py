@@ -27,7 +27,8 @@ def text(text="", **kwargs):
         ):
             kwargs.setdefault(key, value)
     kwargs.setdefault("italic", (False, True))
-    return label_base.exp_text("CMS", text=text, **kwargs)
+    kwargs.setdefault("exp","CMS")
+    return label_base.exp_text(text=text, **kwargs)
 
 
 @docstring.copy(label_base.exp_label)
@@ -42,7 +43,8 @@ def label(label=None, **kwargs):
     kwargs.setdefault("italic", (False, True))
     if label is not None:
         kwargs["label"] = label
-    return label_base.exp_label(exp="CMS", **kwargs)
+    kwargs.setdefault("exp","CMS")
+    return label_base.exp_label(**kwargs)
 
 
 # Deprecation example
