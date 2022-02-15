@@ -27,7 +27,7 @@ def text(text="", **kwargs):
         ):
             kwargs.setdefault(key, value)
     kwargs.setdefault("italic", (False, True))
-    kwargs.setdefault("exp","CMS")
+    kwargs.setdefault("exp", "CMS")
     return label_base.exp_text(text=text, **kwargs)
 
 
@@ -43,7 +43,7 @@ def label(label=None, **kwargs):
     kwargs.setdefault("italic", (False, True))
     if label is not None:
         kwargs["label"] = label
-    kwargs.setdefault("exp","CMS")
+    kwargs.setdefault("exp", "CMS")
     return label_base.exp_label(**kwargs)
 
 
