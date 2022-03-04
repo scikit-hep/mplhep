@@ -234,7 +234,7 @@ def exp_label(
     label="",
     year=None,
     lumi=None,
-    com = None,
+    com=None,
     llabel=None,
     rlabel=None,
     fontname=None,
@@ -301,10 +301,13 @@ def exp_label(
             _lumi = r"{lumi}{year} ({com} TeV)".format(
                 lumi=str(lumi) + r" $\mathrm{fb^{-1}}$",
                 year=", " + str(year) if year is not None else "",
-                com = str(com) if com is not None else "13" ,
+                com=str(com) if com is not None else "13",
             )
         else:
-            _lumi = "{year} ({com} TeV)".format(year=str(year) if year is not None else "",com=str(com) if com is not None else "13")
+            _lumi = "{year} ({com} TeV)".format(
+                year=str(year) if year is not None else "",
+                com=str(com) if com is not None else "13",
+            )
 
     if loc < 4:
         lumitext(text=_lumi, ax=ax, fontname=fontname, fontsize=fontsize)
