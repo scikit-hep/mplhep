@@ -234,6 +234,7 @@ def exp_label(
     label="",
     year=None,
     lumi=None,
+    com = None,
     llabel=None,
     rlabel=None,
     fontname=None,
@@ -265,6 +266,7 @@ def exp_label(
             Year when data was collected
         lumi : float, optional
             Aggregate luminosity shown. Should require ``"data"`` to be ``True``.
+        com: float, optional, default is 13, but can be changed to 7/8/13.6/14 to fit differnt requirements
         llabel : string, optional
             String to manually set left-hand label text. Will overwrite "data" and
             "label" kwargs.
@@ -296,12 +298,13 @@ def exp_label(
         _lumi = rlabel
     else:
         if lumi is not None:
-            _lumi = r"{lumi}{year} (13 TeV)".format(
+            _lumi = r"{lumi}{year} ({com} TeV)".format(
                 lumi=str(lumi) + r" $\mathrm{fb^{-1}}$",
                 year=", " + str(year) if year is not None else "",
+                com = str(com) if com is not None else "13" ,
             )
         else:
-            _lumi = "{} (13 TeV)".format(str(year) if year is not None else "")
+            _lumi = "{year} ({com} TeV)".format(year=str(year) if year is not None else "",com=str(com) if com is not None else "13")
 
     if loc < 4:
         lumitext(text=_lumi, ax=ax, fontname=fontname, fontsize=fontsize)
