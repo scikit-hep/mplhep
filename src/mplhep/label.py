@@ -266,7 +266,7 @@ def exp_label(
             Year when data was collected
         lumi : float, optional
             Aggregate luminosity shown. Should require ``"data"`` to be ``True``.
-        com: float, optional, default is 13, but can be changed to 7/8/13.6/14 to fit differnt requirements
+        com: float, optional, default is 13, but can be changed to 7/8/13.6/14 to fit different requirements
         llabel : string, optional
             String to manually set left-hand label text. Will overwrite "data" and
             "label" kwargs.
