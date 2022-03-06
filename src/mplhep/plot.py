@@ -377,7 +377,7 @@ def histplot(
         for i in range(len(plottables)):
             _plot_info = plottables[i].to_errorbar()
             if yerr is False:
-                _plot_info['yerr'] = None
+                _plot_info["yerr"] = None
             _plot_info["xerr"] = _xerr
             _e = ax.errorbar(
                 **_plot_info,
