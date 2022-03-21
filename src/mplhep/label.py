@@ -442,9 +442,9 @@ def savelabels(
             else:
                 save_name = f"{fname}{suffix}"
 
-        path_dir = os.path.join(save_name.split("/")[:-1])
+        path_dir = os.path.join(*save_name.split("/")[:-1])
         if not os.path.exists(path_dir):
-            os.mkdir(path_dir)
+            os.makedirs(path_dir)
 
         ax.figure.savefig(save_name, **kwargs)
 
