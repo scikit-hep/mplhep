@@ -1,0 +1,182 @@
+name: HEAD of dependencies
+
+on:
+  # Run daily at 1:23 UTC
+  schedule:
+  - cron:  '23 1 * * *'
+  workflow_dispatch:
+
+jobs:
+  release-candidates:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ['3.10']
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install core fonts
+      if: runner.os == 'Linux'
+      run: |
+        echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
+        sudo apt-get install ttf-mscorefonts-installer
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel
+        python -m pip install pytest-github-actions-annotate-failures
+        python -m pip --quiet install --upgrade --pre .[test]
+
+    - name: List installed Python packages
+      run: python -m pip list
+
+    - name: Test with pytest
+      run: |
+        pytest -r sa --mpl --mpl-results-path=pytest_results
+
+    - name: Upload pytest test results
+      uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: pytest_results-${{ matrix.python-version }}-${{ matrix.runs-on }}
+        retention-days: 3
+        path: pytest_results
+
+  matplotlib:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ['3.10']
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install core fonts
+      run: |
+        echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
+        sudo apt-get install ttf-mscorefonts-installer
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel
+        python -m pip install pytest-github-actions-annotate-failures
+        python -m pip --no-cache-dir --quiet install --upgrade .[test]
+        python -m pip install --pre --upgrade --extra-index-url https://pypi.anaconda.org/scipy-wheels-nightly/simple matplotlib
+
+    - name: List installed Python packages
+      run: python -m pip list
+
+    - name: Test with pytest
+      run: |
+        pytest -r sa --mpl --mpl-results-path=pytest_results
+
+    - name: Upload pytest test results
+      uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: pytest_results-${{ matrix.python-version }}-${{ matrix.runs-on }}
+        retention-days: 3
+        path: pytest_results
+
+  uhi:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ['3.10']
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install core fonts
+      run: |
+        echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
+        sudo apt-get install ttf-mscorefonts-installer
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel
+        python -m pip install pytest-github-actions-annotate-failures
+        python -m pip --no-cache-dir --quiet install --upgrade .[test]
+        python -m pip uninstall --yes uhi
+        python -m pip install --upgrade git+https://github.com/scikit-hep/uhi.git
+
+    - name: List installed Python packages
+      run: python -m pip list
+
+    - name: Test with pytest
+      run: |
+        pytest -r sa --mpl --mpl-results-path=pytest_results
+
+    - name: Upload pytest test results
+      uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: pytest_results-${{ matrix.python-version }}-${{ matrix.runs-on }}
+        retention-days: 3
+        path: pytest_results
+
+  pytest:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ['3.10']
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install core fonts
+      run: |
+        echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
+        sudo apt-get install ttf-mscorefonts-installer
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel
+        python -m pip install pytest-github-actions-annotate-failures
+        python -m pip --no-cache-dir --quiet install --upgrade .[test]
+        python -m pip uninstall --yes pytest
+        python -m pip install --upgrade git+https://github.com/pytest-dev/pytest.git
+
+    - name: List installed Python packages
+      run: python -m pip list
+
+    - name: Test with pytest
+      run: |
+        pytest -r sa --mpl --mpl-results-path=pytest_results
+
+    - name: Upload pytest test results
+      uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: pytest_results-${{ matrix.python-version }}-${{ matrix.runs-on }}
+        retention-days: 3
+        path: pytest_results
