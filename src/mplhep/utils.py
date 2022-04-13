@@ -260,7 +260,7 @@ class Plottable:
     @density.setter
     def density(self, boolean: bool):
         if boolean and not self._density:
-            self.flat_scale(1 / np.sum(self.values))
+            self.flat_scale(1 / np.sum(np.diff(self.edges) * self.values))
         if not boolean:
             self.reset()
         self._density = boolean

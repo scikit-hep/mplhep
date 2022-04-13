@@ -328,10 +328,10 @@ def test_histplot_kwargs():
     return fig
 
 
-@pytest.mark.mpl_image_compare(style="default", remove_text=True)
+@pytest.mark.mpl_image_compare(style="default")
 def test_histplot_real():
     np.random.seed(0)
-    h, bins = np.histogram(np.random.normal(10, 3, 1000), bins=10)
+    h, bins = np.histogram(np.random.normal(10, 3, 1000), bins=np.geomspace(1, 20, 10))
 
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
     axs = axs.flatten()
@@ -346,7 +346,7 @@ def test_histplot_real():
     )
 
     hep.histplot(
-        [a, b], bins=bins, ax=axs[2], stack=True, label=["MC1", "MC2"], binwnorm=[2, 1]
+        [a, b], bins=bins, ax=axs[2], stack=True, label=["MC1", "MC2"], binwnorm=[1, 1]
     )
     hep.histplot(
         c,

@@ -287,9 +287,11 @@ def histplot(
         raise ValueError("Can only set density or binwnorm.")
     if density is True:
         if stack:
-            _total = np.sum(np.array([plottable.values for plottable in plottables]))
+            _total = np.sum(
+                np.array([plottable.values for plottable in plottables]), axis=0
+            )
             for plottable in plottables:
-                plottable.flat_scale(1 / _total)
+                plottable.flat_scale(1.0 / np.sum(np.diff(final_bins) * _total))
         else:
             for plottable in plottables:
                 plottable.density = True
