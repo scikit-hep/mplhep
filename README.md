@@ -184,3 +184,4 @@ Updating list of citations and use cases of `mplhep` in publications:
 - [GeantV: Results from the prototype of concurrent vector particle transport simulation in HEP](https://arxiv.org/abs/2005.00949), Amadio et al, 2020 (Fig 25,26)
 - [Search for the standard model Higgs boson decaying to charm quarks](https://cds.cern.ch/record/2682638), CMS Collaboration, 2019 (Fig 1)
 - [Search for long-lived particles decaying to eμν](https://arxiv.org/abs/2012.02696), LHCb Collaboration, 2020
+- [Measurement of the mass dependence of the transverse momentum of lepton pairs in Drell-Yan production in proton-proton collisions at √s = 13 TeV](http://arxiv.org/abs/2205.04897), CMS Collaboration, 2022 (Figs 3-)
