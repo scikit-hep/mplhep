@@ -33,7 +33,6 @@ def test_style_atlas():
     fig, ax = plt.subplots()
     hep.atlas.label(label="Preliminary")
 
-    plt.rcParams.update(plt.rcParamsDefault)
     return fig
 
 
@@ -46,7 +45,6 @@ def test_style_cms():
     fig, ax = plt.subplots()
     hep.cms.label("Preliminary")
 
-    plt.rcParams.update(plt.rcParamsDefault)
     return fig
 
 
@@ -59,7 +57,6 @@ def test_style_alice():
     fig, ax = plt.subplots()
     hep.alice.label("Preliminary")
 
-    plt.rcParams.update(plt.rcParamsDefault)
     return fig
 
 
@@ -70,8 +67,7 @@ def test_style_lhcb():
 
     plt.style.use([hep.style.LHCb1, {"figure.autolayout": False}])
     fig, ax = plt.subplots()
-    hep.lhcb.label()
-    plt.rcParams.update(plt.rcParamsDefault)
+    hep.lhcb.label("Preliminary")
     return fig
 
 
@@ -82,8 +78,7 @@ def test_style_lhcb2():
 
     plt.style.use([hep.style.LHCb2, {"figure.autolayout": False}])
     fig, ax = plt.subplots()
-    hep.lhcb.text()
-    plt.rcParams.update(plt.rcParamsDefault)
+    hep.lhcb.label("Preliminary")
     return fig
 
 

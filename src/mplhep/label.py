@@ -123,8 +123,9 @@ def exp_text(
         _exp_loc = 1
     _formater = ax.get_yaxis().get_major_formatter()
     if type(mpl.ticker.ScalarFormatter()) == type(_formater) and _exp_loc == 0:
-        ax.figure.canvas.draw()
-        _sci_box = pixel_to_axis(ax.get_yaxis().offsetText.get_window_extent())
+        _sci_box = pixel_to_axis(
+            ax.get_yaxis().offsetText.get_window_extent(ax.figure.canvas.get_renderer())
+        )
         _sci_offset = _sci_box.width * 1.1
         loc1_dict[_exp_loc]["xy"] = (_sci_offset, loc1_dict[_exp_loc]["xy"][-1])
         if loc == 0:
@@ -143,9 +144,10 @@ def exp_text(
     )
     ax._add_text(exptext)
 
-    ax.figure.canvas.draw()
     _dpi = ax.figure.dpi
-    _exp_xoffset = exptext.get_window_extent().width / _dpi * 1.05
+    _exp_xoffset = (
+        exptext.get_window_extent(ax.figure.canvas.get_renderer()).width / _dpi * 1.05
+    )
     if loc == 0:
         _t = mtransforms.offset_copy(
             exptext._transform, x=_exp_xoffset, units="inches", fig=ax.figure
