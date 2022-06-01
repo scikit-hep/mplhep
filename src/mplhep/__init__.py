@@ -63,7 +63,6 @@ __all__ = [
     "histplot",
     "hist2dplot",
     "mpl_magic",
-    "r_align",
     "yscale_legend",
     "ylow",
     "rescale_to_axessize",
