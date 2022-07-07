@@ -371,7 +371,7 @@ def histplot(
 
         if xerr is True:
             _xerr = _bin_widths / 2
-        elif isinstance(xerr, (int, float)):
+        elif isinstance(xerr, (int, float)) and not isinstance(xerr, bool):
             _xerr = xerr
         else:
             _xerr = None
