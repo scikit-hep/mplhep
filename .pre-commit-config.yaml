@@ -60,7 +60,7 @@ repos:
     args: [--show-error-codes]
 
 - repo: https://github.com/codespell-project/codespell
-  rev: "v2.1.0"
+  rev: "v2.2.1"
   hooks:
   - id: codespell
     args: ["-L", "hist,heros"]
