@@ -73,7 +73,7 @@ def linkcode_resolve(domain, info):
     obj = reduce(getattr, [mod] + info["fullname"].split("."))
     try:
         path = inspect.getsourcefile(obj)
-        relpath = path[len(modpath) + 1:]
+        relpath = path[len(modpath) + 1 :]
         _, lineno = inspect.getsourcelines(obj)
     except TypeError:
         # skip property or other type that inspect doesn't like
@@ -85,10 +85,9 @@ def linkcode_resolve(domain, info):
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
-    "matplotlib": ('https://matplotlib.org/stable/', None),
-    "pandas": ('https://pandas.pydata.org/docs/', None),
-    "numpy": ('https://numpy.org/doc/stable/', None),
-
+    "matplotlib": ("https://matplotlib.org/stable/", None),
+    "pandas": ("https://pandas.pydata.org/docs/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
 }
 
 # The master toctree document.
@@ -119,7 +118,6 @@ html_theme_options = {
     },
     "use_edit_page_button": True,
     # "analytics_id": "UA-XXXXXXX-1",  # Provided by Google in your dashboard
-
     # Toc options
     "collapse_navigation": False,
     "navigation_depth": 4,
@@ -128,7 +126,6 @@ html_theme_options = {
 html_context = {
     "github_user": "scikit-hep",
     "github_repo": "mplhep",
-
     "github_version": "master",
     "doc_path": "docs",
 }

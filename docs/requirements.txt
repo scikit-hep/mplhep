@@ -2,7 +2,6 @@ matplotlib>=3.2
 mplhep_data
 numpy>=1.16.0
 packaging
-sphinx_rtd_theme
-uhi>=0.2.0
 pydata_sphinx_theme
 sphinx
+uhi>=0.2.0
