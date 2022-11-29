@@ -32,7 +32,7 @@ Work-in-progress
    :maxdepth: 2
    :caption: Gallery
 
-    gallery/index
+   gallery/index
 
 .. toctree::
    :maxdepth: 2
