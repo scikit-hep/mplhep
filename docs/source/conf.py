@@ -49,6 +49,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
+    "jupyter_sphinx",
     "sphinx.ext.linkcode",
     "sphinx.ext.napoleon",  # Google and NumPy format docstrings
     # 'sphinx.ext.automodapi',
@@ -73,7 +74,7 @@ def linkcode_resolve(domain, info):
     obj = reduce(getattr, [mod] + info["fullname"].split("."))
     try:
         path = inspect.getsourcefile(obj)
-        relpath = path[len(modpath) + 1 :]
+        relpath = path[len(modpath) + 1:]
         _, lineno = inspect.getsourcelines(obj)
     except TypeError:
         # skip property or other type that inspect doesn't like
@@ -109,12 +110,10 @@ exclude_patterns = []
 
 html_theme = "pydata_sphinx_theme"
 
-html_logo = "_static/mplhep.png"
-
 html_theme_options = {
     "logo": {
-        "image_light": "_static/mplhep.png",
-        "image_dark": "_static/mplhep.png",
+        "image_light": "mplhep.png",
+        "image_dark": "mplhep.png",
     },
     "use_edit_page_button": True,
     # "analytics_id": "UA-XXXXXXX-1",  # Provided by Google in your dashboard

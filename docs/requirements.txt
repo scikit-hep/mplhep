@@ -5,3 +5,4 @@ packaging
 pydata_sphinx_theme
 sphinx
 uhi>=0.2.0
+jupyter-sphinx
