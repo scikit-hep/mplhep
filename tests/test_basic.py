@@ -293,7 +293,7 @@ def test_histplot_kwargs():
         label=["1", "2", "3"],
         stack=True,
         histtype="step",
-        linestyle=["--", ":"],
+        linestyle=["--", ":", "-."],
         color=(1, 0, 0, 0.8),
         ax=axs[1],
     )
@@ -305,7 +305,7 @@ def test_histplot_kwargs():
         label=["1", "2", "3"],
         histtype="step",
         binwnorm=[0.5, 3, 6],
-        linestyle=["--", ":"],
+        linestyle=["--", ":", "-."],
         color=(1, 0, 0, 0.8),
         ax=axs[2],
     )
@@ -317,7 +317,6 @@ def test_histplot_kwargs():
         label=["1", "2", "3"],
         histtype="fill",
         binwnorm=[0.5, 3, 6],
-        linestyle=["--", ":"],
         color=["green", "darkorange", "red"],
         alpha=[0.4, 0.7, 0.2],
         ax=axs[3],
