@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+doi: "10.5281/zenodo.6807166"
+date-released: "2020-04-25"
+authors:
+- family-names: "Novak"
+  given-names: "Andrzej"
+  affiliation: "RWTH Aachen"
+  orcid: "https://orcid.org/0000-0002-0389-5896"
+- family-names: "Schreiner"
+  given-names: "Henry"
+  affiliation: "Princeton University"
+  orcid: "https://orcid.org/0000-0002-7833-783X"
+- family-names: "Feickert"
+  given-names: "Matthew"
+  affiliation: "University of Wisconsin-Madison"
+  orcid: "https://orcid.org/0000-0003-4124-7862"
+title: "mplhep"
+url: "https://github.com/scikit-hep/mplhep"
+keywords:
+  - python
+  - physics
+  - matplotlib
+  - visualization
+  - plotting
+  - scikit-hep
+license: "MIT"
