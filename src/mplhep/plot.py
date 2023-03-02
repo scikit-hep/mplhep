@@ -70,6 +70,7 @@ def histplot(
     edges=True,
     binticks=False,
     ax=None,
+    flow=None,
     **kwargs,
 ):
     """
@@ -130,6 +131,8 @@ def histplot(
             Attempts to draw x-axis ticks coinciding with bin boundaries if feasible.
         ax : matplotlib.axes.Axes, optional
             Axes object (if None, last one is fetched or one is created)
+        flow :  str, optional {None, "show", "sum"}
+            Whether plot the under/overflow bin. If "show", add additional under/overflow bin. If "sum", add the under/overflow bin content to first/last bin.
         **kwargs :
             Keyword arguments passed to underlying matplotlib functions -
             {'step', 'fill_between', 'errorbar'}.
@@ -168,9 +171,43 @@ def histplot(
     )
 
     # Cast to plottables
+
     plottables = [
         Plottable(h.values(), edges=final_bins, variances=h.variances()) for h in hists
     ]
+    # Show under/overflow bins
+    # "show": Add additional bin with 5 times bin width
+    if flow == "show":
+        plottables = []
+        for h in hists:
+            final_bins = np.array(
+                [
+                    final_bins[0] - (final_bins[1] - final_bins[0]) * 5,
+                    *final_bins,
+                    final_bins[-1] + (final_bins[1] - final_bins[0]) * 5,
+                ]
+            )
+            plottables.append(
+                Plottable(
+                    h.view(flow=True)["value"],
+                    edges=final_bins,
+                    variances=h.view(flow=True)["variance"],
+                )
+            )
+    # "sum": Add under/overflow bin to first/last bin
+    elif flow == "sum":
+        plottables = []
+        for h in hists:
+            value, variance = h.view()["value"], h.view()["variance"]
+            value[0], value[-1] = (
+                value[0] + h.view(flow=True)["value"][0],
+                value[-1] + h.view(flow=True)["value"][-1],
+            )
+            variance[0], variance[-1] = (
+                variance[0] + h.view(flow=True)["variance"][0],
+                variance[-1] + h.view(flow=True)["variance"][-1],
+            )
+            plottables.append(Plottable(value, edges=final_bins, variances=variance))
 
     if w2 is not None:
         for _w2, _plottable in zip(
@@ -403,6 +440,31 @@ def histplot(
 
     if x_axes_label:
         ax.set_xlabel(x_axes_label)
+    if flow == "hint":
+        underflow, overflow = 0.0, 0.0
+        for h in hists:
+            underflow = underflow + h.view(flow=True)["value"][0]
+            overflow = overflow + h.view(flow=True)["value"][-1]
+        if underflow > 0.0:
+            ax.text(
+                0.85,
+                0.65,
+                "underflow",
+                horizontalalignment="center",
+                verticalalignment="center",
+                transform=ax.transAxes,
+            )
+            print("underflow bin:", underflow)
+        if overflow > 0.0:
+            ax.text(
+                0.85,
+                0.5,
+                "overflow",
+                horizontalalignment="center",
+                verticalalignment="center",
+                transform=ax.transAxes,
+            )
+            print("overflow bin:", overflow)
 
     return return_artists
 
@@ -420,6 +482,7 @@ def hist2dplot(
     cmin=None,
     cmax=None,
     ax=None,
+    flow=None,
     **kwargs,
 ):
     """
@@ -460,6 +523,8 @@ def hist2dplot(
         Colorbar maximum.
     ax : matplotlib.axes.Axes, optional
         Axes object (if None, last one is fetched or one is created)
+    flow :  str, optional {None, "show", "sum"}
+            Whether plot the under/overflow bin. If "show", add additional under/overflow bin. If "sum", add the under/overflow bin content to first/last bin.
     **kwargs :
         Keyword arguments passed to underlying matplotlib function - pcolormesh.
 
@@ -482,6 +547,32 @@ def hist2dplot(
     H = hist.values()
     xbins, xtick_labels = get_plottable_protocol_bins(hist.axes[0])
     ybins, ytick_labels = get_plottable_protocol_bins(hist.axes[1])
+
+    # Show under/overflow bins
+    # "show": Add additional bin with 5 times bin width
+    if flow == "show":
+        H = hist.view(flow=True)["value"]
+        xbins = np.array(
+            [
+                xbins[0] - (xbins[1] - xbins[0]) * 5,
+                *xbins,
+                xbins[-1] + (xbins[1] - xbins[0]) * 5,
+            ]
+        )
+        ybins = np.array(
+            [
+                ybins[0] - (ybins[1] - ybins[0]) * 5,
+                *ybins,
+                ybins[-1] + (ybins[1] - ybins[0]) * 5,
+            ]
+        )
+    if flow == "sum":
+        H[0, 0], H[-1, -1], H[0, -1], H[-1, 0] = (
+            hist.view(flow=True)["value"][0, 0] + H[0, 0],
+            hist.view(flow=True)["value"][-1, -1] + H[-1, -1],
+            hist.view(flow=True)["value"][0, -1] + H[0, -1],
+            hist.view(flow=True)["value"][-1, 0] + H[-1, 0],
+        )
     xbin_centers = xbins[1:] - np.diff(xbins) / float(2)
     ybin_centers = ybins[1:] - np.diff(ybins) / float(2)
 
@@ -536,7 +627,25 @@ def hist2dplot(
         cb_obj = None
 
     plt.sca(ax)
-
+    if flow == "hint":
+        if hist.view(flow=True)["value"][0, 0] > 0.0:
+            print(
+                "underflow for x & underflow for y:",
+                hist.view(flow=True)["value"][0, 0],
+            )
+        if hist.view(flow=True)["value"][-1, 0] > 0.0:
+            print(
+                "overflow for x & underflow for y:",
+                hist.view(flow=True)["value"][-1, 0],
+            )
+        if hist.view(flow=True)["value"][0, -1] > 0.0:
+            print(
+                "underflow for x & overflow for y:", hist.view(flow=True)["value"][0, 0]
+            )
+        if hist.view(flow=True)["value"][-1, -1] > 0.0:
+            print(
+                "overflow for x & overflow for y:", hist.view(flow=True)["value"][-1, 0]
+            )
     _labels: np.ndarray | None = None
     if isinstance(labels, bool):
         _labels = H if labels else None
