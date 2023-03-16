@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 
+import hist
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
@@ -110,6 +111,27 @@ def test_histplot_density():
     return fig
 
 
+@pytest.mark.mpl_image_compare(style="default")
+def test_histplot_flow():
+    np.random.seed(0)
+    h = hist.Hist(hist.axis.Regular(20, 5, 15, name="x"), hist.storage.Weight())
+    h.fill(np.random.normal(10, 3, 400))
+    fig, axs = plt.subplots(2, 2, sharex=True, sharey=True, figsize=(10, 10))
+    axs = axs.flatten()
+
+    hep.histplot(h, ax=axs[0], flow="hint")
+    hep.histplot(h, ax=axs[1], flow="None")
+    hep.histplot(h, ax=axs[2], flow="show")
+    hep.histplot(h, ax=axs[3], flow="sum")
+
+    axs[0].set_title("Default", fontsize=18)
+    axs[1].set_title("None", fontsize=18)
+    axs[2].set_title("Show", fontsize=18)
+    axs[3].set_title("Sum", fontsize=18)
+    fig.subplots_adjust(hspace=0.1, wspace=0.1)
+    return fig
+
+
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_histplot_multiple():
     np.random.seed(0)
@@ -172,6 +194,32 @@ def test_hist2dplot():
 
     fig, ax = plt.subplots()
     hep.hist2dplot(H, xedges, yedges, labels=True)
+    return fig
+
+
+@pytest.mark.mpl_image_compare(style="default")
+def test_hist2dplot_flow():
+    np.random.seed(0)
+    h = hist.Hist(
+        hist.axis.Regular(20, 5, 15, name="x"),
+        hist.axis.Regular(20, -5, 5, name="y"),
+        hist.storage.Weight(),
+    )
+    h.fill(np.random.normal(10, 3, 400), np.random.normal(0, 4, 400))
+    fig, axs = plt.subplots(2, 2, figsize=(10, 10))
+    axs = axs.flatten()
+
+    hep.hist2dplot(h, ax=axs[0], flow="hint")
+    hep.hist2dplot(h, ax=axs[1], flow="None")
+    hep.hist2dplot(h, ax=axs[2], flow="show")
+    hep.hist2dplot(h, ax=axs[3], flow="sum")
+
+    axs[0].set_title("Default", fontsize=18)
+    axs[1].set_title("None", fontsize=18)
+    axs[2].set_title("Show", fontsize=18)
+    axs[3].set_title("Sum", fontsize=18)
+    fig.subplots_adjust(hspace=0.1, wspace=0.1)
+
     return fig
 
 
