@@ -17,6 +17,7 @@ from .plot import (
     box_aspect,
     hist2dplot,
     histplot,
+    errorband,
     make_square_add_cbar,
     mpl_magic,
     rescale_to_axessize,
@@ -61,6 +62,7 @@ __all__ = [
     "savelabels",
     # Log plot functions
     "histplot",
+    "errorband",
     "hist2dplot",
     "mpl_magic",
     "yscale_legend",

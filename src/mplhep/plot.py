@@ -25,11 +25,21 @@ if TYPE_CHECKING:
 
 StairsArtists = namedtuple("StairsArtists", "stairs errorbar legend_artist")
 ErrorBarArtists = namedtuple("ErrorBarArtists", "errorbar")
+ErrorBandArtists = namedtuple("ErrorBandArtists", "stairs errorband")
 ColormeshArtists = namedtuple("ColormeshArtists", "pcolormesh cbar text")
 
 
 Hist1DArtists = Union[StairsArtists, ErrorBarArtists]
 Hist2DArtists = ColormeshArtists
+
+
+def ax_check(ax, raise_value_error: bool = False):
+    if ax is None:
+        ax = plt.gca()
+    else:
+        if not isinstance(ax, plt.Axes):
+            raise ValueError("ax must be a matplotlib Axes object")
+    return ax
 
 
 def soft_update_kwargs(kwargs, mods, rc=True):
@@ -51,6 +61,25 @@ def soft_update_kwargs(kwargs, mods, rc=True):
     return kwargs
 
 
+def errorband(
+    H_band: tuple,  # value array if error band is symmetric / tuple of upper and lower value arrays
+    bins,  # corresponding to bin edges of the hist values supplied in H_band
+    label=None,
+    ax=None,
+    **kwargs,
+):
+
+    # Construction of upper and lower boundries
+    y_upper = H_band[0]
+    y_lower = H_band[1]
+
+    error_band_args = {
+        "edges": bins, "facecolor": "none", "linewidth": 0,
+        "alpha": .9, "color": "black", "hatch": "///"
+    }
+    ax.stairs(y_upper, baseline=y_lower, label=label, **{**error_band_args, **kwargs})
+
+
 ########################################
 # Histogram plotter
 def histplot(
@@ -66,6 +95,7 @@ def histplot(
     histtype="step",
     xerr=False,
     label=None,
+    label_errorband=None,
     sort=None,
     edges=True,
     binticks=False,
@@ -138,12 +168,7 @@ def histplot(
         List[Hist1DArtists]
 
     """
-    # ax check
-    if ax is None:
-        ax = plt.gca()
-    else:
-        if not isinstance(ax, plt.Axes):
-            raise ValueError("ax must be a matplotlib Axes object")
+    ax = ax_check(ax, raise_value_error=True)
 
     # arg check
     _allowed_histtype = ["fill", "step", "errorbar"]
@@ -357,6 +382,18 @@ def histplot(
                 **plottables[i].to_stairs(), label=_labels[i], fill=True, **_kwargs
             )
             return_artists.append(StairsArtists(_f, None, None))
+
+            do_errors = yerr is not False and (
+                (yerr is not None or w2 is not None)
+                or (plottables[i].variances is not None)
+            )
+            if do_errors:
+                _errors = plottables[i].to_errorbar()
+                y_upper = _errors["y"] + _errors["yerr"][0]
+                y_lower = _errors["y"] - _errors["yerr"][1]
+                _e = errorband((y_upper, y_lower), bins=final_bins, ax=ax, label=label_errorband)
+            return_artists.append(ErrorBandArtists(_f, _e))
+
         _artist = _f
 
     elif histtype == "errorbar":
@@ -469,13 +506,7 @@ def hist2dplot(
 
     """
 
-    # ax check
-    if ax is None:
-        ax = plt.gca()
-    else:
-        if not isinstance(ax, plt.Axes):
-            raise ValueError("ax must be a matplotlib Axes object")
-
+    ax = ax_check(ax, raise_value_error=True)
     hist = hist_object_handler(H, xbins, ybins)
 
     # TODO: use Histogram everywhere
@@ -647,8 +678,7 @@ def yscale_legend(ax=None):
     """
     Automatically scale y-axis up to fit in legend()
     """
-    if ax is None:
-        ax = plt.gca()
+    ax = ax_check(ax)
 
     scale_factor = 10 ** (1.05) if ax.get_yscale() == "log" else 1.05
     while overlap(ax, _draw_leg_bbox(ax)) > 0:
@@ -661,8 +691,7 @@ def yscale_text(ax=None):
     """
     Automatically scale y-axis up to fit AnchoredText
     """
-    if ax is None:
-        ax = plt.gca()
+    ax = ax_check(ax)
 
     while overlap(ax, _draw_text_bbox(ax)) > 0:
         ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[-1] * 1.1)
@@ -675,8 +704,7 @@ def ylow(ax=None, ylow=None):
     Set lower y limit to 0 if not data/errors go lower.
     Or set a specific value
     """
-    if ax is None:
-        ax = plt.gca()
+    ax = ax_check(ax)
 
     if ax.get_yaxis().get_scale() == "log":
         return ax
@@ -704,8 +732,7 @@ def mpl_magic(ax=None, info=True):
         ylow
         yscale_legend
     """
-    if ax is None:
-        ax = plt.gca()
+    ax = ax_check(ax)
     if not info:
         print("Running ROOT/CMS style adjustments (hide with info=False):")
 
@@ -859,8 +886,7 @@ def append_axes(ax, size=0.1, pad=0.1, position="right", extend=False):
 def hist_legend(ax=None, **kwargs):
     from matplotlib.lines import Line2D
 
-    if ax is None:
-        ax = plt.gca()
+    ax = ax_check(ax)
 
     handles, labels = ax.get_legend_handles_labels()
     new_handles = [
