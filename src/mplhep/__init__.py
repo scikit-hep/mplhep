@@ -19,6 +19,7 @@ from .plot import (
     histplot,
     make_square_add_cbar,
     mpl_magic,
+    ratioplot,
     rescale_to_axessize,
     sort_legend,
     ylow,
@@ -63,6 +64,7 @@ __all__ = [
     # Log plot functions
     "histplot",
     "hist2dplot",
+    "ratioplot",
     "mpl_magic",
     "yscale_legend",
     "yscale_anchored_text",

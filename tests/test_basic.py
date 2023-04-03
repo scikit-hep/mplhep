@@ -589,6 +589,68 @@ def test_histplot_real():
     return fig
 
 
+@pytest.mark.mpl_image_compare(style="default")
+def test_ratioplot():
+    np.random.seed(0)
+    h, bins = np.histogram(np.random.normal(10, 3, 1000), bins=np.geomspace(1, 20, 10))
+    h = hist.Hist(hist.axis.Regular(20, 5, 15, name="x"), hist.storage.Weight())
+    hdata = hist.Hist(hist.axis.Regular(20, 5, 15, name="x"), hist.storage.Weight())
+    hdata.fill(np.random.poisson(h.view(flow=True)["value"] * 3))
+    fig, ((ax), (rax)) = plt.subplots(
+        2, 1, figsize=(10, 10), gridspec_kw={"height_ratios": (3, 1)}, sharex=True
+    )
+    a, b, c = h, h * 2, hdata
+
+    hep.histplot(
+        [a, b], bins=bins, ax=ax, stack=True, histtype="fill", label=["MC1", "MC2"]
+    )
+    hep.histplot([c], bins=bins, ax=ax, yerr=True, histtype="errorbar", label="Data")
+    hep.ratioplot(c, a + b, ax=rax, yerr=True)
+
+    ax.set_title("stacked")
+    rax.set_ylabel("Data/MC")
+    ax.set_ylabel("Events")
+
+    return fig
+
+
+def test_ratioplot_flow():
+    np.random.seed(0)
+    h, bins = np.histogram(np.random.normal(10, 3, 1000), bins=np.geomspace(1, 20, 10))
+    h = hist.Hist(hist.axis.Regular(20, 5, 15, name="x"), hist.storage.Weight())
+    hdata = hist.Hist(hist.axis.Regular(20, 5, 15, name="x"), hist.storage.Weight())
+    hdata.fill(np.random.poisson(h.view(flow=True)["value"] * 3))
+    fig, ((ax), (rax)) = plt.subplots(
+        4,
+        2,
+        figsize=(10, 10),
+        gridspec_kw={"height_ratios": (3, 1, 3, 1)},
+        sharex=True,
+        sharey=True,
+    )
+    a, b, c = h, h * 2, hdata
+
+    hep.histplot(
+        [a, b],
+        bins=bins,
+        ax=ax,
+        stack=True,
+        histtype="fill",
+        label=["MC1", "MC2"],
+        flow=None,
+    )
+    hep.histplot(
+        [c], bins=bins, ax=ax, yerr=True, histtype="errorbar", label="Data", flow=None
+    )
+    hep.ratioplot(c, a + b, ax=rax, yerr=True, flow="")
+
+    ax.set_title("stacked")
+    rax.set_ylabel("Data/MC")
+    ax.set_ylabel("Events")
+
+    return fig
+
+
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_histplot_w2():
     fig, ax = plt.subplots()
