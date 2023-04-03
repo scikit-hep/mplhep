@@ -7,13 +7,18 @@ from typing import TYPE_CHECKING, Any, Union
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib import patches
 from matplotlib.offsetbox import AnchoredText
 from matplotlib.transforms import Bbox
 from mpl_toolkits.axes_grid1 import axes_size, make_axes_locatable
 
+from .error_estimation import (
+    clopper_pearson_interval,
+    normal_interval,
+    poisson_interval,
+)
 from .utils import (
     Plottable,
+    compatible,
     get_histogram_axes_title,
     get_plottable_protocol_bins,
     hist_object_handler,
@@ -182,19 +187,18 @@ def histplot(
         plottables = []
         final_bins = np.array(
             [
-                final_bins[0] - (final_bins[1] - final_bins[0]) * 2,
+                final_bins[0] - (final_bins[1] - final_bins[0]) * 3,
+                final_bins[0] - (final_bins[1] - final_bins[0]),
                 *final_bins,
-                final_bins[-1] + (final_bins[1] - final_bins[0]) * 2,
+                final_bins[-1] + (final_bins[1] - final_bins[0]),
+                final_bins[-1] + (final_bins[1] - final_bins[0]) * 3,
             ]
         )
         for h in hists:
-            plottables.append(
-                Plottable(
-                    h.view(flow=True)["value"],
-                    edges=final_bins,
-                    variances=h.view(flow=True)["variance"],
-                )
-            )
+            value, variance = h.view(flow=True)["value"], h.view(flow=True)["variance"]
+            value, variance = np.insert(value, -1, 0), np.insert(variance, -1, 0)
+            value, variance = np.insert(value, 1, 0), np.insert(variance, 1, 0)
+            plottables.append(Plottable(value, edges=final_bins, variances=variance))
     # "sum": Add under/overflow bin to first/last bin
     elif flow == "sum":
         plottables = []
@@ -445,15 +449,89 @@ def histplot(
 
     if x_axes_label:
         ax.set_xlabel(x_axes_label)
-    if flow == "hint":
+    if flow == "hint" or flow == "show":
         underflow, overflow = 0.0, 0.0
         for h in hists:
             underflow = underflow + h.view(flow=True)["value"][0]
             overflow = overflow + h.view(flow=True)["value"][-1]
+        d = 0.9  # proportion of vertical to horizontal extent of the slanted line
+        trans = mpl.transforms.blended_transform_factory(ax.transData, ax.transAxes)
+        kwargs = dict(
+            marker=[(-0.5, -d), (0.5, d)],
+            markersize=15,
+            linestyle="none",
+            color="k",
+            mec="k",
+            mew=1,
+            clip_on=False,
+            transform=trans,
+        )
+        xticks = ax.get_xticks().tolist()
         if underflow > 0.0:
-            ax.axvspan(final_bins[0], final_bins[1], facecolor="red", alpha=0.5)
+            if flow == "hint":
+                ax.plot(
+                    [
+                        final_bins[0] - (final_bins[1] - final_bins[0]) / 2.0,
+                        final_bins[0],
+                    ],
+                    [0, 0],
+                    **kwargs,
+                )
+                ax.plot(
+                    [
+                        final_bins[0] - (final_bins[1] - final_bins[0]) / 2.0,
+                        final_bins[0],
+                    ],
+                    [1, 1],
+                    **kwargs,
+                )
+            if flow == "show":
+                ax.plot(
+                    [final_bins[1], (final_bins[1] + final_bins[2]) / 2.0],
+                    [0, 0],
+                    **kwargs,
+                )
+                ax.plot(
+                    [final_bins[1], (final_bins[1] + final_bins[2]) / 2.0],
+                    [1, 1],
+                    **kwargs,
+                )
+                xticks[0] = ""
+                xticks[1] = f"<{final_bins[1]}"
+
+                ax.set_xticklabels(xticks)
         if overflow > 0.0:
-            ax.axvspan(final_bins[-2], final_bins[-1], facecolor="red", alpha=0.5)
+            if flow == "hint":
+                ax.plot(
+                    [
+                        final_bins[-1],
+                        final_bins[-1] + (final_bins[1] - final_bins[0]) / 2.0,
+                    ],
+                    [0, 0],
+                    **kwargs,
+                )
+                ax.plot(
+                    [
+                        final_bins[-1],
+                        final_bins[-1] + (final_bins[1] - final_bins[0]) / 2.0,
+                    ],
+                    [1, 1],
+                    **kwargs,
+                )
+            if flow == "show":
+                ax.plot(
+                    [final_bins[-3], (final_bins[-3] + final_bins[-2]) / 2.0],
+                    [0, 0],
+                    **kwargs,
+                )
+                ax.plot(
+                    [final_bins[-3], (final_bins[-3] + final_bins[-2]) / 2.0],
+                    [1, 1],
+                    **kwargs,
+                )
+                xticks[-1] = ""
+                xticks[-2] = f">{final_bins[-2]}"
+                ax.set_xticklabels(xticks)
 
     return return_artists
 
@@ -542,18 +620,25 @@ def hist2dplot(
         H = hist.view(flow=True)["value"]
         xbins = np.array(
             [
-                xbins[0] - (xbins[1] - xbins[0]) * 2,
+                xbins[0] - (xbins[1] - xbins[0]) * 3,
+                xbins[0] - (xbins[1] - xbins[0]),
                 *xbins,
-                xbins[-1] + (xbins[1] - xbins[0]) * 2,
+                xbins[-1] + (xbins[1] - xbins[0]),
+                xbins[-1] + (xbins[1] - xbins[0]) * 3,
             ]
         )
         ybins = np.array(
             [
-                ybins[0] - (ybins[1] - ybins[0]) * 2,
+                ybins[0] - (ybins[1] - ybins[0]) * 3,
+                ybins[0] - (ybins[1] - ybins[0]),
                 *ybins,
-                ybins[-1] + (ybins[1] - ybins[0]) * 2,
+                ybins[-1] + (ybins[1] - ybins[0]),
+                ybins[-1] + (ybins[1] - ybins[0]) * 3,
             ]
         )
+        H = np.insert(H, (1, -1), 0, axis=-1)
+        H = np.insert(H, (1, -1), np.zeros(np.shape(H)[1]), axis=0)
+
     if flow == "sum":
         H[0, 0], H[-1, -1], H[0, -1], H[-1, 0] = (
             hist.view(flow=True)["value"][0, 0] + H[0, 0],
@@ -615,48 +700,77 @@ def hist2dplot(
         cb_obj = None
 
     plt.sca(ax)
-    if flow == "hint":
+    if flow == "hint" or flow == "show":
+        d = 0.9  # proportion of vertical to horizontal extent of the slanted line
+        trans = mpl.transforms.blended_transform_factory(ax.transData, ax.transAxes)
+        kwargs = dict(
+            marker=[(-0.5, -d), (0.5, d)],
+            markersize=15,
+            linestyle="none",
+            color="k",
+            mec="k",
+            mew=1,
+            clip_on=False,
+        )
+        xticks = ax.get_xticks().tolist()
+        yticks = ax.get_yticks().tolist()
         if hist.view(flow=True)["value"][0, 0] > 0.0:
-            ret1 = patches.Rectangle(
-                (xbins[0], ybins[0]),
-                width=xbins[1] - xbins[0],
-                height=ybins[1] - ybins[0],
-                fc="none",
-                ec="r",
-                lw=2,
-            )
-            ax.add_patch(ret1)
-
+            if flow == "hint":
+                ax.plot(
+                    [xbins[0] - (xbins[1] - xbins[0]) / 2.0, xbins[0]],
+                    [0, 0],
+                    transform=trans,
+                    **kwargs,
+                )
+            if flow == "show":
+                ax.plot([xbins[1], xbins[2]], [0, 0], transform=trans, **kwargs)
+                ax.plot([xbins[0], xbins[0]], [ybins[1], ybins[2]], **kwargs)
+                xticks[0] = ""
+                xticks[1] = f"<{xbins[1]}"
+                ax.set_xticklabels(xticks)
         if hist.view(flow=True)["value"][-1, 0] > 0.0:
-            ret2 = patches.Rectangle(
-                (xbins[-2], ybins[0]),
-                width=xbins[1] - xbins[0],
-                height=ybins[1] - ybins[0],
-                fc="none",
-                ec="r",
-                lw=2,
-            )
-            ax.add_patch(ret2)
+            if flow == "hint":
+                ax.plot(
+                    [xbins[-1] + (xbins[1] - xbins[0]) / 2.0, xbins[-1]],
+                    [0, 0],
+                    transform=trans,
+                    **kwargs,
+                )
+            if flow == "show":
+                ax.plot([xbins[-3], xbins[-2]], [0, 0], transform=trans, **kwargs)
+                ax.plot([xbins[-1], xbins[-1]], [ybins[1], ybins[2]], **kwargs)
+                xticks[-1] = ""
+                xticks[-2] = f">{xbins[-2]}"
+                ax.set_xticklabels(xticks)
         if hist.view(flow=True)["value"][0, -1] > 0.0:
-            ret3 = patches.Rectangle(
-                (xbins[0], ybins[-2]),
-                width=xbins[1] - xbins[0],
-                height=ybins[1] - ybins[0],
-                fc="none",
-                ec="r",
-                lw=2,
-            )
-            ax.add_patch(ret3)
+            if flow == "hint":
+                ax.plot(
+                    [xbins[0], xbins[0] - (xbins[1] - xbins[0]) / 2.0],
+                    [1, 1],
+                    transform=trans,
+                    **kwargs,
+                )
+            if flow == "show":
+                ax.plot([xbins[1], xbins[2]], [1, 1], transform=trans, **kwargs)
+                ax.plot([xbins[0], xbins[0]], [ybins[-3], ybins[-2]], **kwargs)
+                yticks[0] = ""
+                yticks[1] = f"<{ybins[1]}"
+                ax.set_yticklabels(yticks)
         if hist.view(flow=True)["value"][-1, -1] > 0.0:
-            ret4 = patches.Rectangle(
-                (xbins[-2], ybins[-2]),
-                width=xbins[1] - xbins[0],
-                height=ybins[1] - ybins[0],
-                fc="none",
-                ec="r",
-                lw=2,
-            )
-            ax.add_patch(ret4)
+            if flow == "hint":
+                ax.plot(
+                    [xbins[-1] + (xbins[1] - xbins[0]) / 2.0, xbins[-1]],
+                    [1, 1],
+                    transform=trans,
+                    **kwargs,
+                )
+            if flow == "show":
+                ax.plot([xbins[-3], xbins[-2]], [1, 1], transform=trans, **kwargs)
+                ax.plot([xbins[-1], xbins[-1]], [ybins[-3], ybins[-2]], **kwargs)
+                yticks[-1] = ""
+                yticks[-2] = f">{ybins[-2]}"
+                ax.set_yticklabels(yticks)
+
     _labels: np.ndarray | None = None
     if isinstance(labels, bool):
         _labels = H if labels else None
@@ -689,6 +803,291 @@ def hist2dplot(
                 )
 
     return ColormeshArtists(pc, cb_obj, text_artists)
+
+
+# copy functions coffea.hist.plotratio https://github.com/CoffeaTeam/coffea/blob/master/coffea/hist/plot.py to boost-hist
+def ratioplot(
+    num,
+    denom,
+    ax=None,
+    clear=True,
+    flow=None,
+    xerr=False,
+    error_opts=None,
+    denom_fill_opts=None,
+    guide_opts=None,
+    unc="num",
+    label=None,
+    ext_denom_error=None,
+):
+    """Create a ratio plot, dividing two compatible histograms
+    Parameters
+    ----------
+        num : Hist
+            Numerator, a single-axis histogram
+        denom : Hist
+            Denominator, a single-axis histogram
+        ax : matplotlib.axes.Axes, optional
+            Axes object (if None, one is created)
+        clear : bool, optional
+            Whether to clear Axes before drawing (if passed); if False, this function will skip drawing the legend
+        flow : str, optional {None, "show", "sum"}
+            Whether plot the under/overflow bin. If "show", add additional under/overflow bin. If "sum", add the under/overflow bin content to first/last bin.
+        xerr: bool, optional
+            If true, then error bars are drawn for x-axis to indicate the size of the bin.
+        error_opts : dict, optional
+            A dictionary of options to pass to the matplotlib
+            `ax.errorbar <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.errorbar.html>`_ call
+            internal to this function.  Leave blank for defaults.  Some special options are interpreted by
+            this function and not passed to matplotlib: 'emarker' (default: '') specifies the marker type
+            to place at cap of the errorbar.
+        denom_fill_opts : dict, optional
+            A dictionary of options to pass to the matplotlib
+            `ax.fill_between <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.fill_between.html>`_ call
+            internal to this function, filling the denominator uncertainty band.  Leave blank for defaults.
+        guide_opts : dict, optional
+            A dictionary of options to pass to the matplotlib
+            `ax.axhline <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.axhline.html>`_ call
+            internal to this function, to plot a horizontal guide line at ratio of 1.  Leave blank for defaults.
+        unc : str, optional
+            Uncertainty calculation option: 'clopper-pearson' interval for efficiencies; 'poisson-ratio' interval
+            for ratio of poisson distributions; 'num' poisson interval of numerator scaled by denominator value
+            (common for data/mc, for better or worse).
+        label : str, optional
+            Associate a label to this entry (note: y axis label set by ``num.label``)
+        ext_denom_error: list of np.array[error_up,error_down], optional
+            External MC errors not stored in the original histogram
+    Returns
+    -------
+        ax : matplotlib.axes.Axes
+            A matplotlib `Axes <https://matplotlib.org/3.1.1/api/axes_api.html>`_ object
+    """
+    if ax is None:
+        fig, ax = plt.subplots(1, 1)
+    else:
+        if not isinstance(ax, plt.Axes):
+            raise ValueError("ax must be a matplotlib Axes object")
+        if clear:
+            ax.clear()
+    if not compatible(num, denom):
+        raise ValueError(
+            "numerator and denominator histograms have incompatible axis definitions"
+        )
+    if len(num.axes) > 1:
+        raise ValueError("ratioplot() can only support one-dimensional histograms")
+    if error_opts is None and denom_fill_opts is None and guide_opts is None:
+        error_opts = {}
+        denom_fill_opts = {}
+        guide_opts = {}
+    axis = num.axes[0]
+
+    ax.set_xlabel(axis.label)
+    ax.set_ylabel(num.label)
+    edges = axis.edges
+    if flow == "show":
+        edges = np.array(
+            [
+                edges[0] - (edges[1] - edges[0]) * 3,
+                edges[0] - (edges[1] - edges[0]),
+                *edges,
+                edges[-1] + (edges[1] - edges[0]),
+                edges[-1] + (edges[1] - edges[0]) * 3,
+            ]
+        )
+    centers = (edges[1:] + edges[:-1]) / 2
+    ranges = (edges[1:] - edges[:-1]) / 2 if xerr else None
+    sumw_num, sumw2_num = num.values(), num.variances()
+    sumw_denom, sumw2_denom = denom.values(), denom.variances()
+
+    if flow == "show":
+        sumw_num, sumw2_num = (
+            num.view(flow=True)["value"],
+            num.view(flow=True)["variance"],
+        )
+        sumw_num, sumw2_num = np.insert(sumw_num, -1, 0), np.insert(sumw2_num, -1, 0)
+        sumw_num, sumw2_num = np.insert(sumw_num, 1, 0), np.insert(sumw2_num, 1, 0)
+        sumw_denom, sumw2_denom = (
+            denom.view(flow=True)["value"],
+            denom.view(flow=True)["variance"],
+        )
+        sumw_denom, sumw2_denom = np.insert(sumw_denom, -1, 0), np.insert(
+            sumw2_denom, -1, 0
+        )
+        sumw_denom, sumw2_denom = np.insert(sumw_denom, 1, 0), np.insert(
+            sumw2_denom, 1, 0
+        )
+
+    elif flow == "sum":
+        sumw_num[0], sumw2_num[0] = (
+            sumw_num[0] + num.view(flow=True)["value"][0],
+            sumw2_num[0] + num.view(flow=True)["value"][0],
+        )
+        sumw_num[-1], sumw2_num[-1] = (
+            sumw_num[-1] + num.view(flow=True)["value"][-1],
+            sumw2_num[-1] + num.view(flow=True)["value"][-1],
+        )
+        sumw_denom[0], sumw2_denom[0] = (
+            sumw_denom[0] + denom.view(flow=True)["value"][0],
+            sumw2_denom[0] + denom.view(flow=True)["value"][0],
+        )
+        sumw_denom[-1], sumw2_denom[-1] = (
+            sumw_denom[-1] + denom.view(flow=True)["value"][-1],
+            sumw2_denom[-1] + denom.view(flow=True)["value"][-1],
+        )
+    else:
+        sumw_num, sumw2_num = num.values(), num.variances()
+        sumw_denom, sumw2_denom = denom.values(), denom.variances()
+    rsumw = sumw_num / sumw_denom
+    if unc == "clopper-pearson":
+        rsumw_err = np.abs(clopper_pearson_interval(sumw_num, sumw_denom) - rsumw)
+    elif unc == "poisson-ratio":
+        # poisson ratio n/m is equivalent to binomial n/(n+m)
+        rsumw_err = np.abs(
+            clopper_pearson_interval(sumw_num, sumw_num + sumw_denom) - rsumw
+        )
+    elif unc == "num":
+        rsumw_err = np.abs(poisson_interval(rsumw, sumw2_num / sumw_denom**2) - rsumw)
+    elif unc == "efficiency":
+        rsumw_err = np.abs(
+            normal_interval(sumw_num, sumw_denom, sumw2_num, sumw2_denom)
+        )
+    else:
+        raise ValueError("Unrecognized uncertainty option: %r" % unc)
+
+    # if additional uncertainties
+    if ext_denom_error is not None:
+        if denom_fill_opts is {}:
+            raise ValueError("suggest to use different style for additional error")
+        if np.shape(rsumw_err) != np.shape(ext_denom_error / sumw_denom):
+            raise ValueError("Incompatible error length")
+        rsumw_err = np.sqrt(rsumw_err**2 + (ext_denom_error / sumw_denom) ** 2)
+
+    if error_opts is not None:
+        opts = {
+            "label": label,
+            "linestyle": "none",
+            "lw": 1,
+            "marker": "o",
+            "color": "k",
+        }
+        opts.update(error_opts)
+        emarker = opts.pop("emarker", "")
+        errbar = ax.errorbar(x=centers, y=rsumw, xerr=ranges, yerr=rsumw_err, **opts)
+        plt.setp(errbar[1], "marker", emarker)
+    if denom_fill_opts is not None:
+        unity = np.ones_like(sumw_denom)
+        denom_unc = poisson_interval(unity, sumw2_denom / sumw_denom**2)
+        opts = {
+            "hatch": "////",
+            "facecolor": "none",
+            "lw": 0,
+            "color": "k",
+            "alpha": 0.4,
+        }
+        if ext_denom_error is not None:
+            denom_unc[0] = (
+                unity[0]
+                - np.sqrt(
+                    (denom_unc - unity) ** 2 + (ext_denom_error / sumw_denom) ** 2
+                )[0]
+            )
+            denom_unc[1] = (
+                unity[1]
+                + np.sqrt(
+                    (denom_unc - unity) ** 2 + (ext_denom_error / sumw_denom) ** 2
+                )[1]
+            )
+            opts = denom_fill_opts
+        ax.stairs(denom_unc[0], edges=edges, baseline=denom_unc[1], **opts)
+    if guide_opts is not None:
+        opts = {"linestyle": "--", "color": (0, 0, 0, 0.5), "linewidth": 1}
+        opts.update(guide_opts)
+        if clear is not False:
+            ax.axhline(1.0, **opts)
+
+    if clear:
+        ax.autoscale(axis="x", tight=True)
+        ax.set_ylim(0, None)
+    if flow == "hint" or flow == "show":
+        d = 0.9  # proportion of vertical to horizontal extent of the slanted line
+        trans = mpl.transforms.blended_transform_factory(ax.transData, ax.transAxes)
+        kwargs = dict(
+            marker=[(-0.5, -d), (0.5, d)],
+            markersize=15,
+            linestyle="none",
+            color="k",
+            mec="k",
+            mew=1,
+            clip_on=False,
+            transform=trans,
+        )
+        xticks = ax.get_xticks().tolist()
+        if sumw_num[0] > 0.0 or sumw_denom[0] > 0.0:
+            if flow == "hint":
+                ax.plot(
+                    [
+                        edges[0] - (edges[1] - edges[0]) / 2.0,
+                        edges[0],
+                    ],
+                    [0, 0],
+                    **kwargs,
+                )
+                ax.plot(
+                    [
+                        edges[0] - (edges[1] - edges[0]) / 2.0,
+                        edges[0],
+                    ],
+                    [1, 1],
+                    **kwargs,
+                )
+            if flow == "show":
+                ax.plot(
+                    [edges[1], edges[2]],
+                    [0, 0],
+                    **kwargs,
+                )
+                ax.plot(
+                    [edges[1], edges[2]],
+                    [1, 1],
+                    **kwargs,
+                )
+                xticks[0] = ""
+                xticks[1] = f"<{edges[2]}"
+
+                ax.set_xticklabels(xticks)
+        if sumw_num[-1] > 0.0 or sumw_denom[-1] > 0.0:
+            if flow == "hint":
+                ax.plot(
+                    [
+                        edges[-1],
+                        edges[-1] + (edges[1] - edges[0]) / 2.0,
+                    ],
+                    [0, 0],
+                    **kwargs,
+                )
+                ax.plot(
+                    [
+                        edges[-1],
+                        edges[-1] + (edges[1] - edges[0]) / 2.0,
+                    ],
+                    [1, 1],
+                    **kwargs,
+                )
+            if flow == "show":
+                ax.plot(
+                    [edges[-3], edges[-2]],
+                    [0, 0],
+                    **kwargs,
+                )
+                ax.plot(
+                    [edges[-3], edges[-2]],
+                    [1, 1],
+                    **kwargs,
+                )
+                xticks[-1] = ""
+                xticks[-2] = f">{edges[-3]}"
+                ax.set_xticklabels(xticks)
+    return ax
 
 
 #############################################
