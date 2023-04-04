@@ -84,7 +84,7 @@ class deprecated_dict(dict):
     def __init__(
         self,
         *args,
-        message: str = None,
+        message: str | None = None,
         warn_once: bool = True,
         warning=FutureWarning,
         **kwargs,
