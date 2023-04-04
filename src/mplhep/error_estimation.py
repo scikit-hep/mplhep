@@ -38,6 +38,7 @@ def poisson_interval(sumw, sumw2, coverage=_coverage1sd):
             warnings.warn(
                 "All sumw are zero!  Cannot compute meaningful error bars",
                 RuntimeWarning,
+                stacklevel=2,
             )
             return np.vstack([sumw, sumw])
         nearest = np.sum(
