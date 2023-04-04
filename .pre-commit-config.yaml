@@ -35,14 +35,14 @@ repos:
     args: ["--py37-plus"]
 
 - repo: https://github.com/nbQA-dev/nbQA
-  rev: 1.6.4
+  rev: 1.7.0
   hooks:
   - id: nbqa-pyupgrade
     additional_dependencies: [pyupgrade==2.31.0]
     args: ["--py37-plus"]
 
 - repo: https://github.com/psf/black
-  rev: 23.1.0
+  rev: 23.3.0
   hooks:
   - id: black-jupyter
 
