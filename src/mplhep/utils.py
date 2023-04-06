@@ -40,7 +40,6 @@ def hist_object_handler(
     ),
     *bins: Sequence[float | None],
 ) -> PlottableHistogram:
-
     if not bins or all(b is None for b in bins):
         if isinstance(hist, list):
             if not bins and len(hist) > 0 and not isinstance(hist[0], (list, Real)):
@@ -124,7 +123,6 @@ def _process_histogram_parts_iter(
 
 
 def get_histogram_axes_title(axis: Any) -> str:
-
     if hasattr(axis, "label"):
         return axis.label
     # Classic support for older hist, deprecated
@@ -211,7 +209,8 @@ class Plottable:
                 warnings.warn(
                     "Integer weights indicate poissonian data. Will calculate "
                     "Garwood interval if ``scipy`` is installed. Otherwise errors "
-                    "will be set to ``sqrt(w2)``."
+                    "will be set to ``sqrt(w2)``.",
+                    stacklevel=2,
                 )
                 self.yerr_lo, self.yerr_hi = calculate_relative(sqrt_method, variances)
         elif callable(method):

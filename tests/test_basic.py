@@ -115,20 +115,34 @@ def test_histplot_density():
 def test_histplot_flow():
     np.random.seed(0)
     h = hist.Hist(hist.axis.Regular(20, 5, 15, name="x"), hist.storage.Weight())
+
+    h2 = hist.Hist(hist.axis.Regular(20, 5, 15, name="x"), hist.storage.Weight())
+    h3 = hist.Hist(hist.axis.Regular(20, 5, 15, name="x"), hist.storage.Weight())
+
+    one_side = np.random.normal(10, 3, 400)
+    one_side = one_side[one_side > 5]
+    no_flow = np.random.normal(10, 3, 400)
+    no_flow = no_flow[(no_flow < 15) & (no_flow > 5)]
     h.fill(np.random.normal(10, 3, 400))
-    fig, axs = plt.subplots(2, 2, sharex=True, sharey=True, figsize=(10, 10))
+    h2.fill(one_side)
+    h3.fill(no_flow)
+    fig, axs = plt.subplots(1, 3, sharey=True, figsize=(15, 5))
     axs = axs.flatten()
+    hep.histplot(h3, ax=axs[2], flow="hint")
+    hep.histplot(h3, ax=axs[2], flow="show")
+    hep.histplot(h3, ax=axs[2], flow="sum")
+    hep.histplot(h2, ax=axs[1], flow="hint")
+    hep.histplot(h2, ax=axs[1], flow="show")
+    hep.histplot(h2, ax=axs[1], flow="sum")
+    hep.histplot(h, ax=axs[0], flow="hint", label="hint")
+    hep.histplot(h, ax=axs[0], flow="show", label="show")
+    hep.histplot(h, ax=axs[0], flow="sum", label="sum")
 
-    hep.histplot(h, ax=axs[0], flow="hint")
-    hep.histplot(h, ax=axs[1], flow="None")
-    hep.histplot(h, ax=axs[2], flow="show")
-    hep.histplot(h, ax=axs[3], flow="sum")
-
-    axs[0].set_title("Default", fontsize=18)
-    axs[1].set_title("None", fontsize=18)
-    axs[2].set_title("Show", fontsize=18)
-    axs[3].set_title("Sum", fontsize=18)
+    axs[0].set_title("Two-side overflow", fontsize=18)
+    axs[1].set_title("One-side overflow", fontsize=18)
+    axs[2].set_title("No overflow", fontsize=18)
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
+    axs[0].legend()
     return fig
 
 
@@ -206,18 +220,16 @@ def test_hist2dplot_flow():
         hist.storage.Weight(),
     )
     h.fill(np.random.normal(10, 3, 400), np.random.normal(0, 4, 400))
-    fig, axs = plt.subplots(2, 2, figsize=(10, 10))
+    fig, axs = plt.subplots(1, 3, figsize=(15, 5))
     axs = axs.flatten()
 
     hep.hist2dplot(h, ax=axs[0], flow="hint")
-    hep.hist2dplot(h, ax=axs[1], flow="None")
-    hep.hist2dplot(h, ax=axs[2], flow="show")
-    hep.hist2dplot(h, ax=axs[3], flow="sum")
+    hep.hist2dplot(h, ax=axs[1], flow="show")
+    hep.hist2dplot(h, ax=axs[2], flow="sum")
 
     axs[0].set_title("Default", fontsize=18)
-    axs[1].set_title("None", fontsize=18)
-    axs[2].set_title("Show", fontsize=18)
-    axs[3].set_title("Sum", fontsize=18)
+    axs[1].set_title("Show", fontsize=18)
+    axs[2].set_title("Sum", fontsize=18)
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
 
     return fig
