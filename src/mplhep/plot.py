@@ -4,10 +4,10 @@ import collections.abc
 from collections import OrderedDict, namedtuple
 from typing import TYPE_CHECKING, Any, Union
 
+import hist as Hist
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-import hist as Hist
 from matplotlib.offsetbox import AnchoredText
 from matplotlib.transforms import Bbox
 from mpl_toolkits.axes_grid1 import axes_size, make_axes_locatable
@@ -132,7 +132,7 @@ def histplot(
             Attempts to draw x-axis ticks coinciding with bin boundaries if feasible.
         ax : matplotlib.axes.Axes, optional
             Axes object (if None, last one is fetched or one is created)
-        flow :  str, optional {None, "show", "sum", "hint"}
+        flow :  str, optional { "show", "sum", "hint"}
             Whether plot the under/overflow bin. If "show", add additional under/overflow bin. If "sum", add the under/overflow bin content to first/last bin.
         **kwargs :
             Keyword arguments passed to underlying matplotlib functions -
@@ -597,7 +597,7 @@ def hist2dplot(
         Colorbar maximum.
     ax : matplotlib.axes.Axes, optional
         Axes object (if None, last one is fetched or one is created)
-    flow :  str, optional {None, "show", "sum","hint"}
+    flow :  str, optional {"show", "sum","hint"}
             Whether plot the under/overflow bin. If "show", add additional under/overflow bin. If "sum", add the under/overflow bin content to first/last bin. "hint" would highlight the bins with under/overflow contents
     **kwargs :
         Keyword arguments passed to underlying matplotlib function - pcolormesh.
