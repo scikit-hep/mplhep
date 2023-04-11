@@ -41,4 +41,3 @@ jobs:
       with:
         password: ${{ secrets.pypi_password }}
         print-hash: true
-
