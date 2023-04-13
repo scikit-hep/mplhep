@@ -4,7 +4,7 @@ import collections.abc
 from collections import OrderedDict, namedtuple
 from typing import TYPE_CHECKING, Any, Union
 
-import hist as Hist
+import hist
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -132,7 +132,7 @@ def histplot(
             Attempts to draw x-axis ticks coinciding with bin boundaries if feasible.
         ax : matplotlib.axes.Axes, optional
             Axes object (if None, last one is fetched or one is created)
-        flow :  str, optional { "show", "sum", "hint"}
+        flow :  str, optional { "show", "sum", "hint", None}
             Whether plot the under/overflow bin. If "show", add additional under/overflow bin. If "sum", add the under/overflow bin content to first/last bin.
         **kwargs :
             Keyword arguments passed to underlying matplotlib functions -
@@ -179,12 +179,12 @@ def histplot(
 
     for h in hists:
         if (
-            not isinstance(h, Hist.hist.Hist)
+            not isinstance(h, hist.hist.Hist)
             and not "uproot.models.TH" in str(type(h))
             and flow is not None
         ):
             continue
-        elif isinstance(h, Hist.hist.Hist) and len(h.values(flow=True)) < len(
+        elif isinstance(h, hist.hist.Hist) and len(h.values(flow=True)) < len(
             final_bins
         ):
             continue
@@ -197,12 +197,16 @@ def histplot(
     flow_bins = final_bins
     for i, h in enumerate(hists):
         value, variance = h.values(), h.variances()
-        if not isinstance(h, Hist.hist.Hist) and not "uproot.models.TH" in str(type(h)):
+        if (
+            not isinstance(h, hist.hist.Hist)
+            and not "uproot.models.TH" in str(type(h))
+            and flow is not None
+        ):
             print(f"Warning: {type(h)} is not allowed to get flow bins")
             flow = None
             plottables.append(Plottable(value, edges=final_bins, variances=variance))
         # check the original hist as flow bins
-        elif isinstance(h, Hist.hist.Hist) and len(h.values(flow=True)) < len(
+        elif isinstance(h, hist.hist.Hist) and len(h.values(flow=True)) < len(
             final_bins
         ):
             print(f"Warning:  you don't have flow bins stored in {h}")
@@ -250,6 +254,8 @@ def histplot(
                 variance[0] + h.variances(flow=True)[0],
                 variance[-1] + h.variances(flow=True)[-1],
             )
+            plottables.append(Plottable(value, edges=final_bins, variances=variance))
+        else:
             plottables.append(Plottable(value, edges=final_bins, variances=variance))
     if w2 is not None:
         for _w2, _plottable in zip(
@@ -489,9 +495,10 @@ def histplot(
     if flow == "hint" or flow == "show":
         d = 0.9  # proportion of vertical to horizontal extent of the slanted line
         trans = mpl.transforms.blended_transform_factory(ax.transData, ax.transAxes)
+        ax_h = ax.bbox.height
         kwargs = dict(
             marker=[(-0.5, -d), (0.5, d)],
-            markersize=15,
+            markersize=ax_h * 0.05,
             linestyle="none",
             color="k",
             mec="k",
@@ -597,7 +604,7 @@ def hist2dplot(
         Colorbar maximum.
     ax : matplotlib.axes.Axes, optional
         Axes object (if None, last one is fetched or one is created)
-    flow :  str, optional {"show", "sum","hint"}
+    flow :  str, optional {"show", "sum","hint", None}
             Whether plot the under/overflow bin. If "show", add additional under/overflow bin. If "sum", add the under/overflow bin content to first/last bin. "hint" would highlight the bins with under/overflow contents
     **kwargs :
         Keyword arguments passed to underlying matplotlib function - pcolormesh.
@@ -615,34 +622,34 @@ def hist2dplot(
         if not isinstance(ax, plt.Axes):
             raise ValueError("ax must be a matplotlib Axes object")
 
-    hist = hist_object_handler(H, xbins, ybins)
+    h = hist_object_handler(H, xbins, ybins)
 
     # TODO: use Histogram everywhere
-    H = hist.values()
+    H = h.values()
 
-    xbins, xtick_labels = get_plottable_protocol_bins(hist.axes[0])
-    ybins, ytick_labels = get_plottable_protocol_bins(hist.axes[1])
+    xbins, xtick_labels = get_plottable_protocol_bins(h.axes[0])
+    ybins, ytick_labels = get_plottable_protocol_bins(h.axes[1])
     # Show under/overflow bins
     # "show": Add additional bin with 2 times bin width
     if (
-        not isinstance(hist, Hist.hist.Hist)
+        not isinstance(h, hist.hist.Hist)
         and not "uproot.models.TH" in str(type(hist))
         and flow is not None
     ):
         print(
-            f"Warning: {type(hist)} is not allowed to get flow bins, flow bin option set to None"
+            f"Warning: {type(h)} is not allowed to get flow bins, flow bin option set to None"
         )
         flow = None
     elif (
-        isinstance(hist, Hist.hist.Hist)
-        and len(hist.values(flow=True)[0]) < len(xbins)
-        and len(hist.values(flow=True)[1]) < len(ybins)
+        isinstance(h, hist.hist.Hist)
+        and len(h.values(flow=True)[0]) < len(xbins)
+        and len(h.values(flow=True)[1]) < len(ybins)
     ):
         flow = None
         print(f"Warning:  you don't have flow bins stored in {h}")
     elif flow == "show":
-        H = hist.values(flow=True)
-        if hist.values(flow=True)[0, 0]:
+        H = h.values(flow=True)
+        if h.values(flow=True)[0, 0]:
             xbins = np.array(
                 [
                     xbins[0] - (xbins[-1] - xbins[0]) * 0.08,
@@ -650,7 +657,7 @@ def hist2dplot(
                     *xbins,
                 ]
             )
-        if hist.values(flow=True)[-1, 0]:
+        if h.values(flow=True)[-1, 0]:
             xbins = np.array(
                 [
                     *xbins,
@@ -658,7 +665,7 @@ def hist2dplot(
                     xbins[-1] + (xbins[-1] - xbins[0]) * 0.08,
                 ]
             )
-        if hist.values(flow=True)[0, -1]:
+        if h.values(flow=True)[0, -1]:
             ybins = np.array(
                 [
                     ybins[0] - (ybins[-1] - ybins[0]) * 0.08,
@@ -666,7 +673,7 @@ def hist2dplot(
                     *ybins,
                 ]
             )
-        if hist.values(flow=True)[-1, -1]:
+        if h.values(flow=True)[-1, -1]:
             ybins = np.array(
                 [
                     *ybins,
@@ -675,28 +682,28 @@ def hist2dplot(
                 ]
             )
 
-        if hist.values(flow=True)[-1, 0] or hist.values(flow=True)[0, 0]:
+        if h.values(flow=True)[-1, 0] or h.values(flow=True)[0, 0]:
             H = np.insert(H, (1, -1), np.nan, axis=-1)
-        if hist.values(flow=True)[0, -1] or hist.values(flow=True)[-1, -1]:
+        if h.values(flow=True)[0, -1] or h.values(flow=True)[-1, -1]:
             H = np.insert(H, (1, -1), np.full(np.shape(H)[1], np.nan), axis=0)
 
     elif flow == "sum":
         H[0, 0], H[-1, -1], H[0, -1], H[-1, 0] = (
-            hist.values(flow=True)[0, 0] + H[0, 0],
-            hist.values(flow=True)[-1, -1] + H[-1, -1],
-            hist.values(flow=True)[0, -1] + H[0, -1],
-            hist.values(flow=True)[-1, 0] + H[-1, 0],
+            h.values(flow=True)[0, 0] + H[0, 0],
+            h.values(flow=True)[-1, -1] + H[-1, -1],
+            h.values(flow=True)[0, -1] + H[0, -1],
+            h.values(flow=True)[-1, 0] + H[-1, 0],
         )
     xbin_centers = xbins[1:] - np.diff(xbins) / float(2)
     ybin_centers = ybins[1:] - np.diff(ybins) / float(2)
 
     _x_axes_label = ax.get_xlabel()
     x_axes_label = (
-        _x_axes_label if _x_axes_label != "" else get_histogram_axes_title(hist.axes[0])
+        _x_axes_label if _x_axes_label != "" else get_histogram_axes_title(h.axes[0])
     )
     _y_axes_label = ax.get_ylabel()
     y_axes_label = (
-        _y_axes_label if _y_axes_label != "" else get_histogram_axes_title(hist.axes[1])
+        _y_axes_label if _y_axes_label != "" else get_histogram_axes_title(h.axes[1])
     )
 
     H = H.T
@@ -744,9 +751,10 @@ def hist2dplot(
     if flow == "hint" or flow == "show":
         d = 0.9  # proportion of vertical to horizontal extent of the slanted line
         trans = mpl.transforms.blended_transform_factory(ax.transData, ax.transAxes)
+        ax_h = ax.bbox.height
         kwargs = dict(
             marker=[(-0.5, -d), (0.5, d)],
-            markersize=15,
+            markersize=ax_h * 0.05,
             linestyle="none",
             color="k",
             mec="k",
@@ -755,7 +763,7 @@ def hist2dplot(
         )
         xticks = ax.get_xticks().tolist()
         yticks = ax.get_yticks().tolist()
-        if hist.values(flow=True)[0, 0] > 0.0:
+        if h.values(flow=True)[0, 0] > 0.0:
             if flow == "hint":
                 ax.plot(
                     [xbins[0] - (xbins[-3] - xbins[2]) * 0.03, xbins[0]],
@@ -766,7 +774,7 @@ def hist2dplot(
             if flow == "show":
                 ax.plot([xbins[1], xbins[2]], [0, 0], transform=trans, **kwargs)
                 ax.plot([xbins[0], xbins[0]], [ybins[1], ybins[2]], **kwargs)
-        if hist.values(flow=True)[-1, 0] > 0.0:
+        if h.values(flow=True)[-1, 0] > 0.0:
             if flow == "hint":
                 ax.plot(
                     [xbins[-1] + (xbins[-3] - xbins[2]) * 0.03, xbins[-1]],
@@ -777,7 +785,7 @@ def hist2dplot(
             if flow == "show":
                 ax.plot([xbins[-3], xbins[-2]], [0, 0], transform=trans, **kwargs)
                 ax.plot([xbins[-1], xbins[-1]], [ybins[1], ybins[2]], **kwargs)
-        if hist.values(flow=True)[0, -1] > 0.0:
+        if h.values(flow=True)[0, -1] > 0.0:
             if flow == "hint":
                 ax.plot(
                     [xbins[0], xbins[0] - (xbins[-3] - xbins[2]) * 0.03],
@@ -789,7 +797,7 @@ def hist2dplot(
                 ax.plot([xbins[1], xbins[2]], [1, 1], transform=trans, **kwargs)
                 ax.plot([xbins[0], xbins[0]], [ybins[-3], ybins[-2]], **kwargs)
 
-        if hist.values(flow=True)[-1, -1] > 0.0:
+        if h.values(flow=True)[-1, -1] > 0.0:
             if flow == "hint":
                 ax.plot(
                     [xbins[-1] + (xbins[-3] - xbins[2]) * 0.03, xbins[-1]],

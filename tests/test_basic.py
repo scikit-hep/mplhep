@@ -114,18 +114,20 @@ def test_histplot_density():
 @pytest.mark.mpl_image_compare(style="default")
 def test_histplot_flow():
     np.random.seed(0)
-    h = hist.Hist(hist.axis.Regular(20, 5, 15, name="x"), hist.storage.Weight())
+    h = hist.new.Reg(20, 5, 15, name="x").Weight()
     h.fill(np.random.normal(10, 3, 400))
-    fig, axs = plt.subplots(1, 3, sharey=True, figsize=(15, 5))
+    fig, axs = plt.subplots(2, 2, sharey=True, figsize=(10, 10))
     axs = axs.flatten()
 
     hep.histplot(h, ax=axs[0], flow="hint")
     hep.histplot(h, ax=axs[1], flow="show")
     hep.histplot(h, ax=axs[2], flow="sum")
+    hep.histplot(h, ax=axs[3], flow=None)
 
     axs[0].set_title("Default(hint)", fontsize=18)
     axs[1].set_title("Show", fontsize=18)
     axs[2].set_title("Sum", fontsize=18)
+    axs[3].set_title("None", fontsize=18)
     return fig
 
 
@@ -133,22 +135,15 @@ def test_histplot_flow():
 def test_histplot_hist_flow():
     np.random.seed(0)
     entries = np.random.normal(10, 3, 400)
-    h = hist.Hist(hist.axis.Regular(20, 5, 15, name="x"), hist.storage.Weight())
-    h2 = hist.Hist(hist.axis.Regular(20, 5, 15, name="x"), hist.storage.Weight())
-    h3 = hist.Hist(hist.axis.Regular(20, 5, 15, name="x"), hist.storage.Weight())
-    h4 = hist.Hist(hist.axis.Regular(20, 5, 15, name="x"), hist.storage.Weight())
+    h = hist.new.Reg(20, 5, 15, name="x", flow=True).Weight()
+    h2 = hist.new.Reg(20, 5, 15, name="x", underflow=True, overflow=False).Weight()
+    h3 = hist.new.Reg(20, 5, 15, name="x", underflow=False, overflow=True).Weight()
+    h4 = hist.new.Reg(20, 5, 15, name="x", flow=False).Weight()
 
     h.fill(entries)
-    h2.fill(entries[entries < 15])
-    h3.fill(entries[entries > 5])
-    h4.fill(entries[(entries > 5) & (entries < 15)])
-    import uproot
-
-    f = uproot.recreate("flow_th1.root")
-    f["h"] = h
-    f["h2"] = h2
-    f["h3"] = h3
-    f["h4"] = h4
+    h2.fill(entries)
+    h3.fill(entries)
+    h4.fill(entries)
     fig, axs = plt.subplots(2, 2, sharey=True, figsize=(10, 10))
     axs = axs.flatten()
 
@@ -170,7 +165,22 @@ def test_histplot_hist_flow():
 def test_histplot_uproot_flow():
     np.random.seed(0)
     entries = np.random.normal(10, 3, 400)
+    h = hist.new.Reg(20, 5, 15, name="x", flow=True).Weight()
+    h2 = hist.new.Reg(20, 5, 15, name="x", flow=True).Weight()
+    h3 = hist.new.Reg(20, 5, 15, name="x", flow=True).Weight()
+    h4 = hist.new.Reg(20, 5, 15, name="x", flow=True).Weight()
+
+    h.fill(entries)
+    h2.fill(entries[entries < 15])
+    h3.fill(entries[entries > 5])
+    h4.fill(entries[(entries > 5) & (entries < 15)])
     import uproot
+
+    f = uproot.recreate("flow_th1.root")
+    f["h"] = h
+    f["h2"] = h2
+    f["h3"] = h3
+    f["h4"] = h4
 
     f = uproot.open("flow_th1.root")
     h = f["h"]
@@ -200,16 +210,14 @@ def test_histplot_type_flow():
     np.random.seed(0)
     entries = np.random.normal(10, 3, 400)
 
-    histh = hist.Hist(
-        hist.axis.Regular(20, 5, 15, name="x", flow=False), hist.storage.Weight()
-    )
+    histh = hist.new.Reg(20, 5, 15, name="x", flow=False).Weight()
     nph, bins = np.histogram(entries, bins=20, range=(5, 15))
     histh.fill(entries)
 
     fig, axs = plt.subplots(1, 2, sharex=True, sharey=True, figsize=(10, 5))
     axs = axs.flatten()
 
-    hep.histplot(histh, ax=axs[0], flow="hint")
+    hep.histplot(histh, ax=axs[0], flow="hint", yerr=False)
     hep.histplot(nph, bins, ax=axs[1], flow="hint")
 
     axs[0].set_title("hist, noflow bin", fontsize=18)
