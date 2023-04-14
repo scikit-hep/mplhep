@@ -11,7 +11,7 @@ import numpy as np
 from matplotlib.offsetbox import AnchoredText
 from matplotlib.transforms import Bbox
 from mpl_toolkits.axes_grid1 import axes_size, make_axes_locatable
-
+import inspect
 from .utils import (
     Plottable,
     get_histogram_axes_title,
@@ -179,15 +179,18 @@ def histplot(
 
     for h in hists:
         if (
-            not isinstance(h, hist.hist.Hist)
-            and not "uproot.models.TH" in str(type(h))
+            hasattr(h, "values")
+            and not "flow" in inspect.getfullargspec(h.values).args
             and flow is not None
         ):
             continue
-        elif isinstance(h, hist.hist.Hist) and len(h.values(flow=True)) < len(
-            final_bins
-        ):
+        elif flow is None:
             continue
+        elif isinstance(h, hist.hist.Hist):
+            if h.axes[0].traits.underflow:
+                underflow = underflow + h.values(flow=True)[0]
+            if h.axes[0].traits.overflow:
+                overflow = overflow + h.values(flow=True)[0]
         else:
             underflow = underflow + h.values(flow=True)[0]
             overflow = overflow + h.values(flow=True)[-1]
@@ -196,13 +199,17 @@ def histplot(
     plottables = []
     flow_bins = final_bins
     for i, h in enumerate(hists):
-        value, variance = h.values(), h.variances()
+        if isinstance(h, hist.hist.Hist):
+            value, variance = h.values().copy(), h.variances().copy()
+        else:
+            value, variance = h.values(), h.variances()
         if (
-            not isinstance(h, hist.hist.Hist)
-            and not "uproot.models.TH" in str(type(h))
+            hasattr(h, "values")
+            and not "flow" in inspect.getfullargspec(h.values).args
             and flow is not None
         ):
-            print(f"Warning: {type(h)} is not allowed to get flow bins")
+            if flow == "sum" or flow == "show":
+                print(f"Warning: {type(h)} is not allowed to get flow bins")
             flow = None
             plottables.append(Plottable(value, edges=final_bins, variances=variance))
         # check the original hist as flow bins
@@ -632,8 +639,8 @@ def hist2dplot(
     # Show under/overflow bins
     # "show": Add additional bin with 2 times bin width
     if (
-        not isinstance(h, hist.hist.Hist)
-        and not "uproot.models.TH" in str(type(hist))
+        hasattr(h, "values")
+        and not "flow" in inspect.getfullargspec(h.values).args
         and flow is not None
     ):
         print(
