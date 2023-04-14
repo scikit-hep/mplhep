@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import collections.abc
+import inspect
 from collections import OrderedDict, namedtuple
 from typing import TYPE_CHECKING, Any, Union
 
@@ -11,7 +12,7 @@ import numpy as np
 from matplotlib.offsetbox import AnchoredText
 from matplotlib.transforms import Bbox
 from mpl_toolkits.axes_grid1 import axes_size, make_axes_locatable
-import inspect
+
 from .utils import (
     Plottable,
     get_histogram_axes_title,
