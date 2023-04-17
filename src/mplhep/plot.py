@@ -654,7 +654,7 @@ def hist2dplot(
         print(f"Warning:  you don't have flow bins stored in {h}")
     elif flow == "show":
         H = h.values(flow=True)
-        if h.values(flow=True)[0, 0]:
+        if any(h.values(flow=True)[0] > 0):
             xbins = np.array(
                 [
                     xbins[0] - (xbins[-1] - xbins[0]) * 0.08,
@@ -662,7 +662,7 @@ def hist2dplot(
                     *xbins,
                 ]
             )
-        if h.values(flow=True)[-1, 0]:
+        if any(h.values(flow=True)[-1] > 0):
             xbins = np.array(
                 [
                     *xbins,
@@ -670,7 +670,7 @@ def hist2dplot(
                     xbins[-1] + (xbins[-1] - xbins[0]) * 0.08,
                 ]
             )
-        if h.values(flow=True)[0, -1]:
+        if any(h.values(flow=True)[:, 0] > 0):
             ybins = np.array(
                 [
                     ybins[0] - (ybins[-1] - ybins[0]) * 0.08,
@@ -678,7 +678,7 @@ def hist2dplot(
                     *ybins,
                 ]
             )
-        if h.values(flow=True)[-1, -1]:
+        if any(h.values(flow=True)[:, -1] > 0):
             ybins = np.array(
                 [
                     *ybins,
@@ -686,12 +686,26 @@ def hist2dplot(
                     ybins[-1] + (ybins[-1] - ybins[0]) * 0.08,
                 ]
             )
-        if h.values(flow=True)[-1, 0] > 0.0 or h.values(flow=True)[0, 0] > 0.0:
-            H = np.insert(H, (1, -1), np.nan, axis=-1)
-        if h.values(flow=True)[0, -1] > 0.0 or h.values(flow=True)[-1, -1] > 0.0:
-            H = np.insert(H, (1, -1), np.full(np.shape(H)[1], np.nan), axis=0)
 
+        if any(h.values(flow=True)[0] > 0.0):
+            H = np.insert(H, (1), np.nan, axis=-1)
+        if any(h.values(flow=True)[-1] > 0.0):
+            H = np.insert(H, (-1), np.nan, axis=-1)
+        if any(h.values(flow=True)[:, 0] > 0):
+            H = np.insert(H, (1), np.full(np.shape(H)[1], np.nan), axis=0)
+        if any(h.values(flow=True)[:, -1] > 0):
+            H = np.insert(H, (-1), np.full(np.shape(H)[1], np.nan), axis=0)
     elif flow == "sum":
+        # Sum borders
+        H[0], H[-1] = (
+            H[0] + h.values(flow=True)[0, 1:-1],
+            H[-1] + h.values(flow=True)[-1, 1:-1],
+        )
+        H[:, 0], H[:, -1] = (
+            H[:, 0] + h.values(flow=True)[1:-1, 0],
+            H[:, -1] + h.values(flow=True)[1:-1, -1],
+        )
+        # Sum corners to corners
         H[0, 0], H[-1, -1], H[0, -1], H[-1, 0] = (
             h.values(flow=True)[0, 0] + H[0, 0],
             h.values(flow=True)[-1, -1] + H[-1, -1],
@@ -720,7 +734,7 @@ def hist2dplot(
     X, Y = np.meshgrid(xbins, ybins)
 
     kwargs.setdefault("shading", "flat")
-    pc = ax.pcolormesh(X, Y, H, **kwargs)
+    pc = ax.pcolormesh(X, Y, H, vmin=cmin, vmax=cmax, **kwargs)
 
     if x_axes_label:
         ax.set_xlabel(x_axes_label)
@@ -765,7 +779,7 @@ def hist2dplot(
             mew=1,
             clip_on=False,
         )
-        if h.values(flow=True)[0, 0] > 0.0:
+        if any(h.values(flow=True)[0] > 0):
             if flow == "hint":
                 ax.plot(
                     [xbins[0] - (xbins[-3] - xbins[2]) * 0.03, xbins[0]],
@@ -776,7 +790,7 @@ def hist2dplot(
             if flow == "show":
                 ax.plot([xbins[1], xbins[2]], [0, 0], transform=trans, **kwargs)
                 ax.plot([xbins[0], xbins[0]], [ybins[1], ybins[2]], **kwargs)
-        if h.values(flow=True)[-1, 0] > 0.0:
+        if any(h.values(flow=True)[:, 0] > 0):
             if flow == "hint":
                 ax.plot(
                     [xbins[-1] + (xbins[-3] - xbins[2]) * 0.03, xbins[-1]],
@@ -787,7 +801,7 @@ def hist2dplot(
             if flow == "show":
                 ax.plot([xbins[-3], xbins[-2]], [0, 0], transform=trans, **kwargs)
                 ax.plot([xbins[-1], xbins[-1]], [ybins[1], ybins[2]], **kwargs)
-        if h.values(flow=True)[0, -1] > 0.0:
+        if any(h.values(flow=True)[-1] > 0):
             if flow == "hint":
                 ax.plot(
                     [xbins[0], xbins[0] - (xbins[-3] - xbins[2]) * 0.03],
@@ -799,7 +813,7 @@ def hist2dplot(
                 ax.plot([xbins[1], xbins[2]], [1, 1], transform=trans, **kwargs)
                 ax.plot([xbins[0], xbins[0]], [ybins[-3], ybins[-2]], **kwargs)
 
-        if h.values(flow=True)[-1, -1] > 0.0:
+        if any(h.values(flow=True)[:, -1] > 0):
             if flow == "hint":
                 ax.plot(
                     [xbins[-1] + (xbins[-3] - xbins[2]) * 0.03, xbins[-1]],
