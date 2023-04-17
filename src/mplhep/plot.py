@@ -630,8 +630,8 @@ def hist2dplot(
     h = hist_object_handler(H, xbins, ybins)
 
     # TODO: use Histogram everywhere
-    H = h.values()
 
+    H = h.values() if not hasattr(h, "plot1d") else h.values().copy()
     xbins, xtick_labels = get_plottable_protocol_bins(h.axes[0])
     ybins, ytick_labels = get_plottable_protocol_bins(h.axes[1])
     # Show under/overflow bins
@@ -686,10 +686,9 @@ def hist2dplot(
                     ybins[-1] + (ybins[-1] - ybins[0]) * 0.08,
                 ]
             )
-
-        if h.values(flow=True)[-1, 0] or h.values(flow=True)[0, 0]:
+        if h.values(flow=True)[-1, 0] > 0.0 or h.values(flow=True)[0, 0] > 0.0:
             H = np.insert(H, (1, -1), np.nan, axis=-1)
-        if h.values(flow=True)[0, -1] or h.values(flow=True)[-1, -1]:
+        if h.values(flow=True)[0, -1] > 0.0 or h.values(flow=True)[-1, -1] > 0.0:
             H = np.insert(H, (1, -1), np.full(np.shape(H)[1], np.nan), axis=0)
 
     elif flow == "sum":

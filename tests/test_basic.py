@@ -299,16 +299,18 @@ def test_hist2dplot_flow():
         hist.storage.Weight(),
     )
     h.fill(np.random.normal(10, 3, 400), np.random.normal(0, 4, 400))
-    fig, axs = plt.subplots(1, 3, figsize=(15, 5))
+    fig, axs = plt.subplots(2, 2, figsize=(10, 10))
     axs = axs.flatten()
 
     hep.hist2dplot(h, ax=axs[0], flow="hint")
     hep.hist2dplot(h, ax=axs[1], flow="show")
     hep.hist2dplot(h, ax=axs[2], flow="sum")
+    hep.hist2dplot(h, ax=axs[3], flow=None)
 
-    axs[0].set_title("Default", fontsize=18)
+    axs[0].set_title("Default(hint)", fontsize=18)
     axs[1].set_title("Show", fontsize=18)
     axs[2].set_title("Sum", fontsize=18)
+    axs[3].set_title("None", fontsize=18)
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
 
     return fig
