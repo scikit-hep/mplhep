@@ -310,7 +310,7 @@ def test_hist2dplot_flow():
     axs[0].set_title("Default(hint)", fontsize=18)
     axs[1].set_title("Show", fontsize=18)
     axs[2].set_title("Sum", fontsize=18)
-    axs[3].set_title("None", fontsize=18) 
+    axs[3].set_title("None", fontsize=18)
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
 
     return fig

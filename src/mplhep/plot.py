@@ -186,11 +186,15 @@ def histplot(
             continue
         elif flow is None:
             continue
-        elif hasattr(h, "plot1d"):
+        elif (
+            hasattr(h, "axes")
+            and hasattr(h.axes[0], "traits")
+            and hasattr(h.axes[0].traits, "underflow")
+        ):
             if h.axes[0].traits.underflow:
                 underflow = underflow + h.values(flow=True)[0]
             if h.axes[0].traits.overflow:
-                overflow = overflow + h.values(flow=True)[0]
+                overflow = overflow + h.values(flow=True)[-1]
         else:
             underflow = underflow + h.values(flow=True)[0]
             overflow = overflow + h.values(flow=True)[-1]
@@ -199,10 +203,7 @@ def histplot(
     plottables = []
     flow_bins = final_bins
     for i, h in enumerate(hists):
-        if hasattr(h, "plot1d"):
-            value, variance = h.values().copy(), h.variances().copy()
-        else:
-            value, variance = h.values(), h.variances()
+        value, variance = h.values(), h.variances()
         if (
             hasattr(h, "values")
             and "flow" not in inspect.getfullargspec(h.values).args
@@ -213,7 +214,13 @@ def histplot(
             flow = None
             plottables.append(Plottable(value, edges=final_bins, variances=variance))
         # check the original hist as flow bins
-        elif hasattr(h, "plot1d") and len(h.values(flow=True)) < len(final_bins):
+        elif (
+            hasattr(h, "axes")
+            and hasattr(h.axes[0], "traits")
+            and hasattr(h.axes[0].traits, "underflow")
+            and not h.axes[0].traits.underflow
+            and not h.axes[0].traits.overflow
+        ):
             print(f"Warning:  you don't have flow bins stored in {h}")
             flow = None
             plottables.append(Plottable(value, edges=final_bins, variances=variance))
@@ -251,6 +258,7 @@ def histplot(
                 )
             plottables.append(Plottable(value, edges=flow_bins, variances=variance))
         elif flow == "sum":
+            value, variance = h.values().copy(), h.variances().copy()
             value[0], value[-1] = (
                 value[0] + h.values(flow=True)[0],
                 value[-1] + h.values(flow=True)[-1],
@@ -631,7 +639,7 @@ def hist2dplot(
 
     # TODO: use Histogram everywhere
 
-    H = h.values() if not hasattr(h, "plot1d") else h.values().copy()
+    H = h.values()
     xbins, xtick_labels = get_plottable_protocol_bins(h.axes[0])
     ybins, ytick_labels = get_plottable_protocol_bins(h.axes[1])
     # Show under/overflow bins
@@ -646,9 +654,11 @@ def hist2dplot(
         )
         flow = None
     elif (
-        hasattr(h, "plot1d")
-        and len(h.values(flow=True)[0]) < len(xbins)
-        and len(h.values(flow=True)[1]) < len(ybins)
+        hasattr(h, "axes")
+        and hasattr(h.axes[0], "traits")
+        and hasattr(h.axes[0].traits, "underflow")
+        and not h.axes[0].traits.underflow
+        and not h.axes[0].traits.overflow
     ):
         flow = None
         print(f"Warning:  you don't have flow bins stored in {h}")
@@ -696,6 +706,7 @@ def hist2dplot(
         if any(h.values(flow=True)[:, -1] > 0):
             H = np.insert(H, (-1), np.full(np.shape(H)[1], np.nan), axis=0)
     elif flow == "sum":
+        H = h.values().copy()
         # Sum borders
         H[0], H[-1] = (
             H[0] + h.values(flow=True)[0, 1:-1],
