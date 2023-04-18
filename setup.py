@@ -14,6 +14,7 @@ extras_require = {
         "uproot",
         "uproot4",
         "boost_histogram",
+        "hist",
         "scikit-hep-testdata",
     ],
     "dev": ["flake8", "jupyter", "bumpversion", "twine", "black", "pre-commit"],
