@@ -48,7 +48,9 @@ def exp_text(
             - 0 : Above axes, left aligned
             - 1 : Top left corner
             - 2 : Top left corner, multiline
-            - 3 : Split EXP above axes, rest of label in top left corner"
+            - 3 : Split EXP above axes, rest of label in top left corner
+            - 4 : Top left corner, but align "rlabel" underneath
+            - 5 : Top right corner, but align "rlabel" underneath
         ax : matplotlib.axes.Axes, optional
             Axes object (if None, last one is fetched)
         fontname : string, optional
@@ -262,8 +264,9 @@ def exp_label(
             - 0 : Above axes, left aligned
             - 1 : Top left corner
             - 2 : Top left corner, multiline
-            - 3 : Split EXP above axes, rest of label in top left corner"
+            - 3 : Split EXP above axes, rest of label in top left corner
             - 4 : (1) Top left corner, but align "rlabel" underneath
+            - 5 : (1) Top right corner, but align "rlabel" underneath
         ax : matplotlib.axes.Axes, optional
             Axes object (if None, last one is fetched)
         data : bool, optional
