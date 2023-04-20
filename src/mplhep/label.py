@@ -77,6 +77,7 @@ def exp_text(
     loc1_dict = {
         0: {"xy": (0.001, 1 + pad), "va": "bottom"},
         1: {"xy": (0.05, 0.95 - pad), "va": "top"},
+        2: {"xy": (0.62, 0.95 - pad), "va": "top"},
     }
 
     loc2_dict = {
@@ -85,15 +86,18 @@ def exp_text(
         2: {"xy": (0.05, 0.9450 - pad), "va": "top"},
         3: {"xy": (0.05, 0.95 - pad), "va": "top"},
         4: {"xy": (0.05, 0.9550 - pad), "va": "bottom"},
+        5: {"xy": (0.6250, 0.9550 - pad), "va": "bottom"},
     }
 
-    if loc not in [0, 1, 2, 3, 4]:
+    if loc not in [0, 1, 2, 3, 4, 5]:
         raise ValueError(
-            "loc must be in {0, 1, 2}:\n"
+            "loc must be in {0, 1, 2, 3, 4, 5}:\n"
             "0 : Above axes, left aligned\n"
             "1 : Top left corner\n"
             "2 : Top left corner, multiline\n"
             "3 : Split EXP above axes, rest of label in top left corner\n"
+            "4 : Top left corner, inside the frame \n"
+            "5 : Top right corner, inside the frame \n"
         )
 
     def pixel_to_axis(extent, ax=None):
@@ -119,6 +123,8 @@ def exp_text(
 
     if loc in [0, 3]:
         _exp_loc = 0
+    elif loc == 5:
+        _exp_loc = 2
     else:
         _exp_loc = 1
     _formater = ax.get_yaxis().get_major_formatter()
@@ -152,7 +158,7 @@ def exp_text(
         _t = mtransforms.offset_copy(
             exptext._transform, x=_exp_xoffset, units="inches", fig=ax.figure
         )
-    elif loc in [1, 4]:
+    elif loc in [1, 4, 5]:
         _t = mtransforms.offset_copy(
             exptext._transform,
             x=_exp_xoffset,
@@ -339,7 +345,7 @@ def exp_label(
         italic=italic,
         pad=pad,
     )
-    if loc == 4:
+    if loc >= 4:
         _t = mtransforms.offset_copy(
             exptext._transform,
             y=-exptext.get_window_extent().height / ax.figure.dpi,
