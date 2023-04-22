@@ -214,7 +214,7 @@ def test_labeltext_loc():
 
 @pytest.mark.mpl_image_compare(style="default")
 def test_label_loc():
-    fig, axs = plt.subplots(1, 5, figsize=(20, 4))
+    fig, axs = plt.subplots(2, 3, figsize=(20, 4))
     for i, ax in enumerate(axs.flatten()):
         hep.cms.label("Preliminary", loc=i, ax=ax, lumi=50, data=True)
     return fig

@@ -48,9 +48,9 @@ def exp_text(
             - 0 : Above axes, left aligned
             - 1 : Top left corner
             - 2 : Top left corner, multiline
-            - 3 : Split EXP above axes, rest of label in top left corner
-            - 4 : Top left corner, but align "rlabel" underneath
-            - 5 : Top right corner, but align "rlabel" underneath
+            - 3 : Split EXP above axes, rest of label in top left corner"
+            - 4 : Top left corner, inside the frame
+            - 5 : Top right corner, inside the frame
         ax : matplotlib.axes.Axes, optional
             Axes object (if None, last one is fetched)
         fontname : string, optional
@@ -79,7 +79,7 @@ def exp_text(
     loc1_dict = {
         0: {"xy": (0.001, 1 + pad), "va": "bottom"},
         1: {"xy": (0.05, 0.95 - pad), "va": "top"},
-        2: {"xy": (0.62, 0.95 - pad), "va": "top"},
+        2: {"xy": (0.56, 0.95 - pad), "va": "top"},
     }
 
     loc2_dict = {
@@ -88,7 +88,7 @@ def exp_text(
         2: {"xy": (0.05, 0.9450 - pad), "va": "top"},
         3: {"xy": (0.05, 0.95 - pad), "va": "top"},
         4: {"xy": (0.05, 0.9550 - pad), "va": "bottom"},
-        5: {"xy": (0.6250, 0.9550 - pad), "va": "bottom"},
+        5: {"xy": (0.5650, 0.9550 - pad), "va": "bottom"},
     }
 
     if loc not in [0, 1, 2, 3, 4, 5]:
