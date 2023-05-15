@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import collections.abc
 import inspect
+import warnings
 from collections import OrderedDict, namedtuple
 from typing import TYPE_CHECKING, Any, Union
 
@@ -71,7 +72,7 @@ def histplot(
     edges=True,
     binticks=False,
     ax=None,
-    flow="hint",
+    flow=None,
     **kwargs,
 ):
     """
@@ -154,6 +155,12 @@ def histplot(
     _allowed_histtype = ["fill", "step", "errorbar"]
     _err_message = f"Select 'histtype' from: {_allowed_histtype}"
     assert histtype in _allowed_histtype, _err_message
+    assert flow is None or flow in {
+        "show",
+        "sum",
+        "hint",
+        "none",
+    }, "flow must be show, sum, hint, or none"
 
     # Convert 1/0 etc to real bools
     stack = bool(stack)
@@ -210,18 +217,21 @@ def histplot(
             and flow is not None
         ):
             if flow == "sum" or flow == "show":
-                print(f"Warning: {type(h)} is not allowed to get flow bins")
+                warnings.warn(
+                    f"{type(h)} is not allowed to get flow bins", stacklevel=2
+                )
             flow = None
             plottables.append(Plottable(value, edges=final_bins, variances=variance))
-        # check the original hist as flow bins
+        # check if the original hist has flow bins
         elif (
             hasattr(h, "axes")
             and hasattr(h.axes[0], "traits")
             and hasattr(h.axes[0].traits, "underflow")
             and not h.axes[0].traits.underflow
             and not h.axes[0].traits.overflow
+            and flow in {"show", "hint", "sum"}
         ):
-            print(f"Warning:  you don't have flow bins stored in {h}")
+            warnings.warn(f"You don't have flow bins stored in {h!r}", stacklevel=2)
             flow = None
             plottables.append(Plottable(value, edges=final_bins, variances=variance))
         elif flow == "hint":
