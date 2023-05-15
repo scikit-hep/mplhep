@@ -72,7 +72,7 @@ def histplot(
     edges=True,
     binticks=False,
     ax=None,
-    flow=None,
+    flow="hint",
     **kwargs,
 ):
     """
@@ -133,7 +133,7 @@ def histplot(
             Attempts to draw x-axis ticks coinciding with bin boundaries if feasible.
         ax : matplotlib.axes.Axes, optional
             Axes object (if None, last one is fetched or one is created)
-        flow :  str, optional { "show", "sum", "hint", None}
+        flow :  str, optional { "show", "sum", "hint", "none"}
             Whether plot the under/overflow bin. If "show", add additional under/overflow bin. If "sum", add the under/overflow bin content to first/last bin.
         **kwargs :
             Keyword arguments passed to underlying matplotlib functions -
@@ -211,16 +211,11 @@ def histplot(
     flow_bins = final_bins
     for i, h in enumerate(hists):
         value, variance = h.values(), h.variances()
-        if (
-            hasattr(h, "values")
-            and "flow" not in inspect.getfullargspec(h.values).args
-            and flow is not None
-        ):
+        if hasattr(h, "values") and "flow" not in inspect.getfullargspec(h.values).args:
             if flow == "sum" or flow == "show":
                 warnings.warn(
                     f"{type(h)} is not allowed to get flow bins", stacklevel=2
                 )
-            flow = None
             plottables.append(Plottable(value, edges=final_bins, variances=variance))
         # check if the original hist has flow bins
         elif (
@@ -229,10 +224,9 @@ def histplot(
             and hasattr(h.axes[0].traits, "underflow")
             and not h.axes[0].traits.underflow
             and not h.axes[0].traits.overflow
-            and flow in {"show", "hint", "sum"}
+            and flow in {"show", "sum"}
         ):
             warnings.warn(f"You don't have flow bins stored in {h!r}", stacklevel=2)
-            flow = None
             plottables.append(Plottable(value, edges=final_bins, variances=variance))
         elif flow == "hint":
             plottables.append(Plottable(value, edges=final_bins, variances=variance))
