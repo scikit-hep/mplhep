@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import collections.abc
 import inspect
+import warnings
 from collections import OrderedDict, namedtuple
 from typing import TYPE_CHECKING, Any, Union
 
@@ -132,7 +133,7 @@ def histplot(
             Attempts to draw x-axis ticks coinciding with bin boundaries if feasible.
         ax : matplotlib.axes.Axes, optional
             Axes object (if None, last one is fetched or one is created)
-        flow :  str, optional { "show", "sum", "hint", None}
+        flow :  str, optional { "show", "sum", "hint", "none"}
             Whether plot the under/overflow bin. If "show", add additional under/overflow bin. If "sum", add the under/overflow bin content to first/last bin.
         **kwargs :
             Keyword arguments passed to underlying matplotlib functions -
@@ -154,6 +155,12 @@ def histplot(
     _allowed_histtype = ["fill", "step", "errorbar"]
     _err_message = f"Select 'histtype' from: {_allowed_histtype}"
     assert histtype in _allowed_histtype, _err_message
+    assert flow is None or flow in {
+        "show",
+        "sum",
+        "hint",
+        "none",
+    }, "flow must be show, sum, hint, or none"
 
     # Convert 1/0 etc to real bools
     stack = bool(stack)
@@ -204,25 +211,22 @@ def histplot(
     flow_bins = final_bins
     for i, h in enumerate(hists):
         value, variance = h.values(), h.variances()
-        if (
-            hasattr(h, "values")
-            and "flow" not in inspect.getfullargspec(h.values).args
-            and flow is not None
-        ):
+        if hasattr(h, "values") and "flow" not in inspect.getfullargspec(h.values).args:
             if flow == "sum" or flow == "show":
-                print(f"Warning: {type(h)} is not allowed to get flow bins")
-            flow = None
+                warnings.warn(
+                    f"{type(h)} is not allowed to get flow bins", stacklevel=2
+                )
             plottables.append(Plottable(value, edges=final_bins, variances=variance))
-        # check the original hist as flow bins
+        # check if the original hist has flow bins
         elif (
             hasattr(h, "axes")
             and hasattr(h.axes[0], "traits")
             and hasattr(h.axes[0].traits, "underflow")
             and not h.axes[0].traits.underflow
             and not h.axes[0].traits.overflow
+            and flow in {"show", "sum"}
         ):
-            print(f"Warning:  you don't have flow bins stored in {h}")
-            flow = None
+            warnings.warn(f"You don't have flow bins stored in {h!r}", stacklevel=2)
             plottables.append(Plottable(value, edges=final_bins, variances=variance))
         elif flow == "hint":
             plottables.append(Plottable(value, edges=final_bins, variances=variance))
@@ -505,7 +509,8 @@ def histplot(
 
     if x_axes_label:
         ax.set_xlabel(x_axes_label)
-    if flow == "hint" or flow == "show":
+
+    if flow in {"hint", "show"} and (underflow > 0.0 or overflow > 0.0):
         d = 0.9  # proportion of vertical to horizontal extent of the slanted line
         trans = mpl.transforms.blended_transform_factory(ax.transData, ax.transAxes)
         ax_h = ax.bbox.height
