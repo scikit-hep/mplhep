@@ -509,7 +509,8 @@ def histplot(
 
     if x_axes_label:
         ax.set_xlabel(x_axes_label)
-    if flow == "hint" or flow == "show":
+
+    if flow in {"hint", "show"} and (underflow > 0.0 or overflow > 0.0):
         d = 0.9  # proportion of vertical to horizontal extent of the slanted line
         trans = mpl.transforms.blended_transform_factory(ax.transData, ax.transAxes)
         ax_h = ax.bbox.height
