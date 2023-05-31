@@ -76,7 +76,12 @@ jobs:
         python -m pip install --upgrade pip setuptools wheel
         python -m pip install pytest-github-actions-annotate-failures
         python -m pip --no-cache-dir --quiet install --upgrade .[test]
-        python -m pip install --pre --upgrade --extra-index-url https://pypi.anaconda.org/scipy-wheels-nightly/simple matplotlib
+        python -m pip install \
+          --upgrade \
+          --pre \
+          --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
+          --extra-index-url https://pypi.org/simple/ \
+          matplotlib
 
     - name: List installed Python packages
       run: python -m pip list
