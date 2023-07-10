@@ -171,6 +171,8 @@ def histplot(
     # Process input
     hists = list(process_histogram_parts(H, bins))
     final_bins, xtick_labels = get_plottable_protocol_bins(hists[0].axes[0])
+    _bin_widths = np.diff(final_bins)
+    _bin_centers = final_bins[1:] - _bin_widths / float(2)
     assert final_bins.ndim == 1, "bins need to be 1 dimensional"
     _x_axes_label = ax.get_xlabel()
     x_axes_label = (
@@ -237,8 +239,8 @@ def histplot(
                         final_bins,
                         0,
                         [
-                            final_bins[0] - (final_bins[-1] - final_bins[0]) * 0.08,
-                            final_bins[0] - (final_bins[-1] - final_bins[0]) * 0.03,
+                            final_bins[0] - _bin_widths[0] * len(_bin_widths) * 0.08,
+                            final_bins[0] - _bin_widths[0] * len(_bin_widths) * 0.03,
                         ],
                     )
                 value, variance = np.insert(value, 0, np.nan), np.insert(
@@ -252,8 +254,8 @@ def histplot(
                     flow_bins = np.append(
                         flow_bins,
                         [
-                            final_bins[-1] + (final_bins[-1] - final_bins[0]) * 0.03,
-                            final_bins[-1] + (final_bins[-1] - final_bins[0]) * 0.08,
+                            final_bins[-1] + _bin_widths[-1] * len(_bin_widths) * 0.03,
+                            final_bins[-1] + _bin_widths[-1] * len(_bin_widths) * 0.08,
                         ],
                     )
                 value, variance = np.append(value, np.nan), np.append(variance, np.nan)
@@ -313,9 +315,6 @@ def histplot(
         else:
             for i in range(len(_chunked_kwargs)):
                 _chunked_kwargs[i][kwarg] = kwargs[kwarg]
-
-    _bin_widths = np.diff(final_bins)
-    _bin_centers = final_bins[1:] - _bin_widths / float(2)
 
     ############################
     # # yerr calculation
@@ -529,7 +528,7 @@ def histplot(
             if flow == "hint":
                 ax.plot(
                     [
-                        final_bins[0] - (final_bins[-3] - final_bins[2]) * 0.03,
+                        final_bins[0] - _bin_widths[0] * len(_bin_widths) * 0.03,
                         final_bins[0],
                     ],
                     [0, 0],
@@ -550,7 +549,7 @@ def histplot(
                 ax.plot(
                     [
                         final_bins[-1],
-                        final_bins[-1] + (final_bins[-3] - final_bins[2]) * 0.03,
+                        final_bins[-1] + _bin_widths[-1] * len(_bin_widths) * 0.03,
                     ],
                     [0, 0],
                     **kwargs,
@@ -798,7 +797,10 @@ def hist2dplot(
         if any(h.values(flow=True)[0] > 0):
             if flow == "hint":
                 ax.plot(
-                    [xbins[0] - (xbins[-3] - xbins[2]) * 0.03, xbins[0]],
+                    [
+                        xbins[0] - np.diff(xbins)[0] * len(np.diff(xbins)) * 0.03,
+                        xbins[0],
+                    ],
                     [0, 0],
                     transform=trans,
                     **kwargs,
@@ -809,7 +811,10 @@ def hist2dplot(
         if any(h.values(flow=True)[:, 0] > 0):
             if flow == "hint":
                 ax.plot(
-                    [xbins[-1] + (xbins[-3] - xbins[2]) * 0.03, xbins[-1]],
+                    [
+                        xbins[-1] + np.diff(xbins)[-1] * len(np.diff(xbins)) * 0.03,
+                        xbins[-1],
+                    ],
                     [0, 0],
                     transform=trans,
                     **kwargs,
@@ -820,7 +825,10 @@ def hist2dplot(
         if any(h.values(flow=True)[-1] > 0):
             if flow == "hint":
                 ax.plot(
-                    [xbins[0], xbins[0] - (xbins[-3] - xbins[2]) * 0.03],
+                    [
+                        xbins[0],
+                        xbins[0] - np.diff(xbins)[0] * len(np.diff(xbins)) * 0.03,
+                    ],
                     [1, 1],
                     transform=trans,
                     **kwargs,
@@ -832,7 +840,10 @@ def hist2dplot(
         if any(h.values(flow=True)[:, -1] > 0):
             if flow == "hint":
                 ax.plot(
-                    [xbins[-1] + (xbins[-3] - xbins[2]) * 0.03, xbins[-1]],
+                    [
+                        xbins[-1] + np.diff(xbins)[-1] * len(np.diff(xbins)) * 0.03,
+                        xbins[-1],
+                    ],
                     [1, 1],
                     transform=trans,
                     **kwargs,

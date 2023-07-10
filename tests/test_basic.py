@@ -64,6 +64,17 @@ def test_log():
 
 
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_onebin_hist():
+    import hist
+
+    fig, axs = plt.subplots()
+    h = hist.Hist(hist.axis.Regular(1, 0, 1))
+    h.fill([-1, 0.5])
+    hep.histplot(h, ax=axs)
+    return fig
+
+
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_histplot():
     np.random.seed(0)
     h, bins = np.histogram(np.random.normal(10, 3, 400), bins=10)
