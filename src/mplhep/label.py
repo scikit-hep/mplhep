@@ -348,10 +348,10 @@ def exp_label(
         )
         if lumi is not None:
             _lumi = (
-                r"$\sqrt{s} = \mathrm{13\ TeV}, " + str(lumi) + r"\ \mathrm{fb}^{-1}$"
+                r"$\sqrt{s} = \mathrm{" + lumi_format.format(lumi) + "\ TeV}, " + str(lumi) + r"\ \mathrm{fb}^{-1}$"
             )
         else:
-            _lumi = r"$\sqrt{s} = \mathrm{13\ TeV}$"
+            _lumi = ""
         explumi = ExpSuffix(
             *exptext.get_position(),
             text=rlabel if rlabel is not None else _lumi,
