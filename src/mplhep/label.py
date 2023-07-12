@@ -348,7 +348,11 @@ def exp_label(
         )
         if lumi is not None:
             _lumi = (
-                r"$\sqrt{s} = \mathrm{" + lumi_format.format(lumi) + "\ TeV}, " + str(lumi) + r"\ \mathrm{fb}^{-1}$"
+                r"$\sqrt{s} = \mathrm{"
+                + lumi_format.format(lumi)
+                + r"\ TeV}, "
+                + str(lumi)
+                + r"\ \mathrm{fb}^{-1}$"
             )
         else:
             _lumi = ""
