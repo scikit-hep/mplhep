@@ -32,14 +32,14 @@ repos:
   rev: v3.10.1
   hooks:
   - id: pyupgrade
-    args: ["--py37-plus"]
+    args: ["--py38-plus"]
 
 - repo: https://github.com/nbQA-dev/nbQA
   rev: 1.7.0
   hooks:
   - id: nbqa-pyupgrade
     additional_dependencies: [pyupgrade==2.31.0]
-    args: ["--py37-plus"]
+    args: ["--py38-plus"]
 
 - repo: https://github.com/psf/black-pre-commit-mirror
   rev: 23.3.0
