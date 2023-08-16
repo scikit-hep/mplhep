@@ -306,7 +306,7 @@ def histplot(
         # Check if iterable
         if iterable_not_string(kwargs[kwarg]):
             # Check if tuple (can be used for colors)
-            if type(kwargs[kwarg]) == tuple:
+            if isinstance(kwargs[kwarg], tuple):
                 for i in range(len(_chunked_kwargs)):
                     _chunked_kwargs[i][kwarg] = kwargs[kwarg]
             else:
@@ -946,7 +946,7 @@ def _draw_text_bbox(ax):
     Draw legend() and fetch it's bbox
     """
     fig = ax.figure
-    textboxes = [k for k in ax.get_children() if type(k) == AnchoredText]
+    textboxes = [k for k in ax.get_children() if isinstance(k, AnchoredText)]
     if len(textboxes) > 1:
         print("Warning: More than one textbox found")
         for box in textboxes:
@@ -1179,7 +1179,7 @@ def hist_legend(ax=None, **kwargs):
 
     handles, labels = ax.get_legend_handles_labels()
     new_handles = [
-        Line2D([], [], c=h.get_edgecolor()) if type(h) == mpl.patches.Polygon else h
+        Line2D([], [], c=h.get_edgecolor()) if isinstance(h, mpl.patches.Polygon) else h
         for h in handles
     ]
     ax.legend(handles=new_handles[::-1], labels=labels[::-1], **kwargs)
