@@ -17,7 +17,7 @@ repos:
   - id: trailing-whitespace
 
 - repo: https://github.com/asottile/setup-cfg-fmt
-  rev: "v2.2.0"
+  rev: "v2.4.0"
   hooks:
   - id: setup-cfg-fmt
     args: ["--include-version-classifiers", "--max-py-version=3.11"]
@@ -29,17 +29,17 @@ repos:
     args: ["-a", "from __future__ import annotations"]
 
 - repo: https://github.com/asottile/pyupgrade
-  rev: v3.4.0
+  rev: v3.10.1
   hooks:
   - id: pyupgrade
-    args: ["--py37-plus"]
+    args: ["--py38-plus"]
 
 - repo: https://github.com/nbQA-dev/nbQA
   rev: 1.7.0
   hooks:
   - id: nbqa-pyupgrade
     additional_dependencies: [pyupgrade==2.31.0]
-    args: ["--py37-plus"]
+    args: ["--py38-plus"]
 
 - repo: https://github.com/psf/black-pre-commit-mirror
   rev: 23.3.0
@@ -47,13 +47,13 @@ repos:
   - id: black-jupyter
 
 - repo: https://github.com/PyCQA/flake8
-  rev: 6.0.0
+  rev: 6.1.0
   hooks:
   - id: flake8
     additional_dependencies: [flake8-bugbear]
 
 - repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v1.2.0
+  rev: v1.5.0
   hooks:
   - id: mypy
     files: src
@@ -61,7 +61,7 @@ repos:
     args: [--show-error-codes]
 
 - repo: https://github.com/codespell-project/codespell
-  rev: "v2.2.4"
+  rev: "v2.2.5"
   hooks:
   - id: codespell
     args: ["-L", "hist,heros"]
