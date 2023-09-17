@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import inspect
 
-from matplotlib import docstring
+from matplotlib import _docstring as docstring
 
 import mplhep
 

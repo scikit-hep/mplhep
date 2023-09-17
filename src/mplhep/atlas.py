@@ -15,7 +15,7 @@ from .styles import atlas as style
 __all__ = ("style", "lumitext")
 
 
-@mpl.docstring.copy(label_base.exp_text)
+@mpl._docstring.copy(label_base.exp_text)
 def text(text="", **kwargs):
     for key, value in dict(mplhep.rcParams.text._get_kwargs()).items():
         if (
@@ -29,7 +29,7 @@ def text(text="", **kwargs):
     return label_base.exp_text("ATLAS", text=text, **kwargs)
 
 
-@mpl.docstring.copy(label_base.exp_label)
+@mpl._docstring.copy(label_base.exp_label)
 def label(label=None, **kwargs):
     for key, value in dict(mplhep.rcParams.label._get_kwargs()).items():
         if (
