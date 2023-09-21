@@ -115,11 +115,12 @@ def histplot(
         binwnorm : float, optional
             If true, convert sum weights to bin-width-normalized, with unit equal to
                 supplied value (usually you want to specify 1.)
-        histtype: {'step', 'fill', 'errorbar'}, optional, default: "step"
+        histtype: {'step', 'fill', 'mixed', 'errorbar'}, optional, default: "step"
             Type of histogram to plot:
 
             - "step": skyline/step/outline of a histogram using `plt.step <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.step.html#matplotlib.axes.Axes.step>`_
             - "fill": filled histogram using `plt.fill_between <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.step.html#matplotlib.axes.Axes.step>`_
+            - "mixed": plots all but the last histogram in H as histtype="fill", and the last histogram in H as histtype="step" (without error bar)
             - "errorbar": single marker histogram using `plt.errorbar <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.step.html#matplotlib.axes.Axes.step>`_
         xerr:  bool or float, optional
             Size of xerr if ``histtype == 'errorbar'``. If ``True``, bin-width will be used.
@@ -459,6 +460,20 @@ def histplot(
             )
             return_artists.append(StairsArtists(_f, None, None))
         _artist = _f
+
+    elif histtype == "mixed":
+        for i in range(len(plottables)-1):
+            _kwargs = _chunked_kwargs[i]
+            _m = ax.stairs(
+                **plottables[i].to_stairs(), label=_labels[i], fill=True, **_kwargs
+            )
+            return_artists.append(StairsArtists(_m, None, None))
+        _kwargs = _chunked_kwargs[-1]
+        _m = ax.stairs(
+            **plottables[-1].to_stairs(), label=_labels[-1], fill=False, **_kwargs
+        )
+        return_artists.append(StairsArtists(_m, None, None))
+        _artist = _m
 
     elif histtype == "errorbar":
         err_defaults = {
