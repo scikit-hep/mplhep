@@ -153,7 +153,7 @@ def histplot(
             raise ValueError("ax must be a matplotlib Axes object")
 
     # arg check
-    _allowed_histtype = ["fill", "step", "errorbar"]
+    _allowed_histtype = ["fill", "step", "errorbar", "mixed"]
     _err_message = f"Select 'histtype' from: {_allowed_histtype}"
     assert histtype in _allowed_histtype, _err_message
     assert flow is None or flow in {

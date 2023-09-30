@@ -286,6 +286,17 @@ def test_histplot_stack():
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
     return fig
 
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_histplot_stack_mixed():
+    np.random.seed(0)
+    h, bins = np.histogram(np.random.normal(10, 3, 400), bins=10)
+
+    fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+
+    ax.set_title("Mixed Step and Filled Histogram", fontsize=18)
+    hep.histplot([2.0 * h, 1.5 * h, h], bins, histtype="mixed", stack=True, ax=ax)
+
+    return fig
 
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_hist2dplot():
