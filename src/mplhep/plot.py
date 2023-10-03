@@ -306,7 +306,9 @@ def histplot(
         # Check if iterable
         if iterable_not_string(kwargs[kwarg]):
             # Check if tuple of floats or ints (can be used for colors)
-            all_entries_numerical = all(isinstance(x, int) or isinstance(x, float) for x in kwargs[kwarg])
+            all_entries_numerical = all(
+                isinstance(x, int) or isinstance(x, float) for x in kwargs[kwarg]
+            )
             if isinstance(kwargs[kwarg], tuple) and all_entries_numerical:
                 for i in range(len(_chunked_kwargs)):
                     _chunked_kwargs[i][kwarg] = kwargs[kwarg]
