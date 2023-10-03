@@ -4,7 +4,7 @@ import collections.abc
 import inspect
 import warnings
 from collections import OrderedDict, namedtuple
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any, Union, List
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -68,6 +68,7 @@ def histplot(
     histtype="step",
     xerr=False,
     label=None,
+    colors=None,
     sort=None,
     edges=True,
     binticks=False,
@@ -125,6 +126,8 @@ def histplot(
             Size of xerr if ``histtype == 'errorbar'``. If ``True``, bin-width will be used.
         label : str or list, optional
             Label for legend entry.
+        colors : any valid mpl color or iterable thereof, optional
+            The color for each histogram
         sort: {'label'/'l', 'yield'/'y'}, optional
             Append '_r' for reverse.
         edges : bool, default: True, optional
@@ -296,6 +299,16 @@ def histplot(
     else:
         _labels = [str(lab) for lab in label]
 
+    _colors: List
+    if colors is None:
+        _colors = [None] * len(plottables)
+    elif isinstance(colors, str):
+        _colors = [colors] * len(plottables)
+    elif not np.iterable(colors):
+        _colors = [str(colors)] * len(plottables)
+    else:
+        _colors = colors
+
     def iterable_not_string(arg):
         return isinstance(arg, collections.abc.Iterable) and not isinstance(arg, str)
 
@@ -425,6 +438,8 @@ def histplot(
 
             _plot_info = plottables[i].to_stairs()
             _plot_info["baseline"] = None if not edges else 0
+            if _colors[i] is not None:
+                _plot_info["color"] = _colors[i]
             _s = ax.stairs(
                 **_plot_info,
                 label=_step_label,
@@ -454,8 +469,11 @@ def histplot(
     elif histtype == "fill":
         for i in range(len(plottables)):
             _kwargs = _chunked_kwargs[i]
+            _plot_info = {}
+            if _colors[i] is not None:
+                _plot_info["color"] = _colors[i]
             _f = ax.stairs(
-                **plottables[i].to_stairs(), label=_labels[i], fill=True, **_kwargs
+                **_plot_info, **plottables[i].to_stairs(), label=_labels[i], fill=True, **_kwargs
             )
             return_artists.append(StairsArtists(_f, None, None))
         _artist = _f
@@ -482,6 +500,8 @@ def histplot(
             if yerr is False:
                 _plot_info["yerr"] = None
             _plot_info["xerr"] = _xerr
+            if _colors[i] is not None:
+                _plot_info["color"] = _colors[i]
             _e = ax.errorbar(
                 **_plot_info,
                 label=_labels[i],
