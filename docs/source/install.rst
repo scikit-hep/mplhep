@@ -1,6 +1,6 @@
 . _installing-mplhep:
 
-Installing mplhep
+Install
 =================
 
 Quick start
