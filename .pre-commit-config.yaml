@@ -17,7 +17,7 @@ repos:
   - id: trailing-whitespace
 
 - repo: https://github.com/asottile/setup-cfg-fmt
-  rev: "v2.4.0"
+  rev: "v2.5.0"
   hooks:
   - id: setup-cfg-fmt
     args: ["--include-version-classifiers", "--max-py-version=3.11"]
@@ -29,7 +29,7 @@ repos:
     args: ["-a", "from __future__ import annotations"]
 
 - repo: https://github.com/asottile/pyupgrade
-  rev: v3.13.0
+  rev: v3.14.0
   hooks:
   - id: pyupgrade
     args: ["--py38-plus"]
@@ -61,7 +61,7 @@ repos:
     args: [--show-error-codes]
 
 - repo: https://github.com/codespell-project/codespell
-  rev: "v2.2.5"
+  rev: "v2.2.6"
   hooks:
   - id: codespell
     args: ["-L", "hist,heros"]
