@@ -4,7 +4,7 @@ import collections.abc
 import inspect
 import warnings
 from collections import OrderedDict, namedtuple
-from typing import TYPE_CHECKING, Any, Union, List
+from typing import TYPE_CHECKING, Any, List, Union
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -299,7 +299,7 @@ def histplot(
     else:
         _labels = [str(lab) for lab in label]
 
-    _colors: List
+    _colors: list
     if colors is None:
         _colors = [None] * len(plottables)
     elif isinstance(colors, str):
@@ -473,7 +473,11 @@ def histplot(
             if _colors[i] is not None:
                 _plot_info["color"] = _colors[i]
             _f = ax.stairs(
-                **_plot_info, **plottables[i].to_stairs(), label=_labels[i], fill=True, **_kwargs
+                **_plot_info,
+                **plottables[i].to_stairs(),
+                label=_labels[i],
+                fill=True,
+                **_kwargs,
             )
             return_artists.append(StairsArtists(_f, None, None))
         _artist = _f

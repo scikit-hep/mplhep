@@ -568,11 +568,27 @@ def test_histplot_inputs_pass(h, yerr, htype):
 def test_color():
     hs, bins = [[2, 3, 4], [5, 4, 3]], [0, 1, 2, 3]
     fig, axs = plt.subplots(3, 2, figsize=(8, 12))
-    colors = ['green', 'blue']
+    colors = ["green", "blue"]
     axs = axs.flatten()
 
     for i, htype in enumerate(["step", "fill", "errorbar"]):
-        hep.histplot(hs[0], bins, yerr=True, histtype=htype, ax=axs[i * 2], alpha=0.7, color='red')
-        hep.histplot(hs, bins, yerr=True, histtype=htype, ax=axs[i * 2 + 1], alpha=0.7, color=colors)
+        hep.histplot(
+            hs[0],
+            bins,
+            yerr=True,
+            histtype=htype,
+            ax=axs[i * 2],
+            alpha=0.7,
+            color="red",
+        )
+        hep.histplot(
+            hs,
+            bins,
+            yerr=True,
+            histtype=htype,
+            ax=axs[i * 2 + 1],
+            alpha=0.7,
+            color=colors,
+        )
 
     return fig
