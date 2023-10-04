@@ -451,7 +451,8 @@ def savelabels(
         if not os.path.exists(path_dir):
             os.makedirs(path_dir)
 
-        ax.figure.savefig(save_name, **kwargs)
+        if isinstance(ax.figure, plt.Figure):
+            ax.figure.savefig(save_name, **kwargs)
 
 
 def save_variations(fig, name, text_list=None, exp=None):
