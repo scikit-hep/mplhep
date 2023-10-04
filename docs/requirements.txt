@@ -3,3 +3,4 @@ mplhep_data
 numpy>=1.16.0
 packaging
 uhi>=0.2.0
+sphinx_rtd_theme
