@@ -12,7 +12,7 @@ Please open an issue.
 python -m pip install --upgrade --editable ".[all]"
 ```
 
-Also conveniently accessible as `bash install.sh`. 
+Also conveniently accessible as `bash install.sh`.
 
 ## Pull Requests
 
@@ -21,7 +21,7 @@ Also conveniently accessible as `bash install.sh`.
 If you would like to make a pull request please:
 
 1. Make a fork of the project
-2. Clone your fork locally 
+2. Clone your fork locally
 3. Install `pre-commit` and the project's `pre-commit` hooks
 4. Test your changes with `pytest`
 5. Commit your changes to a feature branch of your fork, push to your branch
