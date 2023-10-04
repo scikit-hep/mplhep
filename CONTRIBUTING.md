@@ -1,6 +1,7 @@
 # Contributing to mplhep
 
-We are happy to accept contributions to `mplhep` via Pull Requests to the GitHub repo. To get started fork the repo.
+We are happy to accept contributions to `mplhep` via Pull Requests to the GitHub
+repo. To get started fork the repo.
 
 ## Bug Reports
 
@@ -35,8 +36,9 @@ You can run the unit tests (which should be fast!) via the following command.
 pytest --mpl --ignore=tests/test_notebooks.py
 ```
 
-Note: This ignores the notebook tests (which are run via [papermill](https://github.com/nteract/papermill) and run somewhat slow.
-Make sure to run the complete suite before submitting a PR
+Note: This ignores the notebook tests (which are run via
+[papermill](https://github.com/nteract/papermill) and run somewhat slow. Make
+sure to run the complete suite before submitting a PR
 
 ```bash
 pytest --mpl
@@ -44,14 +46,19 @@ pytest --mpl
 
 ### Making a pull request
 
-We follow [Conventional Commit](https://www.conventionalcommits.org/) for commit messages and PR titles. Since we merge PR's using squash commits, it's fine if the final commit messages (proposed in the PR body) follow this convention.
+We follow [Conventional Commit](https://www.conventionalcommits.org/) for commit
+messages and PR titles. Since we merge PR's using squash commits, it's fine if
+the final commit messages (proposed in the PR body) follow this convention.
 
 ### Generating Reference Visuals
 
-If you modified expected outcomes of the tests. New baseline visuals can be generated using this command:
+If you modified expected outcomes of the tests. New baseline visuals can be
+generated using this command:
 
 ```bash
 pytest --mpl-generate-path=tests/baseline
 ```
 
-Only include the actually modified baseline images in your PR! Running `git add -a` and the like will sometimes result in including images which are visually identially but not the same bit-wise.
+Only include the actually modified baseline images in your PR! Running `git add
+-a` and the like will sometimes result in including images which are visually
+identically but not the same bit-wise.
