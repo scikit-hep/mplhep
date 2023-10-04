@@ -286,6 +286,7 @@ def test_histplot_stack():
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
     return fig
 
+
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_histplot_stack_mixed():
     np.random.seed(0)
@@ -297,6 +298,7 @@ def test_histplot_stack_mixed():
     hep.histplot([2.0 * h, 1.5 * h, h], bins, histtype="mixed", stack=True, ax=ax)
 
     return fig
+
 
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_hist2dplot():

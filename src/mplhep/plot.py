@@ -464,7 +464,7 @@ def histplot(
         _artist = _f
 
     elif histtype == "mixed":
-        for i in range(len(plottables)-1):
+        for i in range(len(plottables) - 1):
             _kwargs = _chunked_kwargs[i]
             _m = ax.stairs(
                 **plottables[i].to_stairs(), label=_labels[i], fill=True, **_kwargs
