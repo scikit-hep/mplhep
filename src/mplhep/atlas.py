@@ -6,9 +6,8 @@ import matplotlib as mpl
 
 import mplhep
 
-from ._compat import docstring
-
 from . import label as label_base
+from ._compat import docstring
 from .label import lumitext
 
 # Log styles
