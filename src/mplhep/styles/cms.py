@@ -1,13 +1,17 @@
 from __future__ import annotations
 
 import matplotlib as mpl
+from cycler import cycler
 
 # PRL figsize / Elsevier figsize, Nature is somewhere in between
 # single column width -  86 mm (3.386in) /  90 mm (3.543in)
 # double column width - 172 mm (6.772in) / 180 mm (7.087in)
 # For now size to 10
 
+cmap_petroff = ["#5790fc", "#f89c20", "#e42536", "#964a8b", "#9c9ca1", "#7a21dd"]
+
 CMS = {
+    "axes.prop_cycle": cycler("color", cmap_petroff),
     "font.sans-serif": ["TeX Gyre Heros", "Helvetica", "Arial"],
     "font.family": "sans-serif",
     "mathtext.fontset": "custom",
