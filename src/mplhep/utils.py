@@ -61,9 +61,7 @@ def hist_object_handler(
 
 
 def process_histogram_parts(
-    H: (
-        ArrayLike | PlottableHistogram | Iterable[ArrayLike] | list[PlottableHistogram]
-    ),
+    H: ArrayLike | PlottableHistogram | Iterable[ArrayLike] | list[PlottableHistogram],
     *bins: Sequence[float | None],
 ):
     """
