@@ -97,7 +97,7 @@ def exp_text(
 
     loc3_dict = {
         0: {"xy": (0.001, 1.005 + pad), "va": "bottom"},
-        1: {"xy": (0.05, 0.9550 - pad), "va": "bottom"},
+        1: {"xy": (0.05, 0.9450 - pad), "va": "top"},
         2: {"xy": (0.05, 0.9450 - pad), "va": "top"},
         3: {"xy": (0.05, 0.95 - pad), "va": "top"},
         4: {"xy": (0.05, 0.9550 - pad), "va": "bottom"},
@@ -205,11 +205,10 @@ def exp_text(
         _t = mtransforms.offset_copy(
             expsuffix._transform, x=_suff_xoffset, units="inches", fig=ax.figure
         )
-    elif loc in [1, 4]:
+    elif loc == 1:
         _t = mtransforms.offset_copy(
-            expsuffix._transform,
-            x=_suff_xoffset,
-            y=-expsuffix.get_window_extent().height / _dpi,
+            exptext._transform,
+            y=(-exptext.get_window_extent().height * 1.5) / _dpi,
             units="inches",
             fig=ax.figure,
         )
@@ -222,7 +221,18 @@ def exp_text(
         )
     elif loc == 3:
         _t = mtransforms.offset_copy(
-            expsuffix._transform, units="inches", fig=ax.figure
+            expsuffix._transform,
+            y=-expsuffix.get_window_extent().height / _dpi,
+            units="inches",
+            fig=ax.figure,
+        )
+    elif loc == 4:
+        _t = mtransforms.offset_copy(
+            expsuffix._transform,
+            x=_suff_xoffset,
+            y=-expsuffix.get_window_extent().height / _dpi,
+            units="inches",
+            fig=ax.figure,
         )
 
     supptext = SuppText(
