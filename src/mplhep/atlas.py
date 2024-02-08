@@ -25,7 +25,7 @@ def text(text="", **kwargs):
             and key in inspect.getfullargspec(label_base.exp_text).kwonlyargs
         ):
             kwargs.setdefault(key, value)
-    kwargs.setdefault("italic", (True, False))
+    kwargs.setdefault("italic", (True, False, True))
     kwargs.setdefault("loc", 4)
     return label_base.exp_text("ATLAS", text=text, **kwargs)
 
@@ -39,7 +39,7 @@ def label(label=None, **kwargs):
             and key in inspect.getfullargspec(label_base.exp_label).kwonlyargs
         ):
             kwargs.setdefault(key, value)
-    kwargs.setdefault("italic", (True, False))
+    kwargs.setdefault("italic", (True, False, True))
     kwargs.setdefault("loc", 4)
     if label is not None:
         kwargs["label"] = label

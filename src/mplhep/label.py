@@ -25,16 +25,24 @@ class ExpSuffix(mtext.Text):
         )
 
 
+class SuppText(mtext.Text):
+    def __repr__(self):
+        return "supptext: Custom Text({}, {}, {})".format(
+            self._x, self._y, repr(self._text)
+        )
+
+
 def exp_text(
     exp="",
     text="",
+    supp="",
     loc=0,
     *,
     ax=None,
     fontname=None,
     fontsize=None,
     exp_weight="bold",
-    italic=(False, False),
+    italic=(False, False, False),
     pad=0,
 ):
     """Add typical LHC experiment primary label to the axes.
@@ -57,7 +65,7 @@ def exp_text(
             Defines size of "secondary label". Experiment label is 1.3x larger.
         exp_weight : string, optional
             Set fontweight of <exp> label. Default "bold".
-        italic : (bool, bool), optional
+        italic : (bool, bool, bool), optional
             Tuple of bools to switch which label is italicized
         pad : float, optional
             Additional padding from axes border in units of axes fraction size.
@@ -80,6 +88,14 @@ def exp_text(
     }
 
     loc2_dict = {
+        0: {"xy": (0.001, 1.005 + pad), "va": "bottom"},
+        1: {"xy": (0.05, 0.9550 - pad), "va": "bottom"},
+        2: {"xy": (0.05, 0.9450 - pad), "va": "top"},
+        3: {"xy": (0.05, 0.95 - pad), "va": "top"},
+        4: {"xy": (0.05, 0.9550 - pad), "va": "bottom"},
+    }
+
+    loc3_dict = {
         0: {"xy": (0.001, 1.005 + pad), "va": "bottom"},
         1: {"xy": (0.05, 0.9550 - pad), "va": "bottom"},
         2: {"xy": (0.05, 0.9450 - pad), "va": "top"},
@@ -182,7 +198,46 @@ def exp_text(
     )
     ax._add_text(expsuffix)
 
-    return exptext, expsuffix
+    _suff_xoffset = (
+        expsuffix.get_window_extent(ax.figure.canvas.get_renderer()).width / _dpi * 1.05
+    )
+    if loc == 0:
+        _t = mtransforms.offset_copy(
+            expsuffix._transform, x=_suff_xoffset, units="inches", fig=ax.figure
+        )
+    elif loc in [1, 4]:
+        _t = mtransforms.offset_copy(
+            expsuffix._transform,
+            x=_suff_xoffset,
+            y=-expsuffix.get_window_extent().height / _dpi,
+            units="inches",
+            fig=ax.figure,
+        )
+    elif loc == 2:
+        _t = mtransforms.offset_copy(
+            expsuffix._transform,
+            y=-expsuffix.get_window_extent().height / _dpi,
+            units="inches",
+            fig=ax.figure,
+        )
+    elif loc == 3:
+        _t = mtransforms.offset_copy(
+            expsuffix._transform, units="inches", fig=ax.figure
+        )
+
+    supptext = SuppText(
+        *loc3_dict[loc]["xy"],
+        text=supp,
+        transform=_t,
+        ha="left",
+        va=loc2_dict[loc]["va"],
+        fontsize=_font_size / 1.3,
+        fontname=fontname,
+        fontstyle="italic" if italic[2] else "normal",
+    )
+    ax._add_text(supptext)
+
+    return exptext, expsuffix, supptext
 
 
 # Lumi text
@@ -234,6 +289,7 @@ def exp_label(
     *,
     data=False,
     label="",
+    pub="",
     year=None,
     lumi=None,
     lumi_format="{0}",
@@ -244,7 +300,7 @@ def exp_label(
     fontsize=None,
     exp_weight="bold",
     pad=0,
-    italic=(False, False),
+    italic=(False, False, False),
     ax=None,
 ):
     """A convenience wrapper combining ``<exp>.text`` and ``lumitext`` providing for
@@ -283,7 +339,7 @@ def exp_label(
             Defines size of "secondary label". Experiment label is 1.3x larger.
         exp_weight : string, optional
             Set fontweight of <exp> label. Default "bold".
-        italic : (bool, bool), optional
+        italic : (bool, bool, bool), optional
             Tuple of bools to switch which label is italicized
         pad : float, optional
             Additional padding from axes border in units of axes fraction size.
@@ -321,16 +377,17 @@ def exp_label(
     if llabel is not None:
         _label = llabel
     else:
-        _label = ""
+        _label = label
+        if pub:
+            _label = " ".join(["Supplementary", _label])
         if not data:
-            _label = " ".join(["Simulation", label])
-        else:
-            _label = label
+            _label = " ".join(["Simulation", _label])
         _label = " ".join(_label.split())
 
-    exptext, expsuffix = exp_text(
+    exptext, expsuffix, supptext = exp_text(
         exp=exp,
         text=_label,
+        supp=pub,
         loc=loc,
         ax=ax,
         fontname=fontname,
@@ -363,9 +420,9 @@ def exp_label(
             fontstyle="normal",
         )
         ax._add_text(explumi)
-        return exptext, expsuffix, explumi
+        return exptext, expsuffix, supptext, explumi
 
-    return exptext, expsuffix
+    return exptext, expsuffix, supptext
 
 
 def savelabels(
