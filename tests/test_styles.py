@@ -222,7 +222,7 @@ def test_label_loc():
 
 @pytest.mark.mpl_image_compare(style="default")
 def test_pub_loc():
-    fig, axs = plt.subplots(2, 5, figsize=(20, 4))
+    fig, axs = plt.subplots(2, 5, figsize=(20, 8))
     for i, ax in enumerate(axs.flatten()):
         hep.cms.label(loc=i % 5, ax=ax, lumi=50, pub="arXiv:aaaa.bbbbb", data=(i >= 5))
     return fig
