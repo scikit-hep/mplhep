@@ -97,7 +97,7 @@ def exp_text(
 
     loc3_dict = {
         0: {"xy": (0.95, 0.945 + pad), "va": "bottom", "ha": "right"},
-        1: {"xy": (0.05, 0.9450 - pad), "va": "top"},
+        1: {"xy": (0.05, 0.9550 - pad), "va": "top"},
         2: {"xy": (0.05, 0.9450 - pad), "va": "top"},
         3: {"xy": (0.05, 0.95 - pad), "va": "top"},
         4: {"xy": (0.05, 0.9450 - pad), "va": "top"},
@@ -207,7 +207,7 @@ def exp_text(
     elif loc == 1:
         _t = mtransforms.offset_copy(
             exptext._transform,
-            y=(-exptext.get_window_extent().height * 1.5) / _dpi,
+            y=-exptext.get_window_extent().height / _dpi,
             units="inches",
             fig=ax.figure,
         )
