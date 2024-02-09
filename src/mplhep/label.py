@@ -198,9 +198,6 @@ def exp_text(
     )
     ax._add_text(expsuffix)
 
-    _suff_xoffset = (
-        expsuffix.get_window_extent(ax.figure.canvas.get_renderer()).width / _dpi * 1.05
-    )
     if loc == 0:
         # No transformation, fixed location
         _t = mtransforms.offset_copy(exptext._transform, units="inches", fig=ax.figure)
