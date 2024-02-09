@@ -96,11 +96,11 @@ def exp_text(
     }
 
     loc3_dict = {
-        0: {"xy": (0.001, 1.005 + pad), "va": "bottom"},
+        0: {"xy": (0.95, 0.945 + pad), "va": "bottom", "ha": "right"},
         1: {"xy": (0.05, 0.9450 - pad), "va": "top"},
         2: {"xy": (0.05, 0.9450 - pad), "va": "top"},
         3: {"xy": (0.05, 0.95 - pad), "va": "top"},
-        4: {"xy": (0.05, 0.9550 - pad), "va": "bottom"},
+        4: {"xy": (0.05, 0.9450 - pad), "va": "top"},
     }
 
     if loc not in [0, 1, 2, 3, 4]:
@@ -202,9 +202,8 @@ def exp_text(
         expsuffix.get_window_extent(ax.figure.canvas.get_renderer()).width / _dpi * 1.05
     )
     if loc == 0:
-        _t = mtransforms.offset_copy(
-            expsuffix._transform, x=_suff_xoffset, units="inches", fig=ax.figure
-        )
+        # No transformation, fixed location
+        _t = mtransforms.offset_copy(exptext._transform, units="inches", fig=ax.figure)
     elif loc == 1:
         _t = mtransforms.offset_copy(
             exptext._transform,
@@ -228,9 +227,8 @@ def exp_text(
         )
     elif loc == 4:
         _t = mtransforms.offset_copy(
-            expsuffix._transform,
-            x=_suff_xoffset,
-            y=-expsuffix.get_window_extent().height / _dpi,
+            exptext._transform,
+            y=-exptext.get_window_extent().height / _dpi,
             units="inches",
             fig=ax.figure,
         )
@@ -239,8 +237,8 @@ def exp_text(
         *loc3_dict[loc]["xy"],
         text=supp,
         transform=_t,
-        ha="left",
-        va=loc2_dict[loc]["va"],
+        ha=loc3_dict[loc].get("ha", "left"),
+        va=loc3_dict[loc]["va"],
         fontsize=_font_size / 1.3,
         fontname=fontname,
         fontstyle="italic" if italic[2] else "normal",
@@ -408,8 +406,8 @@ def exp_label(
     )
     if loc == 4:
         _t = mtransforms.offset_copy(
-            exptext._transform,
-            y=-exptext.get_window_extent().height / ax.figure.dpi,
+            supptext._transform,
+            y=-supptext.get_window_extent().height / ax.figure.dpi,
             units="inches",
             fig=ax.figure,
         )
@@ -423,7 +421,7 @@ def exp_label(
             *exptext.get_position(),
             text=rlabel if rlabel is not None else _lumi,
             transform=_t,
-            ha=exptext.get_ha(),
+            ha=supptext.get_ha(),
             va="top",
             fontsize=fontsize,
             fontname=fontname,
