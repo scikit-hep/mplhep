@@ -96,10 +96,10 @@ def exp_text(
     }
 
     loc3_dict = {
-        0: {"xy": (0.95, 0.945 + pad), "va": "bottom", "ha": "right"},
-        1: {"xy": (0.05, 0.9550 - pad), "va": "top"},
-        2: {"xy": (0.05, 0.9450 - pad), "va": "top"},
-        3: {"xy": (0.05, 0.95 - pad), "va": "top"},
+        0: {"xy": (1.005, 1 + pad), "va": "top", "ha": "left"},
+        1: {"xy": (0.05, 0.945 - pad), "va": "top"},
+        2: {"xy": (0.05, 0.935 - pad), "va": "top"},
+        3: {"xy": (0.05, 0.940 - pad), "va": "top"},
         4: {"xy": (0.05, 0.9450 - pad), "va": "top"},
     }
 
@@ -238,6 +238,7 @@ def exp_text(
         va=loc3_dict[loc]["va"],
         fontsize=_font_size / 1.3,
         fontname=fontname,
+        rotation=0 if loc != 0 else -90,
         fontstyle="italic" if italic[2] else "normal",
     )
     ax._add_text(supptext)
@@ -392,7 +393,7 @@ def exp_label(
     exptext, expsuffix, supptext = exp_text(
         exp=exp,
         text=_label,
-        supp=pub,
+        supp=pub if loc != 4 else "",  # Special handling for loc4
         loc=loc,
         ax=ax,
         fontname=fontname,
@@ -425,6 +426,25 @@ def exp_label(
             fontstyle="normal",
         )
         ax._add_text(explumi)
+
+        _t = mtransforms.offset_copy(
+            explumi._transform,
+            y=-explumi.get_window_extent().height / ax.figure.dpi,
+            units="inches",
+            fig=ax.figure,
+        )
+        _font_size = rcParams["font.size"] if fontsize is None else fontsize
+        supptext = SuppText(
+            *explumi.get_position(),
+            text=pub,
+            transform=_t,
+            ha=explumi.get_ha(),
+            va="top",
+            fontsize=_font_size / 1.3,
+            fontname=fontname,
+            fontstyle="italic" if italic[2] else "normal",
+        )
+        ax._add_text(supptext)
         return exptext, expsuffix, supptext, explumi
 
     return exptext, expsuffix, supptext
