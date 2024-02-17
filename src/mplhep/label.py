@@ -96,7 +96,7 @@ def exp_text(
     }
 
     loc3_dict = {
-        0: {"xy": (1.005, 1 + pad), "va": "top", "ha": "left"},
+        0: {"xy": (1.012, 1 + pad), "va": "top", "ha": "left"},
         1: {"xy": (0.05, 0.945 - pad), "va": "top"},
         2: {"xy": (0.05, 0.935 - pad), "va": "top"},
         3: {"xy": (0.05, 0.940 - pad), "va": "top"},
@@ -238,7 +238,7 @@ def exp_text(
         va=loc3_dict[loc]["va"],
         fontsize=_font_size / 1.3,
         fontname=fontname,
-        rotation=0 if loc != 0 else -90,
+        rotation=0 if loc != 0 else 90,
         fontstyle="italic" if italic[2] else "normal",
     )
     ax._add_text(supptext)
