@@ -101,7 +101,7 @@ def test_inputs_bh_cat():
         bh.axis.IntCategory(range(10)), bh.axis.StrCategory("", growth=True)
     )
 
-    x = np.round(np.random.normal(5, 3, 1000))
+    x = np.round(np.random.normal(5, 3, 1000)).astype(int)
     A, Z = np.array(["A", "Z"]).view("int32")
     y = list(
         np.random.randint(low=A, high=Z, size=1000, dtype="int32").view(f"U{1000}")[0]

@@ -2,11 +2,10 @@ from __future__ import annotations
 
 import inspect
 
-from matplotlib import docstring
-
 import mplhep
 
 from . import label as label_base
+from ._compat import docstring
 from .label import lumitext
 
 # Log styles

@@ -7,6 +7,7 @@ import matplotlib as mpl
 import mplhep
 
 from . import label as label_base
+from ._compat import docstring
 from .label import lumitext
 
 # Log styles
@@ -15,7 +16,7 @@ from .styles import atlas as style
 __all__ = ("style", "lumitext")
 
 
-@mpl.docstring.copy(label_base.exp_text)
+@docstring.copy(label_base.exp_text)
 def text(text="", **kwargs):
     for key, value in dict(mplhep.rcParams.text._get_kwargs()).items():
         if (
@@ -24,12 +25,12 @@ def text(text="", **kwargs):
             and key in inspect.getfullargspec(label_base.exp_text).kwonlyargs
         ):
             kwargs.setdefault(key, value)
-    kwargs.setdefault("italic", (True, False))
+    kwargs.setdefault("italic", (True, False, True))
     kwargs.setdefault("loc", 4)
     return label_base.exp_text("ATLAS", text=text, **kwargs)
 
 
-@mpl.docstring.copy(label_base.exp_label)
+@docstring.copy(label_base.exp_label)
 def label(label=None, **kwargs):
     for key, value in dict(mplhep.rcParams.label._get_kwargs()).items():
         if (
@@ -38,7 +39,7 @@ def label(label=None, **kwargs):
             and key in inspect.getfullargspec(label_base.exp_label).kwonlyargs
         ):
             kwargs.setdefault(key, value)
-    kwargs.setdefault("italic", (True, False))
+    kwargs.setdefault("italic", (True, False, True))
     kwargs.setdefault("loc", 4)
     if label is not None:
         kwargs["label"] = label

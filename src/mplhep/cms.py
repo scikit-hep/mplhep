@@ -2,11 +2,10 @@ from __future__ import annotations
 
 import inspect
 
-from matplotlib import docstring
-
 import mplhep
 
 from . import label as label_base
+from ._compat import docstring
 from .label import lumitext
 
 # Log styles
@@ -26,7 +25,7 @@ def text(text="", **kwargs):
             and key in inspect.getfullargspec(label_base.exp_text).kwonlyargs
         ):
             kwargs.setdefault(key, value)
-    kwargs.setdefault("italic", (False, True))
+    kwargs.setdefault("italic", (False, True, False))
     kwargs.setdefault("exp", "CMS")
     return label_base.exp_text(text=text, **kwargs)
 
@@ -40,7 +39,7 @@ def label(label=None, **kwargs):
             and key in inspect.getfullargspec(label_base.exp_label).kwonlyargs
         ):
             kwargs.setdefault(key, value)
-    kwargs.setdefault("italic", (False, True))
+    kwargs.setdefault("italic", (False, True, False))
     if label is not None:
         kwargs["label"] = label
     kwargs.setdefault("exp", "CMS")

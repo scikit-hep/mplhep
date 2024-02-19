@@ -305,8 +305,10 @@ def histplot(
     for kwarg in kwargs:
         # Check if iterable
         if iterable_not_string(kwargs[kwarg]):
-            # Check if tuple (can be used for colors)
-            if type(kwargs[kwarg]) == tuple:
+            # Check if tuple of floats or ints (can be used for colors)
+            if isinstance(kwargs[kwarg], tuple) and all(
+                isinstance(x, int) or isinstance(x, float) for x in kwargs[kwarg]
+            ):
                 for i in range(len(_chunked_kwargs)):
                     _chunked_kwargs[i][kwarg] = kwargs[kwarg]
             else:
@@ -946,7 +948,7 @@ def _draw_text_bbox(ax):
     Draw legend() and fetch it's bbox
     """
     fig = ax.figure
-    textboxes = [k for k in ax.get_children() if type(k) == AnchoredText]
+    textboxes = [k for k in ax.get_children() if isinstance(k, AnchoredText)]
     if len(textboxes) > 1:
         print("Warning: More than one textbox found")
         for box in textboxes:
@@ -1072,8 +1074,8 @@ class RemainderFixed(axes_size.Scaled):
         self.div = divider
 
     def get_size(self, renderer):
-        xrel, xabs = axes_size.AddList(self.xsizes).get_size(renderer)
-        yrel, yabs = axes_size.AddList(self.ysizes).get_size(renderer)
+        xrel, xabs = sum(self.xsizes, start=axes_size.Fixed(0)).get_size(renderer)
+        yrel, yabs = sum(self.ysizes, start=axes_size.Fixed(0)).get_size(renderer)
         bb = Bbox.from_bounds(*self.div.get_position()).transformed(
             self.div._fig.transFigure
         )
@@ -1179,7 +1181,7 @@ def hist_legend(ax=None, **kwargs):
 
     handles, labels = ax.get_legend_handles_labels()
     new_handles = [
-        Line2D([], [], c=h.get_edgecolor()) if type(h) == mpl.patches.Polygon else h
+        Line2D([], [], c=h.get_edgecolor()) if isinstance(h, mpl.patches.Polygon) else h
         for h in handles
     ]
     ax.legend(handles=new_handles[::-1], labels=labels[::-1], **kwargs)

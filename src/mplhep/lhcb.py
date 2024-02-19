@@ -20,11 +20,10 @@ from __future__ import annotations
 
 import inspect
 
-from matplotlib import docstring
-
 import mplhep
 from mplhep import label as label_base
 
+from ._compat import docstring
 from .label import lumitext
 from .styles import lhcb as style
 
@@ -40,7 +39,7 @@ def text(text="", **kwargs):
             and key in inspect.getfullargspec(label_base.exp_text).kwonlyargs
         ):
             kwargs.setdefault(key, value)
-    kwargs.setdefault("italic", (False, False))
+    kwargs.setdefault("italic", (False, False, False))
     kwargs.setdefault("fontsize", 28)
     kwargs.setdefault("fontname", "Times New Roman")
     kwargs.setdefault("loc", 1)
@@ -57,7 +56,7 @@ def label(label=None, **kwargs):
             and key in inspect.getfullargspec(label_base.exp_label).kwonlyargs
         ):
             kwargs.setdefault(key, value)
-    kwargs.setdefault("italic", (False, False))
+    kwargs.setdefault("italic", (False, False, False))
     kwargs.setdefault("fontsize", 28)
     kwargs.setdefault("fontname", "Times New Roman")
     kwargs.setdefault("exp_weight", "normal")
