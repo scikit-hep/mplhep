@@ -16,6 +16,7 @@ based on the works of Kevin Dungs, Tim Head, Thomas Schietinger,
                       Andrew Powell, Chris Parkes, Elena Graverini
                       and Niels Tuning
 """
+
 from __future__ import annotations
 
 import inspect
