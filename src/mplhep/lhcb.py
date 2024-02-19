@@ -40,7 +40,7 @@ def text(text="", **kwargs):
             and key in inspect.getfullargspec(label_base.exp_text).kwonlyargs
         ):
             kwargs.setdefault(key, value)
-    kwargs.setdefault("italic", (False, False))
+    kwargs.setdefault("italic", (False, False, False))
     kwargs.setdefault("fontsize", 28)
     kwargs.setdefault("fontname", "Times New Roman")
     kwargs.setdefault("loc", 1)
@@ -57,7 +57,7 @@ def label(label=None, **kwargs):
             and key in inspect.getfullargspec(label_base.exp_label).kwonlyargs
         ):
             kwargs.setdefault(key, value)
-    kwargs.setdefault("italic", (False, False))
+    kwargs.setdefault("italic", (False, False, False))
     kwargs.setdefault("fontsize", 28)
     kwargs.setdefault("fontname", "Times New Roman")
     kwargs.setdefault("exp_weight", "normal")

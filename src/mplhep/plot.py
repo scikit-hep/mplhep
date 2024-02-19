@@ -1074,8 +1074,8 @@ class RemainderFixed(axes_size.Scaled):
         self.div = divider
 
     def get_size(self, renderer):
-        xrel, xabs = axes_size.AddList(self.xsizes).get_size(renderer)
-        yrel, yabs = axes_size.AddList(self.ysizes).get_size(renderer)
+        xrel, xabs = sum(self.xsizes, start=axes_size.Fixed(0)).get_size(renderer)
+        yrel, yabs = sum(self.ysizes, start=axes_size.Fixed(0)).get_size(renderer)
         bb = Bbox.from_bounds(*self.div.get_position()).transformed(
             self.div._fig.transFigure
         )
