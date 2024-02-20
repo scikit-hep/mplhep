@@ -233,7 +233,7 @@ def histplot(
         elif flow == "hint":
             plottables.append(Plottable(value, edges=final_bins, variances=variance))
         elif flow == "show":
-            if underflow > 0:
+            if underflow != 0:
                 if i == 0:
                     flow_bins = np.insert(
                         final_bins,
@@ -249,7 +249,7 @@ def histplot(
                 value, variance = np.insert(
                     value, 0, h.values(flow=True)[0]
                 ), np.insert(value, 0, h.variances(flow=True)[0])
-            if overflow > 0:
+            if overflow != 0:
                 if i == 0:
                     flow_bins = np.append(
                         flow_bins,
@@ -511,7 +511,7 @@ def histplot(
     if x_axes_label:
         ax.set_xlabel(x_axes_label)
 
-    if flow in {"hint", "show"} and (underflow > 0.0 or overflow > 0.0):
+    if flow in {"hint", "show"} and (underflow != 0.0 or overflow != 0.0):
         d = 0.9  # proportion of vertical to horizontal extent of the slanted line
         trans = mpl.transforms.blended_transform_factory(ax.transData, ax.transAxes)
         ax_h = ax.bbox.height
@@ -526,7 +526,7 @@ def histplot(
             transform=trans,
         )
         xticks = ax.get_xticks().tolist()
-        if underflow > 0.0:
+        if underflow != 0.0:
             if flow == "hint":
                 ax.plot(
                     [
@@ -546,7 +546,7 @@ def histplot(
                 xticks[1] = f"<{flow_bins[2]}"
 
                 ax.set_xticklabels(xticks)
-        if overflow > 0.0:
+        if overflow != 0.0:
             if flow == "hint":
                 ax.plot(
                     [
@@ -670,7 +670,7 @@ def hist2dplot(
         print(f"Warning:  you don't have flow bins stored in {h}")
     elif flow == "show":
         H = h.values(flow=True)
-        if any(h.values(flow=True)[0] > 0):
+        if any(h.values(flow=True)[0] != 0):
             xbins = np.array(
                 [
                     xbins[0] - (xbins[-1] - xbins[0]) * 0.08,
@@ -678,7 +678,10 @@ def hist2dplot(
                     *xbins,
                 ]
             )
-        if any(h.values(flow=True)[-1] > 0):
+            H = np.insert(H, (1), np.full(np.shape(H)[1], np.nan), axis=0)
+        else:
+            H = H[1:]
+        if any(h.values(flow=True)[-1] != 0):
             xbins = np.array(
                 [
                     *xbins,
@@ -686,7 +689,10 @@ def hist2dplot(
                     xbins[-1] + (xbins[-1] - xbins[0]) * 0.08,
                 ]
             )
-        if any(h.values(flow=True)[:, 0] > 0):
+            H = np.insert(H, (-1), np.full(np.shape(H)[1], np.nan), axis=0)
+        else:
+            H = H[:-1]
+        if any(h.values(flow=True)[:, 0] != 0):
             ybins = np.array(
                 [
                     ybins[0] - (ybins[-1] - ybins[0]) * 0.08,
@@ -694,7 +700,10 @@ def hist2dplot(
                     *ybins,
                 ]
             )
-        if any(h.values(flow=True)[:, -1] > 0):
+            H = np.insert(H, (1), np.nan, axis=-1)
+        else:
+            H = H[:, 1:]
+        if any(h.values(flow=True)[:, -1] != 0):
             ybins = np.array(
                 [
                     *ybins,
@@ -702,15 +711,9 @@ def hist2dplot(
                     ybins[-1] + (ybins[-1] - ybins[0]) * 0.08,
                 ]
             )
-
-        if any(h.values(flow=True)[0] > 0.0):
-            H = np.insert(H, (1), np.nan, axis=-1)
-        if any(h.values(flow=True)[-1] > 0.0):
             H = np.insert(H, (-1), np.nan, axis=-1)
-        if any(h.values(flow=True)[:, 0] > 0):
-            H = np.insert(H, (1), np.full(np.shape(H)[1], np.nan), axis=0)
-        if any(h.values(flow=True)[:, -1] > 0):
-            H = np.insert(H, (-1), np.full(np.shape(H)[1], np.nan), axis=0)
+        else:
+            H = H[:, :-1]
     elif flow == "sum":
         H = h.values().copy()
         # Sum borders
@@ -796,7 +799,7 @@ def hist2dplot(
             mew=1,
             clip_on=False,
         )
-        if any(h.values(flow=True)[0] > 0):
+        if any(h.values(flow=True)[0] != 0):
             if flow == "hint":
                 ax.plot(
                     [
@@ -808,9 +811,12 @@ def hist2dplot(
                     **kwargs,
                 )
             if flow == "show":
+                ax.plot([xbins[1], xbins[2]], [ybins[-1], ybins[-1]], **kwargs)
                 ax.plot([xbins[1], xbins[2]], [0, 0], transform=trans, **kwargs)
-                ax.plot([xbins[0], xbins[0]], [ybins[1], ybins[2]], **kwargs)
-        if any(h.values(flow=True)[:, 0] > 0):
+                xtick_labels = ax.get_xticklabels()
+                xtick_labels[0] = ""
+                ax.set_xticklabels(xtick_labels)
+        if any(h.values(flow=True)[:, 0] != 0):
             if flow == "hint":
                 ax.plot(
                     [
@@ -822,9 +828,12 @@ def hist2dplot(
                     **kwargs,
                 )
             if flow == "show":
-                ax.plot([xbins[-3], xbins[-2]], [0, 0], transform=trans, **kwargs)
+                ax.plot([xbins[0], xbins[0]], [ybins[1], ybins[2]], **kwargs)
                 ax.plot([xbins[-1], xbins[-1]], [ybins[1], ybins[2]], **kwargs)
-        if any(h.values(flow=True)[-1] > 0):
+                ytick_labels = ax.get_yticklabels()
+                ytick_labels[0], ytick_labels[1] = "", ""
+                ax.set_yticklabels(ytick_labels)
+        if any(h.values(flow=True)[-1] != 0):
             if flow == "hint":
                 ax.plot(
                     [
@@ -836,10 +845,10 @@ def hist2dplot(
                     **kwargs,
                 )
             if flow == "show":
-                ax.plot([xbins[1], xbins[2]], [1, 1], transform=trans, **kwargs)
                 ax.plot([xbins[0], xbins[0]], [ybins[-3], ybins[-2]], **kwargs)
+                ax.plot([xbins[-1], xbins[-1]], [ybins[-3], ybins[-2]], **kwargs)
 
-        if any(h.values(flow=True)[:, -1] > 0):
+        if any(h.values(flow=True)[:, -1] != 0):
             if flow == "hint":
                 ax.plot(
                     [
@@ -852,8 +861,10 @@ def hist2dplot(
                 )
             if flow == "show":
                 ax.plot([xbins[-3], xbins[-2]], [1, 1], transform=trans, **kwargs)
-                ax.plot([xbins[-1], xbins[-1]], [ybins[-3], ybins[-2]], **kwargs)
-
+                ax.plot([xbins[-3], xbins[-2]], [0, 0], transform=trans, **kwargs)
+                ytick_labels = ax.get_yticklabels()
+                ytick_labels[-2], ytick_labels[-1] = "", ""
+                ax.set_yticklabels(ytick_labels)
     _labels: np.ndarray | None = None
     if isinstance(labels, bool):
         _labels = H if labels else None
