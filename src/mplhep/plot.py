@@ -602,7 +602,7 @@ def hist2dplot(
     cbarsize="7%",
     cbarpad=0.2,
     cbarpos="right",
-    cbarextend=False,
+    cbarextend=True,
     cmin=None,
     cmax=None,
     ax=None,
