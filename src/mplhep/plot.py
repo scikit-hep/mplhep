@@ -152,7 +152,7 @@ def histplot(
             raise ValueError("ax must be a matplotlib Axes object")
 
     # arg check
-    _allowed_histtype = ["fill", "step", "errorbar"]
+    _allowed_histtype = ["fill", "step", "errorbar", "band"]
     _err_message = f"Select 'histtype' from: {_allowed_histtype}"
     assert histtype in _allowed_histtype, _err_message
     assert flow is None or flow in {
@@ -462,6 +462,23 @@ def histplot(
             return_artists.append(StairsArtists(_f, None, None))
         _artist = _f
 
+    elif histtype == "band":
+        band_defaults = {
+            "alpha": 0.5,
+            "edgecolor": "lightgray",
+            "hatch": "///",
+        }
+        for i in range(len(plottables)):
+            _kwargs = _chunked_kwargs[i]
+            _f = ax.stairs(
+                **plottables[i].to_stairband(),
+                label=_labels[i],
+                fill=True,
+                **soft_update_kwargs(_kwargs, band_defaults),
+            )
+            return_artists.append(StairsArtists(_f, None, None))
+        _artist = _f
+
     elif histtype == "errorbar":
         err_defaults = {
             "linestyle": "none",
@@ -480,6 +497,7 @@ def histplot(
             _xerr = None
 
         for i in range(len(plottables)):
+            _kwargs = _chunked_kwargs[i]
             _plot_info = plottables[i].to_errorbar()
             if yerr is False:
                 _plot_info["yerr"] = None
@@ -487,7 +505,7 @@ def histplot(
             _e = ax.errorbar(
                 **_plot_info,
                 label=_labels[i],
-                **soft_update_kwargs(_chunked_kwargs[i], err_defaults),
+                **soft_update_kwargs(_kwargs, err_defaults),
             )
             return_artists.append(ErrorBarArtists(_e))
 

@@ -265,6 +265,14 @@ class Plottable:
     def to_stairs(self):
         return {"values": self.values, "edges": self.edges, "baseline": self.baseline}
 
+    def to_stairband(self):
+        self.errors()
+        return {
+            "values": self.values + self.yerr_hi,
+            "edges": self.edges,
+            "baseline": self.values - self.yerr_lo,
+        }
+
     def to_errorbar(self):
         self.errors()
         return {
