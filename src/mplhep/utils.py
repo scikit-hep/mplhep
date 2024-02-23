@@ -104,7 +104,8 @@ def _process_histogram_parts_iter(
     for hist in hists:
         h = hist_object_handler(hist, *bins)
         current_bins: tuple[Sequence[float], ...] = tuple(
-            get_plottable_protocol_bins(a)[0] for a in h.axes  # type: ignore[misc]
+            get_plottable_protocol_bins(a)[0]  # type: ignore[misc]
+            for a in h.axes  # type: ignore[misc]
         )
         if any(b is None for b in original_bins):
             original_bins = current_bins
@@ -158,8 +159,9 @@ class Plottable:
             self.yerr_lo, self.yerr_hi = yerr
         else:
             self._errors_present = False
-            self.yerr_lo, self.yerr_hi = np.zeros_like(self.values), np.zeros_like(
-                self.values
+            self.yerr_lo, self.yerr_hi = (
+                np.zeros_like(self.values),
+                np.zeros_like(self.values),
             )
 
     def __eq__(self, other):

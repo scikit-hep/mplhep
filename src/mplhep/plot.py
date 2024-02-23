@@ -245,12 +245,14 @@ def histplot(
                             final_bins[0] - _bin_widths[0] * len(_bin_widths) * 0.03,
                         ],
                     )
-                value, variance = np.insert(value, 0, np.nan), np.insert(
-                    variance, 0, np.nan
+                value, variance = (
+                    np.insert(value, 0, np.nan),
+                    np.insert(variance, 0, np.nan),
                 )
-                value, variance = np.insert(
-                    value, 0, h.values(flow=True)[0]
-                ), np.insert(value, 0, h.variances(flow=True)[0])
+                value, variance = (
+                    np.insert(value, 0, h.values(flow=True)[0]),
+                    np.insert(value, 0, h.variances(flow=True)[0]),
+                )
             if overflow > 0:
                 if i == 0:
                     flow_bins = np.append(
@@ -261,8 +263,9 @@ def histplot(
                         ],
                     )
                 value, variance = np.append(value, np.nan), np.append(variance, np.nan)
-                value, variance = np.append(value, h.values(flow=True)[-1]), np.append(
-                    variance, h.variances(flow=True)[-1]
+                value, variance = (
+                    np.append(value, h.values(flow=True)[-1]),
+                    np.append(variance, h.variances(flow=True)[-1]),
                 )
             plottables.append(Plottable(value, edges=flow_bins, variances=variance))
         elif flow == "sum":
