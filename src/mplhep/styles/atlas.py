@@ -100,7 +100,6 @@ ATLAS: dict[str, Any] = {
     "mathtext.tt": "TeX Gyre Heros",
     "mathtext.cal": "TeX Gyre Heros",
     "mathtext.default": "it",
-    "mathtext.fontset": "custom",
 }
 
 # use dejavusans (default math fontset)
