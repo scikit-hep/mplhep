@@ -90,7 +90,7 @@ def histplot(
 
             Or list thereof.
         bins : iterable, optional
-            Histogram bins, if not part of ``h``.
+            Histogram bins, if not part of ``H``.
         yerr : iterable or bool, optional
             Histogram uncertainties. Following modes are supported:
             - True, sqrt(N) errors or poissonian interval when ``w2`` is specified
@@ -115,12 +115,13 @@ def histplot(
         binwnorm : float, optional
             If true, convert sum weights to bin-width-normalized, with unit equal to
                 supplied value (usually you want to specify 1.)
-        histtype: {'step', 'fill', 'errorbar'}, optional, default: "step"
+        histtype: {'step', 'fill', 'band', 'errorbar'}, optional, default: "step"
             Type of histogram to plot:
 
-            - "step": skyline/step/outline of a histogram using `plt.step <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.step.html#matplotlib.axes.Axes.step>`_
-            - "fill": filled histogram using `plt.fill_between <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.step.html#matplotlib.axes.Axes.step>`_
-            - "errorbar": single marker histogram using `plt.errorbar <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.step.html#matplotlib.axes.Axes.step>`_
+            - "step": skyline/step/outline of a histogram using `plt.stairs <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs>`_
+            - "fill": filled histogram using `plt.stairs <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs>`_
+            - "step": filled band spanning the yerr range of the histogram using `plt.stairs <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs>`_
+            - "errorbar": single marker histogram using `plt.errorbar <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.errorbar.html#matplotlib-axes-axes-errorbar>`_
         xerr:  bool or float, optional
             Size of xerr if ``histtype == 'errorbar'``. If ``True``, bin-width will be used.
         label : str or list, optional
@@ -134,10 +135,11 @@ def histplot(
         ax : matplotlib.axes.Axes, optional
             Axes object (if None, last one is fetched or one is created)
         flow :  str, optional { "show", "sum", "hint", "none"}
-            Whether plot the under/overflow bin. If "show", add additional under/overflow bin. If "sum", add the under/overflow bin content to first/last bin.
+            Whether plot the under/overflow bin. If "show", add additional under/overflow bin.
+            If "sum", add the under/overflow bin content to first/last bin.
         **kwargs :
             Keyword arguments passed to underlying matplotlib functions -
-            {'step', 'fill_between', 'errorbar'}.
+            {'stairs', 'errorbar'}.
     Returns
     -------
         List[Hist1DArtists]
@@ -465,8 +467,9 @@ def histplot(
     elif histtype == "band":
         band_defaults = {
             "alpha": 0.5,
-            "edgecolor": "lightgray",
-            "hatch": "///",
+            "edgecolor": "darkgray",
+            "facecolor": "whitesmoke",
+            "hatch": "////  /",
         }
         for i in range(len(plottables)):
             _kwargs = _chunked_kwargs[i]
