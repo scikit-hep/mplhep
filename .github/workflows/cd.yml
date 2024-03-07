@@ -3,27 +3,22 @@ name: CD
 on:
   workflow_dispatch:
   pull_request:
+  push:
     branches:
-    - master
+      - master
   release:
     types:
-    - published
+      - published
 
 jobs:
   dist:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Build wheel and SDist
-      run: pipx run build
-
-    - uses: actions/upload-artifact@v3
-      with:
-        path: dist/*
-
-    - name: Check metadata
-      run: pipx run twine check dist/*
+      - uses: hynek/build-and-inspect-python-package@v2
 
   publish:
     needs: [dist]
@@ -32,6 +27,7 @@ jobs:
       id-token: write
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
+
     steps:
       - uses: actions/download-artifact@v4
         with:
