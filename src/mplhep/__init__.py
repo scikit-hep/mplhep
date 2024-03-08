@@ -23,7 +23,7 @@ from .plot import (
     sort_legend,
     ylow,
     yscale_legend,
-    yscale_text,
+    yscale_anchored_text,
 )
 from .styles import set_style
 
@@ -65,7 +65,7 @@ __all__ = [
     "hist2dplot",
     "mpl_magic",
     "yscale_legend",
-    "yscale_text",
+    "yscale_anchored_text",
     "ylow",
     "rescale_to_axessize",
     "box_aspect",
