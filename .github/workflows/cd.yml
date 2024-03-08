@@ -24,7 +24,7 @@ jobs:
 
     - name: Check metadata
       run: pipx run twine check dist/*
-      
+
   publish:
     needs: [dist]
     environment: release
