@@ -1003,7 +1003,9 @@ def yscale_legend(ax=None, otol=0):
 
     scale_factor = 10 ** (1.05) if ax.get_yscale() == "log" else 1.05
     while overlap(ax, _draw_leg_bbox(ax)) > otol:
-        logging.debug(f"Legend overlap with other artists is {overlap(ax, _draw_leg_bbox(ax))}.")
+        logging.debug(
+            f"Legend overlap with other artists is {overlap(ax, _draw_leg_bbox(ax))}."
+        )
         logging.info("Scaling y-axis by 5% to fit legend")
         ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[-1] * scale_factor)
         ax.figure.canvas.draw()
