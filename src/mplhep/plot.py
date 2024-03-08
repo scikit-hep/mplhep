@@ -921,6 +921,7 @@ def overlap(ax, bbox, get_vertices=False):
     """
     from matplotlib.lines import Line2D
     from matplotlib.patches import Patch, Rectangle
+    from matplotlib.text import Text
 
     # From
     # https://github.com/matplotlib/matplotlib/blob/08008d5cb4d1f27692e9aead9a76396adc8f0b19/lib/matplotlib/legend.py#L845
@@ -936,13 +937,15 @@ def overlap(ax, bbox, get_vertices=False):
 
     for handle in ax.patches:
         assert isinstance(handle, Patch)
-
         if isinstance(handle, Rectangle):
             transform = handle.get_data_transform()
             bboxes.append(handle.get_bbox().transformed(transform))
         else:
-            transform = handle.get_transform()
-            bboxes.append(handle.get_path().get_extents(transform))
+            lines.append(handle.get_path().interpolated(20))
+
+    for handle in ax.texts:
+        assert isinstance(handle, Text)
+        bboxes.append(handle.get_window_extent())
 
     # TODO Possibly other objects
 
@@ -1000,20 +1003,22 @@ def yscale_legend(ax=None, otol=0):
 
     scale_factor = 10 ** (1.05) if ax.get_yscale() == "log" else 1.05
     while overlap(ax, _draw_leg_bbox(ax)) > otol:
+        logging.debug(f"Legend overlap with other artists is {overlap(ax, _draw_leg_bbox(ax))}.")
         logging.info("Scaling y-axis by 5% to fit legend")
         ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[-1] * scale_factor)
         ax.figure.canvas.draw()
     return ax
 
 
-def yscale_text(ax=None):
+def yscale_anchored_text(ax=None, otol=0):
     """
     Automatically scale y-axis up to fit AnchoredText
+    Set `otol > 0` for less strict scaling.
     """
     if ax is None:
         ax = plt.gca()
 
-    while overlap(ax, _draw_text_bbox(ax)) > 0:
+    while overlap(ax, _draw_text_bbox(ax)) > otol:
         ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[-1] * 1.1)
         ax.figure.canvas.draw()
     return ax
@@ -1060,7 +1065,7 @@ def mpl_magic(ax=None, info=True):
 
     ax = ylow(ax)
     ax = yscale_legend(ax)
-    ax = yscale_text(ax)
+    ax = yscale_anchored_text(ax)
 
     return ax
 
