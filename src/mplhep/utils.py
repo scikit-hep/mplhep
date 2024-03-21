@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import warnings
+import logging
 from numbers import Real
 from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
@@ -285,8 +286,13 @@ class Plottable:
 
 
 def stack(*plottables):
+    baseline = np.nan_to_num(copy.deepcopy(plottables[0].values), 0)
     for i in range(1, len(plottables)):
-        plottables[i].baseline = copy.deepcopy(plottables[i - 1].values)
-        plottables[i].values += copy.deepcopy(plottables[i - 1].values)
-
+        _mask = np.isnan(plottables[i].values)
+        _baseline = copy.deepcopy(baseline)
+        _baseline[_mask] = np.nan
+        plottables[i].baseline = _baseline
+        baseline += np.nan_to_num(plottables[i].values, 0)
+        plottables[i].values = np.nansum([plottables[i].values , _baseline], axis=0)
+        plottables[i].values[_mask] = np.nan
     return plottables
