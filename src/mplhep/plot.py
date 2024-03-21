@@ -941,6 +941,8 @@ def overlap(ax, bbox, get_vertices=False):
             transform = handle.get_data_transform()
             bboxes.append(handle.get_bbox().transformed(transform))
         else:
+            if len(handle.get_path().vertices) == 0:
+                continue
             lines.append(handle.get_path().interpolated(20))
 
     for handle in ax.texts:
