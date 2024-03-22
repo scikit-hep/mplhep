@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import copy
 import warnings
-import logging
 from numbers import Real
 from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
@@ -293,6 +292,6 @@ def stack(*plottables):
         _baseline[_mask] = np.nan
         plottables[i].baseline = _baseline
         baseline += np.nan_to_num(plottables[i].values, 0)
-        plottables[i].values = np.nansum([plottables[i].values , _baseline], axis=0)
+        plottables[i].values = np.nansum([plottables[i].values, _baseline], axis=0)
         plottables[i].values[_mask] = np.nan
     return plottables
