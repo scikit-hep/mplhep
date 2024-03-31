@@ -8,6 +8,8 @@ from typing import TYPE_CHECKING, Any, Iterable, Sequence
 import numpy as np
 from uhi.numpy_plottable import ensure_plottable_histogram
 from uhi.typing.plottable import PlottableAxis, PlottableHistogram
+from matplotlib import markers
+from matplotlib.path import Path
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
@@ -244,6 +246,15 @@ class Plottable:
         self.yerr_hi *= scale
         return self
 
+    def binwnorm(self):
+        """Scale values by a flat coefficient. Errors are scaled directly to match"""
+        self.errors()
+        self._errors_present = True
+        self.values /= np.diff(self.edges)
+        self.yerr_lo /= np.diff(self.edges)
+        self.yerr_hi /= np.diff(self.edges)
+        return self
+
     def reset(self):
         """Reset to original values"""
         self.values = copy.deepcopy(self._values)
@@ -295,3 +306,72 @@ def stack(*plottables):
         plottables[i].values = np.nansum([plottables[i].values, _baseline], axis=0)
         plottables[i].values[_mask] = np.nan
     return plottables
+
+
+def align_marker(
+    marker,
+    halign="center",
+    valign="middle",
+):
+    # Taken from https://stackoverflow.com/a/26726237
+    """
+    From
+    create markers with specified alignment.
+
+    Parameters
+    ----------
+
+    marker : a valid marker specification.
+      See mpl.markers
+
+    halign : string, float {'left', 'center', 'right'}
+      Specifies the horizontal alignment of the marker. *float* values
+      specify the alignment in units of the markersize/2 (0 is 'center',
+      -1 is 'right', 1 is 'left').
+
+    valign : string, float {'top', 'middle', 'bottom'}
+      Specifies the vertical alignment of the marker. *float* values
+      specify the alignment in units of the markersize/2 (0 is 'middle',
+      -1 is 'top', 1 is 'bottom').
+
+    Returns
+    -------
+
+    marker_array : numpy.ndarray
+      A Nx2 array that specifies the marker path relative to the
+      plot target point at (0, 0).
+
+    Notes
+    -----
+    The mark_array can be passed directly to ax.plot and ax.scatter, e.g.::
+
+        ax.plot(1, 1, marker=align_marker('>', 'left'))
+
+    """
+
+    if isinstance(halign, (str)):
+        halign = {
+            "right": -1.0,
+            "middle": 0.0,
+            "center": 0.0,
+            "left": 1.0,
+        }[halign]
+
+    if isinstance(valign, (str)):
+        valign = {
+            "top": -1.0,
+            "middle": 0.0,
+            "center": 0.0,
+            "bottom": 1.0,
+        }[valign]
+
+    # Define the base marker
+    bm = markers.MarkerStyle(marker)
+
+    m_arr = bm.get_path().transformed(bm.get_transform()).vertices
+
+    # Shift the marker vertices for the specified alignment.
+    m_arr[:, 0] += halign / 2
+    m_arr[:, 1] += valign / 2
+
+    return Path(m_arr, bm.get_path().codes)
