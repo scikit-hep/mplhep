@@ -187,17 +187,17 @@ def test_histplot_uproot_flow():
     h4.fill(entries[(entries > 5) & (entries < 15)])
     import uproot
 
-    f = uproot.recreate("flow_th1.root")
-    f["h"] = h
-    f["h2"] = h2
-    f["h3"] = h3
-    f["h4"] = h4
+    with uproot.recreate("flow_th1.root") as f:
+        f["h"] = h
+        f["h2"] = h2
+        f["h3"] = h3
+        f["h4"] = h4
 
-    f = uproot.open("flow_th1.root")
-    h = f["h"]
-    h2 = f["h2"]
-    h3 = f["h3"]
-    h4 = f["h4"]
+    with uproot.open("flow_th1.root") as f:
+        h = f["h"]
+        h2 = f["h2"]
+        h3 = f["h3"]
+        h4 = f["h4"]
 
     fig, axs = plt.subplots(2, 2, sharey=True, figsize=(10, 10))
     axs = axs.flatten()

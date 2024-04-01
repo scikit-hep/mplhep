@@ -31,7 +31,6 @@ StairsArtists = namedtuple("StairsArtists", "stairs errorbar legend_artist")
 ErrorBarArtists = namedtuple("ErrorBarArtists", "errorbar")
 ColormeshArtists = namedtuple("ColormeshArtists", "pcolormesh cbar text")
 
-
 Hist1DArtists = Union[StairsArtists, ErrorBarArtists]
 Hist2DArtists = ColormeshArtists
 
@@ -193,18 +192,21 @@ def histplot(
             variance = np.copy(variance)
         underflow, overflow = 0, 0
         underflowv, overflowv = 0, 0
-        # One sided flow bins - hist
-        if hasattr(h, "axes") and hasattr(h.axes[0], "traits"):
-            if hasattr(h.axes[0].traits, "overflow") and h.axes[0].traits.overflow:
+        # One sided flow bins - hist (uproot hist does not have the over- or underflow traits)
+        if (hasattr(h, "axes")
+                and (traits := getattr(h.axes[0], "traits", None)) is not None
+                and hasattr(traits, "underflow")
+                and hasattr(traits, "overflow")):
+            if traits.overflow:
                 overflow = np.copy(h.values(flow=True)[-1])
                 overflowv = np.copy(h.variances(flow=True)[-1])
-            if hasattr(h.axes[0].traits, "underflow") and h.axes[0].traits.underflow:
+            if traits.underflow:
                 underflow = np.copy(h.values(flow=True)[0])
                 underflowv = np.copy(h.variances(flow=True)[0])
         # Both flow bins exist - uproot
         elif hasattr(h, "values") and "flow" in inspect.getfullargspec(h.values).args:
             if len(h.values()) + 2 == len(
-                h.values(flow=True)
+                    h.values(flow=True)
             ):  # easy case, both over/under
                 underflow, overflow = (
                     np.copy(h.values(flow=True)[0]),
