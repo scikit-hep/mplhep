@@ -193,10 +193,12 @@ def histplot(
         underflow, overflow = 0, 0
         underflowv, overflowv = 0, 0
         # One sided flow bins - hist (uproot hist does not have the over- or underflow traits)
-        if (hasattr(h, "axes")
-                and (traits := getattr(h.axes[0], "traits", None)) is not None
-                and hasattr(traits, "underflow")
-                and hasattr(traits, "overflow")):
+        if (
+            hasattr(h, "axes")
+            and (traits := getattr(h.axes[0], "traits", None)) is not None
+            and hasattr(traits, "underflow")
+            and hasattr(traits, "overflow")
+        ):
             if traits.overflow:
                 overflow = np.copy(h.values(flow=True)[-1])
                 overflowv = np.copy(h.variances(flow=True)[-1])
@@ -206,7 +208,7 @@ def histplot(
         # Both flow bins exist - uproot
         elif hasattr(h, "values") and "flow" in inspect.getfullargspec(h.values).args:
             if len(h.values()) + 2 == len(
-                    h.values(flow=True)
+                h.values(flow=True)
             ):  # easy case, both over/under
                 underflow, overflow = (
                     np.copy(h.values(flow=True)[0]),
