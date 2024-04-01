@@ -236,6 +236,62 @@ def test_histplot_type_flow():
     return fig
 
 
+@pytest.mark.mpl_image_compare(style="default")
+def test_hist2dplot_hist_all_flow_show():
+    flow_opts = []
+    for ufl1 in [True, False]:
+        for ofl1 in [True, False]:
+            for ufl2 in [True, False]:
+                for ofl2 in [True, False]:
+                    flow_opts.append([ufl1, ofl1, ufl2, ofl2])
+
+    np.random.seed(0)
+    _fill = np.random.normal(2.5, 2, 10000).reshape(-1, 2).T
+    fig, axs = plt.subplots(4, 4)
+    axs = axs.flatten()
+    for i, opt in enumerate(flow_opts):
+        h = (
+            hist.new.Reg(5, 0, 5, overflow=opt[0], underflow=opt[1])
+            .Reg(5, 0, 5, overflow=opt[2], underflow=opt[3])
+            .Weight()
+            .fill(*_fill)
+        )
+        hep.hist2dplot(h, ax=axs[i], flow="show", cbar=False)
+        axs[i].set_xticks([])
+        axs[i].set_yticks([])
+        axs[i].set_xlabel("")
+        axs[i].set_ylabel("")
+    return fig
+
+
+@pytest.mark.mpl_image_compare(style="default")
+def test_hist2dplot_hist_all_flow_hint():
+    flow_opts = []
+    for ufl1 in [True, False]:
+        for ofl1 in [True, False]:
+            for ufl2 in [True, False]:
+                for ofl2 in [True, False]:
+                    flow_opts.append([ufl1, ofl1, ufl2, ofl2])
+
+    np.random.seed(0)
+    _fill = np.random.normal(2.5, 2, 10000).reshape(-1, 2).T
+    fig, axs = plt.subplots(4, 4)
+    axs = axs.flatten()
+    for i, opt in enumerate(flow_opts):
+        h = (
+            hist.new.Reg(5, 0, 5, overflow=opt[0], underflow=opt[1])
+            .Reg(5, 0, 5, overflow=opt[2], underflow=opt[3])
+            .Weight()
+            .fill(*_fill)
+        )
+        hep.hist2dplot(h, ax=axs[i], flow="hint", cbar=False)
+        axs[i].set_xticks([])
+        axs[i].set_yticks([])
+        axs[i].set_xlabel("")
+        axs[i].set_ylabel("")
+    return fig
+
+
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_histplot_multiple():
     np.random.seed(0)

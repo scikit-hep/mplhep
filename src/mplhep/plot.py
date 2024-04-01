@@ -689,15 +689,6 @@ def hist2dplot(
             f"Warning: {type(h)} is not allowed to get flow bins, flow bin option set to None"
         )
         flow = None
-    elif (
-        hasattr(h, "axes")
-        and hasattr(h.axes[0], "traits")
-        and hasattr(h.axes[0].traits, "underflow")
-        and not h.axes[0].traits.underflow
-        and not h.axes[0].traits.overflow
-    ):
-        flow = None
-        print(f"Warning:  you don't have flow bins stored in {h}")
     elif flow in ["hint", "show"]:
         xwidth, ywidth = (xbins[-1] - xbins[0]) * 0.05, (ybins[-1] - ybins[0]) * 0.05
         pxbins = np.r_[xbins[0] - xwidth, xbins, xbins[-1] + xwidth]
