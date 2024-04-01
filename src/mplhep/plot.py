@@ -21,6 +21,7 @@ from .utils import (
     isLight,
     process_histogram_parts,
     align_marker,
+    to_padded2d,
 )
 
 if TYPE_CHECKING:
@@ -501,7 +502,7 @@ def histplot(
 
     # Flow extra styling
     if flow == "hint":
-        s = (
+        _marker_size = (
             30
             * ax.get_window_extent()
             .transformed(ax.figure.dpi_scale_trans.inverted())
@@ -511,7 +512,7 @@ def histplot(
             ax.scatter(
                 final_bins[0],
                 0,
-                s,
+                _marker_size,
                 marker=align_marker("<", halign="right"),
                 edgecolor="black",
                 zorder=5,
@@ -523,7 +524,7 @@ def histplot(
             ax.scatter(
                 final_bins[-1],
                 0,
-                s,
+                _marker_size,
                 marker=align_marker(">", halign="left"),
                 edgecolor="black",
                 zorder=5,
@@ -674,7 +675,7 @@ def hist2dplot(
 
     # TODO: use Histogram everywhere
 
-    H = h.values()
+    H = h.values().copy()
     xbins, xtick_labels = get_plottable_protocol_bins(h.axes[0])
     ybins, ytick_labels = get_plottable_protocol_bins(h.axes[1])
     # Show under/overflow bins
@@ -697,49 +698,31 @@ def hist2dplot(
     ):
         flow = None
         print(f"Warning:  you don't have flow bins stored in {h}")
-    elif flow == "show":
-        H = h.values(flow=True)
-        if any(h.values(flow=True)[0] > 0):
-            xbins = np.array(
-                [
-                    xbins[0] - (xbins[-1] - xbins[0]) * 0.08,
-                    xbins[0] - (xbins[-1] - xbins[0]) * 0.03,
-                    *xbins,
-                ]
-            )
-        if any(h.values(flow=True)[-1] > 0):
-            xbins = np.array(
-                [
-                    *xbins,
-                    xbins[-1] + (xbins[-1] - xbins[0]) * 0.03,
-                    xbins[-1] + (xbins[-1] - xbins[0]) * 0.08,
-                ]
-            )
-        if any(h.values(flow=True)[:, 0] > 0):
-            ybins = np.array(
-                [
-                    ybins[0] - (ybins[-1] - ybins[0]) * 0.08,
-                    ybins[0] - (ybins[-1] - ybins[0]) * 0.03,
-                    *ybins,
-                ]
-            )
-        if any(h.values(flow=True)[:, -1] > 0):
-            ybins = np.array(
-                [
-                    *ybins,
-                    ybins[-1] + (ybins[-1] - ybins[0]) * 0.03,
-                    ybins[-1] + (ybins[-1] - ybins[0]) * 0.08,
-                ]
-            )
-
-        if any(h.values(flow=True)[0] > 0.0):
-            H = np.insert(H, (1), np.nan, axis=-1)
-        if any(h.values(flow=True)[-1] > 0.0):
-            H = np.insert(H, (-1), np.nan, axis=-1)
-        if any(h.values(flow=True)[:, 0] > 0):
-            H = np.insert(H, (1), np.full(np.shape(H)[1], np.nan), axis=0)
-        if any(h.values(flow=True)[:, -1] > 0):
-            H = np.insert(H, (-1), np.full(np.shape(H)[1], np.nan), axis=0)
+    elif flow in ["hint", "show"]:
+        xwidth, ywidth = (xbins[-1] - xbins[0]) * 0.05, (ybins[-1] - ybins[0]) * 0.05
+        pxbins = np.r_[xbins[0] - xwidth, xbins, xbins[-1] + xwidth]
+        pybins = np.r_[ybins[0] - ywidth, ybins, ybins[-1] + ywidth]
+        padded = to_padded2d(h)
+        hint_xlo, hint_xhi, hint_ylo, hint_yhi = True, True, True, True
+        if np.all(padded[0, :] == 0):
+            padded = padded[1:, :]
+            pxbins = pxbins[1:]
+            hint_xlo = False
+        if np.all(padded[-1, :] == 0):
+            padded = padded[:-1, :]
+            pxbins = pxbins[:-1]
+            hint_xhi = False
+        if np.all(padded[:, 0] == 0):
+            padded = padded[:, 1:]
+            pybins = pybins[1:]
+            hint_ylo = False
+        if np.all(padded[:, -1] == 0):
+            padded = padded[:, :-1]
+            pybins = pybins[:-1]
+            hint_yhi = False
+        if flow == "show":
+            H = padded
+            xbins, ybins = pxbins, pybins
     elif flow == "sum":
         H = h.values().copy()
         # Sum borders
@@ -812,76 +795,98 @@ def hist2dplot(
         cb_obj = None
 
     plt.sca(ax)
-    if flow == "hint" or flow == "show":
-        d = 0.9  # proportion of vertical to horizontal extent of the slanted line
-        trans = mpl.transforms.blended_transform_factory(ax.transData, ax.transAxes)
-        ax_h = ax.bbox.height
-        kwargs = dict(
-            marker=[(-0.5, -d), (0.5, d)],
-            markersize=ax_h * 0.05,
-            linestyle="none",
-            color="k",
-            mec="k",
-            mew=1,
-            clip_on=False,
+    if flow == "show":
+        if hint_xlo:
+            ax.plot(
+                [xbins[1]] * 2,
+                [0, 1],
+                ls="--",
+                color="lightgrey",
+                clip_on=False,
+                transform=ax.get_xaxis_transform(),
+            )
+        if hint_xhi:
+            ax.plot(
+                [xbins[-2]] * 2,
+                [0, 1],
+                ls="--",
+                color="lightgrey",
+                clip_on=False,
+                transform=ax.get_xaxis_transform(),
+            )
+        if hint_ylo:
+            ax.plot(
+                [0, 1],
+                [ybins[1]] * 2,
+                ls="--",
+                color="lightgrey",
+                clip_on=False,
+                transform=ax.get_yaxis_transform(),
+            )
+        if hint_yhi:
+            ax.plot(
+                [0, 1],
+                [ybins[-2]] * 2,
+                ls="--",
+                color="lightgrey",
+                clip_on=False,
+                transform=ax.get_yaxis_transform(),
+            )
+    elif flow == "hint":
+        _marker_size = (
+            30
+            * ax.get_window_extent()
+            .transformed(ax.figure.dpi_scale_trans.inverted())
+            .width
         )
-        if any(h.values(flow=True)[0] > 0):
-            if flow == "hint":
-                ax.plot(
-                    [
-                        xbins[0] - np.diff(xbins)[0] * len(np.diff(xbins)) * 0.03,
-                        xbins[0],
-                    ],
-                    [0, 0],
-                    transform=trans,
-                    **kwargs,
-                )
-            if flow == "show":
-                ax.plot([xbins[1], xbins[2]], [0, 0], transform=trans, **kwargs)
-                ax.plot([xbins[0], xbins[0]], [ybins[1], ybins[2]], **kwargs)
-        if any(h.values(flow=True)[:, 0] > 0):
-            if flow == "hint":
-                ax.plot(
-                    [
-                        xbins[-1] + np.diff(xbins)[-1] * len(np.diff(xbins)) * 0.03,
-                        xbins[-1],
-                    ],
-                    [0, 0],
-                    transform=trans,
-                    **kwargs,
-                )
-            if flow == "show":
-                ax.plot([xbins[-3], xbins[-2]], [0, 0], transform=trans, **kwargs)
-                ax.plot([xbins[-1], xbins[-1]], [ybins[1], ybins[2]], **kwargs)
-        if any(h.values(flow=True)[-1] > 0):
-            if flow == "hint":
-                ax.plot(
-                    [
-                        xbins[0],
-                        xbins[0] - np.diff(xbins)[0] * len(np.diff(xbins)) * 0.03,
-                    ],
-                    [1, 1],
-                    transform=trans,
-                    **kwargs,
-                )
-            if flow == "show":
-                ax.plot([xbins[1], xbins[2]], [1, 1], transform=trans, **kwargs)
-                ax.plot([xbins[0], xbins[0]], [ybins[-3], ybins[-2]], **kwargs)
-
-        if any(h.values(flow=True)[:, -1] > 0):
-            if flow == "hint":
-                ax.plot(
-                    [
-                        xbins[-1] + np.diff(xbins)[-1] * len(np.diff(xbins)) * 0.03,
-                        xbins[-1],
-                    ],
-                    [1, 1],
-                    transform=trans,
-                    **kwargs,
-                )
-            if flow == "show":
-                ax.plot([xbins[-3], xbins[-2]], [1, 1], transform=trans, **kwargs)
-                ax.plot([xbins[-1], xbins[-1]], [ybins[-3], ybins[-2]], **kwargs)
+        if hint_xlo:
+            ax.scatter(
+                0,
+                0,
+                _marker_size,
+                marker=align_marker("<", halign="right", valign="bottom"),
+                edgecolor="black",
+                zorder=5,
+                clip_on=False,
+                facecolor="white",
+                transform=ax.transAxes,
+            )
+        if hint_xhi:
+            ax.scatter(
+                1,
+                0,
+                _marker_size,
+                marker=align_marker(">", halign="left"),
+                edgecolor="black",
+                zorder=5,
+                clip_on=False,
+                facecolor="white",
+                transform=ax.transAxes,
+            )
+        if hint_ylo:
+            ax.scatter(
+                0,
+                0,
+                _marker_size,
+                marker=align_marker("v", valign="top", halign="left"),
+                edgecolor="black",
+                zorder=5,
+                clip_on=False,
+                facecolor="white",
+                transform=ax.transAxes,
+            )
+        if hint_yhi:
+            ax.scatter(
+                0,
+                1,
+                _marker_size,
+                marker=align_marker("^", valign="bottom"),
+                edgecolor="black",
+                zorder=5,
+                clip_on=False,
+                facecolor="white",
+                transform=ax.transAxes,
+            )
 
     _labels: np.ndarray | None = None
     if isinstance(labels, bool):
