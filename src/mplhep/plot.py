@@ -215,7 +215,6 @@ def histplot(
                     np.copy(h.variances(flow=True)[-1]),
                 )
 
-
         # Set plottables
         if flow == "none":
             plottables.append(Plottable(value, edges=final_bins, variances=variance))
