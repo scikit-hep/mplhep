@@ -375,3 +375,31 @@ def align_marker(
     m_arr[:, 1] += valign / 2
 
     return Path(m_arr, bm.get_path().codes)
+
+
+def to_padded2d(h, variances=False):
+    if np.array_equal(
+        np.array(h.values().shape) + 2, np.array(h.values(flow=True).shape)
+    ):
+        padded = h.values(flow=True)
+        padded_varis = h.variances(flow=True)
+    else:
+        vals_flow = h.values(flow=True)
+        variances_flow = h.variances(flow=True)
+        xpadlo, xpadhi = 1 - h.axes[0].traits.underflow, 1 - h.axes[0].traits.overflow
+        ypadlo, ypadhi = 1 - h.axes[1].traits.underflow, 1 - h.axes[1].traits.overflow
+        xpadhi_m, mypadhi_m = [-pad if pad != 0 else None for pad in [xpadhi, ypadhi]]
+
+        padded = np.zeros(
+            (
+                vals_flow.shape[0] + xpadlo + xpadhi,
+                (vals_flow.shape[1] + ypadlo + ypadhi),
+            )
+        )
+        padded_varis = padded.copy()
+        padded[xpadlo:xpadhi_m, ypadlo:mypadhi_m] = vals_flow
+        padded_varis[xpadlo:xpadhi_m, ypadlo:mypadhi_m] = variances_flow
+    if variances:
+        return padded, padded_varis
+    else:
+        return padded
