@@ -142,8 +142,8 @@ def test_histplot_flow():
     return fig
 
 
-@pytest.mark.mpl_image_compare(style="default")
 @pytest.mark.parametrize("variances", [True, False], ids=["variances", "no_variances"])
+@pytest.mark.mpl_image_compare(style="default")
 def test_histplot_hist_flow(variances):
     np.random.seed(0)
     entries = np.random.normal(10, 3, 400)
