@@ -200,26 +200,26 @@ def histplot(
             and hasattr(traits, "overflow")
         ):
             if traits.overflow:
-                overflow = np.copy(h.values(flow=True)[-1])
+                overflow = np.copy(h.values(flow=True))[-1]
                 if has_variances:
-                    overflowv = np.copy(h.variances(flow=True)[-1])
+                    overflowv = np.copy(h.variances(flow=True))[-1]
             if traits.underflow:
-                underflow = np.copy(h.values(flow=True)[0])
+                underflow = np.copy(h.values(flow=True))[0]
                 if has_variances:
-                    underflowv = np.copy(h.variances(flow=True)[0])
+                    underflowv = np.copy(h.variances(flow=True))[0]
         # Both flow bins exist - uproot
         elif hasattr(h, "values") and "flow" in inspect.getfullargspec(h.values).args:
             if len(h.values()) + 2 == len(
                 h.values(flow=True)
             ):  # easy case, both over/under
                 underflow, overflow = (
-                    np.copy(h.values(flow=True)[0]),
-                    np.copy(h.values(flow=True)[-1]),
+                    np.copy(h.values(flow=True))[0],
+                    np.copy(h.values(flow=True))[-1],
                 )
                 if has_variances:
                     underflowv, overflowv = (
-                        np.copy(h.variances(flow=True)[0]),
-                        np.copy(h.variances(flow=True)[-1]),
+                        np.copy(h.variances(flow=True))[0],
+                        np.copy(h.variances(flow=True))[-1],
                     )
 
         # Set plottables
