@@ -31,7 +31,6 @@ StairsArtists = namedtuple("StairsArtists", "stairs errorbar legend_artist")
 ErrorBarArtists = namedtuple("ErrorBarArtists", "errorbar")
 ColormeshArtists = namedtuple("ColormeshArtists", "pcolormesh cbar text")
 
-
 Hist1DArtists = Union[StairsArtists, ErrorBarArtists]
 Hist2DArtists = ColormeshArtists
 
@@ -188,36 +187,40 @@ def histplot(
     plottables = []
     flow_bins = final_bins
     for i, h in enumerate(hists):
-        value, variance = h.values().copy(), h.variances()
-        if variance is not None:
-            variance = variance.copy()
-        underflow, overflow = 0, 0
-        underflowv, overflowv = 0, 0
-        # One sided flow bins - hist
-        if hasattr(h, "axes") and hasattr(h.axes[0], "traits"):
-            if hasattr(h.axes[0].traits, "overflow") and h.axes[0].traits.overflow:
-                overflow = h.values(flow=True)[-1].copy()
-                overflowv = h.variances(flow=True)[-1].copy()
-            if hasattr(h.axes[0].traits, "underflow") and h.axes[0].traits.underflow:
-                underflow = h.values(flow=True)[0].copy()
-                underflowv = h.variances(flow=True)[0].copy()
+        value, variance = np.copy(h.values()), h.variances()
+        if has_variances := variance is not None:
+            variance = np.copy(variance)
+        underflow, overflow = 0.0, 0.0
+        underflowv, overflowv = 0.0, 0.0
+        # One sided flow bins - hist (uproot hist does not have the over- or underflow traits)
+        if (
+            hasattr(h, "axes")
+            and (traits := getattr(h.axes[0], "traits", None)) is not None
+            and hasattr(traits, "underflow")
+            and hasattr(traits, "overflow")
+        ):
+            if traits.overflow:
+                overflow = np.copy(h.values(flow=True))[-1]
+                if has_variances:
+                    overflowv = np.copy(h.variances(flow=True))[-1]
+            if traits.underflow:
+                underflow = np.copy(h.values(flow=True))[0]
+                if has_variances:
+                    underflowv = np.copy(h.variances(flow=True))[0]
         # Both flow bins exist - uproot
-        if hasattr(h, "values") and "flow" in inspect.getfullargspec(h.values).args:
+        elif hasattr(h, "values") and "flow" in inspect.getfullargspec(h.values).args:
             if len(h.values()) + 2 == len(
                 h.values(flow=True)
             ):  # easy case, both over/under
                 underflow, overflow = (
-                    h.values(flow=True)[0].copy(),
-                    h.values(flow=True)[-1].copy(),
+                    np.copy(h.values(flow=True))[0],
+                    np.copy(h.values(flow=True))[-1],
                 )
-                underflowv, overflowv = (
-                    h.variances(flow=True)[0].copy(),
-                    h.variances(flow=True)[-1].copy(),
-                )
-        # Bins cannot be parsed
-        else:
-            underflow, overflow = 0, 0
-            underflowv, overflowv = 0, 0
+                if has_variances:
+                    underflowv, overflowv = (
+                        np.copy(h.variances(flow=True))[0],
+                        np.copy(h.variances(flow=True))[-1],
+                    )
 
         # Set plottables
         if flow == "none":
@@ -228,23 +231,27 @@ def histplot(
             _flow_bin_size = np.max(
                 [0.05 * (final_bins[-1] - final_bins[0]), np.mean(np.diff(final_bins))]
             )
-            flow_bins = final_bins.copy()
+            flow_bins = np.copy(final_bins)
             if underflow > 0:
                 flow_bins = np.r_[flow_bins[0] - _flow_bin_size, flow_bins]
                 value = np.r_[underflow, value]
-                variance = np.r_[underflowv, variance]
+                if has_variances:
+                    variance = np.r_[underflowv, variance]
             if overflow > 0:
                 flow_bins = np.r_[flow_bins, flow_bins[-1] + _flow_bin_size]
                 value = np.r_[value, overflow]
-                variance = np.r_[variance, overflowv]
+                if has_variances:
+                    variance = np.r_[variance, overflowv]
             plottables.append(Plottable(value, edges=flow_bins, variances=variance))
         elif flow == "sum":
             if underflow > 0:
                 value[0] += underflow
-                variance[0] += underflowv
+                if has_variances:
+                    variance[0] += underflowv
             if overflow > 0:
                 value[-1] += overflow
-                variance[-1] += overflowv
+                if has_variances:
+                    variance[-1] += overflowv
             plottables.append(Plottable(value, edges=final_bins, variances=variance))
         else:
             plottables.append(Plottable(value, edges=final_bins, variances=variance))
@@ -675,7 +682,7 @@ def hist2dplot(
 
     # TODO: use Histogram everywhere
 
-    H = h.values().copy()
+    H = np.copy(h.values())
     xbins, xtick_labels = get_plottable_protocol_bins(h.axes[0])
     ybins, ytick_labels = get_plottable_protocol_bins(h.axes[1])
     # Show under/overflow bins
@@ -715,7 +722,7 @@ def hist2dplot(
             H = padded
             xbins, ybins = pxbins, pybins
     elif flow == "sum":
-        H = h.values().copy()
+        H = np.copy(h.values())
         # Sum borders
         H[0], H[-1] = (
             H[0] + h.values(flow=True)[0, 1:-1],

@@ -142,26 +142,29 @@ def test_histplot_flow():
     return fig
 
 
+@pytest.mark.parametrize("variances", [True, False], ids=["variances", "no_variances"])
 @pytest.mark.mpl_image_compare(style="default")
-def test_histplot_hist_flow():
+def test_histplot_hist_flow(variances):
     np.random.seed(0)
     entries = np.random.normal(10, 3, 400)
-    h = hist.new.Reg(20, 5, 15, name="x", flow=True).Weight()
-    h2 = hist.new.Reg(20, 5, 15, name="x", underflow=True, overflow=False).Weight()
-    h3 = hist.new.Reg(20, 5, 15, name="x", underflow=False, overflow=True).Weight()
-    h4 = hist.new.Reg(20, 5, 15, name="x", flow=False).Weight()
+    hist_constr = [
+        hist.new.Reg(20, 5, 15, name="x", flow=True),
+        hist.new.Reg(20, 5, 15, name="x", underflow=True, overflow=False),
+        hist.new.Reg(20, 5, 15, name="x", underflow=False, overflow=True),
+        hist.new.Reg(20, 5, 15, name="x", flow=False),
+    ]
+    if variances:
+        hists = [h.Weight() for h in hist_constr]
+    else:
+        hists = [h.Double() for h in hist_constr]
+    for h in hists:
+        h.fill(entries, weight=np.ones_like(entries))
 
-    h.fill(entries)
-    h2.fill(entries)
-    h3.fill(entries)
-    h4.fill(entries)
     fig, axs = plt.subplots(2, 2, sharey=True, figsize=(10, 10))
     axs = axs.flatten()
 
-    hep.histplot(h, ax=axs[0], flow="show")
-    hep.histplot(h2, ax=axs[1], flow="show")
-    hep.histplot(h3, ax=axs[2], flow="show")
-    hep.histplot(h4, ax=axs[3], flow="show")
+    for i, h in enumerate(hists):
+        hep.histplot(h, ax=axs[i], flow="show", yerr=variances)
 
     axs[0].set_title("Two-side overflow", fontsize=18)
     axs[1].set_title("Left-side overflow", fontsize=18)
@@ -187,17 +190,17 @@ def test_histplot_uproot_flow():
     h4.fill(entries[(entries > 5) & (entries < 15)])
     import uproot
 
-    f = uproot.recreate("flow_th1.root")
-    f["h"] = h
-    f["h2"] = h2
-    f["h3"] = h3
-    f["h4"] = h4
+    with uproot.recreate("flow_th1.root") as f:
+        f["h"] = h
+        f["h2"] = h2
+        f["h3"] = h3
+        f["h4"] = h4
 
-    f = uproot.open("flow_th1.root")
-    h = f["h"]
-    h2 = f["h2"]
-    h3 = f["h3"]
-    h4 = f["h4"]
+    with uproot.open("flow_th1.root") as f:
+        h = f["h"]
+        h2 = f["h2"]
+        h3 = f["h3"]
+        h4 = f["h4"]
 
     fig, axs = plt.subplots(2, 2, sharey=True, figsize=(10, 10))
     axs = axs.flatten()
