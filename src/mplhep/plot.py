@@ -992,7 +992,7 @@ def _draw_text_bbox(ax):
     textboxes = [k for k in ax.get_children() if isinstance(k, AnchoredText)]
     fig.canvas.draw()
     if len(textboxes) > 1:
-        print("Warning: More than one textbox found")
+        logging.warning("More than one textbox found")
         for box in textboxes:
             if box.loc in [1, 2]:
                 bbox = box.get_tightbbox(fig.canvas.renderer)
@@ -1002,15 +1002,17 @@ def _draw_text_bbox(ax):
     return bbox
 
 
-def yscale_legend(ax=None, otol=0):
+def yscale_legend(ax=None, otol=0, soft_fail=False):
     """
     Automatically scale y-axis up to fit in legend().
     Set `otol > 0` for less strict scaling.
+    Set `soft_fail=True` to return even if it could not fit the legend.
     """
     if ax is None:
         ax = plt.gca()
 
     scale_factor = 10 ** (1.05) if ax.get_yscale() == "log" else 1.05
+    max_scales = 0
     while overlap(ax, _draw_leg_bbox(ax)) > otol:
         logging.debug(
             f"Legend overlap with other artists is {overlap(ax, _draw_leg_bbox(ax))}."
@@ -1018,20 +1020,45 @@ def yscale_legend(ax=None, otol=0):
         logging.info("Scaling y-axis by 5% to fit legend")
         ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[-1] * scale_factor)
         ax.figure.canvas.draw()
+        if max_scales > 10:
+            if not soft_fail:
+                raise RuntimeError(
+                    "Could not fit legend in 10 iterations, return anyway by passing `soft_fail=True`."
+                )
+            else:
+                logging.warning("Could not fit legend in 10 iterations")
+                break
+        max_scales += 1
     return ax
 
 
-def yscale_anchored_text(ax=None, otol=0):
+def yscale_anchored_text(ax=None, otol=0, soft_fail=False):
     """
     Automatically scale y-axis up to fit AnchoredText
     Set `otol > 0` for less strict scaling.
+    Set `soft_fail=True` to return even if it could not fit the AnchoredText.
     """
     if ax is None:
         ax = plt.gca()
 
+    scale_factor = 10 ** (1.05) if ax.get_yscale() == "log" else 1.05
+    max_scales = 0
     while overlap(ax, _draw_text_bbox(ax)) > otol:
-        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[-1] * 1.1)
+        logging.debug(
+            f"AnchoredText overlap with other artists is {overlap(ax, _draw_text_bbox(ax))}."
+        )
+        logging.info("Scaling y-axis by 5% to fit legend")
+        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[-1] * scale_factor)
         ax.figure.canvas.draw()
+        if max_scales > 10:
+            if not soft_fail:
+                raise RuntimeError(
+                    "Could not fit AnchoredText in 10 iterations, return anyway by passing `soft_fail=True`."
+                )
+            else:
+                logging.warning("Could not fit AnchoredText in 10 iterations")
+                break
+        max_scales += 1
     return ax
 
 
