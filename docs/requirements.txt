@@ -1,11 +1,11 @@
 jupyter-sphinx
+jupyter-sphinx
 matplotlib>=3.2
 mplhep_data
 numpy>=1.16.0
 packaging
 pydata_sphinx_theme
-sphinx
-uhi>=0.2.0
-jupyter-sphinx
-sphinxcontrib-images
 pyyaml
+sphinx
+sphinxcontrib-images
+uhi>=0.2.0
