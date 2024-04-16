@@ -1,5 +1,4 @@
 jupyter-sphinx
-jupyter-sphinx
 matplotlib>=3.2
 mplhep_data
 numpy>=1.16.0
