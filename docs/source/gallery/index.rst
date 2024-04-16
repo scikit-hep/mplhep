@@ -37,12 +37,9 @@ Gallery
     # allstyle = sorted(allstyle, key=lambda s: s.lower().endswith("tex"))
     allstyle = sorted(allstyle, key=lambda s: s.lower().endswith("alt"))
     here = Path("__file__").parent.resolve()  # jupyter workaround, use string
-    while "source" in str(here):  # that's weird, but it works... RTD uses a different folder than local
-        here = here.parent
-    here /= "source/gallery"
 
 
-    with Path(here / '../_static/bkg_sig_plot.yaml').resolve().open() as f:
+    with Path(here / '_static/bkg_sig_plot.yaml').resolve().open() as f:
        plotdata = yaml.load(f, Loader=yaml.FullLoader)
     for i, style in enumerate(allstyle):
         plt.style.use(getattr(mplhep.style, style))
@@ -70,7 +67,7 @@ Gallery
                 ax.legend()
                 ax.set_xlabel('$m_{\mu\mu}$ [GeV]')
                 ax.set_ylabel('Events')
-                path = Path(here / f"source/_generated/{style}/{histtype}/pos{position}.png")
+                path = Path(here / f"_generated/{style}/{histtype}/pos{position}.png")
                 path.parent.mkdir(parents=True, exist_ok=True)
                 plt.savefig(path)
                 plt.close()
