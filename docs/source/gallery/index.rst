@@ -36,7 +36,7 @@ Gallery
     allstyle = sorted(allstyle, key=lambda s: s.lower())
     # allstyle = sorted(allstyle, key=lambda s: s.lower().endswith("tex"))
     allstyle = sorted(allstyle, key=lambda s: s.lower().endswith("alt"))
-    here = Path.cwd()
+    here = Path("__file__").parent
 
     with open(here / 'source/_static/bkg_sig_plot.yaml') as f:
        plotdata = yaml.load(f, Loader=yaml.FullLoader)
