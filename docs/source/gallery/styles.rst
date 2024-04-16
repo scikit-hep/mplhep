@@ -18,7 +18,7 @@ distribution (for the background) on top of a histogram.
 All plots have additionally a legend, axis labels, and a title as well as
 - the text "Preliminary" at position 0 (see :ref:`gallery-labels` for more positions), using the experiment specific function if available (or none otherwise),
 - the year 2016
-- a luminosity of 9 :math:`fb$^{-1}$`
+- a luminosity of 9 :math:`fb^{-1}`
 - ``data=True`` to show that it's not simulation
 
 to illustrate the visual appearance of the styles.

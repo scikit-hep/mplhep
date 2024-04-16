@@ -36,9 +36,12 @@ Gallery
     allstyle = sorted(allstyle, key=lambda s: s.lower())
     # allstyle = sorted(allstyle, key=lambda s: s.lower().endswith("tex"))
     allstyle = sorted(allstyle, key=lambda s: s.lower().endswith("alt"))
-    here = Path("__file__").parent  # jupyter workaround, use string
+    here = Path("__file__").parent.resolve()  # jupyter workaround, use string
+    raise ValueError(here)
+    if "source" not in str(here):
+        here = Path("source/_static")  # weird fix for sphinx-build
 
-    with Path(here / '_static/bkg_sig_plot.yaml').resolve().open() as f:
+    with Path('_static/bkg_sig_plot.yaml').resolve().open() as f:
        plotdata = yaml.load(f, Loader=yaml.FullLoader)
     for i, style in enumerate(allstyle):
         plt.style.use(getattr(mplhep.style, style))
