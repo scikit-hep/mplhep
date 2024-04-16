@@ -23,6 +23,7 @@ from functools import reduce
 sys.path.insert(0, os.path.abspath("../../src"))
 
 import mplhep  # noqa: E402
+from pathlib import Path
 
 print("sys.path:", sys.path)
 print("mplhep version:", mplhep.__version__)
@@ -109,11 +110,13 @@ exclude_patterns = []
 #
 
 html_theme = "pydata_sphinx_theme"
+here = Path(__file__).parent
+staticfolder = here / "_static"
 
 html_theme_options = {
     "logo": {
-        "image_light": "mplhep.png",
-        "image_dark": "mplhep.png",
+        "image_light": staticfolder / "mplhep.png",
+        "image_dark": staticfolder / "mplhep.png",
     },
     "use_edit_page_button": True,
     # "analytics_id": "UA-XXXXXXX-1",  # Provided by Google in your dashboard
