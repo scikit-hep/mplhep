@@ -115,8 +115,8 @@ staticfolder = here / "_static"
 
 html_theme_options = {
     "logo": {
-        "image_light": staticfolder / "mplhep.png",
-        "image_dark": staticfolder / "mplhep.png",
+        "image_light": str(staticfolder / "mplhep.png"),
+        "image_dark": str(staticfolder / "mplhep.png"),
     },
     "use_edit_page_button": True,
     # "analytics_id": "UA-XXXXXXX-1",  # Provided by Google in your dashboard
