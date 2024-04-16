@@ -38,7 +38,7 @@ Gallery
     allstyle = sorted(allstyle, key=lambda s: s.lower().endswith("alt"))
     here = Path("__file__").parent  # jupyter workaround, use string
 
-    with Path(here / 'source/_static/bkg_sig_plot.yaml').resolve().open() as f:
+    with Path(here / '_static/bkg_sig_plot.yaml').resolve().open() as f:
        plotdata = yaml.load(f, Loader=yaml.FullLoader)
     for i, style in enumerate(allstyle):
         plt.style.use(getattr(mplhep.style, style))
