@@ -16,10 +16,11 @@ to plot the fit of a Gaussian distribution (for the signal peak) and an exponent
 distribution (for the background) on top of a histogram.
 
 All plots have additionally a legend, axis labels, and a title as well as
-- the text "Preliminary" at position 0 (see :ref:`gallery-labels` for more positions), using the experiment specific function if available (or none otherwise),
-- the year 2016
-- a luminosity of 9 :math:`fb^{-1}`
-- ``data=True`` to show that it's not simulation
+
+ - the text "Preliminary" at position 0 (see :ref:`gallery-labels` for more positions), using the experiment specific function if available (or none otherwise),
+ - the year 2016
+ - a luminosity of 9 :math:`fb^{-1}`
+ - ``data=True`` to show that it's not simulation
 
 to illustrate the visual appearance of the styles.
 
@@ -29,45 +30,45 @@ ATLAS
 ATLAS has two styles, the default one and the alternative one.
 
 
-.. image:: ../_generated/ATLAS/fill/pos0.png
+.. image:: ../../_static/_generated/ATLAS/fill/pos0.png
    :width: 45%
 
-.. image:: ../_generated/ATLAS/step/pos0.png
+.. image:: ../../_static/_generated/ATLAS/step/pos0.png
     :width: 45%
 
-.. image:: ../_generated/ATLAS/errorbar/pos0.png
+.. image:: ../../_static/_generated/ATLAS/errorbar/pos0.png
     :width: 45%
 
-.. image:: ../_generated/ATLAS/band/pos0.png
+.. image:: ../../_static/_generated/ATLAS/band/pos0.png
     :width: 45%
 
 ATLAS alternative, named ``ATLASAlt``
 
-.. image:: ../_generated/ATLASAlt/fill/pos0.png
+.. image:: ../../_static/_generated/ATLASAlt/fill/pos0.png
    :width: 45%
 
-.. image:: ../_generated/ATLASAlt/step/pos0.png
+.. image:: ../../_static/_generated/ATLASAlt/step/pos0.png
     :width: 45%
 
-.. image:: ../_generated/ATLASAlt/errorbar/pos0.png
+.. image:: ../../_static/_generated/ATLASAlt/errorbar/pos0.png
     :width: 45%
 
-.. image:: ../_generated/ATLASAlt/band/pos0.png
+.. image:: ../../_static/_generated/ATLASAlt/band/pos0.png
     :width: 45%
 
 CMS
 ------------
 
-.. image:: ../_generated/CMS/fill/pos0.png
+.. image:: ../../_static/_generated/CMS/fill/pos0.png
    :width: 45%
 
-.. image:: ../_generated/CMS/step/pos0.png
+.. image:: ../../_static/_generated/CMS/step/pos0.png
     :width: 45%
 
-.. image:: ../_generated/CMS/errorbar/pos0.png
+.. image:: ../../_static/_generated/CMS/errorbar/pos0.png
     :width: 45%
 
-.. image:: ../_generated/CMS/band/pos0.png
+.. image:: ../../_static/_generated/CMS/band/pos0.png
     :width: 45%
 
 LHCb
@@ -79,30 +80,30 @@ LHCb has two styles, the older one, :py:obj:`~mplhep.style.LHCb1`, and the newer
 
 LHCb1 style (old)
 
-.. image:: ../_generated/LHCb1/fill/pos0.png
+.. image:: ../../_static/_generated/LHCb1/fill/pos0.png
    :width: 45%
 
-.. image:: ../_generated/LHCb1/step/pos0.png
+.. image:: ../../_static/_generated/LHCb1/step/pos0.png
     :width: 45%
 
-.. image:: ../_generated/LHCb1/errorbar/pos0.png
+.. image:: ../../_static/_generated/LHCb1/errorbar/pos0.png
     :width: 45%
 
-.. image:: ../_generated/LHCb1/band/pos0.png
+.. image:: ../../_static/_generated/LHCb1/band/pos0.png
     :width: 45%
 
 LHCb2 style
 
-.. image:: ../_generated/LHCb2/fill/pos0.png
+.. image:: ../../_static/_generated/LHCb2/fill/pos0.png
    :width: 45%
 
-.. image:: ../_generated/LHCb2/step/pos0.png
+.. image:: ../../_static/_generated/LHCb2/step/pos0.png
     :width: 45%
 
-.. image:: ../_generated/LHCb2/errorbar/pos0.png
+.. image:: ../../_static/_generated/LHCb2/errorbar/pos0.png
     :width: 45%
 
-.. image:: ../_generated/LHCb2/band/pos0.png
+.. image:: ../../_static/_generated/LHCb2/band/pos0.png
     :width: 45%
 
 
@@ -111,14 +112,14 @@ ALICE
 
 ALICE style
 
-.. image:: ../_generated/ALICE/fill/pos0.png
+.. image:: ../../_static/_generated/ALICE/fill/pos0.png
    :width: 45%
 
-.. image:: ../_generated/ALICE/step/pos0.png
+.. image:: ../../_static/_generated/ALICE/step/pos0.png
     :width: 45%
 
-.. image:: ../_generated/ALICE/errorbar/pos0.png
+.. image:: ../../_static/_generated/ALICE/errorbar/pos0.png
     :width: 45%
 
-.. image:: ../_generated/ALICE/band/pos0.png
+.. image:: ../../_static/_generated/ALICE/band/pos0.png
     :width: 45%

@@ -67,7 +67,7 @@ Gallery
                 ax.legend()
                 ax.set_xlabel('$m_{\mu\mu}$ [GeV]')
                 ax.set_ylabel('Events')
-                path = Path(here / f"_generated/{style}/{histtype}/pos{position}.png")
+                path = Path(here / f"../_generated/{style}/{histtype}/pos{position}.png")
                 path.parent.mkdir(parents=True, exist_ok=True)
                 plt.savefig(path)
                 plt.close()
