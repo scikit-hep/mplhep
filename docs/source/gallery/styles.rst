@@ -1,48 +1,124 @@
-===========
+.. _gallery-styles:
+
+
 Styles
 ===========
 
-Comparison of different styles.
+This page provides a gallery of available styles in mplhep. The styles are
+sorted by the experiments they are associated with.
 
-Group images
+Styles can be used by calling :py:func:`mplhep.style.use(style)` with ``style``
+on of the available styles in :py:mod:`mplhep.style`. In this gallery, only the most used
+and actively maintained styles are shown.
+
+The following plots are generated using :py:func:`~mplhep.histplot` and :py:func:`plt.plot(...)`
+to plot the fit of a Gaussian distribution (for the signal peak) and an exponential
+distribution (for the background) on top of a histogram.
+
+All plots have additionally a legend, axis labels, and a title as well as
+- the text "Preliminary" at position 0 (see :ref:`gallery-labels` for more positions), using the experiment specific function if available (or none otherwise),
+- the year 2016
+- a luminosity of 9 :math:`fb$^{-1}$`
+- ``data=True`` to show that it's not simulation
+
+to illustrate the visual appearance of the styles.
+
+ATLAS
 ------------
 
-
-.. jupyter-execute::
-   :hide-code:
-   :hide-output:
-
-   import matplotlib.pyplot as plt
-   import mplhep
-   import numpy as np
-   from pathlib import Path
-   import yaml
-
-   x = np.linspace(0, 10, 100)
-   y = np.sin(x)
+ATLAS has two styles, the default one and the alternative one.
 
 
+.. image:: ../_generated/ATLAS/fill/pos0.png
+   :width: 45%
 
-.. jupyter-execute::
-   :hide-code:
+.. image:: ../_generated/ATLAS/step/pos0.png
+    :width: 45%
 
-   allstyle = [s for s in mplhep.style.__all__ if s != "use" and not s.lower().endswith("tex")]
-   allstyle = sorted(allstyle, key=lambda s: s.lower())
-   # allstyle = sorted(allstyle, key=lambda s: s.lower().endswith("tex"))
-   allstyle = sorted(allstyle, key=lambda s: s.lower().endswith("alt"))
-   here = Path.cwd()
+.. image:: ../_generated/ATLAS/errorbar/pos0.png
+    :width: 45%
 
-   with open(here / 'source/_static/bkg_sig_plot.yaml') as f:
-       plotdata = yaml.load(f, Loader=yaml.FullLoader)
-   for i, style in enumerate(allstyle):
-       try:
-           plt.style.use(getattr(mplhep.style, style))
-       except Exception as e:
-            continue
-       plot = plotdata.copy()
-       x = plot.pop('x')
-       data = plot.pop('Data')
-       mplhep.histplot(data, histtype='errorbar', label='Data')
-       for label, y in plot.items():
-           plt.plot(x, y, label=label)
-       plt.legend()
+.. image:: ../_generated/ATLAS/band/pos0.png
+    :width: 45%
+
+ATLAS alternative, named ``ATLASAlt``
+
+.. image:: ../_generated/ATLASAlt/fill/pos0.png
+   :width: 45%
+
+.. image:: ../_generated/ATLASAlt/step/pos0.png
+    :width: 45%
+
+.. image:: ../_generated/ATLASAlt/errorbar/pos0.png
+    :width: 45%
+
+.. image:: ../_generated/ATLASAlt/band/pos0.png
+    :width: 45%
+
+CMS
+------------
+
+.. image:: ../_generated/CMS/fill/pos0.png
+   :width: 45%
+
+.. image:: ../_generated/CMS/step/pos0.png
+    :width: 45%
+
+.. image:: ../_generated/CMS/errorbar/pos0.png
+    :width: 45%
+
+.. image:: ../_generated/CMS/band/pos0.png
+    :width: 45%
+
+LHCb
+------------
+
+LHCb has two styles, the older one, :py:obj:`~mplhep.style.LHCb1`, and the newer one,
+:py:obj:`~mplhep.style.LHCb2`.
+
+
+LHCb1 style (old)
+
+.. image:: ../_generated/LHCb1/fill/pos0.png
+   :width: 45%
+
+.. image:: ../_generated/LHCb1/step/pos0.png
+    :width: 45%
+
+.. image:: ../_generated/LHCb1/errorbar/pos0.png
+    :width: 45%
+
+.. image:: ../_generated/LHCb1/band/pos0.png
+    :width: 45%
+
+LHCb2 style
+
+.. image:: ../_generated/LHCb2/fill/pos0.png
+   :width: 45%
+
+.. image:: ../_generated/LHCb2/step/pos0.png
+    :width: 45%
+
+.. image:: ../_generated/LHCb2/errorbar/pos0.png
+    :width: 45%
+
+.. image:: ../_generated/LHCb2/band/pos0.png
+    :width: 45%
+
+
+ALICE
+------------
+
+ALICE style
+
+.. image:: ../_generated/ALICE/fill/pos0.png
+   :width: 45%
+
+.. image:: ../_generated/ALICE/step/pos0.png
+    :width: 45%
+
+.. image:: ../_generated/ALICE/errorbar/pos0.png
+    :width: 45%
+
+.. image:: ../_generated/ALICE/band/pos0.png
+    :width: 45%

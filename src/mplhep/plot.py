@@ -63,16 +63,16 @@ def histplot(
     yerr: ArrayLike | bool | None = None,
     w2=None,
     w2method=None,
-    stack=False,
-    density=False,
+    stack: bool = False,
+    density: bool = False,
     binwnorm=None,
-    histtype="step",
+    histtype: str = "step",
     xerr=False,
     label=None,
     sort=None,
     edges=True,
     binticks=False,
-    ax=None,
+    ax: mpl.axes.Axes | None = None,
     flow="hint",
     **kwargs,
 ):
@@ -611,14 +611,14 @@ def hist2dplot(
     xbins=None,
     ybins=None,
     labels=None,
-    cbar=True,
+    cbar: bool = True,
     cbarsize="7%",
     cbarpad=0.2,
     cbarpos="right",
     cbarextend=True,
     cmin=None,
     cmax=None,
-    ax=None,
+    ax: mpl.axes.Axes | None = None,
     flow="hint",
     **kwargs,
 ):
@@ -1002,14 +1002,31 @@ def _draw_text_bbox(ax):
     return bbox
 
 
-def yscale_legend(ax=None, otol=0, soft_fail=False):
+def yscale_legend(
+    ax: mpl.axes.Axes | None = None,
+    otol: float | int | None = None,
+    soft_fail: bool = False,
+) -> mpl.axes.Axes:
     """
     Automatically scale y-axis up to fit in legend().
-    Set `otol > 0` for less strict scaling.
-    Set `soft_fail=True` to return even if it could not fit the legend.
+
+    Parameters
+    ----------
+        ax : matplotlib.axes.Axes, optional
+            Axes object (if None, last one is fetched or one is created)
+        otol : float, optional
+            Tolerance for overlap, default 0. Set ``otol > 0`` for less strict scaling.
+        soft_fail : bool, optional
+            Set ``soft_fail=True`` to return even if it could not fit the legend.
+
+    Returns
+    -------
+        ax : matplotlib.axes.Axes
     """
     if ax is None:
         ax = plt.gca()
+    if otol is None:
+        otol = 0
 
     scale_factor = 10 ** (1.05) if ax.get_yscale() == "log" else 1.05
     max_scales = 0
@@ -1032,14 +1049,31 @@ def yscale_legend(ax=None, otol=0, soft_fail=False):
     return ax
 
 
-def yscale_anchored_text(ax=None, otol=0, soft_fail=False):
+def yscale_anchored_text(
+    ax: mpl.axes.Axes | None = None,
+    otol: float | int | None = None,
+    soft_fail: bool = False,
+) -> mpl.axes.Axes:
     """
     Automatically scale y-axis up to fit AnchoredText
-    Set `otol > 0` for less strict scaling.
-    Set `soft_fail=True` to return even if it could not fit the AnchoredText.
+
+    Parameters
+    ----------
+        ax : matplotlib.axes.Axes, optional
+            Axes object (if None, last one is fetched or one is created)
+        otol : float, optional
+            Tolerance for overlap, default 0. Set ``otol > 0`` for less strict scaling.
+        soft_fail : bool, optional
+            Set ``soft_fail=True`` to return even if it could not fit the legend.
+
+    Returns
+    -------
+        ax : matplotlib.axes.Axes
     """
     if ax is None:
         ax = plt.gca()
+    if otol is None:
+        otol = 0
 
     scale_factor = 10 ** (1.05) if ax.get_yscale() == "log" else 1.05
     max_scales = 0
@@ -1062,10 +1096,20 @@ def yscale_anchored_text(ax=None, otol=0, soft_fail=False):
     return ax
 
 
-def ylow(ax=None, ylow=None):
+def ylow(ax: mpl.axes.Axes | None = None, ylow: float | None = None) -> mpl.axes.Axes:
     """
-    Set lower y limit to 0 if not data/errors go lower.
-    Or set a specific value
+    Set lower y limit to 0 or a specific value if not data/errors go lower.
+
+    Parameters
+    ----------
+        ax : matplotlib.axes.Axes, optional
+            Axes object (if None, last one is fetched or one is created)
+        ylow : float, optional
+            Set lower y limit to a specific value.
+
+    Returns
+    -------
+        ax : matplotlib.axes.Axes
     """
     if ax is None:
         ax = plt.gca()
@@ -1098,7 +1142,7 @@ def mpl_magic(ax=None, info=True):
     """
     if ax is None:
         ax = plt.gca()
-    if not info:
+    if info:
         print("Running ROOT/CMS style adjustments (hide with info=False):")
 
     ax = ylow(ax)

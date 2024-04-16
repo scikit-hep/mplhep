@@ -18,7 +18,9 @@ Primary functions.
 Experiment label helpers
 ========================
 
-Experiment specific helpers
+Experiment specific helpers.
+
+For the effects of the ``label`` method, see also the gallery examples in :ref:`gallery-labels`.
 
 .. autofunction:: mplhep.cms.lumitext
 
@@ -48,7 +50,7 @@ or one by one.
 
 .. autofunction:: mplhep.plot.yscale_legend
 
-.. autofunction:: mplhep.plot.yscale_text
+.. autofunction:: mplhep.plot.yscale_anchored_text
 
 
 Figure helpers
@@ -71,4 +73,4 @@ Legend helpers
 Styles
 ==================
 
-To be included, when I figure out how to sphinx dictionaries in.
+See the :ref:`gallery-styles` section for an overview of the available styles.

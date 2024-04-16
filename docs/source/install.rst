@@ -1,4 +1,4 @@
-. _installing-mplhep:
+.. _installing-mplhep:
 
 Install
 =================
