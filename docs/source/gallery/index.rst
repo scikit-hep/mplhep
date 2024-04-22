@@ -46,7 +46,7 @@ Gallery
 
         plot = plotdata.copy()
         x = np.asarray(plot.pop('x'))
-        data = plot.pop('Data')
+        data = tuple(plot.pop('Data'))
         for i, histtype in enumerate(['fill', 'step', 'errorbar', 'band']):
             for position in range(5):
                 plt.figure()
