@@ -494,9 +494,9 @@ def histplot(
         _artist = _e[0]
 
     # Add sticky edges for autoscale
-    assert isinstance(
-        listy := _artist.sticky_edges.y, list
-    ), "y sticky edges not list, logic fails."
+    assert hasattr(
+        listy := _artist.sticky_edges.y, "append"
+    ), "cannot append to sticky edges"
     listy.append(0)
 
     if xtick_labels is None or flow == "show":
