@@ -112,9 +112,11 @@ def test_style_plothist():
         mh.style.DUNE,
         mh.style.LHCb1,
         mh.style.LHCb2,
+        mh.style.LHCb3,
+        mh.style.LHCb,
         mh.style.ROOT,
     ],
-    ids=["ALICE", "ATLAS", "CMS", "DUNE1", "DUNE", "LHCb1", "LHCb2", "ROOT"],
+    ids=["ALICE", "ATLAS", "CMS", "DUNE1", "DUNE", "LHCb1", "LHCb2", "LHCb3", "LHCb", "ROOT"],
 )
 def test_use_style(fig_test, fig_ref, mplhep_style):
     mh.rcParams.clear()
@@ -151,9 +153,11 @@ def test_use_style_LHCb_dep(fig_test, fig_ref):
         (mh.style.DUNE, "DUNE"),
         (mh.style.LHCb1, "LHCb1"),
         (mh.style.LHCb2, "LHCb2"),
+        (mh.style.LHCb2, "LHCb3"),
+        (mh.style.LHCb2, "LHCb"),
         (mh.style.ROOT, "ROOT"),
     ],
-    ids=["ALICE", "ATLAS", "CMS", "DUNE1", "DUNE", "LHCb1", "LHCb2", "ROOT"],
+    ids=["ALICE", "ATLAS", "CMS", "DUNE1", "DUNE", "LHCb1", "LHCb2", "LHCb3", "LHCb", "ROOT"],
 )
 def test_use_style_str_alias(fig_test, fig_ref, mplhep_style, str_alias):
     mh.rcParams.clear()
@@ -177,9 +181,11 @@ def test_use_style_str_alias(fig_test, fig_ref, mplhep_style, str_alias):
         (mh.style.DUNE, "DUNE"),
         (mh.style.LHCb1, "LHCb1"),
         (mh.style.LHCb2, "LHCb2"),
+        (mh.style.LHCb2, "LHCb3"),
+        (mh.style.LHCb2, "LHCb"),
         (mh.style.ROOT, "ROOT"),
     ],
-    ids=["ALICE", "ATLAS", "CMS", "DUNE1", "DUNE", "LHCb1", "LHCb2", "ROOT"],
+    ids=["ALICE", "ATLAS", "CMS", "DUNE1", "DUNE", "LHCb1", "LHCb2", "LHCb3", "LHCb", "ROOT"],
 )
 def test_use_style_self_consistent(fig_test, fig_ref, mplhep_style, str_alias):
     mh.rcParams.clear()
@@ -203,9 +209,11 @@ def test_use_style_self_consistent(fig_test, fig_ref, mplhep_style, str_alias):
         (mh.style.DUNE, "DUNE"),
         (mh.style.LHCb1, "LHCb1"),
         (mh.style.LHCb2, "LHCb2"),
+        (mh.style.LHCb2, "LHCb3"),
+        (mh.style.LHCb2, "LHCb"),
         (mh.style.ROOT, "ROOT"),
     ],
-    ids=["ALICE", "ATLAS", "CMS", "DUNE1", "DUNE", "LHCb1", "LHCb2", "ROOT"],
+    ids=["ALICE", "ATLAS", "CMS", "DUNE1", "DUNE", "LHCb1", "LHCb2",  "LHCb3", "LHCb", "ROOT"],
 )
 def test_use_style_style_list(fig_test, fig_ref, mplhep_style, str_alias):
     mh.rcParams.clear()
