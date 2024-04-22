@@ -63,16 +63,16 @@ def histplot(
     yerr: ArrayLike | bool | None = None,
     w2=None,
     w2method=None,
-    stack=False,
-    density=False,
+    stack: bool = False,
+    density: bool = False,
     binwnorm=None,
-    histtype="step",
+    histtype: str = "step",
     xerr=False,
     label=None,
     sort=None,
     edges=True,
     binticks=False,
-    ax=None,
+    ax: mpl.axes.Axes | None = None,
     flow="hint",
     **kwargs,
 ):
@@ -494,7 +494,10 @@ def histplot(
         _artist = _e[0]
 
     # Add sticky edges for autoscale
-    _artist.sticky_edges.y.append(0)
+    assert hasattr(
+        listy := _artist.sticky_edges.y, "append"
+    ), "cannot append to sticky edges"
+    listy.append(0)
 
     if xtick_labels is None or flow == "show":
         if binticks:
@@ -508,12 +511,12 @@ def histplot(
         ax.set_xlabel(x_axes_label)
 
     # Flow extra styling
+    if (fig := ax.figure) is None:
+        raise ValueError("No figure found")
     if flow == "hint":
         _marker_size = (
             30
-            * ax.get_window_extent()
-            .transformed(ax.figure.dpi_scale_trans.inverted())
-            .width
+            * ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width
         )
         if underflow > 0.0:
             ax.scatter(
@@ -547,9 +550,7 @@ def histplot(
         _centers = plottables[0].centers
         _marker_size = (
             20
-            * ax.get_window_extent()
-            .transformed(ax.figure.dpi_scale_trans.inverted())
-            .width
+            * ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width
         )
         if underflow > 0.0:
             xticks[0] = ""
@@ -611,14 +612,14 @@ def hist2dplot(
     xbins=None,
     ybins=None,
     labels=None,
-    cbar=True,
+    cbar: bool = True,
     cbarsize="7%",
     cbarpad=0.2,
     cbarpos="right",
     cbarextend=True,
     cmin=None,
     cmax=None,
-    ax=None,
+    ax: mpl.axes.Axes | None = None,
     flow="hint",
     **kwargs,
 ):
@@ -724,21 +725,28 @@ def hist2dplot(
     elif flow == "sum":
         H = np.copy(h.values())
         # Sum borders
-        H[0], H[-1] = (
-            H[0] + h.values(flow=True)[0, 1:-1],
-            H[-1] + h.values(flow=True)[-1, 1:-1],
-        )
-        H[:, 0], H[:, -1] = (
-            H[:, 0] + h.values(flow=True)[1:-1, 0],
-            H[:, -1] + h.values(flow=True)[1:-1, -1],
-        )
-        # Sum corners to corners
-        H[0, 0], H[-1, -1], H[0, -1], H[-1, 0] = (
-            h.values(flow=True)[0, 0] + H[0, 0],
-            h.values(flow=True)[-1, -1] + H[-1, -1],
-            h.values(flow=True)[0, -1] + H[0, -1],
-            h.values(flow=True)[-1, 0] + H[-1, 0],
-        )
+        try:
+            H[0], H[-1] = (
+                H[0] + h.values(flow=True)[0, 1:-1],  # type: ignore[call-arg]
+                H[-1] + h.values(flow=True)[-1, 1:-1],  # type: ignore[call-arg]
+            )
+            H[:, 0], H[:, -1] = (
+                H[:, 0] + h.values(flow=True)[1:-1, 0],  # type: ignore[call-arg]
+                H[:, -1] + h.values(flow=True)[1:-1, -1],  # type: ignore[call-arg]
+            )
+            # Sum corners to corners
+            H[0, 0], H[-1, -1], H[0, -1], H[-1, 0] = (
+                h.values(flow=True)[0, 0] + H[0, 0],  # type: ignore[call-arg]
+                h.values(flow=True)[-1, -1] + H[-1, -1],  # type: ignore[call-arg]
+                h.values(flow=True)[0, -1] + H[0, -1],  # type: ignore[call-arg]
+                h.values(flow=True)[-1, 0] + H[-1, 0],  # type: ignore[call-arg]
+            )
+        except TypeError as error:
+            if "got an unexpected keyword argument 'flow'" in str(error):
+                raise TypeError(
+                    f"The histograms value method {repr(h)} does not take a 'flow' argument. UHI Plottable doesn't require this to have, but it is required for this function."
+                    f" Implementations like hist/boost-histogram support this argument."
+                ) from error
     xbin_centers = xbins[1:] - np.diff(xbins) / float(2)
     ybin_centers = ybins[1:] - np.diff(ybins) / float(2)
 
@@ -831,11 +839,11 @@ def hist2dplot(
                 transform=ax.get_yaxis_transform(),
             )
     elif flow == "hint":
+        if (fig := ax.figure) is None:
+            raise ValueError("No figure found.")
         _marker_size = (
             30
-            * ax.get_window_extent()
-            .transformed(ax.figure.dpi_scale_trans.inverted())
-            .width
+            * ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width
         )
         if hint_xlo:
             ax.scatter(
@@ -904,13 +912,12 @@ def hist2dplot(
 
     text_artists = []
     if _labels is not None:
+        if (pccmap := pc.cmap) is None:
+            raise ValueError("No colormap found.")
         for ix, xc in enumerate(xbin_centers):
             for iy, yc in enumerate(ybin_centers):
-                color = (
-                    "black"
-                    if isLight(pc.cmap(pc.norm(H[iy, ix]))[:-1])
-                    else "lightgrey"
-                )
+                normedh = pc.norm(H[iy, ix])
+                color = "black" if isLight(pccmap(normedh)[:-1]) else "lightgrey"
                 text_artists.append(
                     ax.text(
                         xc, yc, _labels[iy, ix], ha="center", va="center", color=color
@@ -1002,14 +1009,31 @@ def _draw_text_bbox(ax):
     return bbox
 
 
-def yscale_legend(ax=None, otol=0, soft_fail=False):
+def yscale_legend(
+    ax: mpl.axes.Axes | None = None,
+    otol: float | int | None = None,
+    soft_fail: bool = False,
+) -> mpl.axes.Axes:
     """
     Automatically scale y-axis up to fit in legend().
-    Set `otol > 0` for less strict scaling.
-    Set `soft_fail=True` to return even if it could not fit the legend.
+
+    Parameters
+    ----------
+        ax : matplotlib.axes.Axes, optional
+            Axes object (if None, last one is fetched or one is created)
+        otol : float, optional
+            Tolerance for overlap, default 0. Set ``otol > 0`` for less strict scaling.
+        soft_fail : bool, optional
+            Set ``soft_fail=True`` to return even if it could not fit the legend.
+
+    Returns
+    -------
+        ax : matplotlib.axes.Axes
     """
     if ax is None:
         ax = plt.gca()
+    if otol is None:
+        otol = 0
 
     scale_factor = 10 ** (1.05) if ax.get_yscale() == "log" else 1.05
     max_scales = 0
@@ -1019,7 +1043,9 @@ def yscale_legend(ax=None, otol=0, soft_fail=False):
         )
         logging.info("Scaling y-axis by 5% to fit legend")
         ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[-1] * scale_factor)
-        ax.figure.canvas.draw()
+        if (fig := ax.figure) is None:
+            raise RuntimeError("Could not fetch figure, maybe no plot is drawn yet?")
+        fig.canvas.draw()
         if max_scales > 10:
             if not soft_fail:
                 raise RuntimeError(
@@ -1032,14 +1058,31 @@ def yscale_legend(ax=None, otol=0, soft_fail=False):
     return ax
 
 
-def yscale_anchored_text(ax=None, otol=0, soft_fail=False):
+def yscale_anchored_text(
+    ax: mpl.axes.Axes | None = None,
+    otol: float | int | None = None,
+    soft_fail: bool = False,
+) -> mpl.axes.Axes:
     """
     Automatically scale y-axis up to fit AnchoredText
-    Set `otol > 0` for less strict scaling.
-    Set `soft_fail=True` to return even if it could not fit the AnchoredText.
+
+    Parameters
+    ----------
+        ax : matplotlib.axes.Axes, optional
+            Axes object (if None, last one is fetched or one is created)
+        otol : float, optional
+            Tolerance for overlap, default 0. Set ``otol > 0`` for less strict scaling.
+        soft_fail : bool, optional
+            Set ``soft_fail=True`` to return even if it could not fit the legend.
+
+    Returns
+    -------
+        ax : matplotlib.axes.Axes
     """
     if ax is None:
         ax = plt.gca()
+    if otol is None:
+        otol = 0
 
     scale_factor = 10 ** (1.05) if ax.get_yscale() == "log" else 1.05
     max_scales = 0
@@ -1049,7 +1092,9 @@ def yscale_anchored_text(ax=None, otol=0, soft_fail=False):
         )
         logging.info("Scaling y-axis by 5% to fit legend")
         ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[-1] * scale_factor)
-        ax.figure.canvas.draw()
+        if (fig := ax.figure) is None:
+            raise RuntimeError("Could not fetch figure, maybe no plot is drawn yet?")
+        fig.canvas.draw()
         if max_scales > 10:
             if not soft_fail:
                 raise RuntimeError(
@@ -1062,10 +1107,20 @@ def yscale_anchored_text(ax=None, otol=0, soft_fail=False):
     return ax
 
 
-def ylow(ax=None, ylow=None):
+def ylow(ax: mpl.axes.Axes | None = None, ylow: float | None = None) -> mpl.axes.Axes:
     """
-    Set lower y limit to 0 if not data/errors go lower.
-    Or set a specific value
+    Set lower y limit to 0 or a specific value if not data/errors go lower.
+
+    Parameters
+    ----------
+        ax : matplotlib.axes.Axes, optional
+            Axes object (if None, last one is fetched or one is created)
+        ylow : float, optional
+            Set lower y limit to a specific value.
+
+    Returns
+    -------
+        ax : matplotlib.axes.Axes
     """
     if ax is None:
         ax = plt.gca()
@@ -1098,7 +1153,7 @@ def mpl_magic(ax=None, info=True):
     """
     if ax is None:
         ax = plt.gca()
-    if not info:
+    if info:
         print("Running ROOT/CMS style adjustments (hide with info=False):")
 
     ax = ylow(ax)

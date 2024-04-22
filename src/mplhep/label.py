@@ -46,6 +46,7 @@ def exp_text(
     pad=0,
 ):
     """Add typical LHC experiment primary label to the axes.
+
     Parameters
     ----------
         text : string, optional
@@ -250,6 +251,7 @@ def exp_text(
 def lumitext(text="", ax=None, fontname=None, fontsize=None):
     """Add typical LHC experiment top-right label. Usually used to indicate year
     or aggregate luminosity in the plot.
+
     Parameters
     ----------
         text : string, optional
@@ -261,6 +263,7 @@ def lumitext(text="", ax=None, fontname=None, fontsize=None):
             Name of font to be used.
         fontsize : string, optional
             Defines size of "secondary label". Experiment label is 1.3x larger.
+
     Returns
     -------
         ax : matplotlib.axes.Axes
@@ -311,6 +314,7 @@ def exp_label(
 ):
     """A convenience wrapper combining ``<exp>.text`` and ``lumitext`` providing for
     the most common use cases.
+
     Parameters
     ----------
         loc : int, optional
@@ -351,6 +355,7 @@ def exp_label(
             Additional padding from axes border in units of axes fraction size.
         exp : string
             Experiment name, unavailable in public ``<experiment>text()``.
+
     Returns
     -------
         ax : matplotlib.axes.Axes
