@@ -17,7 +17,7 @@ pyupgrade = ["--py38-plus"]
 
 [tools.mypy]
 files = ["src"]
-python_version = 3.9
+python_version = 3.8
 warn_unused_configs = true
 
 allow_redefinition = true
