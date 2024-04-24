@@ -18,19 +18,13 @@ jobs:
       matrix:
         runs-on: [ ubuntu-latest ]
         python-version: [ "3.8", "3.10", "3.11", "3.12" ]
-        include:
+        include:  # testing the last "reasonable supported" version
           - runs-on: macOS-13
-            python-version: "3.8"
-          - runs-on: macOS-13
-            python-version: "3.12"
+            python-version: "3.9"
           - runs-on: macOS-14
-            python-version: "3.8"
-          - runs-on: macOS-14
-            python-version: "3.12"
+            python-version: "3.9"
           - runs-on: windows-latest
-            python-version: "3.8"
-          - runs-on: windows-latest
-            python-version: "3.12"
+            python-version: "3.9"
 
     steps:
       - uses: actions/checkout@v3
