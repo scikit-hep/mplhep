@@ -22,7 +22,7 @@ jobs:
           - runs-on: macOS-13
             python-version: "3.9"
           - runs-on: macOS-14
-            python-version: "3.9"
+            python-version: "3.10"  # min version available for Apple silicon
           - runs-on: windows-latest
             python-version: "3.9"
 
