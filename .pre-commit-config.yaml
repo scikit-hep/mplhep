@@ -20,13 +20,13 @@ repos:
   rev: "v2.5.0"
   hooks:
   - id: setup-cfg-fmt
-    args: ["--include-version-classifiers", "--max-py-version=3.11"]
+    args: ["--include-version-classifiers", "--max-py-version=3.12"]
 
 - repo: https://github.com/nbQA-dev/nbQA
   rev: 1.8.5
   hooks:
   - id: nbqa-pyupgrade
-    additional_dependencies: [pyupgrade==2.31.0]
+    additional_dependencies: [pyupgrade]
     args: ["--py38-plus"]
 
 - repo: https://github.com/psf/black-pre-commit-mirror
