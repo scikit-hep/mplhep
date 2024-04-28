@@ -416,6 +416,7 @@ def histplot(
 
             if do_errors:
                 _kwargs = soft_update_kwargs(_kwargs, {"color": _s.get_edgecolor()})
+                _ls = _kwargs["linestyle"]
                 _kwargs["linestyle"] = "none"
                 _plot_info = plottables[i].to_errorbar()
                 _e = ax.errorbar(
@@ -423,7 +424,7 @@ def histplot(
                     **_kwargs,
                 )
                 _e_leg = ax.errorbar(
-                    [], [], yerr=1, xerr=1, color=_s.get_edgecolor(), label=_label
+                    [], [], yerr=1, xerr=None, color=_s.get_edgecolor(), label=_label, linestyle=_ls
                 )
             return_artists.append(
                 StairsArtists(
