@@ -416,7 +416,7 @@ def histplot(
 
             if do_errors:
                 _kwargs = soft_update_kwargs(_kwargs, {"color": _s.get_edgecolor()})
-                _ls = _kwargs["linestyle"]
+                _ls = _kwargs.pop("linestyle", "-")
                 _kwargs["linestyle"] = "none"
                 _plot_info = plottables[i].to_errorbar()
                 _e = ax.errorbar(
