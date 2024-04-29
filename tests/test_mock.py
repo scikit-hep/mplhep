@@ -56,7 +56,8 @@ def test_simple(mock_matplotlib):
         approx([]),
         approx([]),
         yerr=1,
-        xerr=1,
+        xerr=None,
+        linestyle='-',
         color=ax.stairs().get_edgecolor(),
         label="X",
     )
