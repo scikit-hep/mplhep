@@ -424,7 +424,13 @@ def histplot(
                     **_kwargs,
                 )
                 _e_leg = ax.errorbar(
-                    [], [], yerr=1, xerr=None, color=_s.get_edgecolor(), label=_label, linestyle=_ls
+                    [],
+                    [],
+                    yerr=1,
+                    xerr=None,
+                    color=_s.get_edgecolor(),
+                    label=_label,
+                    linestyle=_ls,
                 )
             return_artists.append(
                 StairsArtists(
@@ -545,7 +551,7 @@ def histplot(
             )
 
     elif flow == "show" and (underflow > 0.0 or overflow > 0.0):
-        xticks = ax.get_xticks().tolist()
+        xticks = [label.get_text() for label in ax.get_xticklabels()]
         lw = ax.spines["bottom"].get_linewidth()
         _edges = plottables[0].edges
         _centers = plottables[0].centers
@@ -556,6 +562,7 @@ def histplot(
         if underflow > 0.0:
             xticks[0] = ""
             xticks[1] = f"<{flow_bins[2]}"
+            ax.set_xticks(ax.get_xticks())
             ax.set_xticklabels(xticks)
 
             ax.plot(
@@ -582,6 +589,7 @@ def histplot(
         if overflow > 0.0:
             xticks[-1] = ""
             xticks[-2] = f">{flow_bins[-3]}"
+            ax.set_xticks(ax.get_xticks())
             ax.set_xticklabels(xticks)
             ax.plot(
                 [_edges[-2], _edges[-1]],
