@@ -424,7 +424,13 @@ def histplot(
                     **_kwargs,
                 )
                 _e_leg = ax.errorbar(
-                    [], [], yerr=1, xerr=None, color=_s.get_edgecolor(), label=_label, linestyle=_ls
+                    [],
+                    [],
+                    yerr=1,
+                    xerr=None,
+                    color=_s.get_edgecolor(),
+                    label=_label,
+                    linestyle=_ls,
                 )
             return_artists.append(
                 StairsArtists(
