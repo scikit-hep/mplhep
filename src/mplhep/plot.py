@@ -562,11 +562,14 @@ def histplot(
             _xticklabels = [label.get_text() for label in _ax.get_xticklabels()]
 
             # Check if underflow/overflow xtick already exists
-            if underflow_xticklabel in _xticklabels or overflow_xticklabel in _xticklabels:
+            if (
+                underflow_xticklabel in _xticklabels
+                or overflow_xticklabel in _xticklabels
+            ):
                 xticks = _xticks
                 xticklabels = _xticklabels
                 break
-            elif len(_xticklabels) > 0: 
+            elif len(_xticklabels) > 0:
                 xticks = _xticks
                 xticklabels = _xticklabels
 
@@ -582,15 +585,16 @@ def histplot(
             # Replace any existing xticks in underflow region with underflow bin center
             _mask = xticks > flow_bins[1]
             xticks = np.insert(xticks[_mask], 0, _centers[0])
-            xticklabels = [underflow_xticklabel] + [xlab for i, xlab in enumerate(xticklabels) if _mask[i]]
+            xticklabels = [underflow_xticklabel] + [
+                xlab for i, xlab in enumerate(xticklabels) if _mask[i]
+            ]
 
             # Don't draw markers on the top of the top axis
             top_axis = max(shared_axes, key=lambda a: a.get_position().y0)
 
             # Draw on all shared axes
             for _ax in shared_axes:
-                for h in [0,1]:
-
+                for h in [0, 1]:
                     _ax.set_xticks(xticks)
                     _ax.set_xticklabels(xticklabels)
 
@@ -624,14 +628,16 @@ def histplot(
             # Replace any existing xticks in overflow region with overflow bin center
             _mask = xticks < flow_bins[-2]
             xticks = np.insert(xticks[_mask], sum(_mask), _centers[-1])
-            xticklabels = [xlab for i, xlab in enumerate(xticklabels) if _mask[i]] + [overflow_xticklabel]
+            xticklabels = [xlab for i, xlab in enumerate(xticklabels) if _mask[i]] + [
+                overflow_xticklabel
+            ]
 
             # Don't draw markers on the top of the top axis
             top_axis = max(shared_axes, key=lambda a: a.get_position().y0)
 
             # Draw on all shared axes
             for _ax in shared_axes:
-                for h in [0,1]:           
+                for h in [0, 1]:
                     _ax.set_xticks(xticks)
                     _ax.set_xticklabels(xticklabels)
 
