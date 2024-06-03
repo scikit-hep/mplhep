@@ -555,7 +555,7 @@ def histplot(
         overflow_xticklabel = f">{flow_bins[-2]:.2f}"
 
         # Loop over shared x axes to get xticks and xticklabels
-        xticks, xticklabels = None, None
+        xticks, xticklabels = np.array([]), []
         shared_axes = ax.get_shared_x_axes().get_siblings(ax)
         for _ax in shared_axes:
             _xticks = _ax.get_xticks()
