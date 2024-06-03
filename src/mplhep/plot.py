@@ -557,6 +557,7 @@ def histplot(
         # Loop over shared x axes to get xticks and xticklabels
         xticks, xticklabels = np.array([]), []
         shared_axes = ax.get_shared_x_axes().get_siblings(ax)
+        shared_axes = [_ax for _ax in shared_axes if _ax.get_position().x0 == ax.get_position().x0]
         for _ax in shared_axes:
             _xticks = _ax.get_xticks()
             _xticklabels = [label.get_text() for label in _ax.get_xticklabels()]
