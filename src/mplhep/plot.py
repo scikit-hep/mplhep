@@ -597,9 +597,12 @@ def histplot(
 
             # Draw on all shared axes
             for _ax in shared_axes:
+                _ax.set_xticks(xticks)
+                _ax.set_xticklabels(xticklabels)
                 for h in [0, 1]:
-                    _ax.set_xticks(xticks)
-                    _ax.set_xticklabels(xticklabels)
+                    # Don't draw marker on the top of the top axis
+                    if _ax == top_axis and h == 1:
+                        continue
 
                     _ax.plot(
                         [_edges[0], _edges[1]],
@@ -611,10 +614,6 @@ def histplot(
                         transform=_ax.get_xaxis_transform(),
                         clip_on=False,
                     )
-
-                    # Don't draw marker on the top of the top axis
-                    if _ax == top_axis and h == 1:
-                        continue
 
                     _ax.scatter(
                         _centers[0],
@@ -640,9 +639,13 @@ def histplot(
 
             # Draw on all shared axes
             for _ax in shared_axes:
+                _ax.set_xticks(xticks)
+                _ax.set_xticklabels(xticklabels)
+
                 for h in [0, 1]:
-                    _ax.set_xticks(xticks)
-                    _ax.set_xticklabels(xticklabels)
+                    # Don't draw marker on the top of the top axis
+                    if _ax == top_axis and h == 1:
+                        continue
 
                     _ax.plot(
                         [_edges[-2], _edges[-1]],
@@ -654,10 +657,6 @@ def histplot(
                         transform=_ax.get_xaxis_transform(),
                         clip_on=False,
                     )
-
-                    # Don't draw marker on the top of the top axis
-                    if _ax == top_axis and h == 1:
-                        continue
 
                     _ax.scatter(
                         _centers[-1],
