@@ -551,8 +551,8 @@ def histplot(
             )
 
     elif flow == "show":
-        underflow_xticklabel = f"<{flow_bins[1]:.2f}"
-        overflow_xticklabel = f">{flow_bins[-2]:.2f}"
+        underflow_xticklabel = f"<{flow_bins[1]:.2g}"
+        overflow_xticklabel = f">{flow_bins[-2]:.2g}"
 
         # Loop over shared x axes to get xticks and xticklabels
         xticks, xticklabels = np.array([]), []
