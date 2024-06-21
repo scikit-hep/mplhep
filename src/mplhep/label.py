@@ -415,11 +415,18 @@ def exp_label(
             fig=ax.figure,
         )
         if lumi is not None:
-            _lumi = (
-                r"$\sqrt{s} = \mathrm{13\ TeV}, " + str(lumi) + r"\ \mathrm{fb}^{-1}$"
+            _lumi = r"{com}, {lumi}".format(
+                com=r"$\sqrt{s} = \mathrm{" + str(com) + r"\ TeV}$"
+                if com is not None
+                else r"$\sqrt{s} = \mathrm{13\ TeV}$",
+                lumi=lumi_format.format(lumi) + r" $\mathrm{fb^{-1}}$",
             )
         else:
-            _lumi = r"$\sqrt{s} = \mathrm{13\ TeV}$"
+            _lumi = r"{com}".format(
+                com=r"$\sqrt{s} = \mathrm{" + str(com) + r"\ TeV}$"
+                if com is not None
+                else r"$\sqrt{s} = \mathrm{13\ TeV}$",
+            )
         explumi = ExpSuffix(
             *exptext.get_position(),
             text=rlabel if rlabel is not None else _lumi,
