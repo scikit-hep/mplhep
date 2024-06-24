@@ -5,8 +5,17 @@ from typing import Any
 import matplotlib as mpl
 
 # Color wheel from https://arxiv.org/pdf/2107.02270 Table 1, 10 color palette
-color_sequence = ['#3f90da','#ffa90e','#bd1f01','#94a4a2','#832db6'
-                  '#a96b59','#e76300','#b9ac70','#717581','#92dadd']
+color_sequence = [
+    "#3f90da",
+    "#ffa90e",
+    "#bd1f01",
+    "#94a4a2",
+    "#832db6" "#a96b59",
+    "#e76300",
+    "#b9ac70",
+    "#717581",
+    "#92dadd",
+]
 
 _base = {
     # fonts and text
