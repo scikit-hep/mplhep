@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 import matplotlib as mpl
+from cycler import cycler
 
 # Color wheel from https://arxiv.org/pdf/2107.02270 Table 1, 10 color palette
 color_sequence = [
@@ -10,7 +11,8 @@ color_sequence = [
     "#ffa90e",
     "#bd1f01",
     "#94a4a2",
-    "#832db6" "#a96b59",
+    "#832db6",
+    "#a96b59",
     "#e76300",
     "#b9ac70",
     "#717581",
