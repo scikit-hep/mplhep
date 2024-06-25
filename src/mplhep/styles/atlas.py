@@ -3,6 +3,21 @@ from __future__ import annotations
 from typing import Any
 
 import matplotlib as mpl
+from cycler import cycler
+
+# Color wheel from https://arxiv.org/pdf/2107.02270 Table 1, 10 color palette
+color_sequence = [
+    "#3f90da",
+    "#ffa90e",
+    "#bd1f01",
+    "#94a4a2",
+    "#832db6",
+    "#a96b59",
+    "#e76300",
+    "#b9ac70",
+    "#717581",
+    "#92dadd",
+]
 
 _base = {
     # fonts and text
@@ -34,6 +49,7 @@ _base = {
     "figure.subplot.left": 0.16,
     "figure.subplot.right": 0.95,
     # axes
+    "axes.prop_cycle": cycler("color", color_sequence),
     "axes.titlesize": "xx-large",
     "axes.labelsize": "x-large",
     "axes.linewidth": 1,
