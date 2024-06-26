@@ -403,3 +403,13 @@ def to_padded2d(h, variances=False):
         return padded, padded_varis
     else:
         return padded
+
+
+def compatible(self, other):
+    """Checks if this histogram is compatible with another, i.e. they have identical binning"""
+    if len(self.axes) != len(other.axes):
+        return False
+    if set(self.axes.name) != set(other.axes.name):
+        return False
+
+    return True

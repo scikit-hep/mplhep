@@ -52,3 +52,59 @@ def poisson_interval(sumw, sumw2, coverage=_coverage1sd):
     interval = np.array([lo, hi])
     interval[interval == np.nan] = 0.0  # chi2.ppf produces nan for counts=0
     return interval
+
+
+def normal_interval(pw, tw, pw2, tw2, coverage=_coverage1sd):
+    """Compute errors based on the expansion of pass/(pass + fail), possibly weighted
+    Parameters
+    ----------
+    pw : np.ndarray
+        Numerator, or number of (weighted) successes, vectorized
+    tw : np.ndarray
+        Denominator or number of (weighted) trials, vectorized
+    pw2 : np.ndarray
+        Numerator sum of weights squared, vectorized
+    tw2 : np.ndarray
+        Denominator sum of weights squared, vectorized
+    coverage : float, optional
+        Central coverage interval, defaults to 68%
+    c.f. https://root.cern.ch/doc/master/TEfficiency_8cxx_source.html#l02515
+    """
+
+    eff = pw / tw
+
+    variance = (pw2 * (1 - 2 * eff) + tw2 * eff**2) / (tw**2)
+    sigma = np.sqrt(variance)
+
+    prob = 0.5 * (1 - coverage)
+    delta = np.zeros_like(sigma)
+    delta[sigma != 0] = scipy.stats.norm.ppf(prob, scale=sigma[sigma != 0])
+
+    lo = eff - np.minimum(eff + delta, np.ones_like(eff))
+    hi = np.maximum(eff - delta, np.zeros_like(eff)) - eff
+
+    return np.array([lo, hi])
+
+
+def clopper_pearson_interval(num, denom, coverage=_coverage1sd):
+    """Compute Clopper-Pearson coverage interval for a binomial distribution
+    Parameters
+    ----------
+        num : numpy.ndarray
+            Numerator, or number of successes, vectorized
+        denom : numpy.ndarray
+            Denominator or number of trials, vectorized
+        coverage : float, optional
+            Central coverage interval, defaults to 68%
+    c.f. http://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
+    """
+    if np.any(num > denom):
+        raise ValueError(
+            "Found numerator larger than denominator while calculating binomial uncertainty"
+        )
+    lo = scipy.stats.beta.ppf((1 - coverage) / 2, num, denom - num + 1)
+    hi = scipy.stats.beta.ppf((1 + coverage) / 2, num + 1, denom - num)
+    interval = np.array([lo, hi])
+    interval[:, num == 0.0] = 0.0
+    interval[1, num == denom] = 1.0
+    return interval
