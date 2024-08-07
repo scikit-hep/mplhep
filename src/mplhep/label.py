@@ -414,12 +414,18 @@ def exp_label(
             units="inches",
             fig=ax.figure,
         )
+
+        if com is not None:
+            _com_label = r"\mathrm{" + str(com) + r"\ TeV}"
+        else:
+            _com_label = r"\mathrm{13\ TeV}"
+
         if lumi is not None:
             _lumi = (
-                r"$\sqrt{s} = \mathrm{13\ TeV}, " + str(lumi) + r"\ \mathrm{fb}^{-1}$"
+                r"$\sqrt{s} = " + _com_label + ", " + str(lumi) + r"\ \mathrm{fb}^{-1}$"
             )
         else:
-            _lumi = r"$\sqrt{s} = \mathrm{13\ TeV}$"
+            _lumi = r"$\sqrt{s} = " + _com_label + "$"
         explumi = ExpSuffix(
             *exptext.get_position(),
             text=rlabel if rlabel is not None else _lumi,
