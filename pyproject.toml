@@ -1,11 +1,71 @@
 [build-system]
-# Minimum requirements for the build system (setup.py) to execute.
-requires = ["setuptools>=64", "setuptools_scm>=8"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mplhep"
+dynamic = ["version"]
+description = "Matplotlib styles for HEP"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.8"
+authors = [
+    { name = "andrzejnovak", email = "novak5andrzej@gmail.com" },
+]
+classifiers = [
+    "Framework :: Matplotlib",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = [
+    "matplotlib>=3.4",
+    "mplhep-data",
+    "numpy>=1.16.0",
+    "packaging",
+    "uhi>=0.2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "bumpversion",
+    "flake8",
+    "jupyter",
+    "pre-commit",
+    "twine",
+]
+test = [
+    "boost_histogram",
+    "hist",
+    "nteract-scrapbook~=0.3",
+    "papermill~=1.0",
+    "pytest-mock",
+    "pytest-mpl",
+    "pytest>=6.0",
+    "scikit-hep-testdata",
+    "scipy>=1.1.0",
+    "uproot",
+    "uproot4",
+]
+all = [
+    "mplhep[dev,test]",
+]
+
+[project.urls]
+Homepage = "https://github.com/scikit-hep/mplhep"
 
 
-[tool.setuptools_scm]
-write_to = "src/mplhep/_version.py"
+[tool.hatch]
+version.source = "vcs"
+build.hooks.vcs.version-file = "src/mplhep/_version.py"
 
 
 [tool.nbqa.mutate]

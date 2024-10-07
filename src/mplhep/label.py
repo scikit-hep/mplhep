@@ -139,7 +139,7 @@ def exp_text(
     else:
         _exp_loc = 1
     _formater = ax.get_yaxis().get_major_formatter()
-    if type(mpl.ticker.ScalarFormatter()) == type(_formater) and _exp_loc == 0:
+    if isinstance(_formater, mpl.ticker.ScalarFormatter) and _exp_loc == 0:
         _sci_box = pixel_to_axis(
             ax.get_yaxis().offsetText.get_window_extent(ax.figure.canvas.get_renderer())
         )
