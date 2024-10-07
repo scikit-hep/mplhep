@@ -23,8 +23,8 @@ from .plot import (
     rescale_to_axessize,
     sort_legend,
     ylow,
-    yscale_legend,
     yscale_anchored_text,
+    yscale_legend,
 )
 from .styles import set_style
 

@@ -35,9 +35,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "black",
     "bumpversion",
-    "flake8",
     "jupyter",
     "pre-commit",
     "twine",
@@ -68,14 +66,16 @@ version.source = "vcs"
 build.hooks.vcs.version-file = "src/mplhep/_version.py"
 
 
-[tool.nbqa.mutate]
-pyupgrade = 1
+[tool.uv]
+environments = [
+  "python_version >= '3.10'",
+]
+dev-dependencies = [
+  "mplhep[test]",
+]
 
-[tool.nbqa.addopts]
-pyupgrade = ["--py38-plus"]
 
-
-[tools.mypy]
+[tool.mypy]
 files = ["src"]
 python_version = 3.8
 warn_unused_configs = true
@@ -86,7 +86,7 @@ allow_redefinition = true
 # disallow_untyped_calls = true
 # disallow_untyped_defs = true
 # disallow_incomplete_defs = true
-check_untyped_defs = true
+check_untyped_defs = false
 # disallow_untyped_decorators = true
 # no_implicit_optional = true
 # warn_redundant_casts = true
@@ -107,5 +107,41 @@ testpaths = ["tests"]
 python_files = "test*.py"
 
 
-[tool.isort]
-profile = "black"
+[tool.ruff.lint]
+extend-select = [
+  "B",        # flake8-bugbear
+  "I",        # isort
+  "ARG",      # flake8-unused-arguments
+  "C4",       # flake8-comprehensions
+  "EM",       # flake8-errmsg
+  "ICN",      # flake8-import-conventions
+  "G",        # flake8-logging-format
+  "PGH",      # pygrep-hooks
+  "PIE",      # flake8-pie
+  "PL",       # pylint
+  "PT",       # flake8-pytest-style
+  "RET",      # flake8-return
+  "RUF",      # Ruff-specific
+  "SIM",      # flake8-simplify
+  "T20",      # flake8-print
+  "UP",       # pyupgrade
+  "YTT",      # flake8-2020
+  "EXE",      # flake8-executable
+  "NPY",      # NumPy specific rules
+  "PD",       # pandas-vet
+  "FURB",     # refurb
+  "PYI",      # flake8-pyi
+]
+ignore = [
+  "PLR09",    # Too many <...>
+  "PLR2004",  # Magic value used in comparison
+  "ISC001",   # Conflicts with formatter
+  "NPY002",   # np.random.Generator
+  "G004",     # Logging with f-string
+  "PD011",    # .values vs .to_numpy can get confused
+  "PT013",    # Import from pytest
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["T20"]
+"docs/conf.py" = ["T20"]

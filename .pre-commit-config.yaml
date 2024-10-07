@@ -16,31 +16,13 @@ repos:
   - id: requirements-txt-fixer
   - id: trailing-whitespace
 
-- repo: https://github.com/asottile/setup-cfg-fmt
-  rev: "v2.5.0"
-  hooks:
-  - id: setup-cfg-fmt
-    args: ["--include-version-classifiers", "--max-py-version=3.12"]
-
-- repo: https://github.com/nbQA-dev/nbQA
-  rev: 1.8.7
-  hooks:
-  - id: nbqa-pyupgrade
-    additional_dependencies: [pyupgrade]
-    args: ["--py38-plus"]
-
-- repo: https://github.com/psf/black-pre-commit-mirror
-  rev: 24.8.0
-  hooks:
-  - id: black-jupyter
-
 - repo: https://github.com/astral-sh/ruff-pre-commit
   # Ruff version.
-  rev: v0.6.7
+  rev: v0.6.9
   hooks:
     # Run the linter.
     - id: ruff
-      args: [ --fix ]
+      args: [ --fix, --show-fixes ]
     # Run the formatter.
     - id: ruff-format
 

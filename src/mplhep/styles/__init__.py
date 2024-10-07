@@ -72,6 +72,7 @@ def use(styles=None):
     ]
 
     plt_style.use(styles)
+    return None
 
 
 fira = {"font.sans-serif": "Fira Sans"}

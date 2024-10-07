@@ -7,7 +7,7 @@ import pytest
 
 os.environ["RUNNING_PYTEST"] = "true"
 
-import mplhep as hep  # noqa: E402
+import mplhep as hep
 
 """
 To test run:

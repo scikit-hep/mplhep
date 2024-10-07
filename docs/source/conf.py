@@ -22,11 +22,9 @@ from functools import reduce
 # Add mplhep to path for sphinx-automodapi
 sys.path.insert(0, os.path.abspath("../../src"))
 
-import mplhep  # noqa: E402
 from pathlib import Path
 
-print("sys.path:", sys.path)
-print("mplhep version:", mplhep.__version__)
+import mplhep
 
 # -- Project information -----------------------------------------------------
 
@@ -70,9 +68,10 @@ def linkcode_resolve(domain, info):
     mod = importlib.import_module(info["module"])
     modpath = [p for p in sys.path if mod.__file__.startswith(p)]
     if len(modpath) < 1:
-        raise RuntimeError("Cannot deduce module path")
+        msg = "Cannot deduce module path"
+        raise RuntimeError(msg)
     modpath = modpath[0]
-    obj = reduce(getattr, [mod] + info["fullname"].split("."))
+    obj = reduce(getattr, [mod, *info["fullname"].split(".")])
     try:
         path = inspect.getsourcefile(obj)
         relpath = path[len(modpath) + 1 :]
@@ -80,9 +79,7 @@ def linkcode_resolve(domain, info):
     except TypeError:
         # skip property or other type that inspect doesn't like
         return None
-    return "http://github.com/scikit-hep/mplhep/blob/{}/{}#L{}".format(
-        githash, relpath, lineno
-    )
+    return f"http://github.com/scikit-hep/mplhep/blob/{githash}/{relpath}#L{lineno}"
 
 
 intersphinx_mapping = {

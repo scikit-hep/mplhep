@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 
 import hist
 import matplotlib.pyplot as plt
@@ -9,7 +10,14 @@ import pytest
 
 os.environ["RUNNING_PYTEST"] = "true"
 
-import mplhep as hep  # noqa: E402
+try:
+    # NumPy 2
+    from numpy.char import chararray
+except ModuleNotFoundError:
+    # NumPy 1
+    from numpy import chararray
+
+import mplhep as hep
 
 """
 To test run:
@@ -463,18 +471,26 @@ def test_hist2dplot_labels_option():
 
     assert hep.hist2dplot(H, xedges, yedges, labels=False)
 
-    label_array = np.chararray(H.shape, itemsize=2)
+    label_array = chararray(H.shape, itemsize=2)
     label_array[:] = "hi"
     assert hep.hist2dplot(H, xedges, yedges, labels=label_array)
 
-    label_array = np.chararray(H.shape[0], itemsize=2)
+    label_array = chararray(H.shape[0], itemsize=2)
     label_array[:] = "hi"
     # Label array shape invalid
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError,
+        match=re.escape("Labels input has incorrect shape (expect: (5, 7), got: (7,))"),
+    ):
         hep.hist2dplot(H, xedges, yedges, labels=label_array)
 
     # Invalid label type
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "Labels not understood, either specify a bool or a Hist-like array"
+        ),
+    ):
         hep.hist2dplot(H, xedges, yedges, labels=5)
 
 
