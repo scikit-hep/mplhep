@@ -46,8 +46,6 @@ dev = [
 test = [
     "boost_histogram",
     "hist",
-    "nteract-scrapbook~=0.3",
-    "papermill~=1.0",
     "pytest-mock",
     "pytest-mpl",
     "pytest>=6.0",
