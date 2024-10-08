@@ -3,7 +3,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 import matplotlib.lines
-import matplotlib.pyplot
+import matplotlib.pyplot  # noqa: ICN001
 import numpy as np
 import pytest
 from pytest import approx

@@ -9,7 +9,7 @@ from matplotlib.testing.decorators import check_figures_equal
 
 os.environ["RUNNING_PYTEST"] = "true"
 
-import mplhep as hep  # noqa: E402
+import mplhep as hep
 
 """
 To test run:
@@ -126,7 +126,7 @@ def test_use_style_LHCb_dep(fig_test, fig_ref):
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @check_figures_equal(extensions=["pdf"])
 @pytest.mark.parametrize(
-    "mplhep_style, str_alias",
+    ("mplhep_style", "str_alias"),
     [
         (hep.style.ALICE, "ALICE"),
         (hep.style.ATLAS, "ATLAS"),
@@ -153,7 +153,7 @@ def test_use_style_str_alias(fig_test, fig_ref, mplhep_style, str_alias):
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @check_figures_equal(extensions=["pdf"])
 @pytest.mark.parametrize(
-    "mplhep_style, str_alias",
+    ("mplhep_style", "str_alias"),
     [
         (hep.style.ALICE, "ALICE"),
         (hep.style.ATLAS, "ATLAS"),
@@ -180,7 +180,7 @@ def test_use_style_self_consistent(fig_test, fig_ref, mplhep_style, str_alias):
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @check_figures_equal(extensions=["pdf"])
 @pytest.mark.parametrize(
-    "mplhep_style, str_alias",
+    ("mplhep_style", "str_alias"),
     [
         (hep.style.ALICE, "ALICE"),
         (hep.style.ATLAS, "ATLAS"),

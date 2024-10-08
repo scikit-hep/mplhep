@@ -3,8 +3,8 @@ from __future__ import annotations
 import collections.abc
 import inspect
 import logging
-from collections import OrderedDict, namedtuple
-from typing import TYPE_CHECKING, Any, Union
+from collections import OrderedDict
+from typing import TYPE_CHECKING, Any, NamedTuple, Union
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -15,21 +15,34 @@ from mpl_toolkits.axes_grid1 import axes_size, make_axes_locatable
 
 from .utils import (
     Plottable,
+    align_marker,
     get_histogram_axes_title,
     get_plottable_protocol_bins,
     hist_object_handler,
     isLight,
     process_histogram_parts,
-    align_marker,
     to_padded2d,
 )
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
 
-StairsArtists = namedtuple("StairsArtists", "stairs errorbar legend_artist")
-ErrorBarArtists = namedtuple("ErrorBarArtists", "errorbar")
-ColormeshArtists = namedtuple("ColormeshArtists", "pcolormesh cbar text")
+
+class StairsArtists(NamedTuple):
+    stairs: Any
+    errorbar: Any
+    legend_artist: Any
+
+
+class ErrorBarArtists(NamedTuple):
+    errorbar: Any
+
+
+class ColormeshArtists(NamedTuple):
+    pcolormesh: Any
+    cbar: Any
+    text: Any
+
 
 Hist1DArtists = Union[StairsArtists, ErrorBarArtists]
 Hist2DArtists = ColormeshArtists
@@ -44,7 +57,7 @@ def soft_update_kwargs(kwargs, mods, rc=True):
         "lines.linestyle",
     ]
     aliases = {"ls": "linestyle", "lw": "linewidth"}
-    kwargs = {aliases[k] if k in aliases else k: v for k, v in kwargs.items()}
+    kwargs = {aliases.get(k, k): v for k, v in kwargs.items()}
     for key, val in mods.items():
         rc_modded = (key in not_default) or (
             key in [k.split(".")[-1] for k in not_default if k in respect]
@@ -150,9 +163,9 @@ def histplot(
     # ax check
     if ax is None:
         ax = plt.gca()
-    else:
-        if not isinstance(ax, plt.Axes):
-            raise ValueError("ax must be a matplotlib Axes object")
+    elif not isinstance(ax, plt.Axes):
+        msg = "ax must be a matplotlib Axes object"
+        raise ValueError(msg)
 
     # arg check
     _allowed_histtype = ["fill", "step", "errorbar", "band"]
@@ -186,7 +199,7 @@ def histplot(
 
     plottables = []
     flow_bins = final_bins
-    for i, h in enumerate(hists):
+    for h in hists:
         value, variance = np.copy(h.values()), h.variances()
         if has_variances := variance is not None:
             variance = np.copy(variance)
@@ -223,12 +236,10 @@ def histplot(
                     )
 
         # Set plottables
-        if flow == "none":
-            plottables.append(Plottable(value, edges=final_bins, variances=variance))
-        elif flow == "hint":  # modify plottable
+        if flow in ("none", "hint"):
             plottables.append(Plottable(value, edges=final_bins, variances=variance))
         elif flow == "show":
-            _flow_bin_size = np.max(
+            _flow_bin_size: float = np.max(
                 [0.05 * (final_bins[-1] - final_bins[0]), np.mean(np.diff(final_bins))]
             )
             flow_bins = np.copy(final_bins)
@@ -264,7 +275,8 @@ def histplot(
             _plottable.method = w2method
 
     if w2 is not None and yerr is not None:
-        raise ValueError("Can only supply errors or w2")
+        msg = "Can only supply errors or w2"
+        raise ValueError(msg)
 
     _labels: list[str | None]
     if label is None:
@@ -287,7 +299,7 @@ def histplot(
         if iterable_not_string(kwargs[kwarg]):
             # Check if tuple of floats or ints (can be used for colors)
             if isinstance(kwargs[kwarg], tuple) and all(
-                isinstance(x, int) or isinstance(x, float) for x in kwargs[kwarg]
+                isinstance(x, (int, float)) for x in kwargs[kwarg]
             ):
                 for i in range(len(_chunked_kwargs)):
                     _chunked_kwargs[i][kwarg] = kwargs[kwarg]
@@ -326,7 +338,8 @@ def histplot(
             elif _yerr.shape[-2] == 1:  # [[1,1]]
                 _yerr = np.tile(_yerr, 2).reshape(len(plottables), 2, _yerr.shape[-1])
             else:
-                raise ValueError("yerr format is not understood")
+                msg = "yerr format is not understood"
+                raise ValueError(msg)
         elif _yerr.ndim == 2:
             # Broadcast yerr (nh, N) to (nh, 2, N)
             _yerr = np.tile(_yerr, 2).reshape(len(plottables), 2, _yerr.shape[-1])
@@ -336,7 +349,8 @@ def histplot(
                 len(plottables), 2, _yerr.shape[-1]
             )
         else:
-            raise ValueError("yerr format is not understood")
+            msg = "yerr format is not understood"
+            raise ValueError(msg)
 
         assert _yerr is not None
         for yrs, _plottable in zip(_yerr, plottables):
@@ -348,18 +362,18 @@ def histplot(
             if sort.split("_")[0] in ["l", "label"] and isinstance(_labels, list):
                 order = np.argsort(label)  # [::-1]
             elif sort.split("_")[0] in ["y", "yield"]:
-                _yields = [np.sum(_h.values) for _h in plottables]
+                _yields = [np.sum(_h.values) for _h in plottables]  # type: ignore[var-annotated]
                 order = np.argsort(_yields)
             if len(sort.split("_")) == 2 and sort.split("_")[1] == "r":
                 order = order[::-1]
-        elif isinstance(sort, list) or isinstance(sort, np.ndarray):
+        elif isinstance(sort, (list, np.ndarray)):
             if len(sort) != len(plottables):
-                raise ValueError(
-                    f"Sort indexing array is of the wrong size - {len(sort)}, {len(plottables)} expected."
-                )
+                msg = f"Sort indexing array is of the wrong size - {len(sort)}, {len(plottables)} expected."
+                raise ValueError(msg)
             order = np.asarray(sort)
         else:
-            raise ValueError(f"Sort type: {sort} not understood.")
+            msg = f"Sort type: {sort} not understood."
+            raise ValueError(msg)
         plottables = [plottables[ix] for ix in order]
         _chunked_kwargs = [_chunked_kwargs[ix] for ix in order]
         _labels = [_labels[ix] for ix in order]
@@ -367,7 +381,8 @@ def histplot(
     # ############################
     # # Stacking, norming, density
     if density is True and binwnorm is not None:
-        raise ValueError("Can only set density or binwnorm.")
+        msg = "Can only set density or binwnorm."
+        raise ValueError(msg)
     if density is True:
         if stack:
             _total = np.sum(
@@ -501,9 +516,8 @@ def histplot(
         _artist = _e[0]
 
     # Add sticky edges for autoscale
-    assert hasattr(
-        listy := _artist.sticky_edges.y, "append"
-    ), "cannot append to sticky edges"
+    listy = _artist.sticky_edges.y
+    assert hasattr(listy, "append"), "cannot append to sticky edges"
     listy.append(0)
 
     if xtick_labels is None or flow == "show":
@@ -519,7 +533,8 @@ def histplot(
 
     # Flow extra styling
     if (fig := ax.figure) is None:
-        raise ValueError("No figure found")
+        msg = "No figure found"
+        raise ValueError(msg)
     if flow == "hint":
         _marker_size = (
             30
@@ -572,7 +587,7 @@ def histplot(
                 xticks = _xticks
                 xticklabels = _xticklabels
                 break
-            elif len(_xticklabels) > 0:
+            if len(_xticklabels) > 0:
                 xticks = _xticks
                 xticklabels = _xticklabels
 
@@ -741,9 +756,9 @@ def hist2dplot(
     # ax check
     if ax is None:
         ax = plt.gca()
-    else:
-        if not isinstance(ax, plt.Axes):
-            raise ValueError("ax must be a matplotlib Axes object")
+    elif not isinstance(ax, plt.Axes):
+        msg = "ax must be a matplotlib Axes object"
+        raise ValueError(msg)
 
     h = hist_object_handler(H, xbins, ybins)
 
@@ -759,9 +774,6 @@ def hist2dplot(
         and "flow" not in inspect.getfullargspec(h.values).args
         and flow is not None
     ):
-        print(
-            f"Warning: {type(h)} is not allowed to get flow bins, flow bin option set to None"
-        )
         flow = None
     elif flow in ["hint", "show"]:
         xwidth, ywidth = (xbins[-1] - xbins[0]) * 0.05, (ybins[-1] - ybins[0]) * 0.05
@@ -809,10 +821,11 @@ def hist2dplot(
             )
         except TypeError as error:
             if "got an unexpected keyword argument 'flow'" in str(error):
-                raise TypeError(
-                    f"The histograms value method {repr(h)} does not take a 'flow' argument. UHI Plottable doesn't require this to have, but it is required for this function."
+                msg = (
+                    f"The histograms value method {h!r} does not take a 'flow' argument. UHI Plottable doesn't require this to have, but it is required for this function."
                     f" Implementations like hist/boost-histogram support this argument."
-                ) from error
+                )
+                raise TypeError(msg) from error
     xbin_centers = xbins[1:] - np.diff(xbins) / float(2)
     ybin_centers = ybins[1:] - np.diff(ybins) / float(2)
 
@@ -828,9 +841,9 @@ def hist2dplot(
     H = H.T
 
     if cmin is not None:
-        H[H < cmin] = None
+        H[cmin > H] = None
     if cmax is not None:
-        H[H > cmax] = None
+        H[cmax < H] = None
 
     X, Y = np.meshgrid(xbins, ybins)
 
@@ -842,8 +855,8 @@ def hist2dplot(
     if y_axes_label:
         ax.set_ylabel(y_axes_label)
 
-    ax.set_xlim(xbins[0], xbins[-1])
-    ax.set_ylim(ybins[0], ybins[-1])
+    ax.set_xlim(xbins[0], xbins[-1])  # type: ignore[arg-type]
+    ax.set_ylim(ybins[0], ybins[-1])  # type: ignore[arg-type]
 
     if xtick_labels is None:  # Ordered axis
         if len(ax.get_xticks()) > len(xbins) * 0.7:
@@ -906,7 +919,8 @@ def hist2dplot(
             )
     elif flow == "hint":
         if (fig := ax.figure) is None:
-            raise ValueError("No figure found.")
+            msg = "No figure found."
+            raise ValueError(msg)
         _marker_size = (
             30
             * ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width
@@ -968,25 +982,29 @@ def hist2dplot(
         if H.shape == label_array.shape:
             _labels = label_array
         else:
-            raise ValueError(
-                f"Labels input has incorrect shape (expect: {H.shape}, got: {label_array.shape})"
-            )
+            msg = f"Labels input has incorrect shape (expect: {H.shape}, got: {label_array.shape})"
+            raise ValueError(msg)
     elif labels is not None:
-        raise ValueError(
-            "Labels not understood, either specify a bool or a Hist-like array"
-        )
+        msg = "Labels not understood, either specify a bool or a Hist-like array"
+        raise ValueError(msg)
 
     text_artists = []
     if _labels is not None:
         if (pccmap := pc.cmap) is None:
-            raise ValueError("No colormap found.")
+            msg = "No colormap found."
+            raise ValueError(msg)
         for ix, xc in enumerate(xbin_centers):
             for iy, yc in enumerate(ybin_centers):
                 normedh = pc.norm(H[iy, ix])
                 color = "black" if isLight(pccmap(normedh)[:-1]) else "lightgrey"
                 text_artists.append(
                     ax.text(
-                        xc, yc, _labels[iy, ix], ha="center", va="center", color=color
+                        xc,
+                        yc,
+                        _labels[iy, ix],  # type: ignore[arg-type]
+                        ha="center",
+                        va="center",
+                        color=color,
                     )
                 )
 
@@ -1038,8 +1056,7 @@ def overlap(ax, bbox, get_vertices=False):
 
     if get_vertices:
         return overlap, vertices
-    else:
-        return overlap
+    return overlap
 
 
 def _draw_leg_bbox(ax):
@@ -1049,9 +1066,9 @@ def _draw_leg_bbox(ax):
     fig = ax.figure
     leg = ax.get_legend()
     if leg is None:
-        leg = [
+        leg = next(
             c for c in ax.get_children() if isinstance(c, plt.matplotlib.legend.Legend)
-        ][0]
+        )
 
     fig.canvas.draw()
     return leg.get_frame().get_bbox()
@@ -1077,7 +1094,7 @@ def _draw_text_bbox(ax):
 
 def yscale_legend(
     ax: mpl.axes.Axes | None = None,
-    otol: float | int | None = None,
+    otol: float | None = None,
     soft_fail: bool = False,
 ) -> mpl.axes.Axes:
     """
@@ -1110,23 +1127,22 @@ def yscale_legend(
         logging.info("Scaling y-axis by 5% to fit legend")
         ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[-1] * scale_factor)
         if (fig := ax.figure) is None:
-            raise RuntimeError("Could not fetch figure, maybe no plot is drawn yet?")
+            msg = "Could not fetch figure, maybe no plot is drawn yet?"
+            raise RuntimeError(msg)
         fig.canvas.draw()
         if max_scales > 10:
             if not soft_fail:
-                raise RuntimeError(
-                    "Could not fit legend in 10 iterations, return anyway by passing `soft_fail=True`."
-                )
-            else:
-                logging.warning("Could not fit legend in 10 iterations")
-                break
+                msg = "Could not fit legend in 10 iterations, return anyway by passing `soft_fail=True`."
+                raise RuntimeError(msg)
+            logging.warning("Could not fit legend in 10 iterations")
+            break
         max_scales += 1
     return ax
 
 
 def yscale_anchored_text(
     ax: mpl.axes.Axes | None = None,
-    otol: float | int | None = None,
+    otol: float | None = None,
     soft_fail: bool = False,
 ) -> mpl.axes.Axes:
     """
@@ -1159,16 +1175,15 @@ def yscale_anchored_text(
         logging.info("Scaling y-axis by 5% to fit legend")
         ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[-1] * scale_factor)
         if (fig := ax.figure) is None:
-            raise RuntimeError("Could not fetch figure, maybe no plot is drawn yet?")
+            msg = "Could not fetch figure, maybe no plot is drawn yet?"
+            raise RuntimeError(msg)
         fig.canvas.draw()
         if max_scales > 10:
             if not soft_fail:
-                raise RuntimeError(
-                    "Could not fit AnchoredText in 10 iterations, return anyway by passing `soft_fail=True`."
-                )
-            else:
-                logging.warning("Could not fit AnchoredText in 10 iterations")
-                break
+                msg = "Could not fit AnchoredText in 10 iterations, return anyway by passing `soft_fail=True`."
+                raise RuntimeError(msg)
+            logging.warning("Could not fit AnchoredText in 10 iterations")
+            break
         max_scales += 1
     return ax
 
@@ -1220,13 +1235,11 @@ def mpl_magic(ax=None, info=True):
     if ax is None:
         ax = plt.gca()
     if info:
-        print("Running ROOT/CMS style adjustments (hide with info=False):")
+        pass
 
     ax = ylow(ax)
     ax = yscale_legend(ax)
-    ax = yscale_anchored_text(ax)
-
-    return ax
+    return yscale_anchored_text(ax)
 
 
 ########################################
@@ -1295,8 +1308,8 @@ def make_square_add_cbar(ax, size=0.4, pad=0.1):
 
     cax = divider.append_axes("right", size=margin_size, pad=pad_size)
 
-    divider.set_horizontal([RemainderFixed(xsizes, ysizes, divider)] + xsizes)
-    divider.set_vertical([RemainderFixed(xsizes, ysizes, divider)] + ysizes)
+    divider.set_horizontal([RemainderFixed(xsizes, ysizes, divider), *xsizes])
+    divider.set_vertical([RemainderFixed(xsizes, ysizes, divider), *ysizes])
     return cax
 
 
@@ -1326,7 +1339,7 @@ def append_axes(ax, size=0.1, pad=0.1, position="right", extend=False):
     pad_size = axes_size.Fixed(pad)
     xsizes = [pad_size, margin_size]
     if position in ["top", "bottom"]:
-        xsizes = xsizes[::-1]
+        xsizes.reverse()
     yhax = divider.append_axes(position, size=margin_size, pad=pad_size)
 
     if extend:
@@ -1338,7 +1351,7 @@ def append_axes(ax, size=0.1, pad=0.1, position="right", extend=False):
             return new_size / orig_size
 
         if position in ["right"]:
-            divider.set_horizontal([axes_size.Fixed(width)] + xsizes)
+            divider.set_horizontal([axes_size.Fixed(width), *xsizes])
             fig.set_size_inches(
                 fig.get_size_inches()[0] * extend_ratio(ax, yhax)[0],
                 fig.get_size_inches()[1],
@@ -1357,7 +1370,7 @@ def append_axes(ax, size=0.1, pad=0.1, position="right", extend=False):
             )
             ax.get_shared_x_axes().join(ax, yhax)
         elif position in ["bottom"]:
-            divider.set_vertical(xsizes + [axes_size.Fixed(height)])
+            divider.set_vertical([*xsizes, axes_size.Fixed(height)])
             fig.set_size_inches(
                 fig.get_size_inches()[0],
                 fig.get_size_inches()[1] * extend_ratio(ax, yhax)[1],
@@ -1401,7 +1414,8 @@ def sort_legend(ax, order=None):
     elif order is None:
         ordered_label_list = labels
     else:
-        raise TypeError(f"Unexpected values type of order: {type(order)}")
+        msg = f"Unexpected values type of order: {type(order)}"
+        raise TypeError(msg)
 
     ordered_label_list = [entry for entry in ordered_label_list if entry in labels]
     ordered_label_values = [by_label[k] for k in ordered_label_list]

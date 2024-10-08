@@ -6,10 +6,10 @@ from numbers import Real
 from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
 import numpy as np
-from uhi.numpy_plottable import ensure_plottable_histogram
-from uhi.typing.plottable import PlottableAxis, PlottableHistogram
 from matplotlib import markers
 from matplotlib.path import Path
+from uhi.numpy_plottable import ensure_plottable_histogram
+from uhi.typing.plottable import PlottableAxis, PlottableHistogram
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
@@ -52,12 +52,14 @@ def hist_object_handler(
             hist = (hist, None)
         hist_obj = ensure_plottable_histogram(hist)
     elif isinstance(hist, PlottableHistogram):
-        raise TypeError("Cannot give bins with existing histogram")
+        msg = "Cannot give bins with existing histogram"
+        raise TypeError(msg)
     else:
         hist_obj = ensure_plottable_histogram((hist, *bins))
 
     if len(hist_obj.axes) not in {1, 2}:
-        raise ValueError("Must have only 1 or 2 axes")
+        msg = "Must have only 1 or 2 axes"
+        raise ValueError(msg)
 
     return hist_obj
 
@@ -89,12 +91,9 @@ def process_histogram_parts(
     """
 
     # Try to understand input
-    if (isinstance(H, list) or isinstance(H, np.ndarray)) and not isinstance(
-        H[0], (Real)
-    ):
+    if (isinstance(H, (list, np.ndarray))) and not isinstance(H[0], (Real)):
         return _process_histogram_parts_iter(H, *bins)
-    else:
-        return _process_histogram_parts_iter((H,), *bins)  # type: ignore[arg-type]
+    return _process_histogram_parts_iter((H,), *bins)  # type: ignore[arg-type]
 
 
 def _process_histogram_parts_iter(
@@ -127,9 +126,9 @@ def get_histogram_axes_title(axis: Any) -> str:
     if hasattr(axis, "label"):
         return axis.label
     # Classic support for older hist, deprecated
-    elif hasattr(axis, "title"):
+    if hasattr(axis, "title"):
         return axis.title
-    elif hasattr(axis, "name"):
+    if hasattr(axis, "name"):
         return axis.name
 
     # No axis title found
@@ -218,9 +217,8 @@ class Plottable:
         elif callable(method):
             self.yerr_lo, self.yerr_hi = calculate_relative(method, variances)
         else:
-            raise RuntimeError(
-                "``method'' needs to be a callable or 'poisson' or 'sqrt'."
-            )
+            msg = "``method'' needs to be a callable or 'poisson' or 'sqrt'."
+            raise RuntimeError(msg)
         self.yerr_lo = np.nan_to_num(self.yerr_lo, 0)
         self.yerr_hi = np.nan_to_num(self.yerr_hi, 0)
 
@@ -388,7 +386,7 @@ def to_padded2d(h, variances=False):
         variances_flow = h.variances(flow=True)
         xpadlo, xpadhi = 1 - h.axes[0].traits.underflow, 1 - h.axes[0].traits.overflow
         ypadlo, ypadhi = 1 - h.axes[1].traits.underflow, 1 - h.axes[1].traits.overflow
-        xpadhi_m, mypadhi_m = [-pad if pad != 0 else None for pad in [xpadhi, ypadhi]]
+        xpadhi_m, mypadhi_m = (-pad if pad != 0 else None for pad in [xpadhi, ypadhi])
 
         padded = np.zeros(
             (
@@ -401,5 +399,4 @@ def to_padded2d(h, variances=False):
         padded_varis[xpadlo:xpadhi_m, ypadlo:mypadhi_m] = variances_flow
     if variances:
         return padded, padded_varis
-    else:
-        return padded
+    return padded
