@@ -294,6 +294,8 @@ class Plottable:
 
 
 def stack(*plottables):
+    # Sort from top to bottom so ax.legend() works as expected
+    plottables = plottables[::-1]
     baseline = np.nan_to_num(copy.deepcopy(plottables[0].values), 0)
     for i in range(1, len(plottables)):
         _mask = np.isnan(plottables[i].values)
@@ -303,7 +305,7 @@ def stack(*plottables):
         baseline += np.nan_to_num(plottables[i].values, 0)
         plottables[i].values = np.nansum([plottables[i].values, _baseline], axis=0)
         plottables[i].values[_mask] = np.nan
-    return plottables
+    return plottables[::-1]
 
 
 def align_marker(

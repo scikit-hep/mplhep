@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import collections.abc
 import inspect
+import itertools
 import logging
 from collections import OrderedDict
 from typing import TYPE_CHECKING, Any, NamedTuple, Union
@@ -377,6 +378,20 @@ def histplot(
         plottables = [plottables[ix] for ix in order]
         _chunked_kwargs = [_chunked_kwargs[ix] for ix in order]
         _labels = [_labels[ix] for ix in order]
+
+    elif stack:
+        # Sort from top to bottom so ax.legend() works as expected
+        order = np.argsort(label)[::-1]
+        plottables = [plottables[ix] for ix in order]
+        _chunked_kwargs = [_chunked_kwargs[ix] for ix in order]
+        _labels = [_labels[ix] for ix in order]
+        if "color" not in kwargs:
+            # Inverse default color cycle
+            _colors = itertools.cycle(
+                plt.rcParams["axes.prop_cycle"][len(plottables) - 1 :: -1]
+            )
+            for i in range(len(plottables)):
+                _chunked_kwargs[i].update(next(_colors))
 
     # ############################
     # # Stacking, norming, density
