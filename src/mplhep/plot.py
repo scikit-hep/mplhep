@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import collections.abc
 import inspect
-import itertools
 import logging
 from collections import OrderedDict
 from typing import TYPE_CHECKING, Any, NamedTuple, Union
@@ -18,6 +17,7 @@ from .utils import (
     Plottable,
     align_marker,
     get_histogram_axes_title,
+    get_next_color,
     get_plottable_protocol_bins,
     hist_object_handler,
     isLight,
@@ -417,17 +417,15 @@ def histplot(
         _labels = _labels[::-1]
         if "color" not in kwargs:
             # Inverse default color cycle
-            _colors = itertools.cycle(
-                plt.rcParams["axes.prop_cycle"][len(plottables) - 1 :: -1]
-            )
             for i in range(len(plottables)):
-                _chunked_kwargs[i].update(next(_colors))
-            # Update color cycle
-            ax.set_prop_cycle(
-                plt.rcParams["axes.prop_cycle"][len(plottables) :].concat(
-                    plt.rcParams["axes.prop_cycle"][: len(plottables)]
-                )
-            )
+                if i == 0:
+                    _colors = [get_next_color(ax)]
+                else:
+                    _colors.append(get_next_color(ax, stack=True))
+
+            _colors.reverse()
+            for i in range(len(plottables)):
+                _chunked_kwargs[i].update({"color": _colors[i]})
 
     if histtype == "step":
         for i in range(len(plottables)):
@@ -439,6 +437,10 @@ def histplot(
             _kwargs = _chunked_kwargs[i]
             _label = _labels[i] if do_errors else None
             _step_label = _labels[i] if not do_errors else None
+
+            if _kwargs.get("color") is None:
+                _kwargs["color"] = get_next_color(ax)
+
             _kwargs = soft_update_kwargs(_kwargs, {"linewidth": 1.5})
 
             _plot_info = plottables[i].to_stairs()
@@ -479,6 +481,8 @@ def histplot(
     elif histtype == "fill":
         for i in range(len(plottables)):
             _kwargs = _chunked_kwargs[i]
+            if _kwargs.get("color") is None:
+                _kwargs["color"] = get_next_color(ax)
             _f = ax.stairs(
                 **plottables[i].to_stairs(), label=_labels[i], fill=True, **_kwargs
             )
@@ -522,6 +526,8 @@ def histplot(
 
         for i in range(len(plottables)):
             _kwargs = _chunked_kwargs[i]
+            if _kwargs.get("color") is None:
+                _kwargs["color"] = get_next_color(ax)
             _plot_info = plottables[i].to_errorbar()
             if yerr is False:
                 _plot_info["yerr"] = None

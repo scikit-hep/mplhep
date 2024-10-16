@@ -5,7 +5,9 @@ import warnings
 from numbers import Real
 from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
+import matplotlib.pyplot as plt
 import numpy as np
+from cycler import cycler
 from matplotlib import markers
 from matplotlib.path import Path
 from uhi.numpy_plottable import ensure_plottable_histogram
@@ -400,3 +402,29 @@ def to_padded2d(h, variances=False):
     if variances:
         return padded, padded_varis
     return padded
+
+
+def get_next_color(ax, stack=False):
+    current_cycle = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+    if not ax.has_data():
+        # Put the first color at the end to signal end of cycle
+        if len(current_cycle) == len(set(current_cycle)):
+            plt.rcParams["axes.prop_cycle"] = cycler(
+                "color", [*current_cycle, current_cycle[0]]
+            )
+        elif not stack:
+            # Reset color cycle
+            while current_cycle[0] != current_cycle[1]:
+                current_cycle = current_cycle[1:] + current_cycle[:1]
+
+    # End of cycle
+    if current_cycle[0] == current_cycle[1]:
+        plt.rcParams["axes.prop_cycle"] = cycler(
+            "color", current_cycle[1:] + current_cycle[:1]
+        )
+
+    updated_cycle = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+    plt.rcParams["axes.prop_cycle"] = cycler(
+        "color", updated_cycle[1:] + updated_cycle[:1]
+    )
+    return current_cycle[0]
