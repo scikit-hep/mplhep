@@ -422,7 +422,12 @@ def histplot(
             )
             for i in range(len(plottables)):
                 _chunked_kwargs[i].update(next(_colors))
-                ax._get_lines.get_next_color()
+            # Update color cycle
+            ax.set_prop_cycle(
+                plt.rcParams["axes.prop_cycle"][len(plottables) :].concat(
+                    plt.rcParams["axes.prop_cycle"][: len(plottables)]
+                )
+            )
 
     if histtype == "step":
         for i in range(len(plottables)):
