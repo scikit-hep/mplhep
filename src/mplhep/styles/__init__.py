@@ -11,6 +11,7 @@ from .alice import ALICE
 from .atlas import ATLAS, ATLASAlt, ATLASTex
 from .cms import CMS, ROOT, CMSTex, ROOTTex
 from .lhcb import LHCb, LHCb1, LHCb2, LHCbTex, LHCbTex1, LHCbTex2
+from .plothiststy import PLOTHIST
 
 __all__ = (
     "ALICE",
@@ -27,6 +28,7 @@ __all__ = (
     "LHCbTex",
     "LHCbTex1",
     "LHCbTex2",
+    "PLOTHIST",
     "set_style",
     "use",
     "fira",

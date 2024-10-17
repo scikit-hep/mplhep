@@ -57,6 +57,7 @@ __all__ = [
     "atlas",
     "lhcb",
     "alice",
+    "plothiststy",
     "plot",
     "style",
     "label",
