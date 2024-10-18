@@ -4,6 +4,7 @@ from types import SimpleNamespace
 
 import matplotlib.lines
 import matplotlib.pyplot  # noqa: ICN001
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 from pytest import approx
