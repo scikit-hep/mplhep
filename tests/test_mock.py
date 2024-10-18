@@ -9,7 +9,7 @@ import pytest
 from pytest import approx
 
 import mplhep as hep
-
+import matplotlib.pyplot as plt
 
 @pytest.fixture
 def mock_matplotlib(mocker):
@@ -41,13 +41,14 @@ def test_simple(mock_matplotlib):
     bins = [0, 1, 2, 3]
     hep.histplot(h, bins, yerr=True, label="X", ax=ax)
 
-    assert len(ax.mock_calls) == 12
+    assert len(ax.mock_calls) == 13
 
     ax.stairs.assert_called_once_with(
         values=approx([1.0, 3.0, 2.0]),
         edges=approx([0.0, 1.0, 2.0, 3.0]),
         baseline=0,
         label=None,
+        color=plt.rcParams["axes.prop_cycle"].by_key()["color"][-1],
         linewidth=1.5,
     )
 
@@ -69,7 +70,7 @@ def test_simple(mock_matplotlib):
             approx([0.82724622, 1.63270469, 1.29181456]),
             approx([2.29952656, 2.91818583, 2.63785962]),
         ],
-        color=ax.stairs().get_edgecolor(),
+        color=plt.rcParams["axes.prop_cycle"].by_key()["color"][-1],
         linestyle="none",
         linewidth=1.5,
     )
@@ -85,7 +86,7 @@ def test_histplot_real(mock_matplotlib):
     hep.histplot([a, b, c], bins=bins, ax=ax, yerr=True, label=["MC1", "MC2", "Data"])
     ax.legend()
     ax.set_title("Raw")
-    assert len(ax.mock_calls) == 24
+    assert len(ax.mock_calls) == 27
 
     ax.reset_mock()
 
@@ -93,7 +94,7 @@ def test_histplot_real(mock_matplotlib):
     hep.histplot([c], bins=bins, ax=ax, yerr=True, histtype="errorbar", label="Data")
     ax.legend()
     ax.set_title("Data/MC")
-    assert len(ax.mock_calls) == 18
+    assert len(ax.mock_calls) == 21
     ax.reset_mock()
 
     hep.histplot(
@@ -110,7 +111,7 @@ def test_histplot_real(mock_matplotlib):
     )
     ax.legend()
     ax.set_title("Data/MC binwnorm")
-    assert len(ax.mock_calls) == 18
+    assert len(ax.mock_calls) == 21
     ax.reset_mock()
 
     hep.histplot(
@@ -127,4 +128,4 @@ def test_histplot_real(mock_matplotlib):
     )
     ax.legend()
     ax.set_title("Data/MC Density")
-    assert len(ax.mock_calls) == 18
+    assert len(ax.mock_calls) == 21
