@@ -28,6 +28,11 @@ def mock_matplotlib(mocker):
     ax.plot.return_value = (line2d,)
     ax.errorbar.return_value = (line2d,)
 
+    # Mock the _get_lines attribute
+    _get_lines = mocker.Mock()
+    _get_lines.get_next_color.return_value = "next-color"
+    ax._get_lines = _get_lines
+
     mpl = mocker.patch("matplotlib.pyplot", autospec=True)
     mocker.patch("matplotlib.pyplot.subplots", return_value=(fig, ax))
 
@@ -93,7 +98,7 @@ def test_histplot_real(mock_matplotlib):
     hep.histplot([c], bins=bins, ax=ax, yerr=True, histtype="errorbar", label="Data")
     ax.legend()
     ax.set_title("Data/MC")
-    assert len(ax.mock_calls) == 18
+    assert len(ax.mock_calls) == 20
     ax.reset_mock()
 
     hep.histplot(
@@ -110,7 +115,7 @@ def test_histplot_real(mock_matplotlib):
     )
     ax.legend()
     ax.set_title("Data/MC binwnorm")
-    assert len(ax.mock_calls) == 18
+    assert len(ax.mock_calls) == 20
     ax.reset_mock()
 
     hep.histplot(
@@ -127,4 +132,4 @@ def test_histplot_real(mock_matplotlib):
     )
     ax.legend()
     ax.set_title("Data/MC Density")
-    assert len(ax.mock_calls) == 18
+    assert len(ax.mock_calls) == 20
