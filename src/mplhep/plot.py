@@ -409,7 +409,7 @@ def histplot(
     ##########
     # Plotting
     return_artists: list[StairsArtists | ErrorBarArtists] = []
-
+# customize color cycle assignment when stacking to match legend
     if stack:
         plottables = plottables[::-1]
         _chunked_kwargs = _chunked_kwargs[::-1]
