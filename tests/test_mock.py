@@ -4,12 +4,13 @@ from types import SimpleNamespace
 
 import matplotlib.lines
 import matplotlib.pyplot  # noqa: ICN001
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 from pytest import approx
 
 import mplhep as hep
-import matplotlib.pyplot as plt
+
 
 @pytest.fixture
 def mock_matplotlib(mocker):
