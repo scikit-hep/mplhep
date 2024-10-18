@@ -83,6 +83,15 @@ def test_style_lhcb2():
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+@pytest.mark.mpl_image_compare(style="default", remove_text=False)
+def test_style_plothist():
+    plt.rcParams.update(plt.rcParamsDefault)
+    plt.style.use(hep.style.PLOTHIST)
+    fig, ax = plt.subplots()
+    return fig
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @check_figures_equal(extensions=["pdf"])
 @pytest.mark.parametrize(
     "mplhep_style",

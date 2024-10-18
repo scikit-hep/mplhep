@@ -28,7 +28,7 @@ classifiers = [
 ]
 dependencies = [
     "matplotlib>=3.4",
-    "mplhep-data",
+    "mplhep-data>=0.0.4",
     "numpy>=1.16.0",
     "packaging",
     "uhi>=0.2.0",

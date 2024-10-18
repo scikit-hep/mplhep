@@ -409,6 +409,20 @@ def histplot(
     ##########
     # Plotting
     return_artists: list[StairsArtists | ErrorBarArtists] = []
+    # customize color cycle assignment when stacking to match legend
+    if stack:
+        plottables = plottables[::-1]
+        _chunked_kwargs = _chunked_kwargs[::-1]
+        _labels = _labels[::-1]
+        if "color" not in kwargs:
+            # Inverse default color cycle
+            _colors = []
+            for _ in range(len(plottables)):
+                _colors.append(ax._get_lines.get_next_color())  # type: ignore[attr-defined]
+            _colors.reverse()
+            for i in range(len(plottables)):
+                _chunked_kwargs[i].update({"color": _colors[i]})
+
     if histtype == "step":
         for i in range(len(plottables)):
             do_errors = yerr is not False and (
@@ -419,6 +433,7 @@ def histplot(
             _kwargs = _chunked_kwargs[i]
             _label = _labels[i] if do_errors else None
             _step_label = _labels[i] if not do_errors else None
+
             _kwargs = soft_update_kwargs(_kwargs, {"linewidth": 1.5})
 
             _plot_info = plottables[i].to_stairs()
