@@ -129,13 +129,14 @@ def histplot(
         binwnorm : float, optional
             If true, convert sum weights to bin-width-normalized, with unit equal to
                 supplied value (usually you want to specify 1.)
-        histtype: {'step', 'fill', 'band', 'errorbar'}, optional, default: "step"
+        histtype: {'step', 'fill', 'errorbar', 'bar', 'barstep', 'band'}, optional, default: "step"
             Type of histogram to plot:
-
             - "step": skyline/step/outline of a histogram using `plt.stairs <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs>`_
             - "fill": filled histogram using `plt.stairs <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs>`_
-            - "band": filled band spanning the yerr range of the histogram using `plt.stairs <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs>`_
             - "errorbar": single marker histogram using `plt.errorbar <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.errorbar.html#matplotlib-axes-axes-errorbar>`_
+            - "bar": If multiple data are given the bars are arranged side by side using `plt.bar <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.bar.html#matplotlib-axes-axes-bar>`_ If only one histogram is provided, it will be treated as "fill" histtype
+            - "barstep": If multiple data are given the steps are arranged side by side using `plt.stairs <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs>`_ . Supports yerr representation. If one histogram is provided, it will be treated as "step" histtype.
+            - "band": filled band spanning the yerr range of the histogram using `plt.stairs <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs>`_
         xerr:  bool or float, optional
             Size of xerr if ``histtype == 'errorbar'``. If ``True``, bin-width will be used.
         label : str or list, optional
@@ -168,8 +169,8 @@ def histplot(
         raise ValueError(msg)
 
     # arg check
-    _allowed_histtype = ["fill", "step", "errorbar", "band"]
-    _err_message = f"Select 'histtype' from: {_allowed_histtype}"
+    _allowed_histtype = ["fill", "step", "errorbar", "band", "bar", "barstep"]
+    _err_message = f"Select 'histtype' from: {_allowed_histtype}, got '{histtype}'"
     assert histtype in _allowed_histtype, _err_message
     assert flow is None or flow in {
         "show",
@@ -409,6 +410,12 @@ def histplot(
     ##########
     # Plotting
     return_artists: list[StairsArtists | ErrorBarArtists] = []
+
+    if histtype == "bar" and len(plottables) == 1:
+        histtype = "fill"
+    elif histtype == "barstep" and len(plottables) == 1:
+        histtype = "step"
+
     # customize color cycle assignment when stacking to match legend
     if stack:
         plottables = plottables[::-1]
@@ -423,14 +430,28 @@ def histplot(
             for i in range(len(plottables)):
                 _chunked_kwargs[i].update({"color": _colors[i]})
 
-    if histtype == "step":
+    if "bar" in histtype:
+        if kwargs.get("bin_width") is None:
+            _full_bin_width = 0.8
+        else:
+            _full_bin_width = kwargs.pop("bin_width")
+        _shift = np.linspace(
+            -(_full_bin_width / 2), _full_bin_width / 2, len(plottables), endpoint=False
+        )
+        _shift += _full_bin_width / (2 * len(plottables))
+
+    if "step" in histtype:
         for i in range(len(plottables)):
-            do_errors = yerr is not False and (
-                (yerr is not None or w2 is not None)
-                or (plottables[i].variances is not None)
-            )
+            if isinstance(yerr, bool) and yerr and plottables[i].variances is not None:
+                do_errors = True
+            else:
+                do_errors = yerr is not False and (yerr is not None or w2 is not None)
 
             _kwargs = _chunked_kwargs[i]
+
+            if _kwargs.get("bin_width"):
+                _kwargs.pop("bin_width")
+
             _label = _labels[i] if do_errors else None
             _step_label = _labels[i] if not do_errors else None
 
@@ -438,38 +459,117 @@ def histplot(
 
             _plot_info = plottables[i].to_stairs()
             _plot_info["baseline"] = None if not edges else 0
-            _s = ax.stairs(
-                **_plot_info,
-                label=_step_label,
-                **_kwargs,
-            )
 
             if do_errors:
-                _kwargs = soft_update_kwargs(_kwargs, {"color": _s.get_edgecolor()})
-                _ls = _kwargs.pop("linestyle", "-")
-                _kwargs["linestyle"] = "none"
-                _plot_info = plottables[i].to_errorbar()
-                _e = ax.errorbar(
+                if _kwargs.get("color") is None:
+                    _kwargs["color"] = ax._get_lines.get_next_color()  # type: ignore[attr-defined]
+            else:
+                if _kwargs.get("color") is not None:
+                    _kwargs["edgecolor"] = _kwargs["color"]
+                else:
+                    _kwargs["edgecolor"] = ax._get_lines.get_next_color()  # type: ignore[attr-defined]
+                    _kwargs["color"] = _kwargs["edgecolor"]
+
+                if histtype == "step":
+                    _kwargs["fill"] = True
+                    _kwargs["facecolor"] = "None"
+
+            if histtype == "step":
+                _s = ax.stairs(
                     **_plot_info,
+                    label=_step_label,
                     **_kwargs,
                 )
-                _e_leg = ax.errorbar(
-                    [],
-                    [],
-                    yerr=1,
-                    xerr=None,
-                    color=_s.get_edgecolor(),
-                    label=_label,
-                    linestyle=_ls,
+                if do_errors:
+                    _kwargs = soft_update_kwargs(_kwargs, {"color": _s.get_edgecolor()})
+                    _ls = _kwargs.pop("linestyle", "-")
+                    _kwargs["linestyle"] = "none"
+                    _plot_info = plottables[i].to_errorbar()
+                    _e = ax.errorbar(
+                        **_plot_info,
+                        **_kwargs,
+                    )
+                    _e_leg = ax.errorbar(
+                        [],
+                        [],
+                        yerr=1,
+                        xerr=None,
+                        color=_s.get_edgecolor(),
+                        label=_label,
+                        linestyle=_ls,
+                    )
+                return_artists.append(
+                    StairsArtists(
+                        _s,
+                        _e if do_errors else None,
+                        _e_leg if do_errors else None,
+                    )
                 )
-            return_artists.append(
-                StairsArtists(
-                    _s,
-                    _e if do_errors else None,
-                    _e_leg if do_errors else None,
+                _artist = _s
+
+            # histtype = barstep
+            else:
+                if _kwargs.get("edgecolor") is None:
+                    edgecolor = _kwargs.get("color")
+                else:
+                    edgecolor = _kwargs.pop("edgecolor")
+
+                _b = ax.bar(
+                    plottables[i].centers + _shift[i],
+                    plottables[i].values,
+                    width=_full_bin_width / len(plottables),
+                    label=_step_label,
+                    align="center",
+                    edgecolor=edgecolor,
+                    fill=False,
+                    **_kwargs,
                 )
+
+                if do_errors:
+                    _ls = _kwargs.pop("linestyle", "-")
+                    # _kwargs["linestyle"] = "none"
+                    _plot_info = plottables[i].to_errorbar()
+                    _e = ax.errorbar(
+                        _plot_info["x"] + _shift[i],
+                        _plot_info["y"],
+                        yerr=_plot_info["yerr"],
+                        linestyle="none",
+                        **_kwargs,
+                    )
+                    _e_leg = ax.errorbar(
+                        [],
+                        [],
+                        yerr=1,
+                        xerr=None,
+                        color=_kwargs.get("color"),
+                        label=_label,
+                        linestyle=_ls,
+                    )
+                return_artists.append(
+                    StairsArtists(
+                        _b, _e if do_errors else None, _e_leg if do_errors else None
+                    )
+                )
+                _artist = _b  # type: ignore[assignment]
+
+    elif histtype == "bar":
+        for i in range(len(plottables)):
+            _kwargs = _chunked_kwargs[i]
+
+            if _kwargs.get("bin_width"):
+                _kwargs.pop("bin_width")
+
+            _b = ax.bar(
+                plottables[i].centers + _shift[i],
+                plottables[i].values,
+                width=_full_bin_width / len(plottables),
+                label=_labels[i],
+                align="center",
+                fill=True,
+                **_kwargs,
             )
-        _artist = _s
+            return_artists.append(StairsArtists(_b, None, None))
+        _artist = _b  # type: ignore[assignment]
 
     elif histtype == "fill":
         for i in range(len(plottables)):
@@ -531,9 +631,10 @@ def histplot(
         _artist = _e[0]
 
     # Add sticky edges for autoscale
-    listy = _artist.sticky_edges.y
-    assert hasattr(listy, "append"), "cannot append to sticky edges"
-    listy.append(0)
+    if "bar" not in histtype:
+        listy = _artist.sticky_edges.y
+        assert hasattr(listy, "append"), "cannot append to sticky edges"
+        listy.append(0)
 
     if xtick_labels is None or flow == "show":
         if binticks:
