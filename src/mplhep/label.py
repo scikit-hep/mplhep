@@ -329,7 +329,7 @@ def exp_label(
         fontname : string, optional
             Name of font to be used.
         fontsize : string, optional
-            Defines size of "secondary label". Experiment label is 1.3x larger.
+            Defines size of the experiment label and the secondary label.
         exp_weight : string, optional
             Set fontweight of <exp> label. Default "bold".
         italic : (bool, bool, bool), optional
@@ -433,7 +433,7 @@ def exp_label(
             transform=_t,
             ha=explumi.get_ha(),
             va="top",
-            fontsize=_font_size / 1.3,
+            fontsize=_font_size,
             fontname=fontname,
             fontstyle="italic" if italic[2] else "normal",
         )
