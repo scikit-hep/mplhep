@@ -183,7 +183,7 @@ def exp_text(
         transform=_t,
         ha="left",
         va=loc2_dict[loc]["va"],
-        fontsize=_font_size * 1.2 if exp == 'ATLAS' else _font_size,
+        fontsize=_font_size * 1.2 if exp == "ATLAS" else _font_size,
         fontname=fontname,
         fontstyle="italic" if italic[1] else "normal",
     )
@@ -433,7 +433,7 @@ def exp_label(
             transform=_t,
             ha=explumi.get_ha(),
             va="top",
-            fontsize=_font_size/1.3,
+            fontsize=_font_size / 1.3,
             fontname=fontname,
             fontstyle="italic" if italic[2] else "normal",
         )
