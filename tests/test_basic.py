@@ -78,7 +78,7 @@ def test_onebin_hist():
     fig, axs = plt.subplots()
     h = hist.Hist(hist.axis.Regular(1, 0, 1))
     h.fill([-1, 0.5])
-    hep.histplot(h, yerr=True, ax=axs)
+    hep.histplot(h, ax=axs)
     return fig
 
 
@@ -138,10 +138,10 @@ def test_histplot_flow():
     fig, axs = plt.subplots(2, 2, sharey=True, figsize=(10, 10))
     axs = axs.flatten()
 
-    hep.histplot(h, ax=axs[0], yerr=True, flow="hint")
-    hep.histplot(h, ax=axs[1], yerr=True, flow="show")
-    hep.histplot(h, ax=axs[2], yerr=True, flow="sum")
-    hep.histplot(h, ax=axs[3], yerr=True, flow=None)
+    hep.histplot(h, ax=axs[0], flow="hint")
+    hep.histplot(h, ax=axs[1], flow="show")
+    hep.histplot(h, ax=axs[2], flow="sum")
+    hep.histplot(h, ax=axs[3], flow=None)
 
     axs[0].set_title("Default(hint)", fontsize=18)
     axs[1].set_title("Show", fontsize=18)
@@ -213,10 +213,10 @@ def test_histplot_uproot_flow():
     fig, axs = plt.subplots(2, 2, sharey=True, figsize=(10, 10))
     axs = axs.flatten()
 
-    hep.histplot(h, ax=axs[0], yerr=True, flow="show")
-    hep.histplot(h2, ax=axs[1], yerr=True, flow="show")
-    hep.histplot(h3, ax=axs[2], yerr=True, flow="show")
-    hep.histplot(h4, ax=axs[3], yerr=True, flow="show")
+    hep.histplot(h, ax=axs[0], flow="show")
+    hep.histplot(h2, ax=axs[1], flow="show")
+    hep.histplot(h3, ax=axs[2], flow="show")
+    hep.histplot(h4, ax=axs[3], flow="show")
 
     axs[0].set_title("Two-side overflow", fontsize=18)
     axs[1].set_title("Left-side overflow", fontsize=18)
@@ -648,7 +648,7 @@ def test_histplot_bar():
 
     axs[1].set_title("Histtype barstep", fontsize=18)
     hep.histplot(
-        [h1, h2, h3], bins, histtype="barstep", label=["h1", "h2", "h3"], ax=axs[1]
+        [h1, h2, h3], bins, histtype="barstep", yerr=False, label=["h1", "h2", "h3"], ax=axs[1]
     )
     axs[1].legend()
 

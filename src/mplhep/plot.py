@@ -442,10 +442,10 @@ def histplot(
 
     if "step" in histtype:
         for i in range(len(plottables)):
-            if isinstance(yerr, bool) and yerr and plottables[i].variances is not None:
-                do_errors = True
-            else:
-                do_errors = yerr is not False and (yerr is not None or w2 is not None)
+            do_errors = yerr is not False and (
+                (yerr is not None or w2 is not None)
+                or (plottables[i].variances is not None)
+            )
 
             _kwargs = _chunked_kwargs[i]
 
