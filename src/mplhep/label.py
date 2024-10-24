@@ -183,7 +183,7 @@ def exp_text(
         transform=_t,
         ha="left",
         va=loc2_dict[loc]["va"],
-        fontsize=_font_size,
+        fontsize=_font_size * 1.2 if exp == "ATLAS" else _font_size,
         fontname=fontname,
         fontstyle="italic" if italic[1] else "normal",
     )
@@ -329,7 +329,7 @@ def exp_label(
         fontname : string, optional
             Name of font to be used.
         fontsize : string, optional
-            Defines size of "secondary label". Experiment label is 1.3x larger.
+            Defines size of the experiment label and the secondary label.
         exp_weight : string, optional
             Set fontweight of <exp> label. Default "bold".
         italic : (bool, bool, bool), optional
