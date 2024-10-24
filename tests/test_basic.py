@@ -648,7 +648,12 @@ def test_histplot_bar():
 
     axs[1].set_title("Histtype barstep", fontsize=18)
     hep.histplot(
-        [h1, h2, h3], bins, histtype="barstep", yerr=False, label=["h1", "h2", "h3"], ax=axs[1]
+        [h1, h2, h3],
+        bins,
+        histtype="barstep",
+        yerr=False,
+        label=["h1", "h2", "h3"],
+        ax=axs[1],
     )
     axs[1].legend()
 
