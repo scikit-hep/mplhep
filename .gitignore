@@ -1,5 +1,8 @@
 # Project specific
 src/mplhep/_version.py
+*.root
+result_images/
+test/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
