@@ -460,19 +460,8 @@ def histplot(
             _plot_info = plottables[i].to_stairs()
             _plot_info["baseline"] = None if not edges else 0
 
-            if do_errors:
-                if _kwargs.get("color") is None:
-                    _kwargs["color"] = ax._get_lines.get_next_color()  # type: ignore[attr-defined]
-            else:
-                if _kwargs.get("color") is not None:
-                    _kwargs["edgecolor"] = _kwargs["color"]
-                else:
-                    _kwargs["edgecolor"] = ax._get_lines.get_next_color()  # type: ignore[attr-defined]
-                    _kwargs["color"] = _kwargs["edgecolor"]
-
-                if histtype == "step":
-                    _kwargs["fill"] = True
-                    _kwargs["facecolor"] = "None"
+            if _kwargs.get("color") is None:
+                _kwargs["color"] = ax._get_lines.get_next_color()  # type: ignore[attr-defined]
 
             if histtype == "step":
                 _s = ax.stairs(
