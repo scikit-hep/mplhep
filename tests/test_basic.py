@@ -615,12 +615,61 @@ def test_histplot_w2():
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_histplot_types():
     hs, bins = [[2, 3, 4], [5, 4, 3]], [0, 1, 2, 3]
-    fig, axs = plt.subplots(3, 2, figsize=(8, 12))
+    fig, axs = plt.subplots(5, 2, figsize=(8, 16))
     axs = axs.flatten()
 
-    for i, htype in enumerate(["step", "fill", "errorbar"]):
+    for i, htype in enumerate(["step", "fill", "errorbar", "bar", "barstep"]):
         hep.histplot(hs[0], bins, yerr=True, histtype=htype, ax=axs[i * 2], alpha=0.7)
         hep.histplot(hs, bins, yerr=True, histtype=htype, ax=axs[i * 2 + 1], alpha=0.7)
+
+    return fig
+
+
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_histplot_bar():
+    bins = list(range(6))
+    h1 = [1, 2, 3, 2, 1]
+    h2 = [2, 2, 2, 2, 2]
+    h3 = [2, 1, 2, 1, 2]
+    h4 = [3, 1, 2, 1, 3]
+
+    fig, axs = plt.subplots(2, 2, sharex=True, sharey=True, figsize=(10, 10))
+    axs = axs.flatten()
+
+    axs[0].set_title("Histype bar", fontsize=18)
+    hep.histplot(
+        [h1, h2, h3, h4],
+        bins,
+        histtype="bar",
+        label=["h1", "h2", "h3", "h4"],
+        ax=axs[0],
+    )
+    axs[0].legend()
+
+    axs[1].set_title("Histtype barstep", fontsize=18)
+    hep.histplot(
+        [h1, h2, h3],
+        bins,
+        histtype="barstep",
+        yerr=False,
+        label=["h1", "h2", "h3"],
+        ax=axs[1],
+    )
+    axs[1].legend()
+
+    axs[2].set_title("Histtype barstep", fontsize=18)
+    hep.histplot(
+        [h1, h2], bins, histtype="barstep", yerr=True, label=["h1", "h2"], ax=axs[2]
+    )
+    axs[2].legend()
+
+    axs[3].set_title("Histype bar", fontsize=18)
+    hep.histplot(
+        [h1, h2], bins, histtype="bar", label=["h1", "h2"], bin_width=0.2, ax=axs[3]
+    )
+    axs[3].legend()
+
+    fig.subplots_adjust(wspace=0.1)
 
     return fig
 
