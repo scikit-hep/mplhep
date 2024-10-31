@@ -27,6 +27,7 @@ from .plot import (
     yscale_legend,
 )
 from .styles import set_style
+from .utils import get_plottables
 
 # Configs
 rcParams = Config(
@@ -76,4 +77,5 @@ __all__ = [
     "sort_legend",
     "save_variations",
     "set_style",
+    "get_plottables",
 ]
