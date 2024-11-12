@@ -664,6 +664,7 @@ def hist2dplot(
     cmax=None,
     ax: mpl.axes.Axes | None = None,
     flow="hint",
+    binwnorm=None,
     **kwargs,
 ):
     """
@@ -706,6 +707,9 @@ def hist2dplot(
         Axes object (if None, last one is fetched or one is created)
     flow :  str, optional {"show", "sum","hint", None}
             Whether plot the under/overflow bin. If "show", add additional under/overflow bin. If "sum", add the under/overflow bin content to first/last bin. "hint" would highlight the bins with under/overflow contents
+    binwnorm : float, optional
+        If true, convert sum weights to bin-width-normalized, with unit equal to
+            supplied value (usually you want to specify 1.)
     **kwargs :
         Keyword arguments passed to underlying matplotlib function - pcolormesh.
 
@@ -808,6 +812,15 @@ def hist2dplot(
         H[cmax < H] = None
 
     X, Y = np.meshgrid(xbins, ybins)
+
+    if binwnorm is not None:
+        # No error treatment so we can just scale the values
+        H = H * binwnorm
+        # Make sure x_bin_width and y_bin_width align with H's dimensions
+        X_bin_widths, Y_bin_widths = np.meshgrid(np.diff(xbins), np.diff(ybins))
+        # Calculate the bin area array, which aligns with the shape of H
+        bin_area = X_bin_widths * Y_bin_widths
+        H = H / bin_area
 
     kwargs.setdefault("shading", "flat")
     pc = ax.pcolormesh(X, Y, H, vmin=cmin, vmax=cmax, **kwargs)
