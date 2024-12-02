@@ -13,7 +13,7 @@ from .label import lumitext
 # Log styles
 from .styles import atlas as style
 
-__all__ = ("style", "lumitext")
+__all__ = ("lumitext", "style")
 
 
 @docstring.copy(label_base.exp_text)
