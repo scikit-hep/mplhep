@@ -28,7 +28,7 @@ from ._compat import docstring
 from .label import lumitext
 from .styles import lhcb as style
 
-__all__ = ("style", "lumitext", "label", "text")
+__all__ = ("label", "lumitext", "style", "text")
 
 
 @docstring.copy(label_base.exp_text)
