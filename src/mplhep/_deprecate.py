@@ -71,10 +71,10 @@ class deprecated_dict(dict):
     """
 
     __slots__ = (
-        "message",
         "_already_warned",
         "_warn_once",
         "_warning",
+        "message",
     )  # no __dict__ - would be redundant
 
     def __init__(
