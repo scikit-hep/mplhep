@@ -28,7 +28,7 @@ def poisson_interval(sumw, sumw2, coverage=_coverage1sd):
     substituted to scale the nominal upper bound.
     If all bins zero, a warning is generated and interval is set to ``sumw``.
     # Taken from Coffea
-    """
+    """  # codespell:ignore
     scale = np.empty_like(sumw)
     scale[sumw != 0] = sumw2[sumw != 0] / sumw[sumw != 0]
     if np.sum(sumw == 0) > 0:
