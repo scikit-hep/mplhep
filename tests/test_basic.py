@@ -4,6 +4,7 @@ import os
 import re
 
 import hist
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
@@ -59,6 +60,26 @@ def test_simple2d():
     return fig
 
 
+@pytest.mark.skipif(
+    (int(mpl.__version__.split(".")[0]), int(mpl.__version__.split(".")[1])) >= (3, 10),
+    reason="Change in mpl behaviour since 3.10",
+)
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_log_mpl39():
+    fig, axs = plt.subplots(2, 2, figsize=(10, 10))
+    for ax in axs[0]:
+        hep.histplot([1, 2, 3, 2], range(5), ax=ax)
+    ax.semilogy()
+    for ax in axs[1]:
+        hep.histplot([1, 2, 3, 2], range(5), ax=ax, edges=False)
+    ax.semilogy()
+    return fig
+
+
+@pytest.mark.skipif(
+    (int(mpl.__version__.split(".")[0]), int(mpl.__version__.split(".")[1])) < (3, 10),
+    reason="Change in mpl behaviour since 3.10",
+)
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_log():
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
