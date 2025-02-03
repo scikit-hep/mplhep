@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import sys
 import re
 
 import hist
@@ -61,7 +60,10 @@ def test_simple2d():
     return fig
 
 
-@pytest.mark.skipif(mpl.__version__ >= '3.10', reason="Change in mpl behaviour since 3.10")
+@pytest.mark.skipif(
+    (int(mpl.__version__.split(".")[0]), int(mpl.__version__.split(".")[1])) >= (3, 10),
+    reason="Change in mpl behaviour since 3.10",
+)
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_log_mpl39():
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
@@ -74,7 +76,10 @@ def test_log_mpl39():
     return fig
 
 
-@pytest.mark.skipif(mpl.__version__ < '3.10', reason="Change in mpl behaviour since 3.10")
+@pytest.mark.skipif(
+    (int(mpl.__version__.split(".")[0]), int(mpl.__version__.split(".")[1])) < (3, 10),
+    reason="Change in mpl behaviour since 3.10",
+)
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_log():
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
