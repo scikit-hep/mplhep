@@ -89,7 +89,7 @@ def exp_text(
         2: {"xy": (0.05, 0.9450 - pad), "va": "top"},
         3: {"xy": (0.05, 0.95 - pad), "va": "top"},
         4: {"xy": (0.05, 0.9550 - pad), "va": "bottom"},
-        5: {"xy": (0.5650, 0.9550 - pad), "va": "bottom"},
+        5: {"xy": (0.5650, 0.9550 - pad), "va": "bottom", "ha": "left"},
     }
 
     loc3_dict = {
@@ -98,6 +98,7 @@ def exp_text(
         2: {"xy": (0.05, 0.935 - pad), "va": "top"},
         3: {"xy": (0.05, 0.940 - pad), "va": "top"},
         4: {"xy": (0.05, 0.9450 - pad), "va": "top"},
+        5: {"xy": (0.4650, 0.9450 - pad), "va": "top", "ha": "left"},
     }
 
     if loc not in [0, 1, 2, 3, 4, 5]:
