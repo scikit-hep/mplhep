@@ -5,7 +5,7 @@ import sys
 import re
 
 import hist
-import matplotlib
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
@@ -61,7 +61,7 @@ def test_simple2d():
     return fig
 
 
-@pytest.mark.skipif(matplotlib.__version__ >= '3.10', reason="Change in mpl behaviour since 3.10")
+@pytest.mark.skipif(mpl.__version__ >= '3.10', reason="Change in mpl behaviour since 3.10")
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_log_mpl39():
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
@@ -74,7 +74,7 @@ def test_log_mpl39():
     return fig
 
 
-@pytest.mark.skipif(matplotlib.__version__ < '3.10', reason="Change in mpl behaviour since 3.10")
+@pytest.mark.skipif(mpl.__version__ < '3.10', reason="Change in mpl behaviour since 3.10")
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_log():
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
