@@ -1,3 +1,9 @@
+# Project specific
+src/mplhep/_version.py
+*.root
+result_images/
+test/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -46,6 +52,8 @@ coverage.xml
 *.cover
 .hypothesis/
 .pytest_cache/
+flow_th1.root
+result_images/
 
 # Translations
 *.mo
@@ -105,3 +113,4 @@ venv.bak/
 
 # PyCharm
 .idea/
+/docs/source/_generated/

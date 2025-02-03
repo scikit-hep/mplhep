@@ -1,10 +1,10 @@
 """LHCb-like plot styles
 
-All of this styles resemble the LHCb plotting style; however it is an approximation and
+All of these styles resemble the LHCb plotting style; however it is an approximation and
 not an official style. The style `LHCb` should improve over time by inputs and may be changed in the future in favor of
  a style that resembles morethe actual LHCb style.
 
- To use a specific style, use `LHCb1`, `LHCb2` etc. as they won't change in the future.
+To use a specific style, use `LHCb1`, `LHCb2` etc. as they won't change in the future.
 
 Notes on LHCb2 style:
 
@@ -16,6 +16,7 @@ based on the works of Kevin Dungs, Tim Head, Thomas Schietinger,
                       Andrew Powell, Chris Parkes, Elena Graverini
                       and Niels Tuning
 """
+
 from __future__ import annotations
 
 import inspect
@@ -35,7 +36,7 @@ def text(text="", **kwargs):
     for key, value in dict(mplhep.rcParams.text._get_kwargs()).items():
         if (
             value is not None
-            and key not in kwargs.keys()
+            and key not in kwargs
             and key in inspect.getfullargspec(label_base.exp_text).kwonlyargs
         ):
             kwargs.setdefault(key, value)
@@ -52,7 +53,7 @@ def label(label=None, **kwargs):
     for key, value in dict(mplhep.rcParams.label._get_kwargs()).items():
         if (
             value is not None
-            and key not in kwargs.keys()
+            and key not in kwargs
             and key in inspect.getfullargspec(label_base.exp_label).kwonlyargs
         ):
             kwargs.setdefault(key, value)

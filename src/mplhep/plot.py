@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import collections.abc
 import inspect
-import warnings
-from collections import OrderedDict, namedtuple
-from typing import TYPE_CHECKING, Any, Union
+import logging
+from collections import OrderedDict
+from typing import TYPE_CHECKING, Any, NamedTuple, Union
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -14,20 +14,34 @@ from matplotlib.transforms import Bbox
 from mpl_toolkits.axes_grid1 import axes_size, make_axes_locatable
 
 from .utils import (
-    Plottable,
+    align_marker,
     get_histogram_axes_title,
     get_plottable_protocol_bins,
+    get_plottables,
     hist_object_handler,
     isLight,
     process_histogram_parts,
+    to_padded2d,
 )
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
 
-StairsArtists = namedtuple("StairsArtists", "stairs errorbar legend_artist")
-ErrorBarArtists = namedtuple("ErrorBarArtists", "errorbar")
-ColormeshArtists = namedtuple("ColormeshArtists", "pcolormesh cbar text")
+
+class StairsArtists(NamedTuple):
+    stairs: Any
+    errorbar: Any
+    legend_artist: Any
+
+
+class ErrorBarArtists(NamedTuple):
+    errorbar: Any
+
+
+class ColormeshArtists(NamedTuple):
+    pcolormesh: Any
+    cbar: Any
+    text: Any
 
 
 Hist1DArtists = Union[StairsArtists, ErrorBarArtists]
@@ -43,7 +57,7 @@ def soft_update_kwargs(kwargs, mods, rc=True):
         "lines.linestyle",
     ]
     aliases = {"ls": "linestyle", "lw": "linewidth"}
-    kwargs = {aliases[k] if k in aliases else k: v for k, v in kwargs.items()}
+    kwargs = {aliases.get(k, k): v for k, v in kwargs.items()}
     for key, val in mods.items():
         rc_modded = (key in not_default) or (
             key in [k.split(".")[-1] for k in not_default if k in respect]
@@ -62,16 +76,16 @@ def histplot(
     yerr: ArrayLike | bool | None = None,
     w2=None,
     w2method=None,
-    stack=False,
-    density=False,
+    stack: bool = False,
+    density: bool = False,
     binwnorm=None,
-    histtype="step",
+    histtype: str = "step",
     xerr=False,
     label=None,
     sort=None,
     edges=True,
     binticks=False,
-    ax=None,
+    ax: mpl.axes.Axes | None = None,
     flow="hint",
     **kwargs,
 ):
@@ -90,7 +104,7 @@ def histplot(
 
             Or list thereof.
         bins : iterable, optional
-            Histogram bins, if not part of ``h``.
+            Histogram bins, if not part of ``H``.
         yerr : iterable or bool, optional
             Histogram uncertainties. Following modes are supported:
             - True, sqrt(N) errors or poissonian interval when ``w2`` is specified
@@ -115,12 +129,14 @@ def histplot(
         binwnorm : float, optional
             If true, convert sum weights to bin-width-normalized, with unit equal to
                 supplied value (usually you want to specify 1.)
-        histtype: {'step', 'fill', 'errorbar'}, optional, default: "step"
+        histtype: {'step', 'fill', 'errorbar', 'bar', 'barstep', 'band'}, optional, default: "step"
             Type of histogram to plot:
-
-            - "step": skyline/step/outline of a histogram using `plt.step <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.step.html#matplotlib.axes.Axes.step>`_
-            - "fill": filled histogram using `plt.fill_between <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.step.html#matplotlib.axes.Axes.step>`_
-            - "errorbar": single marker histogram using `plt.errorbar <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.step.html#matplotlib.axes.Axes.step>`_
+            - "step": skyline/step/outline of a histogram using `plt.stairs <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs>`_
+            - "fill": filled histogram using `plt.stairs <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs>`_
+            - "errorbar": single marker histogram using `plt.errorbar <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.errorbar.html#matplotlib-axes-axes-errorbar>`_
+            - "bar": If multiple data are given the bars are arranged side by side using `plt.bar <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.bar.html#matplotlib-axes-axes-bar>`_ If only one histogram is provided, it will be treated as "fill" histtype
+            - "barstep": If multiple data are given the steps are arranged side by side using `plt.stairs <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs>`_ . Supports yerr representation. If one histogram is provided, it will be treated as "step" histtype.
+            - "band": filled band spanning the yerr range of the histogram using `plt.stairs <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs>`_
         xerr:  bool or float, optional
             Size of xerr if ``histtype == 'errorbar'``. If ``True``, bin-width will be used.
         label : str or list, optional
@@ -134,10 +150,11 @@ def histplot(
         ax : matplotlib.axes.Axes, optional
             Axes object (if None, last one is fetched or one is created)
         flow :  str, optional { "show", "sum", "hint", "none"}
-            Whether plot the under/overflow bin. If "show", add additional under/overflow bin. If "sum", add the under/overflow bin content to first/last bin.
+            Whether plot the under/overflow bin. If "show", add additional under/overflow bin.
+            If "sum", add the under/overflow bin content to first/last bin.
         **kwargs :
             Keyword arguments passed to underlying matplotlib functions -
-            {'step', 'fill_between', 'errorbar'}.
+            {'stairs', 'errorbar'}.
     Returns
     -------
         List[Hist1DArtists]
@@ -147,13 +164,13 @@ def histplot(
     # ax check
     if ax is None:
         ax = plt.gca()
-    else:
-        if not isinstance(ax, plt.Axes):
-            raise ValueError("ax must be a matplotlib Axes object")
+    elif not isinstance(ax, plt.Axes):
+        msg = "ax must be a matplotlib Axes object"
+        raise ValueError(msg)
 
     # arg check
-    _allowed_histtype = ["fill", "step", "errorbar"]
-    _err_message = f"Select 'histtype' from: {_allowed_histtype}"
+    _allowed_histtype = ["fill", "step", "errorbar", "band", "bar", "barstep"]
+    _err_message = f"Select 'histtype' from: {_allowed_histtype}, got '{histtype}'"
     assert histtype in _allowed_histtype, _err_message
     assert flow is None or flow in {
         "show",
@@ -181,110 +198,18 @@ def histplot(
         else get_histogram_axes_title(hists[0].axes[0])
     )
 
-    # Show under/overflow bins
-    # check underflow/overflow bin exist
-
-    underflow, overflow = 0.0, 0.0
-
-    for h in hists:
-        if (
-            hasattr(h, "values")
-            and "flow" not in inspect.getfullargspec(h.values).args
-            and flow is not None
-        ):
-            continue
-        elif flow is None:
-            continue
-        elif (
-            hasattr(h, "axes")
-            and hasattr(h.axes[0], "traits")
-            and hasattr(h.axes[0].traits, "underflow")
-        ):
-            if h.axes[0].traits.underflow:
-                underflow = underflow + h.values(flow=True)[0]
-            if h.axes[0].traits.overflow:
-                overflow = overflow + h.values(flow=True)[-1]
-        else:
-            underflow = underflow + h.values(flow=True)[0]
-            overflow = overflow + h.values(flow=True)[-1]
-
-    # "show": Add additional bin with 5 times bin width
-    plottables = []
-    flow_bins = final_bins
-    for i, h in enumerate(hists):
-        value, variance = h.values(), h.variances()
-        if hasattr(h, "values") and "flow" not in inspect.getfullargspec(h.values).args:
-            if flow == "sum" or flow == "show":
-                warnings.warn(
-                    f"{type(h)} is not allowed to get flow bins", stacklevel=2
-                )
-            plottables.append(Plottable(value, edges=final_bins, variances=variance))
-        # check if the original hist has flow bins
-        elif (
-            hasattr(h, "axes")
-            and hasattr(h.axes[0], "traits")
-            and hasattr(h.axes[0].traits, "underflow")
-            and not h.axes[0].traits.underflow
-            and not h.axes[0].traits.overflow
-            and flow in {"show", "sum"}
-        ):
-            warnings.warn(f"You don't have flow bins stored in {h!r}", stacklevel=2)
-            plottables.append(Plottable(value, edges=final_bins, variances=variance))
-        elif flow == "hint":
-            plottables.append(Plottable(value, edges=final_bins, variances=variance))
-        elif flow == "show":
-            if underflow > 0:
-                if i == 0:
-                    flow_bins = np.insert(
-                        final_bins,
-                        0,
-                        [
-                            final_bins[0] - _bin_widths[0] * len(_bin_widths) * 0.08,
-                            final_bins[0] - _bin_widths[0] * len(_bin_widths) * 0.03,
-                        ],
-                    )
-                value, variance = np.insert(value, 0, np.nan), np.insert(
-                    variance, 0, np.nan
-                )
-                value, variance = np.insert(
-                    value, 0, h.values(flow=True)[0]
-                ), np.insert(value, 0, h.variances(flow=True)[0])
-            if overflow > 0:
-                if i == 0:
-                    flow_bins = np.append(
-                        flow_bins,
-                        [
-                            final_bins[-1] + _bin_widths[-1] * len(_bin_widths) * 0.03,
-                            final_bins[-1] + _bin_widths[-1] * len(_bin_widths) * 0.08,
-                        ],
-                    )
-                value, variance = np.append(value, np.nan), np.append(variance, np.nan)
-                value, variance = np.append(value, h.values(flow=True)[-1]), np.append(
-                    variance, h.variances(flow=True)[-1]
-                )
-            plottables.append(Plottable(value, edges=flow_bins, variances=variance))
-        elif flow == "sum":
-            value, variance = h.values().copy(), h.variances().copy()
-            value[0], value[-1] = (
-                value[0] + h.values(flow=True)[0],
-                value[-1] + h.values(flow=True)[-1],
-            )
-            variance[0], variance[-1] = (
-                variance[0] + h.variances(flow=True)[0],
-                variance[-1] + h.variances(flow=True)[-1],
-            )
-            plottables.append(Plottable(value, edges=final_bins, variances=variance))
-        else:
-            plottables.append(Plottable(value, edges=final_bins, variances=variance))
-    if w2 is not None:
-        for _w2, _plottable in zip(
-            w2.reshape(len(plottables), len(final_bins) - 1), plottables
-        ):
-            _plottable.variances = _w2
-            _plottable.method = w2method
-
-    if w2 is not None and yerr is not None:
-        raise ValueError("Can only supply errors or w2")
+    plottables, flow_info = get_plottables(
+        hists,
+        bins=final_bins,
+        w2=w2,
+        w2method=w2method,
+        yerr=yerr,
+        stack=stack,
+        density=density,
+        binwnorm=binwnorm,
+        flow=flow,
+    )
+    flow_bins, underflow, overflow = flow_info
 
     _labels: list[str | None]
     if label is None:
@@ -307,7 +232,7 @@ def histplot(
         if iterable_not_string(kwargs[kwarg]):
             # Check if tuple of floats or ints (can be used for colors)
             if isinstance(kwargs[kwarg], tuple) and all(
-                isinstance(x, int) or isinstance(x, float) for x in kwargs[kwarg]
+                isinstance(x, (int, float)) for x in kwargs[kwarg]
             ):
                 for i in range(len(_chunked_kwargs)):
                     _chunked_kwargs[i][kwarg] = kwargs[kwarg]
@@ -318,146 +243,203 @@ def histplot(
             for i in range(len(_chunked_kwargs)):
                 _chunked_kwargs[i][kwarg] = kwargs[kwarg]
 
-    ############################
-    # # yerr calculation
-    _yerr: np.ndarray | None
-    if yerr is not None:
-        # yerr is array
-        if hasattr(yerr, "__len__"):
-            _yerr = np.asarray(yerr)
-        # yerr is a number
-        elif isinstance(yerr, (int, float)) and not isinstance(yerr, bool):
-            _yerr = np.ones((len(plottables), len(final_bins) - 1)) * yerr
-        # yerr is automatic
-        else:
-            _yerr = None
-    else:
-        _yerr = None
-
-    if _yerr is not None:
-        assert isinstance(_yerr, np.ndarray)
-        if _yerr.ndim == 3:
-            # Already correct format
-            pass
-        elif _yerr.ndim == 2 and len(plottables) == 1:
-            # Broadcast ndim 2 to ndim 3
-            if _yerr.shape[-2] == 2:  # [[1,1], [1,1]]
-                _yerr = _yerr.reshape(len(plottables), 2, _yerr.shape[-1])
-            elif _yerr.shape[-2] == 1:  # [[1,1]]
-                _yerr = np.tile(_yerr, 2).reshape(len(plottables), 2, _yerr.shape[-1])
-            else:
-                raise ValueError("yerr format is not understood")
-        elif _yerr.ndim == 2:
-            # Broadcast yerr (nh, N) to (nh, 2, N)
-            _yerr = np.tile(_yerr, 2).reshape(len(plottables), 2, _yerr.shape[-1])
-        elif _yerr.ndim == 1:
-            # Broadcast yerr (1, N) to (nh, 2, N)
-            _yerr = np.tile(_yerr, 2 * len(plottables)).reshape(
-                len(plottables), 2, _yerr.shape[-1]
-            )
-        else:
-            raise ValueError("yerr format is not understood")
-
-        assert _yerr is not None
-        for yrs, _plottable in zip(_yerr, plottables):
-            _plottable.fixed_errors(*yrs)
-
     # Sorting
     if sort is not None:
         if isinstance(sort, str):
             if sort.split("_")[0] in ["l", "label"] and isinstance(_labels, list):
                 order = np.argsort(label)  # [::-1]
             elif sort.split("_")[0] in ["y", "yield"]:
-                _yields = [np.sum(_h.values) for _h in plottables]
+                _yields = [np.sum(_h.values) for _h in plottables]  # type: ignore[var-annotated]
                 order = np.argsort(_yields)
             if len(sort.split("_")) == 2 and sort.split("_")[1] == "r":
                 order = order[::-1]
-        elif isinstance(sort, list) or isinstance(sort, np.ndarray):
+        elif isinstance(sort, (list, np.ndarray)):
             if len(sort) != len(plottables):
-                raise ValueError(
-                    f"Sort indexing array is of the wrong size - {len(sort)}, {len(plottables)} expected."
-                )
+                msg = f"Sort indexing array is of the wrong size - {len(sort)}, {len(plottables)} expected."
+                raise ValueError(msg)
             order = np.asarray(sort)
         else:
-            raise ValueError(f"Sort type: {sort} not understood.")
+            msg = f"Sort type: {sort} not understood."
+            raise ValueError(msg)
         plottables = [plottables[ix] for ix in order]
         _chunked_kwargs = [_chunked_kwargs[ix] for ix in order]
         _labels = [_labels[ix] for ix in order]
 
-    # ############################
-    # # Stacking, norming, density
-    if density is True and binwnorm is not None:
-        raise ValueError("Can only set density or binwnorm.")
-    if density is True:
-        if stack:
-            _total = np.sum(
-                np.array([plottable.values for plottable in plottables]), axis=0
-            )
-            for plottable in plottables:
-                plottable.flat_scale(1.0 / np.sum(np.diff(final_bins) * _total))
-        else:
-            for plottable in plottables:
-                plottable.density = True
-    elif binwnorm is not None:
-        for plottable, norm in zip(
-            plottables, np.broadcast_to(binwnorm, (len(plottables),))
-        ):
-            plottable.flat_scale(norm / np.diff(final_bins))
-
-    # Stack
-    if stack and len(plottables) > 1:
-        from .utils import stack as stack_fun
-
-        plottables = stack_fun(*plottables)
-
     ##########
     # Plotting
     return_artists: list[StairsArtists | ErrorBarArtists] = []
-    if histtype == "step":
+
+    if histtype == "bar" and len(plottables) == 1:
+        histtype = "fill"
+    elif histtype == "barstep" and len(plottables) == 1:
+        histtype = "step"
+
+    # customize color cycle assignment when stacking to match legend
+    if stack:
+        plottables = plottables[::-1]
+        _chunked_kwargs = _chunked_kwargs[::-1]
+        _labels = _labels[::-1]
+        if "color" not in kwargs:
+            # Inverse default color cycle
+            _colors = []
+            for _ in range(len(plottables)):
+                _colors.append(ax._get_lines.get_next_color())  # type: ignore[attr-defined]
+            _colors.reverse()
+            for i in range(len(plottables)):
+                _chunked_kwargs[i].update({"color": _colors[i]})
+
+    if "bar" in histtype:
+        if kwargs.get("bin_width") is None:
+            _full_bin_width = 0.8
+        else:
+            _full_bin_width = kwargs.pop("bin_width")
+        _shift = np.linspace(
+            -(_full_bin_width / 2), _full_bin_width / 2, len(plottables), endpoint=False
+        )
+        _shift += _full_bin_width / (2 * len(plottables))
+
+    if "step" in histtype:
         for i in range(len(plottables)):
             do_errors = yerr is not False and (
-                (yerr is not None or w2 is not None)
-                or (plottables[i].variances is not None)
+                (yerr is not None or w2 is not None) or plottables[i]._has_variances
             )
 
             _kwargs = _chunked_kwargs[i]
+
+            if _kwargs.get("bin_width"):
+                _kwargs.pop("bin_width")
+
             _label = _labels[i] if do_errors else None
             _step_label = _labels[i] if not do_errors else None
+
             _kwargs = soft_update_kwargs(_kwargs, {"linewidth": 1.5})
 
             _plot_info = plottables[i].to_stairs()
             _plot_info["baseline"] = None if not edges else 0
-            _s = ax.stairs(
-                **_plot_info,
-                label=_step_label,
-                **_kwargs,
-            )
 
-            if do_errors:
-                _kwargs = soft_update_kwargs(_kwargs, {"color": _s.get_edgecolor()})
-                _kwargs["linestyle"] = "none"
-                _plot_info = plottables[i].to_errorbar()
-                _e = ax.errorbar(
+            if _kwargs.get("color") is None:
+                _kwargs["color"] = ax._get_lines.get_next_color()  # type: ignore[attr-defined]
+
+            if histtype == "step":
+                _s = ax.stairs(
                     **_plot_info,
+                    label=_step_label,
                     **_kwargs,
                 )
-                _e_leg = ax.errorbar(
-                    [], [], yerr=1, xerr=1, color=_s.get_edgecolor(), label=_label
+                if do_errors:
+                    _kwargs = soft_update_kwargs(_kwargs, {"color": _s.get_edgecolor()})
+                    _ls = _kwargs.pop("linestyle", "-")
+                    _kwargs["linestyle"] = "none"
+                    _plot_info = plottables[i].to_errorbar()
+                    _e = ax.errorbar(
+                        **_plot_info,
+                        **_kwargs,
+                    )
+                    _e_leg = ax.errorbar(
+                        [],
+                        [],
+                        yerr=1,
+                        xerr=None,
+                        color=_s.get_edgecolor(),
+                        label=_label,
+                        linestyle=_ls,
+                    )
+                return_artists.append(
+                    StairsArtists(
+                        _s,
+                        _e if do_errors else None,
+                        _e_leg if do_errors else None,
+                    )
                 )
-            return_artists.append(
-                StairsArtists(
-                    _s,
-                    _e if do_errors else None,
-                    _e_leg if do_errors else None,
+                _artist = _s
+
+            # histtype = barstep
+            else:
+                if _kwargs.get("edgecolor") is None:
+                    edgecolor = _kwargs.get("color")
+                else:
+                    edgecolor = _kwargs.pop("edgecolor")
+
+                _b = ax.bar(
+                    plottables[i].centers + _shift[i],
+                    plottables[i].values,
+                    width=_full_bin_width / len(plottables),
+                    label=_step_label,
+                    align="center",
+                    edgecolor=edgecolor,
+                    fill=False,
+                    **_kwargs,
                 )
+
+                if do_errors:
+                    _ls = _kwargs.pop("linestyle", "-")
+                    # _kwargs["linestyle"] = "none"
+                    _plot_info = plottables[i].to_errorbar()
+                    _e = ax.errorbar(
+                        _plot_info["x"] + _shift[i],
+                        _plot_info["y"],
+                        yerr=_plot_info["yerr"],
+                        linestyle="none",
+                        **_kwargs,
+                    )
+                    _e_leg = ax.errorbar(
+                        [],
+                        [],
+                        yerr=1,
+                        xerr=None,
+                        color=_kwargs.get("color"),
+                        label=_label,
+                        linestyle=_ls,
+                    )
+                return_artists.append(
+                    StairsArtists(
+                        _b, _e if do_errors else None, _e_leg if do_errors else None
+                    )
+                )
+                _artist = _b  # type: ignore[assignment]
+
+    elif histtype == "bar":
+        for i in range(len(plottables)):
+            _kwargs = _chunked_kwargs[i]
+
+            if _kwargs.get("bin_width"):
+                _kwargs.pop("bin_width")
+
+            _b = ax.bar(
+                plottables[i].centers + _shift[i],
+                plottables[i].values,
+                width=_full_bin_width / len(plottables),
+                label=_labels[i],
+                align="center",
+                fill=True,
+                **_kwargs,
             )
-        _artist = _s
+            return_artists.append(StairsArtists(_b, None, None))
+        _artist = _b  # type: ignore[assignment]
 
     elif histtype == "fill":
         for i in range(len(plottables)):
             _kwargs = _chunked_kwargs[i]
             _f = ax.stairs(
                 **plottables[i].to_stairs(), label=_labels[i], fill=True, **_kwargs
+            )
+            return_artists.append(StairsArtists(_f, None, None))
+        _artist = _f
+
+    elif histtype == "band":
+        band_defaults = {
+            "alpha": 0.5,
+            "edgecolor": "darkgray",
+            "facecolor": "whitesmoke",
+            "hatch": "////  /",
+        }
+        for i in range(len(plottables)):
+            _kwargs = _chunked_kwargs[i]
+            _f = ax.stairs(
+                **plottables[i].to_stairband(),
+                label=_labels[i],
+                fill=True,
+                **soft_update_kwargs(_kwargs, band_defaults),
             )
             return_artists.append(StairsArtists(_f, None, None))
         _artist = _f
@@ -480,6 +462,7 @@ def histplot(
             _xerr = None
 
         for i in range(len(plottables)):
+            _kwargs = _chunked_kwargs[i]
             _plot_info = plottables[i].to_errorbar()
             if yerr is False:
                 _plot_info["yerr"] = None
@@ -487,20 +470,19 @@ def histplot(
             _e = ax.errorbar(
                 **_plot_info,
                 label=_labels[i],
-                **soft_update_kwargs(_chunked_kwargs[i], err_defaults),
+                **soft_update_kwargs(_kwargs, err_defaults),
             )
             return_artists.append(ErrorBarArtists(_e))
 
         _artist = _e[0]
 
     # Add sticky edges for autoscale
-    _artist.sticky_edges.y.append(0)
+    if "bar" not in histtype:
+        listy = _artist.sticky_edges.y
+        assert hasattr(listy, "append"), "cannot append to sticky edges"
+        listy.append(0)
 
-    if xtick_labels is None:
-        if binticks:
-            _slice = int(round(float(len(final_bins)) / len(ax.get_xticks()))) + 1
-            ax.set_xticks(final_bins[::_slice])
-    elif flow == "show":
+    if xtick_labels is None or flow == "show":
         if binticks:
             _slice = int(round(float(len(final_bins)) / len(ax.get_xticks()))) + 1
             ax.set_xticks(final_bins[::_slice])
@@ -511,60 +493,159 @@ def histplot(
     if x_axes_label:
         ax.set_xlabel(x_axes_label)
 
-    if flow in {"hint", "show"} and (underflow > 0.0 or overflow > 0.0):
-        d = 0.9  # proportion of vertical to horizontal extent of the slanted line
-        trans = mpl.transforms.blended_transform_factory(ax.transData, ax.transAxes)
-        ax_h = ax.bbox.height
-        kwargs = dict(
-            marker=[(-0.5, -d), (0.5, d)],
-            markersize=ax_h * 0.05,
-            linestyle="none",
-            color="k",
-            mec="k",
-            mew=1,
-            clip_on=False,
-            transform=trans,
+    # Flow extra styling
+    if (fig := ax.figure) is None:
+        msg = "No figure found"
+        raise ValueError(msg)
+    if flow == "hint":
+        _marker_size = (
+            30
+            * ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width
         )
-        xticks = ax.get_xticks().tolist()
         if underflow > 0.0:
-            if flow == "hint":
-                ax.plot(
-                    [
-                        final_bins[0] - _bin_widths[0] * len(_bin_widths) * 0.03,
-                        final_bins[0],
-                    ],
-                    [0, 0],
-                    **kwargs,
-                )
-            if flow == "show":
-                ax.plot(
-                    [flow_bins[1], flow_bins[2]],
-                    [0, 0],
-                    **kwargs,
-                )
-                xticks[0] = ""
-                xticks[1] = f"<{flow_bins[2]}"
-
-                ax.set_xticklabels(xticks)
+            ax.scatter(
+                final_bins[0],
+                0,
+                _marker_size,
+                marker=align_marker("<", halign="right"),
+                edgecolor="black",
+                zorder=5,
+                clip_on=False,
+                facecolor="white",
+                transform=ax.get_xaxis_transform(),
+            )
         if overflow > 0.0:
-            if flow == "hint":
-                ax.plot(
-                    [
-                        final_bins[-1],
-                        final_bins[-1] + _bin_widths[-1] * len(_bin_widths) * 0.03,
-                    ],
-                    [0, 0],
-                    **kwargs,
-                )
-            if flow == "show":
-                ax.plot(
-                    [flow_bins[-3], flow_bins[-2]],
-                    [0, 0],
-                    **kwargs,
-                )
-                xticks[-1] = ""
-                xticks[-2] = f">{flow_bins[-3]}"
-                ax.set_xticklabels(xticks)
+            ax.scatter(
+                final_bins[-1],
+                0,
+                _marker_size,
+                marker=align_marker(">", halign="left"),
+                edgecolor="black",
+                zorder=5,
+                clip_on=False,
+                facecolor="white",
+                transform=ax.get_xaxis_transform(),
+            )
+
+    elif flow == "show":
+        underflow_xticklabel = f"<{flow_bins[1]:g}"
+        overflow_xticklabel = f">{flow_bins[-2]:g}"
+
+        # Loop over shared x axes to get xticks and xticklabels
+        xticks, xticklabels = np.array([]), []
+        shared_axes = ax.get_shared_x_axes().get_siblings(ax)
+        shared_axes = [
+            _ax for _ax in shared_axes if _ax.get_position().x0 == ax.get_position().x0
+        ]
+        for _ax in shared_axes:
+            _xticks = _ax.get_xticks()
+            _xticklabels = [label.get_text() for label in _ax.get_xticklabels()]
+
+            # Check if underflow/overflow xtick already exists
+            if (
+                underflow_xticklabel in _xticklabels
+                or overflow_xticklabel in _xticklabels
+            ):
+                xticks = _xticks
+                xticklabels = _xticklabels
+                break
+            if len(_xticklabels) > 0:
+                xticks = _xticks
+                xticklabels = _xticklabels
+
+        lw = ax.spines["bottom"].get_linewidth()
+        _edges = plottables[0].edges
+        _centers = plottables[0].centers
+        _marker_size = (
+            20
+            * ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width
+        )
+
+        if underflow > 0.0 or underflow_xticklabel in xticklabels:
+            # Replace any existing xticks in underflow region with underflow bin center
+            _mask = xticks > flow_bins[1]
+            xticks = np.insert(xticks[_mask], 0, _centers[0])
+            xticklabels = [underflow_xticklabel] + [
+                xlab for i, xlab in enumerate(xticklabels) if _mask[i]
+            ]
+
+            # Don't draw markers on the top of the top axis
+            top_axis = max(shared_axes, key=lambda a: a.get_position().y0)
+
+            # Draw on all shared axes
+            for _ax in shared_axes:
+                _ax.set_xticks(xticks)
+                _ax.set_xticklabels(xticklabels)
+                for h in [0, 1]:
+                    # Don't draw marker on the top of the top axis
+                    if _ax == top_axis and h == 1:
+                        continue
+
+                    _ax.plot(
+                        [_edges[0], _edges[1]],
+                        [h, h],
+                        color="white",
+                        zorder=5,
+                        ls="--",
+                        lw=lw,
+                        transform=_ax.get_xaxis_transform(),
+                        clip_on=False,
+                    )
+
+                    _ax.scatter(
+                        _centers[0],
+                        h,
+                        _marker_size,
+                        marker=align_marker("d", valign="center"),
+                        edgecolor="black",
+                        zorder=5,
+                        clip_on=False,
+                        facecolor="white",
+                        transform=_ax.get_xaxis_transform(),
+                    )
+        if overflow > 0.0 or overflow_xticklabel in xticklabels:
+            # Replace any existing xticks in overflow region with overflow bin center
+            _mask = xticks < flow_bins[-2]
+            xticks = np.insert(xticks[_mask], sum(_mask), _centers[-1])
+            xticklabels = [xlab for i, xlab in enumerate(xticklabels) if _mask[i]] + [
+                overflow_xticklabel
+            ]
+
+            # Don't draw markers on the top of the top axis
+            top_axis = max(shared_axes, key=lambda a: a.get_position().y0)
+
+            # Draw on all shared axes
+            for _ax in shared_axes:
+                _ax.set_xticks(xticks)
+                _ax.set_xticklabels(xticklabels)
+
+                for h in [0, 1]:
+                    # Don't draw marker on the top of the top axis
+                    if _ax == top_axis and h == 1:
+                        continue
+
+                    _ax.plot(
+                        [_edges[-2], _edges[-1]],
+                        [h, h],
+                        color="white",
+                        zorder=5,
+                        ls="--",
+                        lw=lw,
+                        transform=_ax.get_xaxis_transform(),
+                        clip_on=False,
+                    )
+
+                    _ax.scatter(
+                        _centers[-1],
+                        h,
+                        _marker_size,
+                        marker=align_marker("d", valign="center"),
+                        edgecolor="black",
+                        zorder=5,
+                        clip_on=False,
+                        facecolor="white",
+                        transform=_ax.get_xaxis_transform(),
+                    )
 
     return return_artists
 
@@ -574,15 +655,16 @@ def hist2dplot(
     xbins=None,
     ybins=None,
     labels=None,
-    cbar=True,
+    cbar: bool = True,
     cbarsize="7%",
     cbarpad=0.2,
     cbarpos="right",
-    cbarextend=False,
+    cbarextend=True,
     cmin=None,
     cmax=None,
-    ax=None,
+    ax: mpl.axes.Axes | None = None,
     flow="hint",
+    binwnorm=None,
     **kwargs,
 ):
     """
@@ -625,6 +707,9 @@ def hist2dplot(
         Axes object (if None, last one is fetched or one is created)
     flow :  str, optional {"show", "sum","hint", None}
             Whether plot the under/overflow bin. If "show", add additional under/overflow bin. If "sum", add the under/overflow bin content to first/last bin. "hint" would highlight the bins with under/overflow contents
+    binwnorm : float, optional
+        If true, convert sum weights to bin-width-normalized, with unit equal to
+            supplied value (usually you want to specify 1.)
     **kwargs :
         Keyword arguments passed to underlying matplotlib function - pcolormesh.
 
@@ -637,15 +722,15 @@ def hist2dplot(
     # ax check
     if ax is None:
         ax = plt.gca()
-    else:
-        if not isinstance(ax, plt.Axes):
-            raise ValueError("ax must be a matplotlib Axes object")
+    elif not isinstance(ax, plt.Axes):
+        msg = "ax must be a matplotlib Axes object"
+        raise ValueError(msg)
 
     h = hist_object_handler(H, xbins, ybins)
 
     # TODO: use Histogram everywhere
 
-    H = h.values()
+    H = np.copy(h.values())
     xbins, xtick_labels = get_plottable_protocol_bins(h.axes[0])
     ybins, ytick_labels = get_plottable_protocol_bins(h.axes[1])
     # Show under/overflow bins
@@ -655,80 +740,58 @@ def hist2dplot(
         and "flow" not in inspect.getfullargspec(h.values).args
         and flow is not None
     ):
-        print(
-            f"Warning: {type(h)} is not allowed to get flow bins, flow bin option set to None"
-        )
         flow = None
-    elif (
-        hasattr(h, "axes")
-        and hasattr(h.axes[0], "traits")
-        and hasattr(h.axes[0].traits, "underflow")
-        and not h.axes[0].traits.underflow
-        and not h.axes[0].traits.overflow
-    ):
-        flow = None
-        print(f"Warning:  you don't have flow bins stored in {h}")
-    elif flow == "show":
-        H = h.values(flow=True)
-        if any(h.values(flow=True)[0] > 0):
-            xbins = np.array(
-                [
-                    xbins[0] - (xbins[-1] - xbins[0]) * 0.08,
-                    xbins[0] - (xbins[-1] - xbins[0]) * 0.03,
-                    *xbins,
-                ]
-            )
-        if any(h.values(flow=True)[-1] > 0):
-            xbins = np.array(
-                [
-                    *xbins,
-                    xbins[-1] + (xbins[-1] - xbins[0]) * 0.03,
-                    xbins[-1] + (xbins[-1] - xbins[0]) * 0.08,
-                ]
-            )
-        if any(h.values(flow=True)[:, 0] > 0):
-            ybins = np.array(
-                [
-                    ybins[0] - (ybins[-1] - ybins[0]) * 0.08,
-                    ybins[0] - (ybins[-1] - ybins[0]) * 0.03,
-                    *ybins,
-                ]
-            )
-        if any(h.values(flow=True)[:, -1] > 0):
-            ybins = np.array(
-                [
-                    *ybins,
-                    ybins[-1] + (ybins[-1] - ybins[0]) * 0.03,
-                    ybins[-1] + (ybins[-1] - ybins[0]) * 0.08,
-                ]
-            )
-
-        if any(h.values(flow=True)[0] > 0.0):
-            H = np.insert(H, (1), np.nan, axis=-1)
-        if any(h.values(flow=True)[-1] > 0.0):
-            H = np.insert(H, (-1), np.nan, axis=-1)
-        if any(h.values(flow=True)[:, 0] > 0):
-            H = np.insert(H, (1), np.full(np.shape(H)[1], np.nan), axis=0)
-        if any(h.values(flow=True)[:, -1] > 0):
-            H = np.insert(H, (-1), np.full(np.shape(H)[1], np.nan), axis=0)
+    elif flow in ["hint", "show"]:
+        xwidth, ywidth = (xbins[-1] - xbins[0]) * 0.05, (ybins[-1] - ybins[0]) * 0.05
+        pxbins = np.r_[xbins[0] - xwidth, xbins, xbins[-1] + xwidth]
+        pybins = np.r_[ybins[0] - ywidth, ybins, ybins[-1] + ywidth]
+        padded = to_padded2d(h)
+        hint_xlo, hint_xhi, hint_ylo, hint_yhi = True, True, True, True
+        if np.all(padded[0, :] == 0):
+            padded = padded[1:, :]
+            pxbins = pxbins[1:]
+            hint_xlo = False
+        if np.all(padded[-1, :] == 0):
+            padded = padded[:-1, :]
+            pxbins = pxbins[:-1]
+            hint_xhi = False
+        if np.all(padded[:, 0] == 0):
+            padded = padded[:, 1:]
+            pybins = pybins[1:]
+            hint_ylo = False
+        if np.all(padded[:, -1] == 0):
+            padded = padded[:, :-1]
+            pybins = pybins[:-1]
+            hint_yhi = False
+        if flow == "show":
+            H = padded
+            xbins, ybins = pxbins, pybins
     elif flow == "sum":
-        H = h.values().copy()
+        H = np.copy(h.values())
         # Sum borders
-        H[0], H[-1] = (
-            H[0] + h.values(flow=True)[0, 1:-1],
-            H[-1] + h.values(flow=True)[-1, 1:-1],
-        )
-        H[:, 0], H[:, -1] = (
-            H[:, 0] + h.values(flow=True)[1:-1, 0],
-            H[:, -1] + h.values(flow=True)[1:-1, -1],
-        )
-        # Sum corners to corners
-        H[0, 0], H[-1, -1], H[0, -1], H[-1, 0] = (
-            h.values(flow=True)[0, 0] + H[0, 0],
-            h.values(flow=True)[-1, -1] + H[-1, -1],
-            h.values(flow=True)[0, -1] + H[0, -1],
-            h.values(flow=True)[-1, 0] + H[-1, 0],
-        )
+        try:
+            H[0], H[-1] = (
+                H[0] + h.values(flow=True)[0, 1:-1],  # type: ignore[call-arg]
+                H[-1] + h.values(flow=True)[-1, 1:-1],  # type: ignore[call-arg]
+            )
+            H[:, 0], H[:, -1] = (
+                H[:, 0] + h.values(flow=True)[1:-1, 0],  # type: ignore[call-arg]
+                H[:, -1] + h.values(flow=True)[1:-1, -1],  # type: ignore[call-arg]
+            )
+            # Sum corners to corners
+            H[0, 0], H[-1, -1], H[0, -1], H[-1, 0] = (
+                h.values(flow=True)[0, 0] + H[0, 0],  # type: ignore[call-arg]
+                h.values(flow=True)[-1, -1] + H[-1, -1],  # type: ignore[call-arg]
+                h.values(flow=True)[0, -1] + H[0, -1],  # type: ignore[call-arg]
+                h.values(flow=True)[-1, 0] + H[-1, 0],  # type: ignore[call-arg]
+            )
+        except TypeError as error:
+            if "got an unexpected keyword argument 'flow'" in str(error):
+                msg = (
+                    f"The histograms value method {h!r} does not take a 'flow' argument. UHI Plottable doesn't require this to have, but it is required for this function."
+                    f" Implementations like hist/boost-histogram support this argument."
+                )
+                raise TypeError(msg) from error
     xbin_centers = xbins[1:] - np.diff(xbins) / float(2)
     ybin_centers = ybins[1:] - np.diff(ybins) / float(2)
 
@@ -744,11 +807,20 @@ def hist2dplot(
     H = H.T
 
     if cmin is not None:
-        H[H < cmin] = None
+        H[cmin > H] = None
     if cmax is not None:
-        H[H > cmax] = None
+        H[cmax < H] = None
 
     X, Y = np.meshgrid(xbins, ybins)
+
+    if binwnorm is not None:
+        # No error treatment so we can just scale the values
+        H = H * binwnorm
+        # Make sure x_bin_width and y_bin_width align with H's dimensions
+        X_bin_widths, Y_bin_widths = np.meshgrid(np.diff(xbins), np.diff(ybins))
+        # Calculate the bin area array, which aligns with the shape of H
+        bin_area = X_bin_widths * Y_bin_widths
+        H = H / bin_area
 
     kwargs.setdefault("shading", "flat")
     pc = ax.pcolormesh(X, Y, H, vmin=cmin, vmax=cmax, **kwargs)
@@ -758,8 +830,8 @@ def hist2dplot(
     if y_axes_label:
         ax.set_ylabel(y_axes_label)
 
-    ax.set_xlim(xbins[0], xbins[-1])
-    ax.set_ylim(ybins[0], ybins[-1])
+    ax.set_xlim(xbins[0], xbins[-1])  # type: ignore[arg-type]
+    ax.set_ylim(ybins[0], ybins[-1])  # type: ignore[arg-type]
 
     if xtick_labels is None:  # Ordered axis
         if len(ax.get_xticks()) > len(xbins) * 0.7:
@@ -783,76 +855,99 @@ def hist2dplot(
         cb_obj = None
 
     plt.sca(ax)
-    if flow == "hint" or flow == "show":
-        d = 0.9  # proportion of vertical to horizontal extent of the slanted line
-        trans = mpl.transforms.blended_transform_factory(ax.transData, ax.transAxes)
-        ax_h = ax.bbox.height
-        kwargs = dict(
-            marker=[(-0.5, -d), (0.5, d)],
-            markersize=ax_h * 0.05,
-            linestyle="none",
-            color="k",
-            mec="k",
-            mew=1,
-            clip_on=False,
+    if flow == "show":
+        if hint_xlo:
+            ax.plot(
+                [xbins[1]] * 2,
+                [0, 1],
+                ls="--",
+                color="lightgrey",
+                clip_on=False,
+                transform=ax.get_xaxis_transform(),
+            )
+        if hint_xhi:
+            ax.plot(
+                [xbins[-2]] * 2,
+                [0, 1],
+                ls="--",
+                color="lightgrey",
+                clip_on=False,
+                transform=ax.get_xaxis_transform(),
+            )
+        if hint_ylo:
+            ax.plot(
+                [0, 1],
+                [ybins[1]] * 2,
+                ls="--",
+                color="lightgrey",
+                clip_on=False,
+                transform=ax.get_yaxis_transform(),
+            )
+        if hint_yhi:
+            ax.plot(
+                [0, 1],
+                [ybins[-2]] * 2,
+                ls="--",
+                color="lightgrey",
+                clip_on=False,
+                transform=ax.get_yaxis_transform(),
+            )
+    elif flow == "hint":
+        if (fig := ax.figure) is None:
+            msg = "No figure found."
+            raise ValueError(msg)
+        _marker_size = (
+            30
+            * ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width
         )
-        if any(h.values(flow=True)[0] > 0):
-            if flow == "hint":
-                ax.plot(
-                    [
-                        xbins[0] - np.diff(xbins)[0] * len(np.diff(xbins)) * 0.03,
-                        xbins[0],
-                    ],
-                    [0, 0],
-                    transform=trans,
-                    **kwargs,
-                )
-            if flow == "show":
-                ax.plot([xbins[1], xbins[2]], [0, 0], transform=trans, **kwargs)
-                ax.plot([xbins[0], xbins[0]], [ybins[1], ybins[2]], **kwargs)
-        if any(h.values(flow=True)[:, 0] > 0):
-            if flow == "hint":
-                ax.plot(
-                    [
-                        xbins[-1] + np.diff(xbins)[-1] * len(np.diff(xbins)) * 0.03,
-                        xbins[-1],
-                    ],
-                    [0, 0],
-                    transform=trans,
-                    **kwargs,
-                )
-            if flow == "show":
-                ax.plot([xbins[-3], xbins[-2]], [0, 0], transform=trans, **kwargs)
-                ax.plot([xbins[-1], xbins[-1]], [ybins[1], ybins[2]], **kwargs)
-        if any(h.values(flow=True)[-1] > 0):
-            if flow == "hint":
-                ax.plot(
-                    [
-                        xbins[0],
-                        xbins[0] - np.diff(xbins)[0] * len(np.diff(xbins)) * 0.03,
-                    ],
-                    [1, 1],
-                    transform=trans,
-                    **kwargs,
-                )
-            if flow == "show":
-                ax.plot([xbins[1], xbins[2]], [1, 1], transform=trans, **kwargs)
-                ax.plot([xbins[0], xbins[0]], [ybins[-3], ybins[-2]], **kwargs)
-
-        if any(h.values(flow=True)[:, -1] > 0):
-            if flow == "hint":
-                ax.plot(
-                    [
-                        xbins[-1] + np.diff(xbins)[-1] * len(np.diff(xbins)) * 0.03,
-                        xbins[-1],
-                    ],
-                    [1, 1],
-                    transform=trans,
-                    **kwargs,
-                )
-            if flow == "show":
-                ax.plot([xbins[-3], xbins[-2]], [1, 1], transform=trans, **kwargs)
-                ax.plot([xbins[-1], xbins[-1]], [ybins[-3], ybins[-2]], **kwargs)
+        if hint_xlo:
+            ax.scatter(
+                0,
+                0,
+                _marker_size,
+                marker=align_marker("<", halign="right", valign="bottom"),
+                edgecolor="black",
+                zorder=5,
+                clip_on=False,
+                facecolor="white",
+                transform=ax.transAxes,
+            )
+        if hint_xhi:
+            ax.scatter(
+                1,
+                0,
+                _marker_size,
+                marker=align_marker(">", halign="left"),
+                edgecolor="black",
+                zorder=5,
+                clip_on=False,
+                facecolor="white",
+                transform=ax.transAxes,
+            )
+        if hint_ylo:
+            ax.scatter(
+                0,
+                0,
+                _marker_size,
+                marker=align_marker("v", valign="top", halign="left"),
+                edgecolor="black",
+                zorder=5,
+                clip_on=False,
+                facecolor="white",
+                transform=ax.transAxes,
+            )
+        if hint_yhi:
+            ax.scatter(
+                0,
+                1,
+                _marker_size,
+                marker=align_marker("^", valign="bottom"),
+                edgecolor="black",
+                zorder=5,
+                clip_on=False,
+                facecolor="white",
+                transform=ax.transAxes,
+            )
 
     _labels: np.ndarray | None = None
     if isinstance(labels, bool):
@@ -862,26 +957,29 @@ def hist2dplot(
         if H.shape == label_array.shape:
             _labels = label_array
         else:
-            raise ValueError(
-                f"Labels input has incorrect shape (expect: {H.shape}, got: {label_array.shape})"
-            )
+            msg = f"Labels input has incorrect shape (expect: {H.shape}, got: {label_array.shape})"
+            raise ValueError(msg)
     elif labels is not None:
-        raise ValueError(
-            "Labels not understood, either specify a bool or a Hist-like array"
-        )
+        msg = "Labels not understood, either specify a bool or a Hist-like array"
+        raise ValueError(msg)
 
     text_artists = []
     if _labels is not None:
+        if (pccmap := pc.cmap) is None:
+            msg = "No colormap found."
+            raise ValueError(msg)
         for ix, xc in enumerate(xbin_centers):
             for iy, yc in enumerate(ybin_centers):
-                color = (
-                    "black"
-                    if isLight(pc.cmap(pc.norm(H[iy, ix]))[:-1])
-                    else "lightgrey"
-                )
+                normedh = pc.norm(H[iy, ix])
+                color = "black" if isLight(pccmap(normedh)[:-1]) else "lightgrey"
                 text_artists.append(
                     ax.text(
-                        xc, yc, _labels[iy, ix], ha="center", va="center", color=color
+                        xc,
+                        yc,
+                        _labels[iy, ix],  # type: ignore[arg-type]
+                        ha="center",
+                        va="center",
+                        color=color,
                     )
                 )
 
@@ -896,6 +994,7 @@ def overlap(ax, bbox, get_vertices=False):
     """
     from matplotlib.lines import Line2D
     from matplotlib.patches import Patch, Rectangle
+    from matplotlib.text import Text
 
     # From
     # https://github.com/matplotlib/matplotlib/blob/08008d5cb4d1f27692e9aead9a76396adc8f0b19/lib/matplotlib/legend.py#L845
@@ -911,13 +1010,17 @@ def overlap(ax, bbox, get_vertices=False):
 
     for handle in ax.patches:
         assert isinstance(handle, Patch)
-
         if isinstance(handle, Rectangle):
             transform = handle.get_data_transform()
             bboxes.append(handle.get_bbox().transformed(transform))
         else:
-            transform = handle.get_transform()
-            bboxes.append(handle.get_path().get_extents(transform))
+            if len(handle.get_path().vertices) == 0:
+                continue
+            lines.append(handle.get_path().interpolated(20))
+
+    for handle in ax.texts:
+        assert isinstance(handle, Text)
+        bboxes.append(handle.get_window_extent())
 
     # TODO Possibly other objects
 
@@ -928,8 +1031,7 @@ def overlap(ax, bbox, get_vertices=False):
 
     if get_vertices:
         return overlap, vertices
-    else:
-        return overlap
+    return overlap
 
 
 def _draw_leg_bbox(ax):
@@ -938,6 +1040,10 @@ def _draw_leg_bbox(ax):
     """
     fig = ax.figure
     leg = ax.get_legend()
+    if leg is None:
+        leg = next(
+            c for c in ax.get_children() if isinstance(c, plt.matplotlib.legend.Legend)
+        )
 
     fig.canvas.draw()
     return leg.get_frame().get_bbox()
@@ -949,8 +1055,9 @@ def _draw_text_bbox(ax):
     """
     fig = ax.figure
     textboxes = [k for k in ax.get_children() if isinstance(k, AnchoredText)]
+    fig.canvas.draw()
     if len(textboxes) > 1:
-        print("Warning: More than one textbox found")
+        logging.warning("More than one textbox found")
         for box in textboxes:
             if box.loc in [1, 2]:
                 bbox = box.get_tightbbox(fig.canvas.renderer)
@@ -960,37 +1067,116 @@ def _draw_text_bbox(ax):
     return bbox
 
 
-def yscale_legend(ax=None):
+def yscale_legend(
+    ax: mpl.axes.Axes | None = None,
+    otol: float | None = None,
+    soft_fail: bool = False,
+) -> mpl.axes.Axes:
     """
-    Automatically scale y-axis up to fit in legend()
+    Automatically scale y-axis up to fit in legend().
+
+    Parameters
+    ----------
+        ax : matplotlib.axes.Axes, optional
+            Axes object (if None, last one is fetched or one is created)
+        otol : float, optional
+            Tolerance for overlap, default 0. Set ``otol > 0`` for less strict scaling.
+        soft_fail : bool, optional
+            Set ``soft_fail=True`` to return even if it could not fit the legend.
+
+    Returns
+    -------
+        ax : matplotlib.axes.Axes
     """
     if ax is None:
         ax = plt.gca()
+    if otol is None:
+        otol = 0
 
     scale_factor = 10 ** (1.05) if ax.get_yscale() == "log" else 1.05
-    while overlap(ax, _draw_leg_bbox(ax)) > 0:
+    max_scales = 0
+    while overlap(ax, _draw_leg_bbox(ax)) > otol:
+        logging.debug(
+            f"Legend overlap with other artists is {overlap(ax, _draw_leg_bbox(ax))}."
+        )
+        logging.info("Scaling y-axis by 5% to fit legend")
         ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[-1] * scale_factor)
-        ax.figure.canvas.draw()
+        if (fig := ax.figure) is None:
+            msg = "Could not fetch figure, maybe no plot is drawn yet?"
+            raise RuntimeError(msg)
+        fig.canvas.draw()
+        if max_scales > 10:
+            if not soft_fail:
+                msg = "Could not fit legend in 10 iterations, return anyway by passing `soft_fail=True`."
+                raise RuntimeError(msg)
+            logging.warning("Could not fit legend in 10 iterations")
+            break
+        max_scales += 1
     return ax
 
 
-def yscale_text(ax=None):
+def yscale_anchored_text(
+    ax: mpl.axes.Axes | None = None,
+    otol: float | None = None,
+    soft_fail: bool = False,
+) -> mpl.axes.Axes:
     """
     Automatically scale y-axis up to fit AnchoredText
+
+    Parameters
+    ----------
+        ax : matplotlib.axes.Axes, optional
+            Axes object (if None, last one is fetched or one is created)
+        otol : float, optional
+            Tolerance for overlap, default 0. Set ``otol > 0`` for less strict scaling.
+        soft_fail : bool, optional
+            Set ``soft_fail=True`` to return even if it could not fit the legend.
+
+    Returns
+    -------
+        ax : matplotlib.axes.Axes
     """
     if ax is None:
         ax = plt.gca()
+    if otol is None:
+        otol = 0
 
-    while overlap(ax, _draw_text_bbox(ax)) > 0:
-        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[-1] * 1.1)
-        ax.figure.canvas.draw()
+    scale_factor = 10 ** (1.05) if ax.get_yscale() == "log" else 1.05
+    max_scales = 0
+    while overlap(ax, _draw_text_bbox(ax)) > otol:
+        logging.debug(
+            f"AnchoredText overlap with other artists is {overlap(ax, _draw_text_bbox(ax))}."
+        )
+        logging.info("Scaling y-axis by 5% to fit legend")
+        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[-1] * scale_factor)
+        if (fig := ax.figure) is None:
+            msg = "Could not fetch figure, maybe no plot is drawn yet?"
+            raise RuntimeError(msg)
+        fig.canvas.draw()
+        if max_scales > 10:
+            if not soft_fail:
+                msg = "Could not fit AnchoredText in 10 iterations, return anyway by passing `soft_fail=True`."
+                raise RuntimeError(msg)
+            logging.warning("Could not fit AnchoredText in 10 iterations")
+            break
+        max_scales += 1
     return ax
 
 
-def ylow(ax=None, ylow=None):
+def ylow(ax: mpl.axes.Axes | None = None, ylow: float | None = None) -> mpl.axes.Axes:
     """
-    Set lower y limit to 0 if not data/errors go lower.
-    Or set a specific value
+    Set lower y limit to 0 or a specific value if not data/errors go lower.
+
+    Parameters
+    ----------
+        ax : matplotlib.axes.Axes, optional
+            Axes object (if None, last one is fetched or one is created)
+        ylow : float, optional
+            Set lower y limit to a specific value.
+
+    Returns
+    -------
+        ax : matplotlib.axes.Axes
     """
     if ax is None:
         ax = plt.gca()
@@ -1023,14 +1209,12 @@ def mpl_magic(ax=None, info=True):
     """
     if ax is None:
         ax = plt.gca()
-    if not info:
-        print("Running ROOT/CMS style adjustments (hide with info=False):")
+    if info:
+        pass
 
     ax = ylow(ax)
     ax = yscale_legend(ax)
-    ax = yscale_text(ax)
-
-    return ax
+    return yscale_anchored_text(ax)
 
 
 ########################################
@@ -1099,8 +1283,8 @@ def make_square_add_cbar(ax, size=0.4, pad=0.1):
 
     cax = divider.append_axes("right", size=margin_size, pad=pad_size)
 
-    divider.set_horizontal([RemainderFixed(xsizes, ysizes, divider)] + xsizes)
-    divider.set_vertical([RemainderFixed(xsizes, ysizes, divider)] + ysizes)
+    divider.set_horizontal([RemainderFixed(xsizes, ysizes, divider), *xsizes])
+    divider.set_vertical([RemainderFixed(xsizes, ysizes, divider), *ysizes])
     return cax
 
 
@@ -1130,7 +1314,7 @@ def append_axes(ax, size=0.1, pad=0.1, position="right", extend=False):
     pad_size = axes_size.Fixed(pad)
     xsizes = [pad_size, margin_size]
     if position in ["top", "bottom"]:
-        xsizes = xsizes[::-1]
+        xsizes.reverse()
     yhax = divider.append_axes(position, size=margin_size, pad=pad_size)
 
     if extend:
@@ -1142,7 +1326,7 @@ def append_axes(ax, size=0.1, pad=0.1, position="right", extend=False):
             return new_size / orig_size
 
         if position in ["right"]:
-            divider.set_horizontal([axes_size.Fixed(width)] + xsizes)
+            divider.set_horizontal([axes_size.Fixed(width), *xsizes])
             fig.set_size_inches(
                 fig.get_size_inches()[0] * extend_ratio(ax, yhax)[0],
                 fig.get_size_inches()[1],
@@ -1161,7 +1345,7 @@ def append_axes(ax, size=0.1, pad=0.1, position="right", extend=False):
             )
             ax.get_shared_x_axes().join(ax, yhax)
         elif position in ["bottom"]:
-            divider.set_vertical(xsizes + [axes_size.Fixed(height)])
+            divider.set_vertical([*xsizes, axes_size.Fixed(height)])
             fig.set_size_inches(
                 fig.get_size_inches()[0],
                 fig.get_size_inches()[1] * extend_ratio(ax, yhax)[1],
@@ -1205,10 +1389,36 @@ def sort_legend(ax, order=None):
     elif order is None:
         ordered_label_list = labels
     else:
-        raise TypeError(f"Unexpected values type of order: {type(order)}")
+        msg = f"Unexpected values type of order: {type(order)}"
+        raise TypeError(msg)
 
     ordered_label_list = [entry for entry in ordered_label_list if entry in labels]
     ordered_label_values = [by_label[k] for k in ordered_label_list]
     if isinstance(order, OrderedDict):
         ordered_label_list = [order[k] for k in ordered_label_list]
     return ordered_label_values, ordered_label_list
+
+
+def merge_legend_handles_labels(handles, labels):
+    """
+    Merge handles for identical labels.
+    This is useful when combining multiple plot functions into a single label.
+
+    handles : List of handles
+    labels : List of labels
+    """
+
+    seen_labels = []
+    seen_label_handles = []
+    for handle, label in zip(handles, labels):
+        if label not in seen_labels:
+            seen_labels.append(label)
+            seen_label_handles.append([handle])
+        else:
+            idx = seen_labels.index(label)
+            seen_label_handles[idx].append(handle)
+
+    for i in range(len(seen_labels)):
+        seen_label_handles[i] = tuple(seen_label_handles[i])
+
+    return seen_label_handles, seen_labels

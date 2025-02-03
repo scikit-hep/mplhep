@@ -22,11 +22,9 @@ from functools import reduce
 # Add mplhep to path for sphinx-automodapi
 sys.path.insert(0, os.path.abspath("../../src"))
 
-import mplhep  # noqa: E402
+from pathlib import Path
 
-print("sys.path:", sys.path)
-print("mplhep version:", mplhep.__version__)
-
+import mplhep
 
 # -- Project information -----------------------------------------------------
 
@@ -39,7 +37,6 @@ version = mplhep.__version__.rsplit(".", 1)[0]
 release = mplhep.__version__
 githash = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip().decode("ascii")
 
-
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -51,14 +48,16 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
+    "jupyter_sphinx",
     "sphinx.ext.linkcode",
     "sphinx.ext.napoleon",  # Google and NumPy format docstrings
     # 'sphinx.ext.automodapi',
-    "sphinx_rtd_theme",
 ]
 
 numpydoc_show_class_members = False
-nbsphinx_execute = "never"
+nb_execution_mode = "cache"
+nb_execution_raise_on_error = True
+nb_execution_show_tb = True
 
 
 def linkcode_resolve(domain, info):
@@ -69,9 +68,10 @@ def linkcode_resolve(domain, info):
     mod = importlib.import_module(info["module"])
     modpath = [p for p in sys.path if mod.__file__.startswith(p)]
     if len(modpath) < 1:
-        raise RuntimeError("Cannot deduce module path")
+        msg = "Cannot deduce module path"
+        raise RuntimeError(msg)
     modpath = modpath[0]
-    obj = reduce(getattr, [mod] + info["fullname"].split("."))
+    obj = reduce(getattr, [mod, *info["fullname"].split(".")])
     try:
         path = inspect.getsourcefile(obj)
         relpath = path[len(modpath) + 1 :]
@@ -79,18 +79,18 @@ def linkcode_resolve(domain, info):
     except TypeError:
         # skip property or other type that inspect doesn't like
         return None
-    return "http://github.com/scikit-hep/mplhep/blob/{}/{}#L{}".format(
-        githash, relpath, lineno
-    )
+    return f"http://github.com/scikit-hep/mplhep/blob/{githash}/{relpath}#L{lineno}"
 
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
+    "matplotlib": ("https://matplotlib.org/stable/", None),
+    "pandas": ("https://pandas.pydata.org/docs/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
 }
 
 # The master toctree document.
 master_doc = "index"
-
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -100,34 +100,36 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
-
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-# html_theme = 'alabaster'
-html_theme = "sphinx_rtd_theme"
 
-html_logo = "_static/mplhep.png"
+html_theme = "pydata_sphinx_theme"
+here = Path(__file__).parent
+staticfolder = here / "_static"
 
 html_theme_options = {
-    "canonical_url": "",
-    "analytics_id": "UA-XXXXXXX-1",  # Provided by Google in your dashboard
-    "logo_only": False,
-    "display_version": True,
-    "prev_next_buttons_location": "bottom",
-    "style_external_links": False,
-    "style_nav_header_background": "white",
+    "logo": {
+        "image_light": str(staticfolder / "mplhep.png"),
+        "image_dark": str(staticfolder / "mplhep.png"),
+    },
+    "use_edit_page_button": True,
+    # "analytics_id": "UA-XXXXXXX-1",  # Provided by Google in your dashboard
     # Toc options
     "collapse_navigation": False,
-    "sticky_navigation": True,
     "navigation_depth": 4,
-    "includehidden": True,
-    "titles_only": False,
 }
 
+html_context = {
+    "github_user": "scikit-hep",
+    "github_repo": "mplhep",
+    "github_version": "master",
+    "doc_path": "docs",
+}
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
+
 html_static_path = ["_static"]

@@ -18,13 +18,16 @@ from .plot import (
     hist2dplot,
     histplot,
     make_square_add_cbar,
+    merge_legend_handles_labels,
     mpl_magic,
     rescale_to_axessize,
     sort_legend,
     ylow,
+    yscale_anchored_text,
     yscale_legend,
 )
 from .styles import set_style
+from .utils import get_plottables
 
 # Configs
 rcParams = Config(
@@ -64,12 +67,15 @@ __all__ = [
     "hist2dplot",
     "mpl_magic",
     "yscale_legend",
+    "yscale_anchored_text",
     "ylow",
     "rescale_to_axessize",
     "box_aspect",
     "make_square_add_cbar",
+    "merge_legend_handles_labels",
     "append_axes",
     "sort_legend",
     "save_variations",
     "set_style",
+    "get_plottables",
 ]

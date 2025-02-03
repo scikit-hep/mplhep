@@ -1,15 +1,24 @@
 from __future__ import annotations
 
 import os
+import re
 
 import hist
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
 os.environ["RUNNING_PYTEST"] = "true"
 
-import mplhep as hep  # noqa: E402
+try:
+    # NumPy 2
+    from numpy.char import chararray
+except ModuleNotFoundError:
+    # NumPy 1
+    from numpy import chararray
+
+import mplhep as hep
 
 """
 To test run:
@@ -51,6 +60,26 @@ def test_simple2d():
     return fig
 
 
+@pytest.mark.skipif(
+    (int(mpl.__version__.split(".")[0]), int(mpl.__version__.split(".")[1])) >= (3, 10),
+    reason="Change in mpl behaviour since 3.10",
+)
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_log_mpl39():
+    fig, axs = plt.subplots(2, 2, figsize=(10, 10))
+    for ax in axs[0]:
+        hep.histplot([1, 2, 3, 2], range(5), ax=ax)
+    ax.semilogy()
+    for ax in axs[1]:
+        hep.histplot([1, 2, 3, 2], range(5), ax=ax, edges=False)
+    ax.semilogy()
+    return fig
+
+
+@pytest.mark.skipif(
+    (int(mpl.__version__.split(".")[0]), int(mpl.__version__.split(".")[1])) < (3, 10),
+    reason="Change in mpl behaviour since 3.10",
+)
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_log():
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
@@ -142,26 +171,29 @@ def test_histplot_flow():
     return fig
 
 
+@pytest.mark.parametrize("variances", [True, False], ids=["variances", "no_variances"])
 @pytest.mark.mpl_image_compare(style="default")
-def test_histplot_hist_flow():
+def test_histplot_hist_flow(variances):
     np.random.seed(0)
     entries = np.random.normal(10, 3, 400)
-    h = hist.new.Reg(20, 5, 15, name="x", flow=True).Weight()
-    h2 = hist.new.Reg(20, 5, 15, name="x", underflow=True, overflow=False).Weight()
-    h3 = hist.new.Reg(20, 5, 15, name="x", underflow=False, overflow=True).Weight()
-    h4 = hist.new.Reg(20, 5, 15, name="x", flow=False).Weight()
+    hist_constr = [
+        hist.new.Reg(20, 5, 15, name="x", flow=True),
+        hist.new.Reg(20, 5, 15, name="x", underflow=True, overflow=False),
+        hist.new.Reg(20, 5, 15, name="x", underflow=False, overflow=True),
+        hist.new.Reg(20, 5, 15, name="x", flow=False),
+    ]
+    if variances:
+        hists = [h.Weight() for h in hist_constr]
+    else:
+        hists = [h.Double() for h in hist_constr]
+    for h in hists:
+        h.fill(entries, weight=np.ones_like(entries))
 
-    h.fill(entries)
-    h2.fill(entries)
-    h3.fill(entries)
-    h4.fill(entries)
     fig, axs = plt.subplots(2, 2, sharey=True, figsize=(10, 10))
     axs = axs.flatten()
 
-    hep.histplot(h, ax=axs[0], flow="show")
-    hep.histplot(h2, ax=axs[1], flow="show")
-    hep.histplot(h3, ax=axs[2], flow="show")
-    hep.histplot(h4, ax=axs[3], flow="show")
+    for i, h in enumerate(hists):
+        hep.histplot(h, ax=axs[i], flow="show", yerr=variances)
 
     axs[0].set_title("Two-side overflow", fontsize=18)
     axs[1].set_title("Left-side overflow", fontsize=18)
@@ -187,17 +219,17 @@ def test_histplot_uproot_flow():
     h4.fill(entries[(entries > 5) & (entries < 15)])
     import uproot
 
-    f = uproot.recreate("flow_th1.root")
-    f["h"] = h
-    f["h2"] = h2
-    f["h3"] = h3
-    f["h4"] = h4
+    with uproot.recreate("flow_th1.root") as f:
+        f["h"] = h
+        f["h2"] = h2
+        f["h3"] = h3
+        f["h4"] = h4
 
-    f = uproot.open("flow_th1.root")
-    h = f["h"]
-    h2 = f["h2"]
-    h3 = f["h3"]
-    h4 = f["h4"]
+    with uproot.open("flow_th1.root") as f:
+        h = f["h"]
+        h2 = f["h2"]
+        h3 = f["h3"]
+        h4 = f["h4"]
 
     fig, axs = plt.subplots(2, 2, sharey=True, figsize=(10, 10))
     axs = axs.flatten()
@@ -233,6 +265,62 @@ def test_histplot_type_flow():
 
     axs[0].set_title("hist, noflow bin", fontsize=18)
     axs[1].set_title("numpy hist", fontsize=18)
+    return fig
+
+
+@pytest.mark.mpl_image_compare(style="default")
+def test_hist2dplot_hist_all_flow_show():
+    flow_opts = []
+    for ufl1 in [True, False]:
+        for ofl1 in [True, False]:
+            for ufl2 in [True, False]:
+                for ofl2 in [True, False]:
+                    flow_opts.append([ufl1, ofl1, ufl2, ofl2])
+
+    np.random.seed(0)
+    _fill = np.random.normal(2.5, 2, 10000).reshape(-1, 2).T
+    fig, axs = plt.subplots(4, 4)
+    axs = axs.flatten()
+    for i, opt in enumerate(flow_opts):
+        h = (
+            hist.new.Reg(5, 0, 5, overflow=opt[0], underflow=opt[1])
+            .Reg(5, 0, 5, overflow=opt[2], underflow=opt[3])
+            .Weight()
+            .fill(*_fill)
+        )
+        hep.hist2dplot(h, ax=axs[i], flow="show", cbar=False)
+        axs[i].set_xticks([])
+        axs[i].set_yticks([])
+        axs[i].set_xlabel("")
+        axs[i].set_ylabel("")
+    return fig
+
+
+@pytest.mark.mpl_image_compare(style="default")
+def test_hist2dplot_hist_all_flow_hint():
+    flow_opts = []
+    for ufl1 in [True, False]:
+        for ofl1 in [True, False]:
+            for ufl2 in [True, False]:
+                for ofl2 in [True, False]:
+                    flow_opts.append([ufl1, ofl1, ufl2, ofl2])
+
+    np.random.seed(0)
+    _fill = np.random.normal(2.5, 2, 10000).reshape(-1, 2).T
+    fig, axs = plt.subplots(4, 4)
+    axs = axs.flatten()
+    for i, opt in enumerate(flow_opts):
+        h = (
+            hist.new.Reg(5, 0, 5, overflow=opt[0], underflow=opt[1])
+            .Reg(5, 0, 5, overflow=opt[2], underflow=opt[3])
+            .Weight()
+            .fill(*_fill)
+        )
+        hep.hist2dplot(h, ax=axs[i], flow="hint", cbar=False)
+        axs[i].set_xticks([])
+        axs[i].set_yticks([])
+        axs[i].set_xlabel("")
+        axs[i].set_ylabel("")
     return fig
 
 
@@ -404,18 +492,26 @@ def test_hist2dplot_labels_option():
 
     assert hep.hist2dplot(H, xedges, yedges, labels=False)
 
-    label_array = np.chararray(H.shape, itemsize=2)
+    label_array = chararray(H.shape, itemsize=2)
     label_array[:] = "hi"
     assert hep.hist2dplot(H, xedges, yedges, labels=label_array)
 
-    label_array = np.chararray(H.shape[0], itemsize=2)
+    label_array = chararray(H.shape[0], itemsize=2)
     label_array[:] = "hi"
     # Label array shape invalid
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError,
+        match=re.escape("Labels input has incorrect shape (expect: (5, 7), got: (7,))"),
+    ):
         hep.hist2dplot(H, xedges, yedges, labels=label_array)
 
     # Invalid label type
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "Labels not understood, either specify a bool or a Hist-like array"
+        ),
+    ):
         hep.hist2dplot(H, xedges, yedges, labels=5)
 
 
@@ -540,12 +636,61 @@ def test_histplot_w2():
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_histplot_types():
     hs, bins = [[2, 3, 4], [5, 4, 3]], [0, 1, 2, 3]
-    fig, axs = plt.subplots(3, 2, figsize=(8, 12))
+    fig, axs = plt.subplots(5, 2, figsize=(8, 16))
     axs = axs.flatten()
 
-    for i, htype in enumerate(["step", "fill", "errorbar"]):
+    for i, htype in enumerate(["step", "fill", "errorbar", "bar", "barstep"]):
         hep.histplot(hs[0], bins, yerr=True, histtype=htype, ax=axs[i * 2], alpha=0.7)
         hep.histplot(hs, bins, yerr=True, histtype=htype, ax=axs[i * 2 + 1], alpha=0.7)
+
+    return fig
+
+
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_histplot_bar():
+    bins = list(range(6))
+    h1 = [1, 2, 3, 2, 1]
+    h2 = [2, 2, 2, 2, 2]
+    h3 = [2, 1, 2, 1, 2]
+    h4 = [3, 1, 2, 1, 3]
+
+    fig, axs = plt.subplots(2, 2, sharex=True, sharey=True, figsize=(10, 10))
+    axs = axs.flatten()
+
+    axs[0].set_title("Histype bar", fontsize=18)
+    hep.histplot(
+        [h1, h2, h3, h4],
+        bins,
+        histtype="bar",
+        label=["h1", "h2", "h3", "h4"],
+        ax=axs[0],
+    )
+    axs[0].legend()
+
+    axs[1].set_title("Histtype barstep", fontsize=18)
+    hep.histplot(
+        [h1, h2, h3],
+        bins,
+        histtype="barstep",
+        yerr=False,
+        label=["h1", "h2", "h3"],
+        ax=axs[1],
+    )
+    axs[1].legend()
+
+    axs[2].set_title("Histtype barstep", fontsize=18)
+    hep.histplot(
+        [h1, h2], bins, histtype="barstep", yerr=True, label=["h1", "h2"], ax=axs[2]
+    )
+    axs[2].legend()
+
+    axs[3].set_title("Histype bar", fontsize=18)
+    hep.histplot(
+        [h1, h2], bins, histtype="bar", label=["h1", "h2"], bin_width=0.2, ax=axs[3]
+    )
+    axs[3].legend()
+
+    fig.subplots_adjust(wspace=0.1)
 
     return fig
 

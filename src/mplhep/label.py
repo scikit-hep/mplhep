@@ -11,25 +11,17 @@ from matplotlib import rcParams
 
 class ExpText(mtext.Text):
     def __repr__(self):
-        return "exptext: Custom Text({}, {}, {})".format(
-            self._x, self._y, repr(self._text)
-        )
+        return f"exptext: Custom Text({self._x}, {self._y}, {self._text!r})"
 
 
 class ExpSuffix(mtext.Text):
     def __repr__(self):
-        return "expsuffix: Custom Text({}, {}, {})".format(
-            self._x,
-            self._y,
-            repr(self._text),
-        )
+        return f"expsuffix: Custom Text({self._x}, {self._y}, {self._text!r})"
 
 
 class SuppText(mtext.Text):
     def __repr__(self):
-        return "supptext: Custom Text({}, {}, {})".format(
-            self._x, self._y, repr(self._text)
-        )
+        return f"supptext: Custom Text({self._x}, {self._y}, {self._text!r})"
 
 
 def exp_text(
@@ -46,6 +38,7 @@ def exp_text(
     pad=0,
 ):
     """Add typical LHC experiment primary label to the axes.
+
     Parameters
     ----------
         text : string, optional
@@ -104,13 +97,14 @@ def exp_text(
     }
 
     if loc not in [0, 1, 2, 3, 4]:
-        raise ValueError(
+        msg = (
             "loc must be in {0, 1, 2}:\n"
             "0 : Above axes, left aligned\n"
             "1 : Top left corner\n"
             "2 : Top left corner, multiline\n"
             "3 : Split EXP above axes, rest of label in top left corner\n"
         )
+        raise ValueError(msg)
 
     def pixel_to_axis(extent, ax=None):
         # Transform pixel bbox extends to axis fractions
@@ -133,12 +127,9 @@ def exp_text(
             abs(y1 - y) / dimy,
         )
 
-    if loc in [0, 3]:
-        _exp_loc = 0
-    else:
-        _exp_loc = 1
+    _exp_loc = 0 if loc in [0, 3] else 1
     _formater = ax.get_yaxis().get_major_formatter()
-    if type(mpl.ticker.ScalarFormatter()) == type(_formater) and _exp_loc == 0:
+    if isinstance(_formater, mpl.ticker.ScalarFormatter) and _exp_loc == 0:
         _sci_box = pixel_to_axis(
             ax.get_yaxis().offsetText.get_window_extent(ax.figure.canvas.get_renderer())
         )
@@ -192,7 +183,7 @@ def exp_text(
         transform=_t,
         ha="left",
         va=loc2_dict[loc]["va"],
-        fontsize=_font_size,
+        fontsize=_font_size * 1.2 if exp == "ATLAS" else _font_size,
         fontname=fontname,
         fontstyle="italic" if italic[1] else "normal",
     )
@@ -208,14 +199,7 @@ def exp_text(
             units="inches",
             fig=ax.figure,
         )
-    elif loc == 2:
-        _t = mtransforms.offset_copy(
-            expsuffix._transform,
-            y=-expsuffix.get_window_extent().height / _dpi,
-            units="inches",
-            fig=ax.figure,
-        )
-    elif loc == 3:
+    elif loc in (2, 3):
         _t = mtransforms.offset_copy(
             expsuffix._transform,
             y=-expsuffix.get_window_extent().height / _dpi,
@@ -250,6 +234,7 @@ def exp_text(
 def lumitext(text="", ax=None, fontname=None, fontsize=None):
     """Add typical LHC experiment top-right label. Usually used to indicate year
     or aggregate luminosity in the plot.
+
     Parameters
     ----------
         text : string, optional
@@ -261,6 +246,7 @@ def lumitext(text="", ax=None, fontname=None, fontsize=None):
             Name of font to be used.
         fontsize : string, optional
             Defines size of "secondary label". Experiment label is 1.3x larger.
+
     Returns
     -------
         ax : matplotlib.axes.Axes
@@ -311,6 +297,7 @@ def exp_label(
 ):
     """A convenience wrapper combining ``<exp>.text`` and ``lumitext`` providing for
     the most common use cases.
+
     Parameters
     ----------
         loc : int, optional
@@ -342,7 +329,7 @@ def exp_label(
         fontname : string, optional
             Name of font to be used.
         fontsize : string, optional
-            Defines size of "secondary label". Experiment label is 1.3x larger.
+            Defines size of the experiment label and the secondary label.
         exp_weight : string, optional
             Set fontweight of <exp> label. Default "bold".
         italic : (bool, bool, bool), optional
@@ -351,6 +338,7 @@ def exp_label(
             Additional padding from axes border in units of axes fraction size.
         exp : string
             Experiment name, unavailable in public ``<experiment>text()``.
+
     Returns
     -------
         ax : matplotlib.axes.Axes
@@ -363,18 +351,17 @@ def exp_label(
     # Right label
     if rlabel is not None:
         _lumi = rlabel
+    elif lumi is not None:
+        _lumi = r"{lumi}{year} ({com} TeV)".format(
+            lumi=lumi_format.format(lumi) + r" $\mathrm{fb^{-1}}$",
+            year=", " + str(year) if year is not None else "",
+            com=str(com) if com is not None else "13",
+        )
     else:
-        if lumi is not None:
-            _lumi = r"{lumi}{year} ({com} TeV)".format(
-                lumi=lumi_format.format(lumi) + r" $\mathrm{fb^{-1}}$",
-                year=", " + str(year) if year is not None else "",
-                com=str(com) if com is not None else "13",
-            )
-        else:
-            _lumi = "{year} ({com} TeV)".format(
-                year=str(year) if year is not None else "",
-                com=str(com) if com is not None else "13",
-            )
+        _lumi = "{year} ({com} TeV)".format(
+            year=str(year) if year is not None else "",
+            com=str(com) if com is not None else "13",
+        )
 
     if loc < 4:
         lumitext(text=_lumi, ax=ax, fontname=fontname, fontsize=fontsize)
@@ -409,6 +396,12 @@ def exp_label(
             units="inches",
             fig=ax.figure,
         )
+
+        if com is not None:
+            _com_label = r"\mathrm{" + str(com) + r"\ TeV}"
+        else:
+            _com_label = r"\mathrm{13\ TeV}"
+
         if lumi is not None:
             _lumi = r"{com}, {lumi}".format(
                 com=r"$\sqrt{s} = \mathrm{" + str(com) + r"\ TeV}$"
@@ -422,6 +415,7 @@ def exp_label(
                 if com is not None
                 else r"$\sqrt{s} = \mathrm{13\ TeV}$",
             )
+
         explumi = ExpSuffix(
             *exptext.get_position(),
             text=rlabel if rlabel is not None else _lumi,
@@ -520,7 +514,7 @@ def savelabels(
     if ax is None:
         ax = plt.gca()
 
-    label_base = [ch for ch in ax.get_children() if isinstance(ch, ExpSuffix)][0]
+    label_base = next(ch for ch in ax.get_children() if isinstance(ch, ExpSuffix))
     _sim = "Simulation" if "Simulation" in label_base.get_text() else ""
 
     for label_text, suffix in labels:
@@ -530,7 +524,7 @@ def savelabels(
             save_name = suffix
         else:
             if len(suffix) > 0:
-                suffix = "_" + suffix
+                suffix = "_" + suffix  # noqa: PLW2901
             if "." in fname:
                 save_name = f"{fname.split('.')[0]}{suffix}.{fname.split('.')[1]}"
             else:

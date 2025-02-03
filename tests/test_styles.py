@@ -9,7 +9,7 @@ from matplotlib.testing.decorators import check_figures_equal
 
 os.environ["RUNNING_PYTEST"] = "true"
 
-import mplhep as hep  # noqa: E402
+import mplhep as hep
 
 """
 To test run:
@@ -83,6 +83,15 @@ def test_style_lhcb2():
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+@pytest.mark.mpl_image_compare(style="default", remove_text=False)
+def test_style_plothist():
+    plt.rcParams.update(plt.rcParamsDefault)
+    plt.style.use(hep.style.PLOTHIST)
+    fig, ax = plt.subplots()
+    return fig
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @check_figures_equal(extensions=["pdf"])
 @pytest.mark.parametrize(
     "mplhep_style",
@@ -126,7 +135,7 @@ def test_use_style_LHCb_dep(fig_test, fig_ref):
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @check_figures_equal(extensions=["pdf"])
 @pytest.mark.parametrize(
-    "mplhep_style, str_alias",
+    ("mplhep_style", "str_alias"),
     [
         (hep.style.ALICE, "ALICE"),
         (hep.style.ATLAS, "ATLAS"),
@@ -153,7 +162,7 @@ def test_use_style_str_alias(fig_test, fig_ref, mplhep_style, str_alias):
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @check_figures_equal(extensions=["pdf"])
 @pytest.mark.parametrize(
-    "mplhep_style, str_alias",
+    ("mplhep_style", "str_alias"),
     [
         (hep.style.ALICE, "ALICE"),
         (hep.style.ATLAS, "ATLAS"),
@@ -180,7 +189,7 @@ def test_use_style_self_consistent(fig_test, fig_ref, mplhep_style, str_alias):
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @check_figures_equal(extensions=["pdf"])
 @pytest.mark.parametrize(
-    "mplhep_style, str_alias",
+    ("mplhep_style", "str_alias"),
     [
         (hep.style.ALICE, "ALICE"),
         (hep.style.ATLAS, "ATLAS"),

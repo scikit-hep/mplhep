@@ -9,7 +9,7 @@ import pytest
 os.environ["RUNNING_PYTEST"] = "true"
 
 
-@pytest.fixture()
+@pytest.fixture
 def common_kwargs(tmpdir):
     outputnb = tmpdir.join("output.ipynb")
     return {
