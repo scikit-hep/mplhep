@@ -13,8 +13,10 @@
 [![Supported Python versions](https://img.shields.io/pypi/pyversions/mplhep.svg)](https://pypi.org/project/mplhep/)
 
 [![Actions Status][actions-badge]][actions-link]
+
 [actions-badge]:            https://github.com/scikit-hep/mplhep/workflows/CI/badge.svg
 [actions-link]:             https://github.com/scikit-hep/mplhep/actions
+
 [![Build Status](https://travis-ci.org/scikit-hep/mplhep.svg?branch=master)](https://travis-ci.org/scikit-hep/mplhep)
 [![GitHub Actions Status: CI](https://github.com/scikit-hep/mplhep/workflows/CI/CD/badge.svg)](https://github.com/scikit-hep/mplhep/actions?query=workflow%3ACI%2FCD+branch%3Amaster)
 [![GitHub Actions Status: Publish](https://github.com/scikit-hep/mplhep/workflows/publish%20distributions/badge.svg)](https://github.com/scikit-hep/mplhep/actions?query=workflow%3A%22publish+distributions%22+branch%3Amaster)
