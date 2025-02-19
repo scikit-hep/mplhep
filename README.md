@@ -4,23 +4,17 @@
 
 [![DOI](https://zenodo.org/badge/184555939.svg)](https://zenodo.org/badge/latestdoi/184555939)
 [![Scikit-HEP][sk-badge]](https://scikit-hep.org/)
+[![Docs](https://readthedocs.org/projects/mplhep/badge/?version=latest)](https://mplhep.readthedocs.io/en/latest/?badge=latest)
 
 [sk-badge]: https://scikit-hep.org/assets/images/Scikit--HEP-Project-blue.svg
 
-[![Docs](https://readthedocs.org/projects/mplhep/badge/?version=latest)](https://mplhep.readthedocs.io/en/latest/?badge=latest)
+[![Actions Status][actions-badge]][actions-link]
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/scikit-hep/mplhep/main.svg)](https://results.pre-commit.ci/latest/github/scikit-hep/mplhep/main)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
+
 [![PyPI version](https://badge.fury.io/py/mplhep.svg)](https://badge.fury.io/py/mplhep)
 [![Conda-forge version](https://img.shields.io/conda/vn/conda-forge/mplhep.svg)](https://anaconda.org/conda-forge/mplhep)
 [![Supported Python versions](https://img.shields.io/pypi/pyversions/mplhep.svg)](https://pypi.org/project/mplhep/)
-
-[![Actions Status][actions-badge]][actions-link]
-
-[actions-badge]:            https://github.com/scikit-hep/mplhep/workflows/CI/badge.svg
-[actions-link]:             https://github.com/scikit-hep/mplhep/actions
-
-[![Build Status](https://travis-ci.org/scikit-hep/mplhep.svg?branch=master)](https://travis-ci.org/scikit-hep/mplhep)
-[![GitHub Actions Status: CI](https://github.com/scikit-hep/mplhep/workflows/CI/CD/badge.svg)](https://github.com/scikit-hep/mplhep/actions?query=workflow%3ACI%2FCD+branch%3Amaster)
-[![GitHub Actions Status: Publish](https://github.com/scikit-hep/mplhep/workflows/publish%20distributions/badge.svg)](https://github.com/scikit-hep/mplhep/actions?query=workflow%3A%22publish+distributions%22+branch%3Amaster)
-[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/scikit-hep/mplhep/master.svg)](https://results.pre-commit.ci/latest/github/scikit-hep/mplhep/master)
 
 [![PyPI download week](https://img.shields.io/pypi/dw/mplhep?label=downloads%20%28incl%20CI%29)](https://img.shields.io/pypi/dw/mplhep?label=downloads%20%28incl%20CI%29)
 
@@ -190,3 +184,9 @@ Updating list of citations and use cases of `mplhep` in publications:
 - [Search for the standard model Higgs boson decaying to charm quarks](https://cds.cern.ch/record/2682638), CMS Collaboration, 2019 (Fig 1)
 - [Search for long-lived particles decaying to eμν](https://arxiv.org/abs/2012.02696), LHCb Collaboration, 2020
 - [Measurement of the mass dependence of the transverse momentum of lepton pairs in Drell-Yan production in proton-proton collisions at √s = 13 TeV](http://arxiv.org/abs/2205.04897), CMS Collaboration, 2022 (Figs 3-)
+- And many others by now...
+
+
+
+[actions-badge]:            https://github.com/scikit-hep/mplhep/workflows/CI/badge.svg
+[actions-link]:             https://github.com/scikit-hep/mplhep/actions
