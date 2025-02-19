@@ -49,12 +49,13 @@ jobs:
       - name: Install package
         run: |
           uv pip install -e ".[all]"
+          uv pip install pytest-github-actions-annotate-failures
+          uv pip install pytest-xdist
           uv pip list
-          # python -m pip install --upgrade pip pytest-github-actions-annotate-failures
 
       - name: Test with pytest
         run: |
-          python -m pytest -r sa --mpl --mpl-results-path=pytest_results
+          python -m pytest -r sa --mpl --mpl-results-path=pytest_results -n 4
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v4
