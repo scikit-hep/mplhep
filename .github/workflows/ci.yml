@@ -27,13 +27,18 @@ jobs:
             python-version: "3.9"
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
         with:
+          version: "latest"
           python-version: ${{ matrix.python-version }}
-          allow-prereleases: true
+          enable-cache: true
+          cache-dependency-glob: "**/pyproject.toml"
+
+      - name: Requirements check
+        run: uv pip list
 
       - name: Install core fonts
         if: runner.os == 'Linux'
@@ -41,11 +46,11 @@ jobs:
           echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
           sudo apt-get install ttf-mscorefonts-installer
 
-      - name: Install dependencies
+      - name: Install package
         run: |
-          python -m pip install --upgrade pip pytest-github-actions-annotate-failures
-          python -m pip install -q --no-cache-dir -e .[all]
-          python -m pip list
+          uv pip install -e ".[all]"
+          uv pip list
+          # python -m pip install --upgrade pip pytest-github-actions-annotate-failures
 
       - name: Test with pytest
         run: |
