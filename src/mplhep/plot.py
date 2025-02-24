@@ -988,7 +988,9 @@ def hist2dplot(
                     ax.text(
                         xc,
                         yc,
-                        _labels[iy, ix].round(labels_round) if labels_round is not None else _labels[iy, ix],  # type: ignore[arg-type]
+                        _labels[iy, ix].round(labels_round)
+                        if labels_round is not None
+                        else _labels[iy, ix],  # type: ignore[arg-type]
                         ha="center",
                         va="center",
                         color=color,
