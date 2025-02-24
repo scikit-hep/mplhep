@@ -655,6 +655,9 @@ def hist2dplot(
     xbins=None,
     ybins=None,
     labels=None,
+    labels_fontsize=None,
+    labels_round=None,
+    labels_color=None,
     cbar: bool = True,
     cbarsize="7%",
     cbarpad=0.2,
@@ -686,6 +689,12 @@ def hist2dplot(
     labels : 2D array (H-like) or bool, default None, optional
         Array of per-bin labels to display. If ``True`` will
         display numerical values
+    labels_fontsize : float, optional, default None
+        Fontsize of labels.
+    labels_color : str, optional, default None
+        Color of labels. If not given, will be decided automatically.
+    labels_round : int, optional, default None
+        Round labels to given number of decimals
     cbar : bool, optional, default True
         Draw a colorbar. In contrast to mpl behaviors the cbar axes is
         appended in such a way that it doesn't modify the original axes
@@ -971,15 +980,19 @@ def hist2dplot(
         for ix, xc in enumerate(xbin_centers):
             for iy, yc in enumerate(ybin_centers):
                 normedh = pc.norm(H[iy, ix])
-                color = "black" if isLight(pccmap(normedh)[:-1]) else "lightgrey"
+                if labels_color is not None:
+                    color = labels_color
+                else:
+                    color = "black" if isLight(pccmap(normedh)[:-1]) else "lightgrey"
                 text_artists.append(
                     ax.text(
                         xc,
                         yc,
-                        _labels[iy, ix],  # type: ignore[arg-type]
+                        _labels[iy, ix].round(labels_round) if labels_round is not None else _labels[iy, ix],  # type: ignore[arg-type]
                         ha="center",
                         va="center",
                         color=color,
+                        fontsize=labels_fontsize,
                     )
                 )
 
