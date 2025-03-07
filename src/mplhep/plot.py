@@ -198,26 +198,13 @@ def histplot(
         else get_histogram_axes_title(hists[0].axes[0])
     )
 
-    plottables, flow_info = get_plottables(
-        hists,
-        bins=final_bins,
-        w2=w2,
-        w2method=w2method,
-        yerr=yerr,
-        stack=stack,
-        density=density,
-        binwnorm=binwnorm,
-        flow=flow,
-    )
-    flow_bins, underflow, overflow = flow_info
-
     _labels: list[str | None]
     if label is None:
-        _labels = [None] * len(plottables)
+        _labels = [None] * len(hists)
     elif isinstance(label, str):
-        _labels = [label] * len(plottables)
+        _labels = [label] * len(hists)
     elif not np.iterable(label):
-        _labels = [str(label)] * len(plottables)
+        _labels = [str(label)] * len(hists)
     else:
         _labels = [str(lab) for lab in label]
 
@@ -225,7 +212,7 @@ def histplot(
         return isinstance(arg, collections.abc.Iterable) and not isinstance(arg, str)
 
     _chunked_kwargs: list[dict[str, Any]] = []
-    for _ in range(len(plottables)):
+    for _ in range(len(hists)):
         _chunked_kwargs.append({})
     for kwarg, kwarg_content in kwargs.items():
         # Check if iterable
@@ -249,21 +236,34 @@ def histplot(
             if sort.split("_")[0] in ["l", "label"] and isinstance(_labels, list):
                 order = np.argsort(label)  # [::-1]
             elif sort.split("_")[0] in ["y", "yield"]:
-                _yields = [np.sum(_h.values) for _h in plottables]  # type: ignore[var-annotated]
+                _yields = [np.sum(_h.values()) for _h in hists]  # type: ignore[var-annotated]
                 order = np.argsort(_yields)
             if len(sort.split("_")) == 2 and sort.split("_")[1] == "r":
                 order = order[::-1]
         elif isinstance(sort, (list, np.ndarray)):
-            if len(sort) != len(plottables):
-                msg = f"Sort indexing array is of the wrong size - {len(sort)}, {len(plottables)} expected."
+            if len(sort) != len(hists):
+                msg = f"Sort indexing array is of the wrong size - {len(sort)}, {len(hists)} expected."
                 raise ValueError(msg)
             order = np.asarray(sort)
         else:
             msg = f"Sort type: {sort} not understood."
             raise ValueError(msg)
-        plottables = [plottables[ix] for ix in order]
+        hists = [hists[ix] for ix in order]
         _chunked_kwargs = [_chunked_kwargs[ix] for ix in order]
         _labels = [_labels[ix] for ix in order]
+
+    plottables, flow_info = get_plottables(
+        hists,
+        bins=final_bins,
+        w2=w2,
+        w2method=w2method,
+        yerr=yerr,
+        stack=stack,
+        density=density,
+        binwnorm=binwnorm,
+        flow=flow,
+    )
+    flow_bins, underflow, overflow = flow_info
 
     ##########
     # Plotting
@@ -274,7 +274,7 @@ def histplot(
     elif histtype == "barstep" and len(plottables) == 1:
         histtype = "step"
 
-    # customize color cycle assignment when stacking to match legend
+    # # customize color cycle assignment when stacking to match legend
     if stack:
         plottables = plottables[::-1]
         _chunked_kwargs = _chunked_kwargs[::-1]

@@ -707,3 +707,26 @@ def test_histplot_inputs_pass(h, yerr, htype):
     fig, ax = plt.subplots()
     hep.histplot(h, bins, yerr=yerr, histtype=htype)
     plt.close(fig)
+
+
+@pytest.mark.parametrize(
+    "sort", [None, "label", "label_r", "yield", "yield_r", [0, 2, 1]]
+)
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_histplot_sort(sort):
+    np.random.seed(0)
+    h = hist.new.Reg(10, 0, 10).StrCat([], growth=True).Weight()
+    ixs = ["FOO", "BAR", "ZOO"]
+    for i, ix in enumerate(ixs):
+        h.fill(np.random.normal(2 + i * 1.5, 3, int(100 + 200 * i)), ix)
+
+    fig, ax = plt.subplots()
+    hep.histplot(
+        [h[:, ix] for ix in h.axes[1]],
+        label=h.axes[1],
+        stack=True,
+        histtype="fill",
+        sort=sort,
+    )
+    ax.legend()
+    return fig
