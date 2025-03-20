@@ -17,5 +17,5 @@ jobs:
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          repository: mplhep
+          repository: scikit-hep/mplhep
           branch: master
