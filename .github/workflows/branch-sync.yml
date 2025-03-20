@@ -1,0 +1,16 @@
+name: sync branches to main
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  sync-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync Branch
+        uses: remarkablemark/sync-branch@v1
+        with:
+          base: master
+          head: main
+          merge: rebase
