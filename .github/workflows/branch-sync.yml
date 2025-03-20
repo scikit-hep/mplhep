@@ -19,3 +19,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           repository: scikit-hep/mplhep
           branch: master
+          force_with_lease: true
