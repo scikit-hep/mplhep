@@ -7,10 +7,15 @@ on:
 jobs:
   sync-branch:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - name: Sync Branch
-        uses: remarkablemark/sync-branch@v1
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Push updates
+        uses: ad-m/github-push-action@master
         with:
-          base: master
-          head: main
-          merge: rebase
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          repository: scikit-hep/mplhep
+          branch: master
