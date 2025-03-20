@@ -484,7 +484,7 @@ def histplot(
 
     if xtick_labels is None or flow == "show":
         if binticks:
-            _slice = int(round(float(len(final_bins)) / len(ax.get_xticks()))) + 1
+            _slice = round(float(len(final_bins)) / len(ax.get_xticks())) + 1
             ax.set_xticks(final_bins[::_slice])
     else:
         ax.set_xticks(_bin_centers)
