@@ -13,7 +13,7 @@ jobs:
       - name: Checkout main
         uses: actions/checkout@v4
 
-      - name: Push updates
+      - name: Push updates to master
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
