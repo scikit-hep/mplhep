@@ -273,9 +273,13 @@ def get_plottables(
 
     if w2 is not None:
         for _w2, _plottable in zip(
-            w2.reshape(len(plottables), len(final_bins) - 1), plottables
+            np.array(w2).reshape(len(plottables), len(final_bins) - 1), plottables
         ):
             _plottable.variances = _w2
+            _plottable.method = w2method
+
+    for _plottable in plottables:
+        if _plottable.variances is not None:
             _plottable.method = w2method
 
     if w2 is not None and yerr is not None:
@@ -417,7 +421,9 @@ def norm_stack_plottables(plottables, bins, stack=False, density=False, binwnorm
 
 
 class Plottable:
-    def __init__(self, values, *, edges=None, variances=None, yerr=None):
+    def __init__(
+        self, values, *, edges=None, variances=None, yerr=None, w2method="poisson"
+    ):
         self._values = np.array(values).astype(float)
         self.variances = None
         self._variances = None
@@ -434,7 +440,7 @@ class Plottable:
         if self.edges is None:
             self.edges = np.arange(len(values) + 1)
         self.centers = self.edges[:-1] + np.diff(self.edges) / 2
-        self.method = "poisson"
+        self.method = w2method
 
         self.yerr = yerr
         assert self.variances is None or self.yerr is None
@@ -470,12 +476,11 @@ class Plottable:
                     method = "poisson"
                 else:
                     method = "sqrt"
-
         if self._errors_present:
             return
 
-        def sqrt_method(values, _):
-            return values - np.sqrt(values), values + np.sqrt(values)
+        def sqrt_method(values, variances):
+            return values - np.sqrt(variances), values + np.sqrt(variances)
 
         def calculate_relative(method_fcn, variances):
             return np.abs(method_fcn(self.values, variances) - self.values)
