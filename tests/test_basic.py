@@ -770,3 +770,53 @@ def test_histplot_sort(sort):
     )
     ax.legend()
     return fig
+
+
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_histplot_xoffsets():
+    np.random.seed(0)
+    evts = np.random.normal(2, 2, 100)
+    htype1 = hist.new.Var([0, 1, 2, 3, 5, 10]).Weight().fill(evts)
+
+    fig, axs = plt.subplots(2, 2)
+    axs = axs.flatten()
+    hep.histplot(
+        [htype1, htype1, htype1],
+        ax=axs[0],
+        xoffsets=True,
+        xerr=False,
+        histtype="errorbar",
+        alpha=1,
+    )
+    hep.histplot(htype1, yerr=False, alpha=0.2, ax=axs[0])
+
+    hep.histplot(
+        [htype1, htype1, htype1],
+        ax=axs[1],
+        xoffsets=True,
+        xerr=True,
+        histtype="errorbar",
+        alpha=1,
+    )
+    hep.histplot(htype1, yerr=False, alpha=0.2, ax=axs[1])
+
+    hep.histplot(
+        [htype1, htype1, htype1],
+        ax=axs[2],
+        xoffsets=True,
+        xerr=0.5,
+        histtype="errorbar",
+        alpha=1,
+    )
+    hep.histplot(htype1, yerr=False, alpha=0.2, ax=axs[2])
+
+    hep.histplot(
+        [htype1, htype1, htype1],
+        ax=axs[3],
+        xoffsets=True,
+        xerr=[0.2, 0.5, 1],
+        histtype="errorbar",
+        alpha=1,
+    )
+    hep.histplot(htype1, yerr=False, alpha=0.2, ax=axs[3])
+    return fig

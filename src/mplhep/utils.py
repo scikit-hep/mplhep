@@ -145,6 +145,7 @@ def get_plottables(
     stack=False,
     density=False,
     binwnorm=None,
+    xoffsets=False,
 ):
     """
     Generate plottable histograms from various histogram data sources.
@@ -189,6 +190,8 @@ def get_plottables(
     binwnorm : float, optional
         If true, convert sum weights to bin-width-normalized, with unit equal to
             supplied value (usually you want to specify 1.)
+    xoffsets : bool | float | iterable, optional
+        Offset for x-axis values.
 
     Returns
     -------
@@ -203,7 +206,16 @@ def get_plottables(
     hists = list(process_histogram_parts(H, bins))
     final_bins, _ = get_plottable_protocol_bins(hists[0].axes[0])
 
-    for h in hists:
+    if xoffsets is True:
+        parsed_offsets = []
+        widths = np.diff(final_bins)
+        sub_bin_width = widths / (len(hists) + 1)
+        for i in range(len(hists)):
+            parsed_offsets.append(sub_bin_width * (i + 1))
+        xoffsets = parsed_offsets
+    else:
+        xoffsets = [None] * len(hists)
+    for h, xoffset in zip(hists, xoffsets):
         value, variance = np.copy(h.values()), h.variances()
         if has_variances := variance is not None:
             variance = np.copy(variance)
@@ -241,7 +253,9 @@ def get_plottables(
 
         # Set plottables
         if flow in ("none", "hint"):
-            plottables.append(Plottable(value, edges=final_bins, variances=variance))
+            plottables.append(
+                Plottable(value, edges=final_bins, variances=variance, xoffsets=xoffset)
+            )
         elif flow == "show":
             _flow_bin_size: float = np.max(
                 [0.05 * (final_bins[-1] - final_bins[0]), np.mean(np.diff(final_bins))]
@@ -257,7 +271,9 @@ def get_plottables(
                 value = np.r_[value, overflow]
                 if has_variances:
                     variance = np.r_[variance, overflowv]
-            plottables.append(Plottable(value, edges=flow_bins, variances=variance))
+            plottables.append(
+                Plottable(value, edges=flow_bins, variances=variance, xoffsets=xoffset)
+            )
         elif flow == "sum":
             if underflow > 0:
                 value[0] += underflow
@@ -267,9 +283,13 @@ def get_plottables(
                 value[-1] += overflow
                 if has_variances:
                     variance[-1] += overflowv
-            plottables.append(Plottable(value, edges=final_bins, variances=variance))
+            plottables.append(
+                Plottable(value, edges=final_bins, variances=variance, xoffsets=xoffset)
+            )
         else:
-            plottables.append(Plottable(value, edges=final_bins, variances=variance))
+            plottables.append(
+                Plottable(value, edges=final_bins, variances=variance, xoffsets=xoffset)
+            )
 
     if w2 is not None:
         for _w2, _plottable in zip(
@@ -422,7 +442,14 @@ def norm_stack_plottables(plottables, bins, stack=False, density=False, binwnorm
 
 class Plottable:
     def __init__(
-        self, values, *, edges=None, variances=None, yerr=None, w2method="poisson"
+        self,
+        values,
+        *,
+        edges=None,
+        xoffsets=None,
+        variances=None,
+        yerr=None,
+        w2method="poisson",
     ):
         self._values = np.array(values).astype(float)
         self.variances = None
@@ -440,8 +467,14 @@ class Plottable:
         if self.edges is None:
             self.edges = np.arange(len(values) + 1)
         self.centers = self.edges[:-1] + np.diff(self.edges) / 2
-        self.method = w2method
+        if xoffsets is not None:
+            self.centers = self.edges[:-1] + xoffsets
+        self.xerr_lo, self.xerr_hi = (
+            self.centers - self.edges[:-1],
+            self.edges[1:] - self.centers,
+        )
 
+        self.method = w2method
         self.yerr = yerr
         assert self.variances is None or self.yerr is None
         if self.yerr is not None:
@@ -579,6 +612,7 @@ class Plottable:
             "x": self.centers,
             "y": self.values,
             "yerr": [self.yerr_lo, self.yerr_hi],
+            "xerr": [self.xerr_lo, self.xerr_hi],
         }
 
 
