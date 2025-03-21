@@ -634,6 +634,46 @@ def test_histplot_w2():
 
 
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_histplot_w2_methods():
+    htype1 = [10, 20, 30, 40, 30, 20, 10, 1, 0, 1, 0]
+    htype1_w2 = [10, 20, 30, 40, 30, 20, 50, 1, 0, 1, 0]
+    np.random.seed(0)
+    htype2 = hist.new.Reg(11, 0, 11).Weight().fill(np.random.normal(3, 2, 100))
+
+    def fcn1(w, _):
+        return np.maximum(0, w - np.ones_like(w) * 3), w + np.ones_like(w) * 3
+
+    def fcn2(w, _):
+        return w - np.ones_like(w) * 0.2 * np.mean(w), w + np.ones_like(
+            w
+        ) * 0.2 * np.mean(w)
+
+    fig, axs = plt.subplots(2, 3, figsize=(12, 8))
+    for ax, method in zip(axs.flatten(), [None, "poisson", "sqrt", fcn1, fcn2]):
+        hep.histplot(htype1, w2=htype1_w2, w2method=method, ax=ax, label="With w2")
+        hep.histplot(htype1, w2method=method, ax=ax, label="No w2 passed")
+        htype2.plot(w2method=method, ax=ax, label="Hist")
+        ax.set_title(str(method))
+        ax.legend()
+    return fig
+
+
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_histplot_w2_poisson_handling():
+    np.random.seed(0)
+    evts = np.random.normal(2, 2, 100)
+    weights = np.random.uniform(0.99, 1.01, 100)
+    htype1 = hist.new.Reg(5, 0, 5).Weight().fill(evts)
+    htype2 = hist.new.Reg(5, 0, 5).Weight().fill(evts, weight=weights)
+
+    fig, ax = plt.subplots()
+    htype1.plot(ax=ax, histtype="errorbar", capsize=4, label="Raw counts")
+    htype2.plot(ax=ax, label="Weighted counts")
+    ax.legend()
+    return fig
+
+
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_histplot_types():
     hs, bins = [[2, 3, 4], [5, 4, 3]], [0, 1, 2, 3]
     fig, axs = plt.subplots(5, 2, figsize=(8, 16))

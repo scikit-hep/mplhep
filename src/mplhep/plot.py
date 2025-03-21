@@ -178,6 +178,17 @@ def histplot(
         "hint",
         "none",
     }, "flow must be show, sum, hint, or none"
+    if hasattr(H, "values") or hasattr(H[0], "values"):  # Check for hist-like inputs
+        assert bins is None, (
+            "When plotting hist(-like) objects, specifying bins is not allowed."
+        )
+        assert w2 is None, (
+            "When plotting hist(-like) objects, specifying w2 is not allowed."
+        )
+    if w2 is not None:
+        assert np.array(w2).shape == np.array(H).shape, (
+            "w2 must have the same shape as H"
+        )
 
     # Convert 1/0 etc to real bools
     stack = bool(stack)
