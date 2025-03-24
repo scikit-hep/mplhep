@@ -85,6 +85,7 @@ def histplot(
     sort=None,
     edges=True,
     binticks=False,
+    xoffsets=None,
     ax: mpl.axes.Axes | None = None,
     flow="hint",
     **kwargs,
@@ -147,6 +148,8 @@ def histplot(
             Specifies whether to draw first and last edges of the histogram
         binticks : bool, default: False, optional
             Attempts to draw x-axis ticks coinciding with bin boundaries if feasible.
+        xoffsets: bool, default: False,
+            If True, the bin "centers" of plotted histograms will be offset within their bin.
         ax : matplotlib.axes.Axes, optional
             Axes object (if None, last one is fetched or one is created)
         flow :  str, optional { "show", "sum", "hint", "none"}
@@ -273,6 +276,7 @@ def histplot(
         density=density,
         binwnorm=binwnorm,
         flow=flow,
+        xoffsets=xoffsets,
     )
     flow_bins, underflow, overflow = flow_info
 
@@ -342,6 +346,7 @@ def histplot(
                     _ls = _kwargs.pop("linestyle", "-")
                     _kwargs["linestyle"] = "none"
                     _plot_info = plottables[i].to_errorbar()
+                    del _plot_info["xerr"]
                     _e = ax.errorbar(
                         **_plot_info,
                         **_kwargs,
@@ -477,7 +482,12 @@ def histplot(
             _plot_info = plottables[i].to_errorbar()
             if yerr is False:
                 _plot_info["yerr"] = None
-            _plot_info["xerr"] = _xerr
+            if not xerr:
+                del _plot_info["xerr"]
+            if isinstance(xerr, (int, float)) and not isinstance(xerr, bool):
+                _plot_info["xerr"] = xerr
+            elif isinstance(xerr, (np.ndarray, list)):
+                _plot_info["xerr"] = xerr[i]
             _e = ax.errorbar(
                 **_plot_info,
                 label=_labels[i],
