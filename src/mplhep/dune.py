@@ -13,7 +13,7 @@ from .label import lumitext
 # Import styles
 from .styles import dune as style
 
-__all__ = ("lumitext", "style", "set_dune_logo_colors")
+__all__ = ("lumitext", "set_dune_logo_colors", "style")
 
 
 @docstring.copy(label_base.exp_text)
