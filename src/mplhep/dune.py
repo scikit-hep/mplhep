@@ -1,3 +1,6 @@
+# Taken with a lot of insiration from https://github.com/DUNE/dune_plot_style
+# Many thanks to the authors for their work!
+
 from __future__ import annotations
 
 import inspect
