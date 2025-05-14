@@ -99,11 +99,12 @@ def test_style_plothist():
         hep.style.ALICE,
         hep.style.ATLAS,
         hep.style.CMS,
+        hep.style.DUNE,
         hep.style.LHCb1,
         hep.style.LHCb2,
         hep.style.ROOT,
     ],
-    ids=["ALICE", "ATLAS", "CMS", "LHCb1", "LHCb2", "ROOT"],
+    ids=["ALICE", "ATLAS", "CMS", "DUNE", "LHCb1", "LHCb2", "ROOT"],
 )
 def test_use_style(fig_test, fig_ref, mplhep_style):
     plt.rcParams.update(plt.rcParamsDefault)
@@ -140,12 +141,13 @@ def test_use_style_LHCb_dep(fig_test, fig_ref):
         (hep.style.ALICE, "ALICE"),
         (hep.style.ATLAS, "ATLAS"),
         (hep.style.CMS, "CMS"),
+        (hep.style.DUNE, "DUNE"),
         (hep.style.LHCb, "LHCb"),
         (hep.style.LHCb1, "LHCb1"),
         (hep.style.LHCb2, "LHCb2"),
         (hep.style.ROOT, "ROOT"),
     ],
-    ids=["ALICE", "ATLAS", "CMS", "LHCb", "LHCb1", "LHCb2", "ROOT"],
+    ids=["ALICE", "ATLAS", "CMS", "DUNE", "LHCb", "LHCb1", "LHCb2", "ROOT"],
 )
 def test_use_style_str_alias(fig_test, fig_ref, mplhep_style, str_alias):
     plt.rcParams.update(plt.rcParamsDefault)
@@ -167,12 +169,13 @@ def test_use_style_str_alias(fig_test, fig_ref, mplhep_style, str_alias):
         (hep.style.ALICE, "ALICE"),
         (hep.style.ATLAS, "ATLAS"),
         (hep.style.CMS, "CMS"),
+        (hep.style.DUNE, "DUNE"),
         (hep.style.LHCb, "LHCb"),
         (hep.style.LHCb1, "LHCb1"),
         (hep.style.LHCb2, "LHCb2"),
         (hep.style.ROOT, "ROOT"),
     ],
-    ids=["ALICE", "ATLAS", "CMS", "LHCb", "LHCb1", "LHCb2", "ROOT"],
+    ids=["ALICE", "ATLAS", "CMS", "DUNE", "LHCb", "LHCb1", "LHCb2", "ROOT"],
 )
 def test_use_style_self_consistent(fig_test, fig_ref, mplhep_style, str_alias):
     plt.rcParams.update(plt.rcParamsDefault)
@@ -194,12 +197,13 @@ def test_use_style_self_consistent(fig_test, fig_ref, mplhep_style, str_alias):
         (hep.style.ALICE, "ALICE"),
         (hep.style.ATLAS, "ATLAS"),
         (hep.style.CMS, "CMS"),
+        (hep.style.DUNE, "DUNE"),
         (hep.style.LHCb, "LHCb"),
         (hep.style.LHCb1, "LHCb1"),
         (hep.style.LHCb2, "LHCb2"),
         (hep.style.ROOT, "ROOT"),
     ],
-    ids=["ALICE", "ATLAS", "CMS", "LHCb", "LHCb1", "LHCb2", "ROOT"],
+    ids=["ALICE", "ATLAS", "CMS", "DUNE", "LHCb", "LHCb1", "LHCb2", "ROOT"],
 )
 def test_use_style_style_list(fig_test, fig_ref, mplhep_style, str_alias):
     plt.rcParams.update(plt.rcParamsDefault)
