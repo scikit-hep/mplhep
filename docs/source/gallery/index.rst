@@ -32,7 +32,7 @@ Gallery
     #             and s != "LHCb"  # we want LHCb1 or LHCb2
     #     ]
     # the upper one contains all possible styles, needed?
-    allstyle = ["ATLAS", "ATLASAlt", "CMS", "LHCb1", "LHCb2", "ALICE"]
+    allstyle = ["ATLAS", "ATLASAlt", "CMS", "LHCb1", "LHCb2", "ALICE", "DUNE"]
     allstyle = sorted(allstyle, key=lambda s: s.lower())
     # allstyle = sorted(allstyle, key=lambda s: s.lower().endswith("tex"))
     allstyle = sorted(allstyle, key=lambda s: s.lower().endswith("alt"))
@@ -64,6 +64,8 @@ Gallery
                     mplhep.cms.label(**kwargs)
                 elif "lhcb" in style.lower():
                     mplhep.lhcb.label(**kwargs)
+                elif "dune" in style.lower():
+                    mplhep.dune.label(**kwargs)
                 ax.legend()
                 ax.set_xlabel('$m_{\mu\mu}$ [GeV]')
                 ax.set_ylabel('Events')

@@ -26,6 +26,9 @@ Position 0
 
 .. image:: ../../_static/_generated/CMS/fill/pos0.png
    :width: 45%
+   
+.. image:: ../../_static/_generated/DUNE/fill/pos0.png
+   :width: 45%
 
 Position 1
 -------------------
@@ -43,6 +46,9 @@ Position 1
    :width: 45%
 
 .. image:: ../../_static/_generated/CMS/fill/pos1.png
+   :width: 45%
+   
+.. image:: ../../_static/_generated/DUNE/fill/pos1.png
    :width: 45%
 
 Position 2
@@ -62,6 +68,9 @@ Position 2
 
 .. image:: ../../_static/_generated/CMS/fill/pos2.png
    :width: 45%
+   
+.. image:: ../../_static/_generated/DUNE/fill/pos2.png
+   :width: 45%
 
 Position 3
 -------------------
@@ -80,6 +89,9 @@ Position 3
 
 .. image:: ../../_static/_generated/CMS/fill/pos3.png
    :width: 45%
+   
+.. image:: ../../_static/_generated/DUNE/fill/pos3.png
+   :width: 45%
 
 Position 4
 -------------------
@@ -97,4 +109,7 @@ Position 4
    :width: 45%
 
 .. image:: ../../_static/_generated/CMS/fill/pos4.png
+   :width: 45%
+   
+.. image:: ../../_static/_generated/DUNE/fill/pos4.png
    :width: 45%

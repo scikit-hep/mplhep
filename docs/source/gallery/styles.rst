@@ -123,3 +123,20 @@ ALICE style
 
 .. image:: ../../_static/_generated/ALICE/band/pos0.png
     :width: 45%
+    
+DUNE
+------------
+
+DUNE style
+
+.. image:: ../../_static/_generated/DUNE/fill/pos0.png
+   :width: 45%
+
+.. image:: ../../_static/_generated/DUNE/step/pos0.png
+    :width: 45%
+
+.. image:: ../../_static/_generated/DUNE/errorbar/pos0.png
+    :width: 45%
+
+.. image:: ../../_static/_generated/DUNE/band/pos0.png
+    :width: 45%

@@ -10,7 +10,7 @@ import mplhep._deprecate as deprecate
 from .alice import ALICE
 from .atlas import ATLAS, ATLASAlt, ATLASTex
 from .cms import CMS, ROOT, CMSTex, ROOTTex
-from .dune import DUNE, DUNETex, DUNE_LOGO, DUNELogoTex
+from .dune import DUNE, DUNETex
 from .lhcb import LHCb, LHCb1, LHCb2, LHCbTex, LHCbTex1, LHCbTex2
 from .plothist import PLOTHIST
 
@@ -25,8 +25,6 @@ __all__ = (
     "CMSTex",
     "DUNE",
     "DUNETex",
-    "DUNE_LOGO",
-    "DUNELogoTex",
     "LHCb",
     "LHCb1",
     "LHCb2",

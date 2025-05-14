@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import matplotlib as mpl
+from cycler import cycler
 
 # DUNE style based on dune_plot_style package
 DUNE = {
@@ -32,7 +33,7 @@ DUNE = {
     "axes.titlesize": 36,
     
     # Use Okabe-Ito colors with ordering that matches DUNE logo colors
-    "axes.prop_cycle": mpl.cycler(
+    "axes.prop_cycle": cycler(
         "color", ["#000000", "#D55E00", "#56B4E9", "#E69F00", "#009E73", "#CC79A7", "#0072B2", "#F0E442"]
     ),
     
@@ -81,22 +82,6 @@ DUNE = {k: v for k, v in DUNE.items() if k in mpl.rcParams}
 # Add a tex variant
 DUNETex = {
     **DUNE,
-    "text.usetex": True,
-    "text.latex.preamble": r"\usepackage{siunitx},\sisetup{detect-all}, \
-                              \usepackage{helvet},\usepackage{sansmath}, \
-                              \sansmath",
-}
-
-# DUNE logo colors only variant for the color cycle
-DUNE_LOGO = {
-    **DUNE,
-    "axes.prop_cycle": mpl.cycler(
-        "color", ["#D55E00", "#56B4E9", "#E69F00"]
-    ),
-}
-
-DUNELogoTex = {
-    **DUNE_LOGO,
     "text.usetex": True,
     "text.latex.preamble": r"\usepackage{siunitx},\sisetup{detect-all}, \
                               \usepackage{helvet},\usepackage{sansmath}, \
