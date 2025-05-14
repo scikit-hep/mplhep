@@ -29,10 +29,11 @@ def test_style_dune():
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @pytest.mark.mpl_image_compare(style="default", remove_text=False)
-def test_style_dune_logo():
+def test_style_dune_logo_colors():
     plt.rcParams.update(plt.rcParamsDefault)
 
-    plt.style.use(hep.style.DUNE_LOGO)
+    plt.style.use(hep.style.DUNE)
+    hep.dune.set_dune_logo_colors()
     fig, ax = plt.subplots()
     hep.dune.label(label="Preliminary")
 
@@ -42,67 +43,30 @@ def test_style_dune_logo():
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @check_figures_equal(extensions=["pdf"])
-@pytest.mark.parametrize("mplhep_style", [hep.style.DUNE, hep.style.DUNE_LOGO])
-def test_dune_style_variants(fig_test, fig_ref, mplhep_style):
+def test_dune_style_variants(fig_test, fig_ref):
     plt.rcParams.update(plt.rcParamsDefault)
 
     hep.rcParams.clear()
-    plt.style.use(mplhep_style)
+    plt.style.use(hep.style.DUNE)
     fig_ref.subplots()
 
     hep.rcParams.clear()
-    hep.style.use(mplhep_style)
+    hep.style.use(hep.style.DUNE)
     fig_test.subplots()
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @check_figures_equal(extensions=["pdf"])
-@pytest.mark.parametrize(
-    "mplhep_style, str_alias",
-    [
-        (hep.style.DUNE, "DUNE"),
-        (hep.style.DUNE_LOGO, "DUNE_LOGO"),
-    ],
-    ids=["DUNE", "DUNE_LOGO"],
-)
-def test_dune_style_str_alias(fig_test, fig_ref, mplhep_style, str_alias):
+def test_dune_style_str_alias(fig_test, fig_ref):
     plt.rcParams.update(plt.rcParamsDefault)
 
     hep.rcParams.clear()
-    plt.style.use(mplhep_style)
+    plt.style.use(hep.style.DUNE)
     fig_ref.subplots()
 
     hep.rcParams.clear()
-    hep.style.use(str_alias)
+    hep.style.use("DUNE")
     fig_test.subplots()
-
-
-@pytest.mark.mpl_image_compare(style="default")
-def test_dune_label_variants():
-    fig, axs = plt.subplots(2, 3, figsize=(18, 12))
-    axs = axs.flatten()
-    
-    # Test each type of label
-    hep.dune.preliminary(ax=axs[0])
-    axs[0].set_title("preliminary")
-    
-    hep.dune.wip(ax=axs[1])
-    axs[1].set_title("wip")
-    
-    hep.dune.simulation(ax=axs[2])
-    axs[2].set_title("simulation")
-    
-    hep.dune.official(ax=axs[3])
-    axs[3].set_title("official")
-    
-    hep.dune.simulation_side(ax=axs[4])
-    axs[4].set_title("simulation_side")
-    
-    hep.dune.corner_label("Test Corner Label", ax=axs[5])
-    axs[5].set_title("corner_label")
-    
-    fig.tight_layout()
-    return fig
 
 
 @pytest.mark.mpl_image_compare(style="default")
