@@ -51,6 +51,7 @@ def label(label=None, **kwargs):
 def set_dune_logo_colors():
     """Set the color cycler to use the DUNE logo colors (orange, blue, and yellow)."""
     from cycler import cycler
+
     # DUNE logo colors: orange, blue, yellow
     dune_logo_colors = ["#D55E00", "#56B4E9", "#E69F00"]
     cyc = cycler(color=dune_logo_colors)

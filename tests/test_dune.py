@@ -9,7 +9,7 @@ from matplotlib.testing.decorators import check_figures_equal
 
 os.environ["RUNNING_PYTEST"] = "true"
 
-import mplhep as hep  # noqa: E402
+import mplhep as hep
 
 plt.switch_backend("Agg")
 

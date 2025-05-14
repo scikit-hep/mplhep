@@ -123,7 +123,7 @@ ALICE style
 
 .. image:: ../../_static/_generated/ALICE/band/pos0.png
     :width: 45%
-    
+
 DUNE
 ------------
 
