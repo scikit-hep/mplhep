@@ -9,7 +9,11 @@ from typing import TYPE_CHECKING, Any, Iterable, Sequence
 import numpy as np
 from matplotlib import markers
 from matplotlib.path import Path
-from uhi.numpy_plottable import ensure_plottable_histogram
+from uhi.numpy_plottable import (
+    Kind,
+    NumPyPlottableHistogram,
+    ensure_plottable_histogram,
+)
 from uhi.typing.plottable import PlottableAxis, PlottableHistogram
 
 if TYPE_CHECKING:
@@ -195,7 +199,7 @@ def get_plottables(
 
     Returns
     -------
-    plottables : list of Plottable
+    plottables : list of EnhancedPlottableHistogram
         Processed histogram objects ready for plotting.
     (flow_bins, underflow, overflow) : tuple
         Flow bin information for handling underflow and overflow values.
@@ -254,7 +258,9 @@ def get_plottables(
         # Set plottables
         if flow in ("none", "hint"):
             plottables.append(
-                Plottable(value, edges=final_bins, variances=variance, xoffsets=xoffset)
+                EnhancedPlottableHistogram(
+                    value, edges=final_bins, variances=variance, xoffsets=xoffset
+                )
             )
         elif flow == "show":
             _flow_bin_size: float = np.max(
@@ -272,7 +278,9 @@ def get_plottables(
                 if has_variances:
                     variance = np.r_[variance, overflowv]
             plottables.append(
-                Plottable(value, edges=flow_bins, variances=variance, xoffsets=xoffset)
+                EnhancedPlottableHistogram(
+                    value, edges=flow_bins, variances=variance, xoffsets=xoffset
+                )
             )
         elif flow == "sum":
             if underflow > 0:
@@ -284,11 +292,15 @@ def get_plottables(
                 if has_variances:
                     variance[-1] += overflowv
             plottables.append(
-                Plottable(value, edges=final_bins, variances=variance, xoffsets=xoffset)
+                EnhancedPlottableHistogram(
+                    value, edges=final_bins, variances=variance, xoffsets=xoffset
+                )
             )
         else:
             plottables.append(
-                Plottable(value, edges=final_bins, variances=variance, xoffsets=xoffset)
+                EnhancedPlottableHistogram(
+                    value, edges=final_bins, variances=variance, xoffsets=xoffset
+                )
             )
 
     if w2 is not None:
@@ -318,10 +330,10 @@ def yerr_plottables(plottables, bins, yerr=None):
 
     Parameters
     ----------
-    plottables : list of Plottable
-        List of Plottable objects.
+    plottables : list of EnhancedPlottableHistogram
+        List of EnhancedPlottableHistogram objects.
     bins : iterable
-        Plottable bins.
+        EnhancedPlottableHistogram bins.
     yerr : iterable or bool, optional
         Histogram uncertainties. Following modes are supported:
         - True, sqrt(N) errors or poissonian interval when ``w2`` is specified
@@ -386,10 +398,10 @@ def norm_stack_plottables(plottables, bins, stack=False, density=False, binwnorm
 
     Parameters
     ----------
-    plottables : list of Plottable
-        List of Plottable objects.
+    plottables : list of EnhancedPlottableHistogram
+        List of EnhancedPlottableHistogram objects.
     bins : iterable
-        Plottable bins.
+        EnhancedPlottableHistogram bins.
     stack : bool, optional
         Whether to stack or overlay non-axis dimension (if it exists). N.B. in
         contrast to ROOT, stacking is performed in a single call aka
@@ -440,7 +452,9 @@ def norm_stack_plottables(plottables, bins, stack=False, density=False, binwnorm
         plottables = stack_fun(*plottables)
 
 
-class Plottable:
+class EnhancedPlottableHistogram(NumPyPlottableHistogram):
+    """A container for histogram-like data, supporting error propagation and multiple plotting formats."""
+
     def __init__(
         self,
         values,
@@ -450,28 +464,35 @@ class Plottable:
         variances=None,
         yerr=None,
         w2method="poisson",
+        kind=Kind.COUNT,
     ):
-        self._values = np.array(values).astype(float)
+        """Initialize the EnhancedPlottableHistogram object with values, bin edges, optional variances, and error bars."""
+
+        super().__init__(values.astype(float), edges, variances=variances, kind=kind)
+
+        if isinstance(self._variances, np.ndarray) and self._variances.ndim == 0:
+            self._variances = None
+            self._has_variances = False
+
         self.variances = None
-        self._variances = None
         self._has_variances = False
+
         if variances is not None:
-            self._variances = np.array(variances).astype(float)
-            self.variances = np.array(variances).astype(float)
+            self.variances = self._variances.copy()
             self._has_variances = True
+
         self._density = False
 
-        self.values = np.array(values).astype(float)
+        self.values = self._values.copy()
         self.baseline = np.zeros_like(self.values)
-        self.edges = np.array(edges)
-        if self.edges is None:
-            self.edges = np.arange(len(values) + 1)
-        self.centers = self.edges[:-1] + np.diff(self.edges) / 2
+        self.centers = self.axes[0].edges.mean(axis=1)
+
         if xoffsets is not None:
-            self.centers = self.edges[:-1] + xoffsets
+            self.centers = self.edges_1d()[:-1] + xoffsets
+
         self.xerr_lo, self.xerr_hi = (
-            self.centers - self.edges[:-1],
-            self.edges[1:] - self.centers,
+            self.centers - self.edges_1d()[:-1],
+            self.edges_1d()[1:] - self.centers,
         )
 
         self.method = w2method
@@ -488,6 +509,7 @@ class Plottable:
             )
 
     def __eq__(self, other):
+        """Check equality between two EnhancedPlottableHistogram instances based on values, variances, and edges."""
         return np.all(
             [
                 np.array_equal(getattr(self, att), getattr(other, att))
@@ -496,10 +518,18 @@ class Plottable:
         )
 
     def __repr__(self):
-        return f"Plottable({self.values}, {self.edges}, {self.variances}"
+        """Return string representation of the EnhancedPlottableHistogram object."""
+        return f"EnhancedPlottableHistogram({self.values}, {self.axes[0].edges}, {self.variances}"
+
+    def edges_1d(self):
+        """Return the edges of the first axis as a 1D array."""
+        edges = np.empty(len(self.axes[0].edges) + 1, dtype=float)
+        edges[0] = self.axes[0].edges[0][0]
+        edges[1:] = [self.axes[0].edges[i][1] for i in range(len(self.axes[0]))]
+        return edges
 
     def errors(self, method=None):
-        """Calculate errors with a provided method(w, w2) -> (lower_abs_val, upper_abs_val)"""
+        """Calculate asymmetric y-errors using a specified or inferred method ('poisson', 'sqrt', or callable)."""
         assert method in ["poisson", "sqrt", None] or callable(method)
         variances = self.variances if self.variances is not None else self.values
         if method is None:
@@ -545,12 +575,13 @@ class Plottable:
         self.variances = self.values if not self._has_variances else self.variances
 
     def fixed_errors(self, yerr_lo, yerr_hi):
+        """Manually assign fixed lower and upper y-errors."""
         self.yerr_lo = yerr_lo
         self.yerr_hi = yerr_hi
         self._errors_present = True
 
     def scale(self, scale):
-        """Scale values and variances to match, errors are recalculated"""
+        """Apply a scaling factor to values and variances, and recalculate errors."""
         self.values *= scale
         if self.variances is not None:
             self.variances *= scale * scale
@@ -558,7 +589,7 @@ class Plottable:
         return self
 
     def flat_scale(self, scale):
-        """Scale values by a flat coefficient. Errors are scaled directly to match"""
+        """Multiply values and errors by a flat scalar, assuming errors are already calculated."""
         self.errors()
         self._errors_present = True
         self.values *= scale
@@ -567,16 +598,16 @@ class Plottable:
         return self
 
     def binwnorm(self):
-        """Scale values by a flat coefficient. Errors are scaled directly to match"""
+        """Normalize values and errors by the bin widths."""
         self.errors()
         self._errors_present = True
-        self.values /= np.diff(self.edges)
-        self.yerr_lo /= np.diff(self.edges)
-        self.yerr_hi /= np.diff(self.edges)
+        self.values /= np.diff(self.edges_1d())
+        self.yerr_lo /= np.diff(self.edges_1d())
+        self.yerr_hi /= np.diff(self.edges_1d())
         return self
 
     def reset(self):
-        """Reset to original values"""
+        """Reset values and variances to their original state, clearing density normalization."""
         self.values = copy.deepcopy(self._values)
         self.variances = copy.deepcopy(self._variances)
         self._density = False
@@ -585,28 +616,37 @@ class Plottable:
 
     @property
     def density(self):
+        """Get the density-normalization status."""
         return self._density
 
     @density.setter
     def density(self, boolean: bool):
+        """Enable or disable density normalization by adjusting or restoring values."""
         if boolean and not self._density:
-            self.flat_scale(1 / np.sum(np.diff(self.edges) * self.values))
+            self.flat_scale(1 / np.sum(np.diff(self.edges_1d()) * self.values))
         if not boolean:
             self.reset()
         self._density = boolean
 
     def to_stairs(self):
-        return {"values": self.values, "edges": self.edges, "baseline": self.baseline}
+        """Export data in a dictionary format suitable for stair plots (e.g., step histograms)."""
+        return {
+            "values": self.values,
+            "edges": self.edges_1d(),
+            "baseline": self.baseline,
+        }
 
     def to_stairband(self):
+        """Export upper and lower stair-step error bands for uncertainty visualization."""
         self.errors()
         return {
             "values": self.values + self.yerr_hi,
-            "edges": self.edges,
+            "edges": self.edges_1d(),
             "baseline": self.values - self.yerr_lo,
         }
 
     def to_errorbar(self):
+        """Export data in a dictionary format for error bar plotting (e.g., matplotlib 'errorbar')."""
         self.errors()
         return {
             "x": self.centers,

@@ -575,7 +575,7 @@ def histplot(
                 xticklabels = _xticklabels
 
         lw = ax.spines["bottom"].get_linewidth()
-        _edges = plottables[0].edges
+        _edges = plottables[0].edges_1d()
         _centers = plottables[0].centers
         _marker_size = (
             20
@@ -818,7 +818,7 @@ def hist2dplot(
         except TypeError as error:
             if "got an unexpected keyword argument 'flow'" in str(error):
                 msg = (
-                    f"The histograms value method {h!r} does not take a 'flow' argument. UHI Plottable doesn't require this to have, but it is required for this function."
+                    f"The histograms value method {h!r} does not take a 'flow' argument. UHI PlottableHistogram doesn't require this to have, but it is required for this function."
                     f" Implementations like hist/boost-histogram support this argument."
                 )
                 raise TypeError(msg) from error
@@ -1009,9 +1009,11 @@ def hist2dplot(
                     ax.text(
                         xc,
                         yc,
-                        _labels[iy, ix].round(labels_round)
-                        if labels_round is not None
-                        else _labels[iy, ix],  # type: ignore[arg-type]
+                        (
+                            _labels[iy, ix].round(labels_round)  # type: ignore[arg-type]
+                            if labels_round is not None
+                            else _labels[iy, ix]
+                        ),
                         ha="center",
                         va="center",
                         color=color,
