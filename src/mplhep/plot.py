@@ -378,7 +378,7 @@ def histplot(
 
                 _b = ax.bar(
                     plottables[i].centers + _shift[i],
-                    plottables[i].values,
+                    plottables[i].values(),
                     width=_full_bin_width / len(plottables),
                     label=_step_label,
                     align="center",
@@ -423,7 +423,7 @@ def histplot(
 
             _b = ax.bar(
                 plottables[i].centers + _shift[i],
-                plottables[i].values,
+                plottables[i].values(),
                 width=_full_bin_width / len(plottables),
                 label=_labels[i],
                 align="center",
