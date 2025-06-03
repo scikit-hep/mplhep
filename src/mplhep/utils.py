@@ -437,7 +437,7 @@ def norm_stack_plottables(plottables, bins, stack=False, density=False, binwnorm
                 plottable.flat_scale(1.0 / np.sum(np.diff(bins) * _total))
         else:
             for plottable in plottables:
-                plottable.density = True
+                plottable.density()
     elif binwnorm is not None:
         for plottable, norm in zip(
             plottables, np.broadcast_to(binwnorm, (len(plottables),))
@@ -472,16 +472,10 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
 
         if isinstance(self._variances, np.ndarray) and self._variances.ndim == 0:
             self._variances = None
-            self._has_variances = False
 
         self._has_variances = self.variances() is not None
 
-        self._initial_values = self.values().copy()
-        if self._has_variances:
-            self._initial_variances = self.variances().copy()
-        else:
-            self._initial_variances = None
-
+        self._binwnorm = False
         self._density = False
 
         self.baseline = np.zeros_like(self.values())
@@ -524,9 +518,11 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         return f"EnhancedPlottableHistogram({self.values()}, {self.axes[0].edges}, {self.variances()}"
 
     def set_values(self, values: np.typing.NDArray[Any]) -> None:
+        """Set the values of the histogram."""
         self._values = values
 
     def set_variances(self, variances: np.typing.NDArray[Any] | None) -> None:
+        """Set the variances of the histogram."""
         self._variances = variances
 
     def edges_1d(self):
@@ -538,6 +534,8 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
 
     def errors(self, method=None):
         """Calculate asymmetric y-errors using a specified or inferred method ('poisson', 'sqrt', or callable)."""
+        if self._errors_present:
+            return
         assert method in ["poisson", "sqrt", None] or callable(method)
         variances = self.variances() if self.variances() is not None else self.values()
         if method is None:
@@ -547,8 +545,6 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
                     method = "poisson"
                 else:
                     method = "sqrt"
-        if self._errors_present:
-            return
 
         def sqrt_method(values, variances):
             return values - np.sqrt(variances), values + np.sqrt(variances)
@@ -599,7 +595,7 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         return self
 
     def flat_scale(self, scale):
-        """Multiply values and errors by a flat scalar, assuming errors are already calculated."""
+        """Multiply values and errors by a flat scalar."""
         self.errors()
         self._errors_present = True
         self._values *= scale
@@ -609,34 +605,17 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
 
     def binwnorm(self):
         """Normalize values and errors by the bin widths."""
-        self.errors()
-        self._errors_present = True
-        self._values /= np.diff(self.edges_1d())
-        self.yerr_lo /= np.diff(self.edges_1d())
-        self.yerr_hi /= np.diff(self.edges_1d())
-        return self
+        if self._binwnorm:
+            return self
+        self._binwnorm = True
+        return self.flat_scale(1 / np.diff(self.edges_1d()))
 
-    def reset(self):
-        """Reset values and variances to their original state, clearing density normalization."""
-        self._values = copy.deepcopy(self._inital_values)
-        self._variances = copy.deepcopy(self._initial_variances)
-        self._density = False
-        self.errors()
-        return self
-
-    @property
     def density(self):
-        """Get the density-normalization status."""
-        return self._density
-
-    @density.setter
-    def density(self, boolean: bool):
-        """Enable or disable density normalization by adjusting or restoring values."""
-        if boolean and not self._density:
-            self.flat_scale(1 / np.sum(np.diff(self.edges_1d()) * self.values()))
-        if not boolean:
-            self.reset()
-        self._density = boolean
+        """Normalize values and errors by the area."""
+        if self._density:
+            return self
+        self._density = True
+        return self.flat_scale(1 / np.sum(np.diff(self.edges_1d()) * self.values()))
 
     def to_stairs(self):
         """Export data in a dictionary format suitable for stair plots (e.g., step histograms)."""
