@@ -9,22 +9,25 @@ from __future__ import annotations
 # -- Path setup --------------------------------------------------------------
 import importlib
 import inspect
+import os
+import subprocess
+import sys
+from functools import reduce
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import yaml
+
+import mplhep
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
-import subprocess
-import sys
-from functools import reduce
-
 # Add mplhep to path for sphinx-automodapi
 sys.path.insert(0, os.path.abspath("../../src"))
 
-from pathlib import Path
-
-import mplhep
 
 # -- Project information -----------------------------------------------------
 
@@ -83,10 +86,10 @@ def linkcode_resolve(domain, info):
 
 
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3", None),
-    "matplotlib": ("https://matplotlib.org/stable/", None),
-    "pandas": ("https://pandas.pydata.org/docs/", None),
-    "numpy": ("https://numpy.org/doc/stable/", None),
+    # "python": ("https://docs.python.org/3", None),
+    # "matplotlib": ("https://matplotlib.org/stable/", None),
+    # "pandas": ("https://pandas.pydata.org/docs/", None),
+    # "numpy": ("https://numpy.org/doc/stable/", None),  # stuck, takes forever
 }
 
 # The master toctree document.
@@ -133,3 +136,62 @@ html_context = {
 # so a file named "default.css" will overwrite the builtin "default.css".
 
 html_static_path = ["_static"]
+
+# generate plots, moved here from index.rst
+
+
+x = np.linspace(0, 10, 100)
+y = np.sin(x)
+
+allstyle = ["ATLAS", "ATLASAlt", "CMS", "LHCb1", "LHCb2", "ALICE", "DUNE"]
+allstyle = sorted(allstyle, key=lambda s: s.lower())
+# allstyle = sorted(allstyle, key=lambda s: s.lower().endswith("tex"))
+allstyle = sorted(allstyle, key=lambda s: s.lower().endswith("alt"))
+here = Path("__file__").parent.resolve()  # jupyter workaround, use string
+
+
+with Path(here / "_static/bkg_sig_plot.yaml").resolve().open() as f:
+    plotdata = yaml.load(f, Loader=yaml.FullLoader)
+print("Creating gallery plots on the fly... (this takes a minute or two)")
+for style in allstyle:
+    plt.style.use("default")  # make sure it's reset
+    plt.style.use(getattr(mplhep.style, style))
+
+    plot = plotdata.copy()
+    x = np.asarray(plot.pop("x"))
+    data = tuple(plot.pop("Data"))
+    for histtype in ["fill", "step", "errorbar", "band"]:
+        for position in range(5):
+            plt.figure()
+            ax = plt.gca()
+            title = f"{style} {histtype}"
+            ax.set_title(title, y=1.03)
+            mplhep.histplot(data, histtype=histtype, label="Data", ax=ax)
+            for label, y in plot.items():
+                ax.plot(x, np.asarray(y), label=label)
+
+            kwargs = {
+                "label": "Preliminary",
+                "data": True,
+                "ax": ax,
+                "year": 2016,
+                "loc": position,
+                "lumi": 9,
+            }
+            if "atlas" in style.lower():
+                mplhep.atlas.label(**kwargs)
+            elif "cms" in style.lower():
+                mplhep.cms.label(**kwargs)
+            elif "lhcb" in style.lower():
+                mplhep.lhcb.label(**kwargs)
+            elif "dune" in style.lower():
+                mplhep.dune.label(**kwargs)
+            ax.legend()
+            ax.set_xlabel("$m_{\mu\mu}$ [GeV]")
+            ax.set_ylabel("Events")
+            path = Path(
+                here / f"_static/_generated/{style}/{histtype}/pos{position}.png"
+            )
+            path.parent.mkdir(parents=True, exist_ok=True)
+            plt.savefig(path)
+            plt.close()

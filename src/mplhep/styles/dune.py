@@ -7,23 +7,27 @@ from cycler import cycler
 DUNE = {
     # Font configuration
     "font.sans-serif": [
+        "TeX Gyre Heros",  # Better, free Helvetica-like font with math support
         "Helvetica",
         "Helvetica Neue",
-        "Nimbus Sans",
+        "Nimbus Sans L",
         "Liberation Sans",
         "Arial",
+        "FreeSans",
     ],
     "font.family": "sans-serif",
     "mathtext.fontset": "custom",
-    "mathtext.rm": "Helvetica",
-    "mathtext.bf": "Helvetica:bold",
-    "mathtext.sf": "Helvetica",
-    "mathtext.it": "Helvetica:italic",
-    "mathtext.tt": "Helvetica",
+    "mathtext.rm": "TeX Gyre Heros",
+    "mathtext.bf": "TeX Gyre Heros:bold",
+    "mathtext.sf": "TeX Gyre Heros",
+    "mathtext.it": "TeX Gyre Heros:italic",
+    "mathtext.tt": "TeX Gyre Heros",
+    "mathtext.cal": "TeX Gyre Heros",
     "mathtext.default": "regular",
-    # Figure size
-    "figure.figsize": (10.0, 10.0),
+    # Figure configuration
+    "figure.figsize": (12, 9),
     "figure.facecolor": "white",
+    "figure.dpi": 100,
     # Text properties
     "text.hinting_factor": 8,
     "font.size": 26,
@@ -31,54 +35,87 @@ DUNE = {
     "axes.facecolor": "white",
     "axes.edgecolor": "black",
     "axes.grid": False,
-    "axes.linewidth": 1.0,
+    "axes.linewidth": 1.5,
     "axes.labelsize": "xx-large",
     "axes.titlesize": 36,
-    # Use Okabe-Ito colors with ordering that matches DUNE logo colors
+    # "axes.labelpad": 8,  # Better spacing between labels and axes
+    # "axes.formatter.limits": "-3, 4",  # Better scientific notation limits
+    "axes.formatter.use_mathtext": True,
+    "axes.unicode_minus": False,  # Use ASCII minus for better compatibility
+    "axes.xmargin": 0.0,  # Small margin for better plot bounds
+    "axes.ymargin": 0.0,
+    # Enhanced color cycle - DUNE logo colors first, then accessibility-optimized sequence
     "axes.prop_cycle": cycler(
         "color",
         [
-            "#000000",
-            "#D55E00",
-            "#56B4E9",
-            "#E69F00",
-            "#009E73",
-            "#CC79A7",
-            "#0072B2",
-            "#F0E442",
+            "#000000",  # Black (high contrast)
+            "#D55E00",  # DUNE Orange (primary)
+            "#56B4E9",  # DUNE Sky Blue (primary)
+            "#E69F00",  # DUNE Yellow/Gold (primary)
+            "#009E73",  # Green (accessible)
+            "#CC79A7",  # Pink (accessible)
+            "#0072B2",  # Blue (accessible)
+            "#F0E442",  # Bright Yellow (accessible)
         ],
     ),
     # Line properties
     "lines.linewidth": 2.0,
-    # Patch properties (used for histograms)
+    "lines.markersize": 8,
+    # Patch properties (histograms)
     "patch.linewidth": 1.5,
-    "patch.facecolor": "blue",
-    "patch.edgecolor": "#eeeeee",
+    "patch.facecolor": "#D55E00",
+    "patch.edgecolor": "black",
     "patch.antialiased": True,
-    # Image properties
-    "image.cmap": "cividis",  # Colo(u)r Vision Deficiency friendly
-    # Grid properties (off by default)
+    # Image properties - Color Vision Deficiency friendly
+    "image.cmap": "cividis",
+    "image.aspect": "auto",
+    # Grid properties - Improved styling when enabled
     "grid.color": "#b2b2b2",
-    "grid.linestyle": "--",
+    "grid.linestyle": ":",  # Dotted style for less visual interference
     "grid.linewidth": 0.5,
+    "grid.alpha": 0.8,
     # Legend properties
-    "legend.fontsize": 12,
+    "legend.fontsize": "medium",  # Better relative sizing
+    "legend.title_fontsize": "medium",
     "legend.frameon": False,
-    # Tick properties
+    "legend.handlelength": 2.0,
+    "legend.borderpad": 0.8,
+    "legend.columnspacing": 1.0,
+    "legend.labelspacing": 0.5,
+    # Enhanced tick properties
     "xtick.color": "black",
     "xtick.direction": "in",
-    "xtick.labelsize": "x-large",
-    "xtick.major.size": 10,
-    "xtick.minor.size": 5,
+    "xtick.labelsize": "large",
+    "xtick.major.size": 8,
+    "xtick.minor.size": 4,
+    "xtick.major.pad": 6,
     "xtick.minor.visible": True,
     "xtick.top": True,
+    "xtick.bottom": True,
+    "xtick.major.top": True,
+    "xtick.major.bottom": True,
+    "xtick.minor.top": True,
+    "xtick.minor.bottom": True,
     "ytick.color": "black",
     "ytick.direction": "in",
-    "ytick.labelsize": "x-large",
-    "ytick.major.size": 10,
-    "ytick.minor.size": 5,
+    "ytick.labelsize": "large",
+    "ytick.major.size": 8,
+    "ytick.minor.size": 4,
+    "ytick.major.pad": 6,
     "ytick.minor.visible": True,
     "ytick.right": True,
+    "ytick.left": True,
+    "ytick.major.left": True,
+    "ytick.major.right": True,
+    "ytick.minor.left": True,
+    "ytick.minor.right": True,
+    # Enhanced axis label positioning (like other HEP experiments)
+    "xaxis.labellocation": "right",
+    "yaxis.labellocation": "top",
+    # Save figure properties
+    "savefig.transparent": False,
+    "savefig.bbox": "tight",
+    # "savefig.pad_inches": 0.1,
 }
 
 # Filter extra items if needed
@@ -89,6 +126,7 @@ DUNETex = {
     **DUNE,
     "text.usetex": True,
     "text.latex.preamble": r"\usepackage{siunitx},\sisetup{detect-all}, \
-                              \usepackage{helvet},\usepackage{sansmath}, \
-                              \sansmath",
+                              \usepackage{tgheros},\renewcommand{\familydefault}{\sfdefault}, \
+                              \usepackage{sansmath},\sansmath, \
+                              \usepackage{amsmath},\usepackage{physics}",
 }

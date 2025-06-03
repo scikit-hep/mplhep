@@ -30,45 +30,45 @@ ATLAS
 ATLAS has two styles, the default one and the alternative one.
 
 
-.. image:: ../../_static/_generated/ATLAS/fill/pos0.png
+.. image:: ../_static/_generated/ATLAS/fill/pos0.png
    :width: 45%
 
-.. image:: ../../_static/_generated/ATLAS/step/pos0.png
+.. image:: ../_static/_generated/ATLAS/step/pos0.png
     :width: 45%
 
-.. image:: ../../_static/_generated/ATLAS/errorbar/pos0.png
+.. image:: ../_static/_generated/ATLAS/errorbar/pos0.png
     :width: 45%
 
-.. image:: ../../_static/_generated/ATLAS/band/pos0.png
+.. image:: ../_static/_generated/ATLAS/band/pos0.png
     :width: 45%
 
 ATLAS alternative, named ``ATLASAlt``
 
-.. image:: ../../_static/_generated/ATLASAlt/fill/pos0.png
+.. image:: ../_static/_generated/ATLASAlt/fill/pos0.png
    :width: 45%
 
-.. image:: ../../_static/_generated/ATLASAlt/step/pos0.png
+.. image:: ../_static/_generated/ATLASAlt/step/pos0.png
     :width: 45%
 
-.. image:: ../../_static/_generated/ATLASAlt/errorbar/pos0.png
+.. image:: ../_static/_generated/ATLASAlt/errorbar/pos0.png
     :width: 45%
 
-.. image:: ../../_static/_generated/ATLASAlt/band/pos0.png
+.. image:: ../_static/_generated/ATLASAlt/band/pos0.png
     :width: 45%
 
 CMS
 ------------
 
-.. image:: ../../_static/_generated/CMS/fill/pos0.png
+.. image:: ../_static/_generated/CMS/fill/pos0.png
    :width: 45%
 
-.. image:: ../../_static/_generated/CMS/step/pos0.png
+.. image:: ../_static/_generated/CMS/step/pos0.png
     :width: 45%
 
-.. image:: ../../_static/_generated/CMS/errorbar/pos0.png
+.. image:: ../_static/_generated/CMS/errorbar/pos0.png
     :width: 45%
 
-.. image:: ../../_static/_generated/CMS/band/pos0.png
+.. image:: ../_static/_generated/CMS/band/pos0.png
     :width: 45%
 
 LHCb
@@ -80,30 +80,30 @@ LHCb has two styles, the older one, :py:obj:`~mplhep.style.LHCb1`, and the newer
 
 LHCb1 style (old)
 
-.. image:: ../../_static/_generated/LHCb1/fill/pos0.png
+.. image:: ../_static/_generated/LHCb1/fill/pos0.png
    :width: 45%
 
-.. image:: ../../_static/_generated/LHCb1/step/pos0.png
+.. image:: ../_static/_generated/LHCb1/step/pos0.png
     :width: 45%
 
-.. image:: ../../_static/_generated/LHCb1/errorbar/pos0.png
+.. image:: ../_static/_generated/LHCb1/errorbar/pos0.png
     :width: 45%
 
-.. image:: ../../_static/_generated/LHCb1/band/pos0.png
+.. image:: ../_static/_generated/LHCb1/band/pos0.png
     :width: 45%
 
 LHCb2 style
 
-.. image:: ../../_static/_generated/LHCb2/fill/pos0.png
+.. image:: ../_static/_generated/LHCb2/fill/pos0.png
    :width: 45%
 
-.. image:: ../../_static/_generated/LHCb2/step/pos0.png
+.. image:: ../_static/_generated/LHCb2/step/pos0.png
     :width: 45%
 
-.. image:: ../../_static/_generated/LHCb2/errorbar/pos0.png
+.. image:: ../_static/_generated/LHCb2/errorbar/pos0.png
     :width: 45%
 
-.. image:: ../../_static/_generated/LHCb2/band/pos0.png
+.. image:: ../_static/_generated/LHCb2/band/pos0.png
     :width: 45%
 
 
@@ -112,16 +112,16 @@ ALICE
 
 ALICE style
 
-.. image:: ../../_static/_generated/ALICE/fill/pos0.png
+.. image:: ../_static/_generated/ALICE/fill/pos0.png
    :width: 45%
 
-.. image:: ../../_static/_generated/ALICE/step/pos0.png
+.. image:: ../_static/_generated/ALICE/step/pos0.png
     :width: 45%
 
-.. image:: ../../_static/_generated/ALICE/errorbar/pos0.png
+.. image:: ../_static/_generated/ALICE/errorbar/pos0.png
     :width: 45%
 
-.. image:: ../../_static/_generated/ALICE/band/pos0.png
+.. image:: ../_static/_generated/ALICE/band/pos0.png
     :width: 45%
 
 DUNE
@@ -129,14 +129,14 @@ DUNE
 
 DUNE style
 
-.. image:: ../../_static/_generated/DUNE/fill/pos0.png
+.. image:: ../_static/_generated/DUNE/fill/pos0.png
    :width: 45%
 
-.. image:: ../../_static/_generated/DUNE/step/pos0.png
+.. image:: ../_static/_generated/DUNE/step/pos0.png
     :width: 45%
 
-.. image:: ../../_static/_generated/DUNE/errorbar/pos0.png
+.. image:: ../_static/_generated/DUNE/errorbar/pos0.png
     :width: 45%
 
-.. image:: ../../_static/_generated/DUNE/band/pos0.png
+.. image:: ../_static/_generated/DUNE/band/pos0.png
     :width: 45%
