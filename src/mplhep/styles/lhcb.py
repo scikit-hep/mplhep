@@ -127,6 +127,8 @@ LHCb2 = {
     "axes.labelsize": 32,
     "axes.linewidth": 2,
     "axes.facecolor": "white",
+    "axes.xmargin": 0.0,
+    "axes.ymargin": 0.0,
     # Custom colors
     "axes.prop_cycle": cycler("color", colors2),
     "axes.formatter.min_exponent": 3,
@@ -174,7 +176,7 @@ LHCb2 = {
     "lines.elinewidth": 1.5,
     # Saved figure settings
     "savefig.bbox": "tight",
-    "savefig.pad_inches": 0.3,
+    "savefig.pad_inches": 0.1,
     "savefig.format": "pdf",
     # Ticks settings
     # xticks
