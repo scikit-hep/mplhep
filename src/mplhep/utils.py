@@ -358,7 +358,7 @@ def yerr_plottables(plottables, bins, yerr=None):
         else:
             _yerr = None
             for _plottable in plottables:
-                _plottable.errors()
+                _plottable.errors(assume_variances_equal_values=True)
     else:
         _yerr = None
     if _yerr is not None:
@@ -473,8 +473,6 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         if isinstance(self._variances, np.ndarray) and self._variances.ndim == 0:
             self._variances = None
 
-        self._has_variances = self.variances() is not None
-
         self._binwnorm = False
         self._density = False
 
@@ -509,7 +507,7 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
             [
                 np.array_equal(self.values(), other.values()),
                 np.array_equal(self.variances(), other.variances()),
-                np.array_equal(self.edges, other.edges),
+                np.array_equal(self.edges_1d(), other.edges_1d()),
             ]
         )
 
@@ -532,16 +530,23 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         edges[1:] = [self.axes[0].edges[i][1] for i in range(len(self.axes[0]))]
         return edges
 
-    def errors(self, method=None):
-        """Calculate asymmetric y-errors using a specified or inferred method ('poisson', 'sqrt', or callable)."""
+    def errors(self, method=None, assume_variances_equal_values=False):
+        """
+        Calculate y-errors using a specified or inferred method ('poisson', 'sqrt', or callable).
+        The method should have signature method(sumw, sumw2) -> (lower_abs_val, upper_abs_val).
+        If variances is None and assume_variances_equal_values is True, the values will be used as variances.
+        """
         if self._errors_present:
             return
+        if assume_variances_equal_values and self.variances() is None:
+            self._variances = self.values()
+        if self.variances() is None:
+            return
         assert method in ["poisson", "sqrt", None] or callable(method)
-        variances = self.variances() if self.variances() is not None else self.values()
         if method is None:
             method = self.method
             if method is None:
-                if np.allclose(variances, np.around(variances)):
+                if np.allclose(self.variances(), np.around(self.variances())):
                     method = "poisson"
                 else:
                     method = "sqrt"
@@ -553,13 +558,15 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
             return np.abs(method_fcn(self.values(), variances) - self.values())
 
         if method == "sqrt":
-            self.yerr_lo, self.yerr_hi = calculate_relative(sqrt_method, variances)
+            self.yerr_lo, self.yerr_hi = calculate_relative(
+                sqrt_method, self.variances()
+            )
         elif method == "poisson":
             try:
                 from .error_estimation import poisson_interval
 
                 self.yerr_lo, self.yerr_hi = calculate_relative(
-                    poisson_interval, variances
+                    poisson_interval, self.variances()
                 )
             except ImportError:
                 warnings.warn(
@@ -568,17 +575,16 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
                     "will be set to ``sqrt(w2)``.",
                     stacklevel=2,
                 )
-                self.yerr_lo, self.yerr_hi = calculate_relative(sqrt_method, variances)
+                self.yerr_lo, self.yerr_hi = calculate_relative(
+                    sqrt_method, self.variances()
+                )
         elif callable(method):
-            self.yerr_lo, self.yerr_hi = calculate_relative(method, variances)
+            self.yerr_lo, self.yerr_hi = calculate_relative(method, self.variances())
         else:
             msg = "``method'' needs to be a callable or 'poisson' or 'sqrt'."
             raise RuntimeError(msg)
         self.yerr_lo = np.nan_to_num(self.yerr_lo, 0)
         self.yerr_hi = np.nan_to_num(self.yerr_hi, 0)
-        self.set_variances(
-            self.values() if not self._has_variances else self.variances()
-        )
 
     def fixed_errors(self, yerr_lo, yerr_hi):
         """Manually assign fixed lower and upper y-errors."""
@@ -587,11 +593,13 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         self._errors_present = True
 
     def scale(self, scale):
-        """Apply a scaling factor to values and variances, and recalculate errors."""
+        """Apply a scaling factor to values and variances."""
+        if self._errors_present:
+            msg = "Cannot recompute errors when errors already present."
+            raise RuntimeError(msg)
         self._values *= scale
         if self.variances() is not None:
             self._variances *= scale * scale
-        self.errors()
         return self
 
     def flat_scale(self, scale):
