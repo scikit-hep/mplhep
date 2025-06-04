@@ -515,6 +515,58 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         """Return string representation of the EnhancedPlottableHistogram object."""
         return f"EnhancedPlottableHistogram({self.values()}, {self.axes[0].edges}, {self.variances()}"
 
+    def __add__(self, other):
+        """
+        Add two EnhancedPlottableHistograms.
+        """
+        if not isinstance(other, EnhancedPlottableHistogram):
+            msg = (
+                "Can only add EnhancedPlottableHistogram to EnhancedPlottableHistogram."
+            )
+            raise TypeError(msg)
+        if len(self.axes) > 1:
+            msg = "Addition of multi-dimensional histograms is not supported."
+            raise NotImplementedError(msg)
+        if self.axes != other.axes:
+            msg = "Histograms must have the same axes to be added."
+            raise ValueError(msg)
+        if not np.allclose(self.centers, other.centers):
+            msg = "Histograms must have the same bin centers to be added."
+            raise ValueError(msg)
+        if self.kind != Kind.COUNT or other.kind != Kind.COUNT:
+            msg = "Histograms must be of kind COUNT to be added."
+            raise ValueError(msg)
+        if self._errors_present or other._errors_present:
+            msg = "Cannot add histograms with fixed errors."
+            raise RuntimeError(msg)
+        added_values = self.values() + other.values()
+        added_variances = None
+        if self._variances is not None and other._variances is not None:
+            added_variances = self._variances + other._variances
+        else:
+            added_variances = None
+        return EnhancedPlottableHistogram(
+            added_values, self.axes[0].edges, variances=added_variances, kind=self.kind
+        )
+
+    def __radd__(self, other):
+        if other == 0:
+            return self
+        return self.__add__(other)
+
+    def __mul__(self, factor):
+        if not isinstance(factor, (int, float)):
+            msg = "Factor must be a scalar (int or float)."
+            raise TypeError(msg)
+        if len(self.axes) > 1:
+            msg = "Scaling of multi-dimensional histograms is not supported."
+            raise NotImplementedError(msg)
+        self.scale(factor)
+        return self
+
+    def __rmul__(self, factor):
+        return self.__mul__(factor)
+
     def set_values(self, values: np.typing.NDArray[Any]) -> None:
         """Set the values of the histogram."""
         self._values = values
