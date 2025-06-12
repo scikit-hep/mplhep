@@ -10,7 +10,8 @@ from mplhep import EnhancedPlottableHistogram
 def basic_hist():
     edges = np.array([[0, 1], [1, 2], [2, 3]], dtype=float)
     values = np.array([1.0, 2.0, 3.0], dtype=float)
-    return EnhancedPlottableHistogram(values, edges=edges)
+    variances = values
+    return EnhancedPlottableHistogram(values, edges=edges, variances=variances)
 
 
 # --- Representation and equality ---
@@ -18,7 +19,9 @@ def basic_hist():
 
 def test_equality_and_repr(basic_hist):
     other = EnhancedPlottableHistogram(
-        basic_hist.values(), edges=basic_hist.axes[0].edges
+        basic_hist.values(),
+        edges=basic_hist.axes[0].edges,
+        variances=basic_hist.variances(),
     )
     assert basic_hist == other
     other.set_values(np.array([1.0, 2.1, 3.0]))
@@ -45,7 +48,9 @@ def test_add_not_implemented_for_multidimensional(basic_hist):
 
 def test_add_mismatched_axes(basic_hist):
     other = EnhancedPlottableHistogram(
-        basic_hist.values(), edges=np.array([[0, 2], [2, 4], [4, 6]], dtype=float)
+        basic_hist.values(),
+        edges=np.array([[0, 2], [2, 4], [4, 6]], dtype=float),
+        variances=basic_hist.variances(),
     )
     with pytest.raises(ValueError, match="same axes"):
         _ = basic_hist + other
@@ -79,9 +84,30 @@ def test_add_with_fixed_errors(basic_hist):
 
 def test_radd_with_zero(basic_hist):
     h1 = basic_hist
-    h2 = EnhancedPlottableHistogram(np.zeros_like(h1.values()), edges=h1.axes[0].edges)
+    h2 = EnhancedPlottableHistogram(
+        np.zeros_like(h1.values()), edges=h1.axes[0].edges, variances=h1.variances()
+    )
     result = sum([h1, h2])
     assert np.allclose(result.values(), h1.values())
+
+
+def test_radd(basic_hist):
+    h1 = basic_hist
+    h2 = EnhancedPlottableHistogram(
+        np.array([4.0, 5.0, 6.0], dtype=float), edges=h1.axes[0].edges
+    )
+    result = h2 + h1
+    assert np.array_equal(result.values(), [5.0, 7.0, 9.0])
+    assert result.variances() is None
+
+    h2 = EnhancedPlottableHistogram(
+        np.array([4.0, 5.0, 6.0], dtype=float),
+        edges=h1.axes[0].edges,
+        variances=np.array([4.0, 5.0, 6.0]),
+    )
+    result = h2 + h1
+    assert np.array_equal(result.values(), [5.0, 7.0, 9.0])
+    assert np.array_equal(result.variances(), [5.0, 7.0, 9.0])
 
 
 # --- Multiplication and scaling ---
@@ -89,14 +115,19 @@ def test_radd_with_zero(basic_hist):
 
 def test_mul_and_rmul_and_typeerror(basic_hist):
     h = basic_hist
-    original = h.values().copy()
+    original_values = h.values().copy()
+    original_variances = h.variances().copy()
     result = h * 3
     assert result is h
-    assert np.array_equal(h.values(), original * 3)
+    assert np.array_equal(h.values(), original_values * 3)
+    assert np.array_equal(h.variances(), original_variances * 3**2)
 
-    fresh = EnhancedPlottableHistogram(original, edges=basic_hist.axes[0].edges)
-    _ = 4 * fresh
-    assert np.array_equal(fresh.values(), original * 4)
+    h_no_variances = EnhancedPlottableHistogram(
+        original_values, edges=basic_hist.axes[0].edges
+    )
+    _ = 4 * h_no_variances
+    assert np.array_equal(h_no_variances.values(), original_values * 4)
+    assert h_no_variances.variances() is None
 
     with pytest.raises(TypeError):
         _ = basic_hist * "a"
@@ -173,16 +204,22 @@ def test_scalar_variance_gets_ignored():
 
 
 def test_errors_no_variances(basic_hist):
-    h = basic_hist
+    h = EnhancedPlottableHistogram(
+        basic_hist.values(), edges=basic_hist.axes[0].edges, variances=None
+    )
     h.errors()
     assert np.all(h.yerr_lo == 0)
     assert np.all(h.yerr_hi == 0)
 
 
-def test_errors_assume_variances_equal_values_and_sqrt():
+def test_errors_assume_variances_equal_values():
     values = np.array([4.0, 9.0])
     edges = np.array([[0, 1], [1, 2]], dtype=float)
     h = EnhancedPlottableHistogram(values, edges=edges, variances=None)
+    h.errors(assume_variances_equal_values=True)
+    assert np.allclose(h.yerr_lo, np.array([1.91433919, 2.94346104]))
+    assert np.allclose(h.yerr_hi, np.array([3.16275317, 4.11020414]))
+
     h.errors(method="sqrt", assume_variances_equal_values=True)
     expected = np.sqrt(values)
     assert np.allclose(h.yerr_lo, expected)
@@ -198,6 +235,16 @@ def test_errors_sqrt_behavior():
     expected = np.sqrt(variances)
     assert np.allclose(h.yerr_lo, expected)
     assert np.allclose(h.yerr_hi, expected)
+
+
+def test_errors_poisson_behavior():
+    values = np.array([1.0, 4.0])
+    edges = np.array([[0, 1], [1, 2]], dtype=float)
+    variances = np.array([1.0, 4.0])
+    h = EnhancedPlottableHistogram(values, edges=edges, variances=variances)
+    h.errors(method="poisson")
+    assert np.allclose(h.yerr_lo, np.array([0.82724622, 1.91433919]))
+    assert np.allclose(h.yerr_hi, np.array([2.29952656, 3.16275317]))
 
 
 def test_errors_callable_method():
