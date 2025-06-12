@@ -27,7 +27,12 @@ from .plot import (
     yscale_legend,
 )
 from .styles import set_style
-from .utils import EnhancedPlottableHistogram, get_plottables
+from .utils import (
+    EnhancedPlottableHistogram,
+    _check_counting_histogram,
+    get_plottables,
+    make_plottable_histogram,
+)
 
 # Configs
 rcParams = Config(
@@ -79,4 +84,6 @@ __all__ = [
     "set_style",
     "get_plottables",
     "EnhancedPlottableHistogram",
+    "make_plottable_histogram",
+    "_check_counting_histogram",
 ]
