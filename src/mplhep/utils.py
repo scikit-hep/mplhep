@@ -550,6 +550,7 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
             edges=self.axes[0].edges,
             variances=added_variances,
             kind=self.kind,
+            w2method=self.method,
         )
 
     def __radd__(self, other):
@@ -564,8 +565,18 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         if len(self.axes) > 1:
             msg = "Scaling of multi-dimensional histograms is not supported."
             raise NotImplementedError(msg)
-        self.scale(factor)
-        return self
+        if self._errors_present:
+            msg = "Cannot multiply a histogram with fixed errors."
+            raise RuntimeError(msg)
+        return EnhancedPlottableHistogram(
+            self.values() * factor,
+            edges=self.axes[0].edges,
+            variances=(
+                self.variances() * factor**2 if self.variances() is not None else None
+            ),
+            kind=self.kind,
+            w2method=self.method,
+        )
 
     def __rmul__(self, factor):
         return self.__mul__(factor)
@@ -708,7 +719,7 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         }
 
 
-def make_plottable_histogram(hist):
+def make_plottable_histogram(hist, **kwargs):
     """
     Convert a histogram to a plottable histogram.
 
@@ -727,6 +738,13 @@ def make_plottable_histogram(hist):
     ValueError
         If the input histogram is not 1D.
     """
+    if isinstance(hist, EnhancedPlottableHistogram) and kwargs:
+        warnings.warn(
+            "Additional keyword arguments are ignored when converting an already plottable histogram.",
+            stacklevel=2,
+        )
+        return hist
+
     hist = ensure_plottable_histogram(hist)
     if len(hist.axes) != 1:
         msg = "Only 1D histograms are supported."
@@ -747,6 +765,7 @@ def make_plottable_histogram(hist):
         edges=edges,
         variances=np.array(hist.variances()),  # copy to avoid further modification
         kind=hist.kind,
+        **kwargs,  # pass any additional keyword arguments
     )
 
 
