@@ -535,7 +535,7 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
             raise ValueError(msg)
         if self.kind != Kind.COUNT or other.kind != Kind.COUNT:
             msg = "Histograms must be of kind COUNT to be added."
-            raise ValueError(msg)
+            raise TypeError(msg)
         if self._errors_present or other._errors_present:
             msg = "Cannot add histograms with fixed errors."
             raise RuntimeError(msg)
@@ -546,7 +546,10 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         else:
             added_variances = None
         return EnhancedPlottableHistogram(
-            added_values, self.axes[0].edges, variances=added_variances, kind=self.kind
+            added_values,
+            edges=self.axes[0].edges,
+            variances=added_variances,
+            kind=self.kind,
         )
 
     def __radd__(self, other):
