@@ -513,7 +513,7 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
 
     def __repr__(self):
         """Return string representation of the EnhancedPlottableHistogram object."""
-        return f"EnhancedPlottableHistogram({self.values()}, {self.axes[0].edges}, {self.variances()}"
+        return f"EnhancedPlottableHistogram(values={self.values()}, edges={self.axes[0].edges}, variances={self.variances()})"
 
     def __add__(self, other):
         """
@@ -706,6 +706,67 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
             "yerr": [self.yerr_lo, self.yerr_hi],
             "xerr": [self.xerr_lo, self.xerr_hi],
         }
+
+
+def make_plottable_histogram(hist):
+    """
+    Convert a histogram to a plottable histogram.
+
+    Parameters
+    ----------
+    hist : Histogram object
+        The histogram to be converted.
+
+    Returns
+    -------
+    EnhancedPlottableHistogram
+        The converted plottable histogram.
+
+    Raises
+    ------
+    ValueError
+        If the input histogram is not 1D.
+    """
+    hist = ensure_plottable_histogram(hist)
+    if len(hist.axes) != 1:
+        msg = "Only 1D histograms are supported."
+        raise ValueError(msg)
+
+    axis = hist.axes[0]
+
+    edges = np.arange(len(axis) + 1).astype(float)
+    if isinstance(axis[0], tuple):  # Regular axis
+        edges[0] = axis[0][0]
+        edges[1:] = [axis[i][1] for i in range(len(axis))]
+    else:  # Categorical axis
+        msg = "Categorical axis is not supported yet."
+        raise NotImplementedError(msg)
+
+    return EnhancedPlottableHistogram(
+        np.array(hist.values()),  # copy to avoid further modification
+        edges=edges,
+        variances=np.array(hist.variances()),  # copy to avoid further modification
+        kind=hist.kind,
+    )
+
+
+def _check_counting_histogram(hist):
+    """
+    Check that the histogram is a counting histogram.
+
+    Parameters
+    ----------
+    hist : histogram
+
+    Raise
+    -----
+    ValueError
+        If the histogram is not a counting histogram.
+
+    """
+    if hist.kind != Kind.COUNT:
+        msg = f"The histogram must be a counting histogram, but the input histogram has kind {hist.kind}."
+        raise ValueError(msg)
 
 
 def stack(*plottables):
