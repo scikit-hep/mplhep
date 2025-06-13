@@ -5,18 +5,15 @@ from typing import Any
 import matplotlib as mpl
 from cycler import cycler
 
-# Color wheel from https://arxiv.org/pdf/2107.02270 Table 1, 10 color palette
+# Color wheel based on internal discussions of optimal
+# colors for visibility, accounting for color vision deficiency
 color_sequence = [
-    "#3f90da",
-    "#ffa90e",
-    "#bd1f01",
-    "#94a4a2",
-    "#832db6",
-    "#a96b59",
-    "#e76300",
-    "#b9ac70",
-    "#717581",
-    "#92dadd",
+    "#e69f00",
+    "#56b4e9",
+    "#009e73",
+    "#f0e442",
+    "#0072b2",
+    "#cc79a7",
 ]
 
 _base = {
