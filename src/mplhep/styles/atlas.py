@@ -5,6 +5,9 @@ from typing import Any
 import matplotlib as mpl
 from cycler import cycler
 
+# For depreciated colors
+from .._deprecate import deprecated_dict
+
 # Color wheel from https://arxiv.org/pdf/2107.02270 Table 1, 10 color palette
 color_sequence1 = [
     "#3f90da",
