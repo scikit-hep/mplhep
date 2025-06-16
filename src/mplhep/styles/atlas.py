@@ -5,9 +5,23 @@ from typing import Any
 import matplotlib as mpl
 from cycler import cycler
 
+# Color wheel from https://arxiv.org/pdf/2107.02270 Table 1, 10 color palette
+color_sequence1 = [
+    "#3f90da",
+    "#ffa90e",
+    "#bd1f01",
+    "#94a4a2",
+    "#832db6",
+    "#a96b59",
+    "#e76300",
+    "#b9ac70",
+    "#717581",
+    "#92dadd",
+]
+
 # Color wheel based on internal discussions of optimal
 # colors for visibility, accounting for color vision deficiency
-color_sequence = [
+color_sequence2 = [
     "#e69f00",
     "#56b4e9",
     "#009e73",
@@ -46,7 +60,6 @@ _base = {
     "figure.subplot.left": 0.16,
     "figure.subplot.right": 0.95,
     # axes
-    "axes.prop_cycle": cycler("color", color_sequence),
     "axes.titlesize": "xx-large",
     "axes.labelsize": "x-large",
     "axes.linewidth": 1,
@@ -103,8 +116,22 @@ _base = {
     "savefig.transparent": False,
 }
 
-ATLAS: dict[str, Any] = {
+ATLAS1: dict[str, Any] = {
     **_base,
+    "axes.prop_cycle": cycler("color", color_sequence1),
+    "mathtext.fontset": "custom",
+    "mathtext.rm": "TeX Gyre Heros",
+    "mathtext.bf": "TeX Gyre Heros:bold",
+    "mathtext.sf": "TeX Gyre Heros",
+    "mathtext.it": "TeX Gyre Heros:italic",
+    "mathtext.tt": "TeX Gyre Heros",
+    "mathtext.cal": "TeX Gyre Heros",
+    "mathtext.default": "it",
+}
+
+ATLAS2: dict[str, Any] = {
+    **_base,
+    "axes.prop_cycle": cycler("color", color_sequence2),
     "mathtext.fontset": "custom",
     "mathtext.rm": "TeX Gyre Heros",
     "mathtext.bf": "TeX Gyre Heros:bold",
@@ -118,12 +145,13 @@ ATLAS: dict[str, Any] = {
 # use dejavusans (default math fontset)
 ATLASAlt: dict[str, Any] = {
     **_base,
+    "axes.prop_cycle": cycler("color", color_sequence1),
     "mathtext.default": "it",
 }
 
 # use LaTeX
 ATLASTex: dict[str, Any] = {
-    **_base,
+    **ATLAS2,
     "text.usetex": True,
     "text.latex.preamble": "\n".join(
         [
@@ -141,6 +169,17 @@ ATLASTex: dict[str, Any] = {
 }
 
 # Filter extra (labellocation) items if needed
-ATLAS = {k: v for k, v in ATLAS.items() if k in mpl.rcParams}
+ATLAS1 = {k: v for k, v in ATLAS1.items() if k in mpl.rcParams}
+ATLAS2 = {k: v for k, v in ATLAS2.items() if k in mpl.rcParams}
 ATLASAlt = {k: v for k, v in ATLASAlt.items() if k in mpl.rcParams}
 ATLASTex = {k: v for k, v in ATLASTex.items() if k in mpl.rcParams}
+
+# Alias 'ATLAS' to the one that most folks should use
+ATLAS = ATLAS2.copy()
+
+# Add warnings for the older sets
+color_msg = ("This ATLAS style uses a color sequence not preferred by the collaboration.
+              Please switch to 'ATLAS2' or 'ATLAS' style. ATLAS members can see more at
+              https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PubComPlotStyle#Colors")
+ATLAS1 = deprecated_dict(ATLAS1, message=color_msg, warning=FutureWarning)
+ATLASAlt = deprecated_dict(ATLASAlt, message=color_msg, warning=FutureWarning)
