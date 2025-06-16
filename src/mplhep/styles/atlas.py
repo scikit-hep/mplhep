@@ -178,8 +178,10 @@ ATLASTex = {k: v for k, v in ATLASTex.items() if k in mpl.rcParams}
 ATLAS = ATLAS2.copy()
 
 # Add warnings for the older sets
-color_msg = ("This ATLAS style uses a color sequence not preferred by the collaboration. "
-             "Please switch to 'ATLAS2' or 'ATLAS' style. ATLAS members can see more at "
-             "https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PubComPlotStyle#Colors")
+color_msg = (
+    "This ATLAS style uses a color sequence not preferred by the collaboration. "
+    "Please switch to 'ATLAS2' or 'ATLAS' style. ATLAS members can see more at "
+    "https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PubComPlotStyle#Colors"
+)
 ATLAS1 = deprecated_dict(ATLAS1, message=color_msg, warning=FutureWarning)
 ATLASAlt = deprecated_dict(ATLASAlt, message=color_msg, warning=FutureWarning)
