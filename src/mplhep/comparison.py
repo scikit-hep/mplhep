@@ -56,12 +56,10 @@ def get_difference(h1, h2, h1_uncertainty_type="sqrt"):
     _check_counting_histogram(h2_plottable)
 
     h1_plottable.method = h1_uncertainty_type
-    h2_plottable.method = "sqrt"
 
     h_diff = h1_plottable + -1 * h2_plottable
 
     h1_plottable.errors()
-    h2_plottable.errors()
 
     if h1_uncertainty_type == "poisson":
         uncertainties_low, uncertainties_high = (
