@@ -24,13 +24,18 @@ color_sequence1 = [
 
 # Color wheel based on internal discussions of optimal
 # colors for visibility, accounting for color vision deficiency
+# The recommendation for signal is ROOT.kRed aka '#ff0000'; for
+# plots with no signal, '#ff0000' should be used as the final
+# color in the standard palette / color wheel.
+# For large signals, ROOT.kWhite / '#ffffff' is also an option
 color_sequence2 = [
-    "#e69f00",
     "#56b4e9",
-    "#009e73",
+    "#e69f00",
     "#f0e442",
-    "#0072b2",
+    "#009e73",
     "#cc79a7",
+    "#0072b2",
+    "#ff0000",
 ]
 
 _base = {

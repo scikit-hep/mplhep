@@ -27,7 +27,11 @@ to illustrate the visual appearance of the styles.
 ATLAS
 ------------
 
-ATLAS has one recommended style, named ``ATLAS`` (or ``ATLAS2``):
+ATLAS has one recommended style, named ``ATLAS`` (or ``ATLAS2``).
+The recommended color for signal is ``#ff0000`` (``ROOT.kRed``);
+for large signals, ``#ffffff`` (``ROOT.kWhite``) is also an option.
+In plots without a signal, ``#ff0000`` is intended to be used as
+the last color in the palette.
 
 .. image:: ../../_static/_generated/ATLAS/fill/pos0.png
    :width: 45%
@@ -39,35 +43,6 @@ ATLAS has one recommended style, named ``ATLAS`` (or ``ATLAS2``):
     :width: 45%
 
 .. image:: ../../_static/_generated/ATLAS/band/pos0.png
-    :width: 45%
-
-Two alternatives are available with different fonts and color
-schemes, named ``ATLAS1`` and ``ATLASAlt``, though these are
-not preferred:
-
-.. image:: ../../_static/_generated/ATLAS1/fill/pos0.png
-   :width: 45%
-
-.. image:: ../../_static/_generated/ATLAS1/step/pos0.png
-    :width: 45%
-
-.. image:: ../../_static/_generated/ATLAS1/errorbar/pos0.png
-    :width: 45%
-
-.. image:: ../../_static/_generated/ATLAS1/band/pos0.png
-    :width: 45%
-
-
-.. image:: ../../_static/_generated/ATLASAlt/fill/pos0.png
-   :width: 45%
-
-.. image:: ../../_static/_generated/ATLASAlt/step/pos0.png
-    :width: 45%
-
-.. image:: ../../_static/_generated/ATLASAlt/errorbar/pos0.png
-    :width: 45%
-
-.. image:: ../../_static/_generated/ATLASAlt/band/pos0.png
     :width: 45%
 
 CMS
