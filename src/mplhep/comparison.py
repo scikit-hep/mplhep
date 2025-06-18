@@ -368,7 +368,7 @@ def get_asymmetry(h1, h2):
     )
 
 
-def get_efficency(h1, h2):
+def get_efficiency(h1, h2):
     """
     Calculate the ratio of two correlated histograms (h1/h2), in which the entries of h1 are a subsample of the entries of h2.
     The variances are calculated according to the formula given in :ref:`documentation-statistics-label`.
@@ -520,7 +520,7 @@ def get_comparison(
         if h1_uncertainty_type == "poisson":
             msg = "Poisson asymmetrical uncertainties are not supported for the efficiency comparison."
             raise ValueError(msg)
-        values, uncertainties = get_efficency(h1_plottable, h2_plottable)
+        values, uncertainties = get_efficiency(h1_plottable, h2_plottable)
         lower_uncertainties = uncertainties
         upper_uncertainties = uncertainties
     else:
