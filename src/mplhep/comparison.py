@@ -31,7 +31,7 @@ def _check_binning_consistency(hist_list):  # TODO: test
                 raise ValueError(msg)
 
 
-def get_difference(h1, h2, h1_uncertainty_type="sqrt"):
+def get_difference(h1, h2, h1_w2method="sqrt"):
     """
     Compute the difference between two histograms.
 
@@ -39,7 +39,7 @@ def get_difference(h1, h2, h1_uncertainty_type="sqrt"):
     ----------
     h1 : histogram
     h2 : histogram
-    h1_uncertainty_type : str, optional
+    h1_w2method : str, optional
         What kind of bin uncertainty to use for h1: "sqrt" for symmetrical uncertainties, "poisson" for asymmetrical uncertainties.
 
     Returns
@@ -58,7 +58,7 @@ def get_difference(h1, h2, h1_uncertainty_type="sqrt"):
     _check_binning_consistency([h1_plottable, h2_plottable])
     _check_counting_histogram([h1_plottable, h2_plottable])
 
-    h1_plottable.method = h1_uncertainty_type
+    h1_plottable.method = h1_w2method
 
     h_diff = h1_plottable + -1 * h2_plottable
 
@@ -71,7 +71,7 @@ def get_difference(h1, h2, h1_uncertainty_type="sqrt"):
             np.zeros_like(h_diff.values()),
         )
 
-    if h1_uncertainty_type == "poisson":
+    if h1_w2method == "poisson":
         uncertainties_low, uncertainties_high = (
             h1_plottable.yerr_lo,
             h1_plottable.yerr_hi,
@@ -143,7 +143,7 @@ def get_ratio_variances(h1, h2):
 def get_ratio(
     h1,
     h2,
-    h1_uncertainty_type="sqrt",
+    h1_w2method="sqrt",
     ratio_uncertainty_type="uncorrelated",
 ):
     """
@@ -155,7 +155,7 @@ def get_ratio(
         The numerator histogram.
     h2 : boost_histogram.Histogram
         The denominator histogram.
-    h1_uncertainty_type : str, optional
+    h1_w2method : str, optional
         What kind of bin uncertainty to use for h1: "sqrt" for the Poisson standard deviation derived from the variance stored in the histogram object, "poisson" for asymmetrical uncertainties based on a Poisson confidence interval. Default is "sqrt".
     ratio_uncertainty_type : str, optional
         How to treat the uncertainties of the histograms:
@@ -190,7 +190,7 @@ def get_ratio(
         np.nan,
     )
 
-    h1_plottable.method = h1_uncertainty_type
+    h1_plottable.method = h1_w2method
     h2_plottable.method = "sqrt"
 
     h1_plottable.errors()
@@ -205,7 +205,7 @@ def get_ratio(
     uncertainties_low, uncertainties_high = h1_plottable.yerr_lo, h1_plottable.yerr_hi
 
     if ratio_uncertainty_type == "uncorrelated":
-        if h1_uncertainty_type == "poisson":
+        if h1_w2method == "poisson":
             h1_plottable_high = EnhancedPlottableHistogram(
                 h1_plottable.values(),
                 edges=h1_plottable.axes[0].edges,
@@ -233,7 +233,7 @@ def get_ratio(
             ratio_uncertainties_high = ratio_uncertainties_low
 
     elif ratio_uncertainty_type == "split":
-        if h1_uncertainty_type == "poisson":
+        if h1_w2method == "poisson":
             ratio_uncertainties_low = uncertainties_low / h2_plottable.values()
             ratio_uncertainties_high = uncertainties_high / h2_plottable.values()
 
@@ -256,7 +256,7 @@ def get_ratio(
     )
 
 
-def get_pull(h1, h2, h1_uncertainty_type="sqrt"):
+def get_pull(h1, h2, h1_w2method="sqrt"):
     """
     Compute the pull between two histograms.
 
@@ -266,7 +266,7 @@ def get_pull(h1, h2, h1_uncertainty_type="sqrt"):
         The first histogram.
     h2 : boost_histogram.Histogram
         The second histogram.
-    h1_uncertainty_type : str, optional
+    h1_w2method : str, optional
         What kind of bin uncertainty to use for h1: "sqrt" for the Poisson standard deviation derived from the variance stored in the histogram object, "asymmetrical" for asymmetrical uncertainties based on a Poisson confidence interval. Default is "symmetrical".
 
     Returns
@@ -288,7 +288,7 @@ def get_pull(h1, h2, h1_uncertainty_type="sqrt"):
         msg = "Both histograms must have variances defined to compute the pull."
         raise ValueError(msg)
 
-    h1_plottable.method = h1_uncertainty_type
+    h1_plottable.method = h1_w2method
     h2_plottable.method = "sqrt"
 
     if h1_plottable.method == "poisson":
@@ -433,7 +433,7 @@ def get_comparison(
     h1,
     h2,
     comparison,
-    h1_uncertainty_type="sqrt",
+    h1_w2method="sqrt",
 ):
     """
     Compute the comparison between two histograms.
@@ -447,7 +447,7 @@ def get_comparison(
     comparison : str
         The type of comparison ("ratio", "split_ratio", "pull", "difference", "relative_difference", "efficiency", or "asymmetry").
         When the `split_ratio` option is used, the uncertainties of h1 are scaled down by the bin contents of h2, i.e. assuming zero uncertainty coming from h2 in the ratio uncertainty.
-    h1_uncertainty_type : str, optional
+    h1_w2method : str, optional
         What kind of bin uncertainty to use for h1: "sqrt" for the Poisson standard deviation derived from the variance stored in the histogram object, "poisson" for asymmetrical uncertainties based on a Poisson confidence interval.
         Asymmetrical uncertainties are not supported for the asymmetry and efficiency comparisons.
         Default is "sqrt".
@@ -466,14 +466,16 @@ def get_comparison(
     ValueError
         If the comparison is not valid.
     ValueError
-        If the h1_uncertainty_type is "poisson" and the comparison is "asymmetry" or "efficiency".
+        If h1_w2method is not one of ["sqrt", "poisson"].
+    ValueError
+        If the h1_w2method is "poisson" and the comparison is "asymmetry" or "efficiency".
     """
 
     h1_plottable = make_plottable_histogram(h1)
     h2_plottable = make_plottable_histogram(h2)
 
-    if h1_uncertainty_type not in ["sqrt", "poisson"]:
-        msg = f"h1_uncertainty_type must be one of ['sqrt', 'poisson'], got {h1_uncertainty_type}."
+    if h1_w2method not in ["sqrt", "poisson"]:
+        msg = f"h1_w2method must be one of ['sqrt', 'poisson'], got {h1_w2method}."
         raise ValueError(msg)
 
     _check_binning_consistency([h1_plottable, h2_plottable])
@@ -483,34 +485,34 @@ def get_comparison(
 
     if comparison == "ratio":
         values, lower_uncertainties, upper_uncertainties = get_ratio(
-            h1_plottable, h2_plottable, h1_uncertainty_type, "uncorrelated"
+            h1_plottable, h2_plottable, h1_w2method, "uncorrelated"
         )
     elif comparison == "split_ratio":
         values, lower_uncertainties, upper_uncertainties = get_ratio(
-            h1_plottable, h2_plottable, h1_uncertainty_type, "split"
+            h1_plottable, h2_plottable, h1_w2method, "split"
         )
     elif comparison == "relative_difference":
         values, lower_uncertainties, upper_uncertainties = get_ratio(
-            h1_plottable, h2_plottable, h1_uncertainty_type, "uncorrelated"
+            h1_plottable, h2_plottable, h1_w2method, "uncorrelated"
         )
         values -= 1  # relative difference is ratio-1
     elif comparison == "pull":
         values, lower_uncertainties, upper_uncertainties = get_pull(
-            h1_plottable, h2_plottable, h1_uncertainty_type
+            h1_plottable, h2_plottable, h1_w2method
         )
     elif comparison == "difference":
         values, lower_uncertainties, upper_uncertainties = get_difference(
-            h1_plottable, h2_plottable, h1_uncertainty_type
+            h1_plottable, h2_plottable, h1_w2method
         )
     elif comparison == "asymmetry":
-        if h1_uncertainty_type == "poisson":
+        if h1_w2method == "poisson":
             msg = "Poisson asymmetrical uncertainties are not supported for the asymmetry comparison."
             raise ValueError(msg)
         values, uncertainties = get_asymmetry(h1_plottable, h2_plottable)
         lower_uncertainties = uncertainties
         upper_uncertainties = uncertainties
     elif comparison == "efficiency":
-        if h1_uncertainty_type == "poisson":
+        if h1_w2method == "poisson":
             msg = "Poisson asymmetrical uncertainties are not supported for the efficiency comparison."
             raise ValueError(msg)
         values, uncertainties = get_efficiency(h1_plottable, h2_plottable)
