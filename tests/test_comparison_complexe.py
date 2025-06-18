@@ -80,7 +80,6 @@ def test_difference_complex_values():
     )
 
 
-
 def test_ratio_complex_values():
     """
     Test ratio with random values.
@@ -177,6 +176,7 @@ def test_ratio_complex_values():
             1.4965212485612585,
         ]
     )
+
 
 def test_split_ratio_complex_values():
     """
