@@ -273,3 +273,62 @@ def test_split_ratio_complex_values():
             1.3189298113983732,
         ]
     )
+
+
+def test_pull_complex_values():
+    """
+    Test pull with random values.
+    """
+    rng = np.random.default_rng(8311311)
+    h1 = bh.Histogram(
+        bh.axis.Regular(10, -5, 5, overflow=False, underflow=False),
+        storage=bh.storage.Weight(),
+    )
+    h1.fill(rng.normal(size=100000))
+    h2 = bh.Histogram(
+        bh.axis.Regular(10, -5, 5, overflow=False, underflow=False),
+        storage=bh.storage.Weight(),
+    )
+    h2.fill(rng.normal(size=80000))
+
+    values, high_uncertainty, low_uncertainty = get_comparison(
+        h2, h1, comparison="pull"
+    )
+
+    assert pytest.approx(values) == np.array(
+        [
+            -1.1338934190276817,
+            -3.092372966310914,
+            -7.164994978577123,
+            -16.749188974233867,
+            -28.055545131645136,
+            -27.787419287101617,
+            -15.723253987874301,
+            -9.263355689470163,
+            -0.6537204504606134,
+            0.0,
+        ]
+    )
+    assert pytest.approx(high_uncertainty) == np.array([1.0] * 10)
+    assert pytest.approx(high_uncertainty) == low_uncertainty
+
+    values, high_uncertainty, low_uncertainty = get_comparison(
+        h2, h1, comparison="pull", h1_uncertainty_type="poisson"
+    )
+
+    assert pytest.approx(values) == np.array(
+        [
+            -0.867533933037641,
+            -2.9611841506616883,
+            -7.088612600415852,
+            -16.677611089631554,
+            -27.980016756970926,
+            -27.71256117543868,
+            -15.655964523197618,
+            -9.16556969002242,
+            -0.6239075471118297,
+            0.0,
+        ]
+    )
+    assert pytest.approx(high_uncertainty) == np.array([1.0] * 10)
+    assert pytest.approx(high_uncertainty) == low_uncertainty
