@@ -5,9 +5,10 @@ import pytest
 from mplhep import get_comparison
 
 
-def test_difference_complex_values():
+@pytest.fixture
+def setup_histograms():
     """
-    Test difference with random values.
+    Fixture to create two histograms for testing.
     """
     rng = np.random.default_rng(8311311)
     h1 = bh.Histogram(
@@ -20,6 +21,15 @@ def test_difference_complex_values():
         storage=bh.storage.Weight(),
     )
     h2.fill(rng.normal(size=80000))
+    return h1, h2
+
+
+def test_difference_complex_values(setup_histograms):
+    """
+    Test difference with random values.
+    """
+    h1, h2 = setup_histograms
+
     values, high_uncertainty, low_uncertainty = get_comparison(
         h2, h1, comparison="difference"
     )
@@ -80,21 +90,11 @@ def test_difference_complex_values():
     )
 
 
-def test_ratio_complex_values():
+def test_ratio_complex_values(setup_histograms):
     """
     Test ratio with random values.
     """
-    rng = np.random.default_rng(8311311)
-    h1 = bh.Histogram(
-        bh.axis.Regular(10, -5, 5, overflow=False, underflow=False),
-        storage=bh.storage.Weight(),
-    )
-    h1.fill(rng.normal(size=100000))
-    h2 = bh.Histogram(
-        bh.axis.Regular(10, -5, 5, overflow=False, underflow=False),
-        storage=bh.storage.Weight(),
-    )
-    h2.fill(rng.normal(size=80000))
+    h1, h2 = setup_histograms
 
     values, high_uncertainty, low_uncertainty = get_comparison(
         h2, h1, comparison="ratio"
@@ -178,21 +178,12 @@ def test_ratio_complex_values():
     )
 
 
-def test_split_ratio_complex_values():
+def test_split_ratio_complex_values(setup_histograms):
     """
     Test split ratio with random values.
     """
-    rng = np.random.default_rng(8311311)
-    h1 = bh.Histogram(
-        bh.axis.Regular(10, -5, 5, overflow=False, underflow=False),
-        storage=bh.storage.Weight(),
-    )
-    h1.fill(rng.normal(size=100000))
-    h2 = bh.Histogram(
-        bh.axis.Regular(10, -5, 5, overflow=False, underflow=False),
-        storage=bh.storage.Weight(),
-    )
-    h2.fill(rng.normal(size=80000))
+    h1, h2 = setup_histograms
+
     values, high_uncertainty, low_uncertainty = get_comparison(
         h2, h1, comparison="split_ratio"
     )
@@ -275,21 +266,11 @@ def test_split_ratio_complex_values():
     )
 
 
-def test_pull_complex_values():
+def test_pull_complex_values(setup_histograms):
     """
     Test pull with random values.
     """
-    rng = np.random.default_rng(8311311)
-    h1 = bh.Histogram(
-        bh.axis.Regular(10, -5, 5, overflow=False, underflow=False),
-        storage=bh.storage.Weight(),
-    )
-    h1.fill(rng.normal(size=100000))
-    h2 = bh.Histogram(
-        bh.axis.Regular(10, -5, 5, overflow=False, underflow=False),
-        storage=bh.storage.Weight(),
-    )
-    h2.fill(rng.normal(size=80000))
+    h1, h2 = setup_histograms
 
     values, high_uncertainty, low_uncertainty = get_comparison(
         h2, h1, comparison="pull"
@@ -334,21 +315,11 @@ def test_pull_complex_values():
     assert pytest.approx(high_uncertainty) == low_uncertainty
 
 
-def test_asymmetry_complex_values():
+def test_asymmetry_complex_values(setup_histograms):
     """
     Test asymmetry with random values.
     """
-    rng = np.random.default_rng(8311311)
-    h1 = bh.Histogram(
-        bh.axis.Regular(10, -5, 5, overflow=False, underflow=False),
-        storage=bh.storage.Weight(),
-    )
-    h1.fill(rng.normal(size=100000))
-    h2 = bh.Histogram(
-        bh.axis.Regular(10, -5, 5, overflow=False, underflow=False),
-        storage=bh.storage.Weight(),
-    )
-    h2.fill(rng.normal(size=80000))
+    h1, h2 = setup_histograms
 
     values, high_uncertainty, low_uncertainty = get_comparison(
         h2, h1, comparison="asymmetry"
