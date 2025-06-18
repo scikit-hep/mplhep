@@ -616,10 +616,7 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         if method is None:
             method = self.method
             if method is None:
-                if self.is_unweighted():
-                    method = "poisson"
-                else:
-                    method = "sqrt"
+                method = "poisson" if self.is_unweighted() else "sqrt"
 
         def sqrt_method(values, variances):
             return values - np.sqrt(variances), values + np.sqrt(variances)
