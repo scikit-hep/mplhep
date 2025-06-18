@@ -259,8 +259,6 @@ def get_ratio(
     )
 
 
-
-
 def get_comparison(
     h1,
     h2,
@@ -348,9 +346,8 @@ def get_comparison(
     #     lower_uncertainties = uncertainties
     #     upper_uncertainties = uncertainties
     else:
-        raise ValueError(
-            f"{comparison} not available as a comparison ('ratio', 'split_ratio', 'pull', 'difference', 'relative_difference', 'asymmetry' or 'efficiency')."
-        )
+        msg = f"{comparison} not available as a comparison ('ratio', 'split_ratio', 'pull', 'difference', 'relative_difference', 'asymmetry' or 'efficiency')."
+        raise ValueError(msg)
     np.seterr(divide="warn", invalid="warn")
 
     return values, lower_uncertainties, upper_uncertainties
