@@ -15,7 +15,7 @@ from .comparison import (
     get_asymmetry,
     get_comparison,
     get_difference,
-    get_efficency,
+    get_efficiency,
     get_pull,
     get_ratio,
 )
@@ -99,5 +99,5 @@ __all__ = [
     "get_ratio",
     "get_pull",
     "get_asymmetry",
-    "get_efficency",
+    "get_efficiency",
 ]
