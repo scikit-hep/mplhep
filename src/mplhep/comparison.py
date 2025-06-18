@@ -56,8 +56,7 @@ def get_difference(h1, h2, h1_uncertainty_type="sqrt"):
     h2_plottable = make_plottable_histogram(h2)
 
     _check_binning_consistency([h1_plottable, h2_plottable])
-    _check_counting_histogram(h1_plottable)
-    _check_counting_histogram(h2_plottable)
+    _check_counting_histogram([h1_plottable, h2_plottable])
 
     h1_plottable.method = h1_uncertainty_type
 
@@ -125,8 +124,7 @@ def get_ratio_variances(h1, h2):
     h2_plottable = make_plottable_histogram(h2)
 
     _check_binning_consistency([h1_plottable, h2_plottable])
-    _check_counting_histogram(h1_plottable)
-    _check_counting_histogram(h2_plottable)
+    _check_counting_histogram([h1_plottable, h2_plottable])
 
     np.seterr(divide="ignore", invalid="ignore")
     ratio_variances = np.where(
@@ -184,8 +182,7 @@ def get_ratio(
     h2_plottable = make_plottable_histogram(h2)
 
     _check_binning_consistency([h1_plottable, h2_plottable])
-    _check_counting_histogram(h1_plottable)
-    _check_counting_histogram(h2_plottable)
+    _check_counting_histogram([h1_plottable, h2_plottable])
 
     ratio_values = np.where(
         h2_plottable.values() != 0,
@@ -285,8 +282,7 @@ def get_pull(h1, h2, h1_uncertainty_type="sqrt"):
     h2_plottable = make_plottable_histogram(h2)
 
     _check_binning_consistency([h1_plottable, h2_plottable])
-    _check_counting_histogram(h1_plottable)
-    _check_counting_histogram(h2_plottable)
+    _check_counting_histogram([h1_plottable, h2_plottable])
 
     if h1_plottable.variances() is None or h2_plottable.variances() is None:
         msg = "Both histograms must have variances defined to compute the pull."
@@ -345,8 +341,7 @@ def get_asymmetry(h1, h2):
     h2_plottable = make_plottable_histogram(h2)
 
     _check_binning_consistency([h1_plottable, h2_plottable])
-    _check_counting_histogram(h1_plottable)
-    _check_counting_histogram(h2_plottable)
+    _check_counting_histogram([h1_plottable, h2_plottable])
 
     hist_sum = h1_plottable + h2_plottable
     hist_diff = h1_plottable + (-1 * h2_plottable)
@@ -406,8 +401,7 @@ def get_efficiency(h1, h2):
     h2_plottable = make_plottable_histogram(h2)
 
     _check_binning_consistency([h1_plottable, h2_plottable])
-    _check_counting_histogram(h1_plottable)
-    _check_counting_histogram(h2_plottable)
+    _check_counting_histogram([h1_plottable, h2_plottable])
 
     if not (h1_plottable.is_unweighted() and h2_plottable.is_unweighted()):
         msg = "The ratio of two correlated histograms (efficiency) can only be computed for unweighted histograms."
@@ -483,8 +477,7 @@ def get_comparison(
         raise ValueError(msg)
 
     _check_binning_consistency([h1_plottable, h2_plottable])
-    _check_counting_histogram(h1_plottable)
-    _check_counting_histogram(h2_plottable)
+    _check_counting_histogram([h1_plottable, h2_plottable])
 
     np.seterr(divide="ignore", invalid="ignore")
 
