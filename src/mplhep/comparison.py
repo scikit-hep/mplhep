@@ -61,30 +61,33 @@ def get_difference(h1, h2, h1_uncertainty_type="sqrt"):
 
     h1_plottable.errors()
 
+    if h1_plottable.variances() is None or h2_plottable.variances() is None:
+        return (
+            h_diff.values(),
+            np.zeros_like(h_diff.values()),
+            np.zeros_like(h_diff.values()),
+        )
+
     if h1_uncertainty_type == "poisson":
         uncertainties_low, uncertainties_high = (
             h1_plottable.yerr_lo,
             h1_plottable.yerr_hi,
         )
 
-        if h2_plottable.variances() is None:
-            difference_uncertainties_low = np.zeros_like(h_diff.values())
-            difference_uncertainties_high = np.zeros_like(h_diff.values())
-        else:
-            difference_uncertainties_low = np.sqrt(
-                uncertainties_low**2 + h2_plottable.variances()
-            )
-            difference_uncertainties_high = np.sqrt(
-                uncertainties_high**2 + h2_plottable.variances()
-            )
-    elif h1_plottable.variances() is None or h2_plottable.variances() is None:
-        difference_uncertainties_low = np.zeros_like(h_diff.values())
-        difference_uncertainties_high = np.zeros_like(h_diff.values())
-    else:
         difference_uncertainties_low = np.sqrt(
-            h1_plottable.variances() + h2_plottable.variances()
+            uncertainties_low**2 + h2_plottable.variances()
         )
-        difference_uncertainties_high = difference_uncertainties_low
+        difference_uncertainties_high = np.sqrt(
+            uncertainties_high**2 + h2_plottable.variances()
+        )
+
+    else:
+        h_diff.method = "sqrt"
+        h_diff.errors()
+        difference_uncertainties_low, difference_uncertainties_high = (
+            h_diff.yerr_lo,
+            h_diff.yerr_hi,
+        )
 
     return (
         h_diff.values(),
