@@ -322,6 +322,52 @@ def get_pull(h1, h2, h1_uncertainty_type="sqrt"):
     )
 
 
+def get_asymmetry(h1, h2):
+    """
+    Get the asymmetry between two histograms h1 and h2, defined as (h1 - h2) / (h1 + h2).
+    Only symmetrical uncertainties are supported.
+
+    Parameters
+    ----------
+    h1 : boost_histogram.Histogram
+        The first histogram.
+    h2 : boost_histogram.Histogram
+        The second histogram.
+
+    Returns
+    -------
+    asymmetry_values : numpy.ndarray
+        The asymmetry values.
+    asymmetry_uncertainties : numpy.ndarray
+        The uncertainties on the asymmetry.
+    """
+    h1_plottable = make_plottable_histogram(h1)
+    h2_plottable = make_plottable_histogram(h2)
+
+    _check_binning_consistency([h1_plottable, h2_plottable])
+    _check_counting_histogram(h1_plottable)
+    _check_counting_histogram(h2_plottable)
+
+    hist_sum = h1_plottable + h2_plottable
+    hist_diff = h1_plottable + (-1 * h2_plottable)
+    asymmetry_values = np.where(
+        hist_sum.values() != 0, hist_diff.values() / hist_sum.values(), np.nan
+    )
+
+    if h1_plottable.variances() is None or h2_plottable.variances() is None:
+        return (
+            asymmetry_values,
+            np.zeros_like(asymmetry_values),
+        )
+
+    asymmetry_variances = get_ratio_variances(hist_diff, hist_sum)
+
+    return (
+        asymmetry_values,
+        np.sqrt(asymmetry_variances),
+    )
+
+
 def get_comparison(
     h1,
     h2,
@@ -396,14 +442,13 @@ def get_comparison(
         values, lower_uncertainties, upper_uncertainties = get_difference(
             h1_plottable, h2_plottable, h1_uncertainty_type
         )
-    # elif comparison == "asymmetry":
-    #     if h1_uncertainty_type == "poisson":
-    #         raise ValueError(
-    #             "Asymmetrical uncertainties are not supported for the asymmetry comparison."
-    #         )
-    #     values, uncertainties = get_asymmetry(h1_plottable, h2_plottable)
-    #     lower_uncertainties = uncertainties
-    #     upper_uncertainties = uncertainties
+    elif comparison == "asymmetry":
+        if h1_uncertainty_type == "poisson":
+            msg = "Poisson asymmetrical uncertainties are not supported for the asymmetry comparison."
+            raise ValueError(msg)
+        values, uncertainties = get_asymmetry(h1_plottable, h2_plottable)
+        lower_uncertainties = uncertainties
+        upper_uncertainties = uncertainties
     # elif comparison == "efficiency":
     #     if h1_uncertainty_type == "poisson":
     #         raise ValueError(

@@ -12,6 +12,7 @@ from . import styles as style
 from ._tools import Config
 from ._version import version as __version__  # noqa: F401
 from .comparison import (
+    get_asymmetry,
     get_comparison,
     get_difference,
     get_pull,
@@ -96,4 +97,5 @@ __all__ = [
     "get_difference",
     "get_ratio",
     "get_pull",
+    "get_asymmetry",
 ]
