@@ -770,13 +770,13 @@ def make_plottable_histogram(hist, **kwargs):
     )
 
 
-def _check_counting_histogram(hist):
+def _check_counting_histogram(hist_list):
     """
-    Check that the histogram is a counting histogram.
+    Check that the histograms in the list are counting histograms.
 
     Parameters
     ----------
-    hist : histogram
+    hist_list : list of PlottableHistogram
 
     Raise
     -----
@@ -784,9 +784,10 @@ def _check_counting_histogram(hist):
         If the histogram is not a counting histogram.
 
     """
-    if hist.kind != Kind.COUNT:
-        msg = f"The histogram must be a counting histogram, but the input histogram has kind {hist.kind}."
-        raise ValueError(msg)
+    for hist in hist_list:
+        if hist.kind != Kind.COUNT:
+            msg = f"The histogram must be a counting histogram, but the input histogram has kind {hist.kind}."
+            raise ValueError(msg)
 
 
 def stack(*plottables):
