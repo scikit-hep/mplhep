@@ -2,23 +2,16 @@ import boost_histogram as bh
 import numpy as np
 import pytest
 
-from mplhep import EnhancedPlottableHistogram, get_difference
+from mplhep import get_difference
+
+# Difference
 
 
 def test_difference_simple_values():
     """
     Test difference with simple values.
     """
-
-    # h1 = make_hist(data=[1] * 50, bins=1, range=(0, 3))
-    # h2 = make_hist(data=[1] * 100, bins=1, range=(0, 3))
-    # h1 = EnhancedPlottableHistogram(
-    #     np.array([100]), edges=np.array([0, 1]), variances=np.array([100])
-    # )
-    # h2 = EnhancedPlottableHistogram(
-    #     np.array([50]), edges=np.array([0, 1]), variances=np.array([50])
-    # )
-    bins = bh.axis.Regular(1, 0, 2)
+    bins = bh.axis.Regular(1, 1, 2, overflow=False, underflow=False)
     h1 = bh.Histogram(bins)
     h1.fill([1] * 100)
     h2 = bh.Histogram(bins)
@@ -39,8 +32,16 @@ def test_difference_simple_values():
     assert pytest.approx(low_uncertainty) == np.array([13.104772168594577])
 
     # No variances
-    h1 = EnhancedPlottableHistogram(np.array([100]), edges=np.array([0, 1]))
-    h2 = EnhancedPlottableHistogram(np.array([50]), edges=np.array([0, 1]))
+    h1 = np.histogram([1] * 100, bins=[1, 2])
+    h2 = np.histogram([1] * 50, bins=[1, 2])
+    values, high_uncertainty, low_uncertainty = get_difference(h1, h2)
+    assert pytest.approx(values) == np.array([50.0])
+    assert pytest.approx(high_uncertainty) == np.array([0])
+    assert pytest.approx(low_uncertainty) == np.array([0])
+
+    # Variances and no variance
+    h1 = bh.Histogram(bins)
+    h1.fill([1] * 100)
     values, high_uncertainty, low_uncertainty = get_difference(h1, h2)
     assert pytest.approx(values) == np.array([50.0])
     assert pytest.approx(high_uncertainty) == np.array([0])
