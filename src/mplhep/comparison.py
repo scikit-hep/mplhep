@@ -1,6 +1,10 @@
 import numpy as np
 
-from .utils import _check_counting_histogram, make_plottable_histogram
+from .utils import (
+    EnhancedPlottableHistogram,
+    _check_counting_histogram,
+    make_plottable_histogram,
+)
 
 
 def _check_binning_consistency(hist_list):  # TODO: test
@@ -94,3 +98,259 @@ def get_difference(h1, h2, h1_uncertainty_type="sqrt"):
         difference_uncertainties_low,
         difference_uncertainties_high,
     )
+
+
+def get_ratio_variances(h1, h2):
+    """
+    Calculate the variances of the ratio of two uncorrelated histograms (h1/h2).
+
+    Parameters
+    ----------
+    h1 : boost_histogram.Histogram
+        The first histogram.
+    h2 : boost_histogram.Histogram
+        The second histogram.
+
+    Returns
+    -------
+    ratio_variances : np.ndarray
+        The variances of the ratio of the two histograms.
+
+    Raises
+    ------
+    ValueError
+        If the bins of the histograms are not equal.
+    """
+    h1_plottable = make_plottable_histogram(h1)
+    h2_plottable = make_plottable_histogram(h2)
+
+    _check_binning_consistency([h1_plottable, h2_plottable])
+    _check_counting_histogram(h1_plottable)
+    _check_counting_histogram(h2_plottable)
+
+    np.seterr(divide="ignore", invalid="ignore")
+    ratio_variances = np.where(
+        h2_plottable.values() != 0,
+        h1_plottable.variances() / h2_plottable.values() ** 2
+        + h2_plottable.variances()
+        * h1_plottable.values() ** 2
+        / h2_plottable.values() ** 4,
+        np.nan,
+    )
+    np.seterr(divide="warn", invalid="warn")
+
+    return ratio_variances
+
+
+def get_ratio(
+    h1,
+    h2,
+    h1_uncertainty_type="sqrt",
+    ratio_uncertainty_type="uncorrelated",
+):
+    """
+    Compute the ratio h1/h2 between two uncorrelated histograms h1 and h2.
+
+    Parameters
+    ----------
+    h1 : boost_histogram.Histogram
+        The numerator histogram.
+    h2 : boost_histogram.Histogram
+        The denominator histogram.
+    h1_uncertainty_type : str, optional
+        What kind of bin uncertainty to use for h1: "sqrt" for the Poisson standard deviation derived from the variance stored in the histogram object, "poisson" for poisson uncertainties based on a Poisson confidence interval. Default is "sqrt".
+    ratio_uncertainty_type : str, optional
+        How to treat the uncertainties of the histograms:
+        * "uncorrelated" for the comparison of two uncorrelated histograms,
+        * "split" for scaling down the uncertainties of h1 by bin contents of h2, i.e. assuming zero uncertainty coming from h2 in the ratio uncertainty.
+        Default is "uncorrelated".
+
+    Returns
+    -------
+    ratio_values : numpy.ndarray
+        The ratio values.
+    ratio_uncertainties_low : numpy.ndarray
+        The lower uncertainties on the ratio.
+    ratio_uncertainties_high : numpy.ndarray
+        The upper uncertainties on the ratio.
+
+    Raises
+    ------
+    ValueError
+        If the ratio_uncertainty_type is not valid.
+    """
+
+    h1_plottable = make_plottable_histogram(h1)
+    h2_plottable = make_plottable_histogram(h2)
+
+    _check_binning_consistency([h1_plottable, h2_plottable])
+    _check_counting_histogram(h1_plottable)
+    _check_counting_histogram(h2_plottable)
+
+    ratio_values = np.where(
+        h2_plottable.values() != 0,
+        h1_plottable.values() / h2_plottable.values(),
+        np.nan,
+    )
+
+    h1_plottable.method = h1_uncertainty_type
+    h2_plottable.method = "sqrt"
+
+    h1_plottable.errors()
+
+    if h1_plottable.variances() is None or h2_plottable.variances() is None:
+        return (
+            ratio_values,
+            np.zeros_like(h1_plottable.values()),
+            np.zeros_like(h1_plottable.values()),
+        )
+
+    uncertainties_low, uncertainties_high = h1_plottable.yerr_lo, h1_plottable.yerr_hi
+
+    if ratio_uncertainty_type == "uncorrelated":
+        if h1_uncertainty_type == "poisson":
+            h1_plottable_high = EnhancedPlottableHistogram(
+                h1_plottable.values(),
+                edges=h1_plottable.axes[0].edges,
+                variances=uncertainties_high**2,
+                kind=h1_plottable.kind,
+                w2method=h1_plottable.method,
+            )
+            h1_plottable_low = EnhancedPlottableHistogram(
+                h1_plottable.values(),
+                edges=h1_plottable.axes[0].edges,
+                variances=uncertainties_low**2,
+                kind=h1_plottable.kind,
+                w2method=h1_plottable.method,
+            )
+            ratio_uncertainties_low = np.sqrt(
+                get_ratio_variances(h1_plottable_low, h2_plottable)
+            )
+            ratio_uncertainties_high = np.sqrt(
+                get_ratio_variances(h1_plottable_high, h2_plottable)
+            )
+        else:
+            ratio_uncertainties_low = np.sqrt(
+                get_ratio_variances(h1_plottable, h2_plottable)
+            )
+            ratio_uncertainties_high = ratio_uncertainties_low
+
+    elif ratio_uncertainty_type == "split":
+        if h1_uncertainty_type == "poisson":
+            ratio_uncertainties_low = uncertainties_low / h2_plottable.values()
+            ratio_uncertainties_high = uncertainties_high / h2_plottable.values()
+
+        else:
+            h1_scaled_uncertainties = np.where(
+                h2_plottable.values() != 0,
+                np.sqrt(h1_plottable.variances()) / h2_plottable.values(),
+                np.nan,
+            )
+            ratio_uncertainties_low = h1_scaled_uncertainties
+            ratio_uncertainties_high = ratio_uncertainties_low
+    else:
+        msg = "ratio_uncertainty_type must be one of ['uncorrelated', 'split']."
+        raise ValueError(msg)
+
+    return (
+        ratio_values,
+        ratio_uncertainties_low,
+        ratio_uncertainties_high,
+    )
+
+
+
+
+def get_comparison(
+    h1,
+    h2,
+    comparison,
+    h1_uncertainty_type="sqrt",
+):
+    """
+    Compute the comparison between two histograms.
+
+    Parameters
+    ----------
+    h1 : boost_histogram.Histogram
+        The first histogram for comparison.
+    h2 : boost_histogram.Histogram
+        The second histogram for comparison.
+    comparison : str
+        The type of comparison ("ratio", "split_ratio", "pull", "difference", "relative_difference", "efficiency", or "asymmetry").
+        When the `split_ratio` option is used, the uncertainties of h1 are scaled down by the bin contents of h2, i.e. assuming zero uncertainty coming from h2 in the ratio uncertainty.
+    h1_uncertainty_type : str, optional
+        What kind of bin uncertainty to use for h1: "sqrt" for the Poisson standard deviation derived from the variance stored in the histogram object, "poisson" for asymmetrical uncertainties based on a Poisson confidence interval.
+        Asymmetrical uncertainties are not supported for the asymmetry and efficiency comparisons.
+        Default is "sqrt".
+
+    Returns
+    -------
+    values : numpy.ndarray
+        The comparison values.
+    lower_uncertainties : numpy.ndarray
+        The lower uncertainties on the comparison values.
+    upper_uncertainties : numpy.ndarray
+        The upper uncertainties on the comparison values.
+
+    Raises
+    ------
+    ValueError
+        If the comparison is not valid.
+    ValueError
+        If the h1_uncertainty_type is "poisson" and the comparison is "asymmetry" or "efficiency".
+    """
+
+    h1_plottable = make_plottable_histogram(h1)
+    h2_plottable = make_plottable_histogram(h2)
+
+    _check_binning_consistency([h1_plottable, h2_plottable])
+    _check_counting_histogram(h1_plottable)
+    _check_counting_histogram(h2_plottable)
+
+    np.seterr(divide="ignore", invalid="ignore")
+
+    if comparison == "ratio":
+        values, lower_uncertainties, upper_uncertainties = get_ratio(
+            h1_plottable, h2_plottable, h1_uncertainty_type, "uncorrelated"
+        )
+    elif comparison == "split_ratio":
+        values, lower_uncertainties, upper_uncertainties = get_ratio(
+            h1_plottable, h2_plottable, h1_uncertainty_type, "split"
+        )
+    # elif comparison == "relative_difference":
+    #     values, lower_uncertainties, upper_uncertainties = get_ratio(
+    #         h1_plottable, h2_plottable, h1_uncertainty_type, "uncorrelated"
+    #     )
+    #     values -= 1  # relative difference is ratio-1
+    # elif comparison == "pull":
+    #     values, lower_uncertainties, upper_uncertainties = get_pull(
+    #         h1_plottable, h2_plottable, h1_uncertainty_type
+    #     )
+    elif comparison == "difference":
+        values, lower_uncertainties, upper_uncertainties = get_difference(
+            h1_plottable, h2_plottable, h1_uncertainty_type
+        )
+    # elif comparison == "asymmetry":
+    #     if h1_uncertainty_type == "poisson":
+    #         raise ValueError(
+    #             "Asymmetrical uncertainties are not supported for the asymmetry comparison."
+    #         )
+    #     values, uncertainties = get_asymmetry(h1_plottable, h2_plottable)
+    #     lower_uncertainties = uncertainties
+    #     upper_uncertainties = uncertainties
+    # elif comparison == "efficiency":
+    #     if h1_uncertainty_type == "poisson":
+    #         raise ValueError(
+    #             "Asymmetrical uncertainties are not supported in an efficiency computation."
+    #         )
+    #     values, uncertainties = get_efficency(h1_plottable, h2_plottable)
+    #     lower_uncertainties = uncertainties
+    #     upper_uncertainties = uncertainties
+    else:
+        raise ValueError(
+            f"{comparison} not available as a comparison ('ratio', 'split_ratio', 'pull', 'difference', 'relative_difference', 'asymmetry' or 'efficiency')."
+        )
+    np.seterr(divide="warn", invalid="warn")
+
+    return values, lower_uncertainties, upper_uncertainties

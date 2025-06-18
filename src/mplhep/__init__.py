@@ -12,7 +12,9 @@ from . import styles as style
 from ._tools import Config
 from ._version import version as __version__  # noqa: F401
 from .comparison import (
+    get_comparison,
     get_difference,
+    get_ratio,
 )
 from .label import save_variations, savelabels
 from .plot import (
@@ -89,5 +91,7 @@ __all__ = [
     "EnhancedPlottableHistogram",
     "make_plottable_histogram",
     "_check_counting_histogram",
+    "get_comparison",
     "get_difference",
+    "get_ratio",
 ]
