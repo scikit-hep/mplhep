@@ -105,9 +105,9 @@ def get_ratio_variances(h1, h2):
 
     Parameters
     ----------
-    h1 : boost_histogram.Histogram
+    h1 : UHI compatible histogram (np.histogram, TH1, boost_histogram, Hist...)
         The first histogram.
-    h2 : boost_histogram.Histogram
+    h2 : UHI compatible histogram (np.histogram, TH1, boost_histogram, Hist...)
         The second histogram.
 
     Returns
@@ -151,9 +151,9 @@ def get_ratio(
 
     Parameters
     ----------
-    h1 : boost_histogram.Histogram
+    h1 : UHI compatible histogram (np.histogram, TH1, boost_histogram, Hist...)
         The numerator histogram.
-    h2 : boost_histogram.Histogram
+    h2 : UHI compatible histogram (np.histogram, TH1, boost_histogram, Hist...)
         The denominator histogram.
     h1_w2method : str, optional
         What kind of bin uncertainty to use for h1: "sqrt" for the Poisson standard deviation derived from the variance stored in the histogram object, "poisson" for asymmetrical uncertainties based on a Poisson confidence interval. Default is "sqrt".
@@ -262,9 +262,9 @@ def get_pull(h1, h2, h1_w2method="sqrt"):
 
     Parameters
     ----------
-    h1 : boost_histogram.Histogram
+    h1 : UHI compatible histogram (np.histogram, TH1, boost_histogram, Hist...)
         The first histogram.
-    h2 : boost_histogram.Histogram
+    h2 : UHI compatible histogram (np.histogram, TH1, boost_histogram, Hist...)
         The second histogram.
     h1_w2method : str, optional
         What kind of bin uncertainty to use for h1: "sqrt" for the Poisson standard deviation derived from the variance stored in the histogram object, "asymmetrical" for asymmetrical uncertainties based on a Poisson confidence interval. Default is "symmetrical".
@@ -325,9 +325,9 @@ def get_asymmetry(h1, h2):
 
     Parameters
     ----------
-    h1 : boost_histogram.Histogram
+    h1 : UHI compatible histogram (np.histogram, TH1, boost_histogram, Hist...)
         The first histogram.
-    h2 : boost_histogram.Histogram
+    h2 : UHI compatible histogram (np.histogram, TH1, boost_histogram, Hist...)
         The second histogram.
 
     Returns
@@ -376,9 +376,9 @@ def get_efficiency(h1, h2):
 
     Parameters
     ----------
-    h1 : boost_histogram.Histogram
+    h1 : UHI compatible histogram (np.histogram, TH1, boost_histogram, Hist...)
         The first histogram.
-    h2 : boost_histogram.Histogram
+    h2 : UHI compatible histogram (np.histogram, TH1, boost_histogram, Hist...)
         The second histogram.
 
     Returns
@@ -440,9 +440,9 @@ def get_comparison(
 
     Parameters
     ----------
-    h1 : boost_histogram.Histogram
+    h1 : UHI compatible histogram (np.histogram, TH1, boost_histogram, Hist...)
         The first histogram for comparison.
-    h2 : boost_histogram.Histogram
+    h2 : UHI compatible histogram (np.histogram, TH1, boost_histogram, Hist...)
         The second histogram for comparison.
     comparison : str
         The type of comparison ("ratio", "split_ratio", "pull", "difference", "relative_difference", "efficiency", or "asymmetry").
