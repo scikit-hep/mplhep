@@ -728,6 +728,8 @@ def make_plottable_histogram(hist, **kwargs):
     ----------
     hist : Histogram object
         The histogram to be converted.
+    **kwargs : dict, optional
+        Additional keyword arguments to pass to the EnhancedPlottableHistogram constructor.
 
     Returns
     -------
@@ -766,7 +768,7 @@ def make_plottable_histogram(hist, **kwargs):
         edges=edges,
         variances=np.array(hist.variances()),  # copy to avoid further modification
         kind=hist.kind,
-        **kwargs,  # pass any additional keyword arguments
+        **kwargs,
     )
 
 
