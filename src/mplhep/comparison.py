@@ -368,6 +368,73 @@ def get_asymmetry(h1, h2):
     )
 
 
+def get_efficency(h1, h2):
+    """
+    Calculate the ratio of two correlated histograms (h1/h2), in which the entries of h1 are a subsample of the entries of h2.
+    The variances are calculated according to the formula given in :ref:`documentation-statistics-label`.
+
+    The following conditions must be fulfilled for the calculation of the efficiency:
+    * The bins of the histograms must be equal.
+    * The histograms must be unweighted.
+    * The bin contents of both histograms must be positive or zero.
+    * The bin contents of h1 must be a subsample of the bin contents of h2.
+
+    Parameters
+    ----------
+    h1 : boost_histogram.Histogram
+        The first histogram.
+    h2 : boost_histogram.Histogram
+        The second histogram.
+
+    Returns
+    -------
+    efficiency_values : numpy.ndarray
+        The efficiency values.
+    efficiency_uncertainties : numpy.ndarray
+        The uncertainties on the efficiency values.
+
+    Raises
+    ------
+    ValueError
+        If the histograms are weighted.
+    ValueError
+        If the bin contents of the histograms are not positive or zero.
+    ValueError
+        If the bin contents of h1 are not a subsample of the bin contents of h2.
+    """
+    h1_plottable = make_plottable_histogram(h1)
+    h2_plottable = make_plottable_histogram(h2)
+
+    _check_binning_consistency([h1_plottable, h2_plottable])
+    _check_counting_histogram(h1_plottable)
+    _check_counting_histogram(h2_plottable)
+
+    if not (h1_plottable.is_unweighted() and h2_plottable.is_unweighted()):
+        raise ValueError(
+            "The ratio of two correlated histograms (efficiency) can only be computed for unweighted histograms."
+        )
+    if not (np.all(h1_plottable.values() >= 0) and np.all(h2_plottable.values() >= 0)):
+        raise ValueError(
+            "The ratio of two correlated histograms (efficiency) can only be computed if the bin contents of both histograms are positive or zero."
+        )
+    if not np.all(h1_plottable.values() <= h2_plottable.values()):
+        raise ValueError(
+            "The ratio of two correlated histograms (efficiency) can only be computed if the bin contents of h1_plottable are a subsample of the bin contents of h2_plottable."
+        )
+
+    efficiency_values = np.where(h2_plottable.values() != 0, h1_plottable.values() / h2_plottable.values(), np.nan)
+
+    k = h1_plottable.values()
+    n = h2_plottable.values()
+
+    efficiency_variances = (k + 1) * (k + 2) / (n + 2) / (n + 3) - (k + 1) ** 2 / (
+        n + 2
+    ) ** 2
+
+    return efficiency_values, np.sqrt(efficiency_variances)
+
+
+
 def get_comparison(
     h1,
     h2,
@@ -449,14 +516,14 @@ def get_comparison(
         values, uncertainties = get_asymmetry(h1_plottable, h2_plottable)
         lower_uncertainties = uncertainties
         upper_uncertainties = uncertainties
-    # elif comparison == "efficiency":
-    #     if h1_uncertainty_type == "poisson":
-    #         raise ValueError(
-    #             "Asymmetrical uncertainties are not supported in an efficiency computation."
-    #         )
-    #     values, uncertainties = get_efficency(h1_plottable, h2_plottable)
-    #     lower_uncertainties = uncertainties
-    #     upper_uncertainties = uncertainties
+    elif comparison == "efficiency":
+        if h1_uncertainty_type == "poisson":
+            raise ValueError(
+                "Asymmetrical uncertainties are not supported in an efficiency computation."
+            )
+        values, uncertainties = get_efficency(h1_plottable, h2_plottable)
+        lower_uncertainties = uncertainties
+        upper_uncertainties = uncertainties
     else:
         msg = f"{comparison} not available as a comparison ('ratio', 'split_ratio', 'pull', 'difference', 'relative_difference', 'asymmetry' or 'efficiency')."
         raise ValueError(msg)

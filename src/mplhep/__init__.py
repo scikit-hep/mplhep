@@ -17,6 +17,7 @@ from .comparison import (
     get_difference,
     get_pull,
     get_ratio,
+    get_efficency,
 )
 from .label import save_variations, savelabels
 from .plot import (
@@ -98,4 +99,5 @@ __all__ = [
     "get_ratio",
     "get_pull",
     "get_asymmetry",
+    "get_efficency",
 ]
