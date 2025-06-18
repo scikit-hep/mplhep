@@ -183,6 +183,13 @@ def test_set_values_and_set_variances(basic_hist):
     assert np.array_equal(h.variances(), new_vars)
 
 
+def test_is_unweighted(basic_hist):
+    h = basic_hist
+    assert h.is_unweighted()
+    basic_hist.set_variances(h.values()/2)
+    assert not h.is_unweighted()
+
+
 # --- Bin edges and structure ---
 
 

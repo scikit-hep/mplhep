@@ -596,6 +596,10 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         edges[1:] = [self.axes[0].edges[i][1] for i in range(len(self.axes[0]))]
         return edges
 
+    def is_unweighted(self) -> bool:
+        """Check if the histogram is weighted."""
+        return np.allclose(self.variances(), np.around(self.variances()))
+
     def errors(self, method=None, assume_variances_equal_values=False):
         """
         Calculate y-errors using a specified or inferred method ('poisson', 'sqrt', or callable).
@@ -612,7 +616,7 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         if method is None:
             method = self.method
             if method is None:
-                if np.allclose(self.variances(), np.around(self.variances())):
+                if self.is_unweighted():
                     method = "poisson"
                 else:
                     method = "sqrt"
