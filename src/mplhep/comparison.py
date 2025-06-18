@@ -318,11 +318,11 @@ def get_comparison(
         values, lower_uncertainties, upper_uncertainties = get_ratio(
             h1_plottable, h2_plottable, h1_uncertainty_type, "split"
         )
-    # elif comparison == "relative_difference":
-    #     values, lower_uncertainties, upper_uncertainties = get_ratio(
-    #         h1_plottable, h2_plottable, h1_uncertainty_type, "uncorrelated"
-    #     )
-    #     values -= 1  # relative difference is ratio-1
+    elif comparison == "relative_difference":
+        values, lower_uncertainties, upper_uncertainties = get_ratio(
+            h1_plottable, h2_plottable, h1_uncertainty_type, "uncorrelated"
+        )
+        values -= 1  # relative difference is ratio-1
     # elif comparison == "pull":
     #     values, lower_uncertainties, upper_uncertainties = get_pull(
     #         h1_plottable, h2_plottable, h1_uncertainty_type
