@@ -196,3 +196,41 @@ def test_pull_simple_values():
         match="Both histograms must have variances defined to compute the pull.",
     ):
         get_comparison(h1, h2, comparison="pull")
+
+
+def test_asymmetry_simple_values():
+    """
+    Test asymmetry with simple values.
+    """
+    bins = bh.axis.Regular(1, 1, 2, overflow=False, underflow=False)
+    h1 = bh.Histogram(bins, storage=bh.storage.Weight())
+    h1.fill([1] * 100)
+    h2 = bh.Histogram(bins, storage=bh.storage.Weight())
+    h2.fill([1] * 50)
+
+    values, high_uncertainty, low_uncertainty = get_comparison(
+        h1, h2, comparison="asymmetry"
+    )
+    assert pytest.approx(values) == np.array([0.3333333333333333])
+    assert pytest.approx(high_uncertainty) == np.array([0.08606629658238704])
+    assert pytest.approx(low_uncertainty) == high_uncertainty
+
+    # No variances
+    h1 = np.histogram([1] * 100, bins=[1, 2])
+    h2 = np.histogram([1] * 50, bins=[1, 2])
+    values, high_uncertainty, low_uncertainty = get_comparison(
+        h1, h2, comparison="asymmetry"
+    )
+    assert pytest.approx(values) == np.array([0.3333333333333333])
+    assert pytest.approx(high_uncertainty) == np.array([0])
+    assert pytest.approx(low_uncertainty) == np.array([0])
+
+    # Variances and no variances
+    h1 = bh.Histogram(bins, storage=bh.storage.Weight())
+    h1.fill([1] * 100)
+    values, high_uncertainty, low_uncertainty = get_comparison(
+        h1, h2, comparison="asymmetry"
+    )
+    assert pytest.approx(values) == np.array([0.3333333333333333])
+    assert pytest.approx(high_uncertainty) == np.array([0])
+    assert pytest.approx(low_uncertainty) == np.array([0])
