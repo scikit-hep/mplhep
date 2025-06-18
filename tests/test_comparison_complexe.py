@@ -54,7 +54,7 @@ def test_difference_complex_values(setup_histograms):
     assert pytest.approx(high_uncertainty) == low_uncertainty
 
     values, high_uncertainty, low_uncertainty = get_comparison(
-        h2, h1, comparison="difference", h1_uncertainty_type="poisson"
+        h2, h1, comparison="difference", h1_w2method="poisson"
     )
 
     assert pytest.approx(values) == np.array(
@@ -131,7 +131,7 @@ def test_ratio_complex_values(setup_histograms):
     assert pytest.approx(high_uncertainty) == low_uncertainty
 
     values, high_uncertainty, low_uncertainty = get_comparison(
-        h2, h1, comparison="ratio", h1_uncertainty_type="poisson"
+        h2, h1, comparison="ratio", h1_w2method="poisson"
     )
 
     assert pytest.approx(values) == np.array(
@@ -219,7 +219,7 @@ def test_split_ratio_complex_values(setup_histograms):
     assert pytest.approx(high_uncertainty) == low_uncertainty
 
     values, high_uncertainty, low_uncertainty = get_comparison(
-        h2, h1, comparison="split_ratio", h1_uncertainty_type="poisson"
+        h2, h1, comparison="split_ratio", h1_w2method="poisson"
     )
 
     assert pytest.approx(values) == np.array(
@@ -294,7 +294,7 @@ def test_pull_complex_values(setup_histograms):
     assert pytest.approx(high_uncertainty) == low_uncertainty
 
     values, high_uncertainty, low_uncertainty = get_comparison(
-        h2, h1, comparison="pull", h1_uncertainty_type="poisson"
+        h2, h1, comparison="pull", h1_w2method="poisson"
     )
 
     assert pytest.approx(values) == np.array(
