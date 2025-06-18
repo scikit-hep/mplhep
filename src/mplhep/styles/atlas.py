@@ -150,6 +150,19 @@ ATLAS2: dict[str, Any] = {
     "mathtext.default": "it",
 }
 
+ATLAS2NoRed: dict[str, Any] = {
+    **_base,
+    "axes.prop_cycle": cycler("color", color_sequence2[0:6]),
+    "mathtext.fontset": "custom",
+    "mathtext.rm": "TeX Gyre Heros",
+    "mathtext.bf": "TeX Gyre Heros:bold",
+    "mathtext.sf": "TeX Gyre Heros",
+    "mathtext.it": "TeX Gyre Heros:italic",
+    "mathtext.tt": "TeX Gyre Heros",
+    "mathtext.cal": "TeX Gyre Heros",
+    "mathtext.default": "it",
+}
+
 # use dejavusans (default math fontset)
 ATLASAlt: dict[str, Any] = {
     **_base,
