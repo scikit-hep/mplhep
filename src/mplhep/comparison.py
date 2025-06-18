@@ -410,19 +410,20 @@ def get_efficency(h1, h2):
     _check_counting_histogram(h2_plottable)
 
     if not (h1_plottable.is_unweighted() and h2_plottable.is_unweighted()):
-        raise ValueError(
-            "The ratio of two correlated histograms (efficiency) can only be computed for unweighted histograms."
-        )
+        msg = "The ratio of two correlated histograms (efficiency) can only be computed for unweighted histograms."
+        raise ValueError(msg)
     if not (np.all(h1_plottable.values() >= 0) and np.all(h2_plottable.values() >= 0)):
-        raise ValueError(
-            "The ratio of two correlated histograms (efficiency) can only be computed if the bin contents of both histograms are positive or zero."
-        )
+        msg = "The ratio of two correlated histograms (efficiency) can only be computed if the bin contents of both histograms are positive or zero."
+        raise ValueError(msg)
     if not np.all(h1_plottable.values() <= h2_plottable.values()):
-        raise ValueError(
-            "The ratio of two correlated histograms (efficiency) can only be computed if the bin contents of h1_plottable are a subsample of the bin contents of h2_plottable."
-        )
+        msg = "The ratio of two correlated histograms (efficiency) can only be computed if the bin contents of h1 are a subsample of the bin contents of h2."
+        raise ValueError(msg)
 
-    efficiency_values = np.where(h2_plottable.values() != 0, h1_plottable.values() / h2_plottable.values(), np.nan)
+    efficiency_values = np.where(
+        h2_plottable.values() != 0,
+        h1_plottable.values() / h2_plottable.values(),
+        np.nan,
+    )
 
     k = h1_plottable.values()
     n = h2_plottable.values()
@@ -432,7 +433,6 @@ def get_efficency(h1, h2):
     ) ** 2
 
     return efficiency_values, np.sqrt(efficiency_variances)
-
 
 
 def get_comparison(
@@ -518,9 +518,8 @@ def get_comparison(
         upper_uncertainties = uncertainties
     elif comparison == "efficiency":
         if h1_uncertainty_type == "poisson":
-            raise ValueError(
-                "Asymmetrical uncertainties are not supported in an efficiency computation."
-            )
+            msg = "Poisson asymmetrical uncertainties are not supported for the efficiency comparison."
+            raise ValueError(msg)
         values, uncertainties = get_efficency(h1_plottable, h2_plottable)
         lower_uncertainties = uncertainties
         upper_uncertainties = uncertainties

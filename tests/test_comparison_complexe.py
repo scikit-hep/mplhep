@@ -383,3 +383,56 @@ def test_asymmetry_complex_values():
         ]
     )
     assert pytest.approx(high_uncertainty) == low_uncertainty
+
+
+def test_efficiency_complex_values():
+    """
+    Test efficiency with random values.
+    """
+    rng = np.random.default_rng(8311311)
+    x1 = rng.normal(size=100000)
+    x2 = rng.choice(x1, size=10000)
+    h1 = bh.Histogram(
+        bh.axis.Regular(10, -5, 5, overflow=False, underflow=False),
+        storage=bh.storage.Weight(),
+    )
+    h1.fill(x1)
+    h2 = bh.Histogram(
+        bh.axis.Regular(10, -5, 5, overflow=False, underflow=False),
+        storage=bh.storage.Weight(),
+    )
+    h2.fill(x2)
+
+    values, high_uncertainty, low_uncertainty = get_comparison(
+        h2, h1, comparison="efficiency"
+    )
+
+    assert pytest.approx(values) == np.array(
+        [
+            0.0,
+            0.1079136690647482,
+            0.09734917733089579,
+            0.09864446736407839,
+            0.10128659769643328,
+            0.09779355671615515,
+            0.10337194717036818,
+            0.10388437217705511,
+            0.10655737704918032,
+            0.0,
+        ]
+    )
+    assert pytest.approx(high_uncertainty) == np.array(
+        [
+            0.12371791482634838,
+            0.02661654698726243,
+            0.006343589231090674,
+            0.0025597549707911415,
+            0.0016334320872715157,
+            0.0016090633836174837,
+            0.002615474280842884,
+            0.006489834814808297,
+            0.02830633673352296,
+            0.19364916731037085,
+        ]
+    )
+    assert pytest.approx(high_uncertainty) == low_uncertainty
