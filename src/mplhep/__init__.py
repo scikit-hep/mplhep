@@ -14,6 +14,7 @@ from ._version import version as __version__  # noqa: F401
 from .comparison import (
     get_comparison,
     get_difference,
+    get_pull,
     get_ratio,
 )
 from .label import save_variations, savelabels
@@ -94,4 +95,5 @@ __all__ = [
     "get_comparison",
     "get_difference",
     "get_ratio",
+    "get_pull",
 ]

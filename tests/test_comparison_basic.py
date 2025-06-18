@@ -10,9 +10,9 @@ def test_difference_simple_values():
     Test difference with simple values.
     """
     bins = bh.axis.Regular(1, 1, 2, overflow=False, underflow=False)
-    h1 = bh.Histogram(bins)
+    h1 = bh.Histogram(bins, storage=bh.storage.Weight())
     h1.fill([1] * 100)
-    h2 = bh.Histogram(bins)
+    h2 = bh.Histogram(bins, storage=bh.storage.Weight())
     h2.fill([1] * 50)
 
     values, high_uncertainty, low_uncertainty = get_comparison(
@@ -39,8 +39,8 @@ def test_difference_simple_values():
     assert pytest.approx(high_uncertainty) == np.array([0])
     assert pytest.approx(low_uncertainty) == np.array([0])
 
-    # Variances and no variance
-    h1 = bh.Histogram(bins)
+    # Variances and no variances
+    h1 = bh.Histogram(bins, storage=bh.storage.Weight())
     h1.fill([1] * 100)
     values, high_uncertainty, low_uncertainty = get_comparison(
         h1, h2, comparison="difference"
@@ -55,9 +55,9 @@ def test_ratio_simple_values():
     Test ratio with simple values.
     """
     bins = bh.axis.Regular(1, 1, 2, overflow=False, underflow=False)
-    h1 = bh.Histogram(bins)
+    h1 = bh.Histogram(bins, storage=bh.storage.Weight())
     h1.fill([1] * 10)
-    h2 = bh.Histogram(bins)
+    h2 = bh.Histogram(bins, storage=bh.storage.Weight())
     h2.fill([1] * 100)
 
     values, high_uncertainty, low_uncertainty = get_comparison(
@@ -84,8 +84,8 @@ def test_ratio_simple_values():
     assert pytest.approx(high_uncertainty) == np.array([0])
     assert pytest.approx(low_uncertainty) == np.array([0])
 
-    # Variances and no variance
-    h1 = bh.Histogram(bins)
+    # Variances and no variances
+    h1 = bh.Histogram(bins, storage=bh.storage.Weight())
     h1.fill([1] * 10)
     values, high_uncertainty, low_uncertainty = get_comparison(
         h1, h2, comparison="ratio"
@@ -100,9 +100,9 @@ def test_split_ratio_simple_values():
     Test split ratio with simple values.
     """
     bins = bh.axis.Regular(1, 1, 2, overflow=False, underflow=False)
-    h1 = bh.Histogram(bins)
+    h1 = bh.Histogram(bins, storage=bh.storage.Weight())
     h1.fill([1] * 10)
-    h2 = bh.Histogram(bins)
+    h2 = bh.Histogram(bins, storage=bh.storage.Weight())
     h2.fill([1] * 100)
 
     values, high_uncertainty, low_uncertainty = get_comparison(
@@ -136,8 +136,8 @@ def test_split_ratio_simple_values():
     assert pytest.approx(high_uncertainty) == np.array([0])
     assert pytest.approx(low_uncertainty) == np.array([0])
 
-    # Variances and no variance
-    h1 = bh.Histogram(bins)
+    # Variances and no variances
+    h1 = bh.Histogram(bins, storage=bh.storage.Weight())
     h1.fill([1] * 10)
     values, high_uncertainty, low_uncertainty = get_comparison(
         h1, h2, comparison="split_ratio"
@@ -152,3 +152,47 @@ def test_split_ratio_simple_values():
     assert pytest.approx(values) == np.array([0.1])
     assert pytest.approx(high_uncertainty) == np.array([0])
     assert pytest.approx(low_uncertainty) == np.array([0])
+
+
+def test_pull_simple_values():
+    """
+    Test pull with simple values.
+    """
+    bins = bh.axis.Regular(1, 1, 2, overflow=False, underflow=False)
+    h1 = bh.Histogram(bins, storage=bh.storage.Weight())
+    h1.fill([1] * 50)
+    h2 = bh.Histogram(bins, storage=bh.storage.Weight())
+    h2.fill([1] * 100)
+
+    values, high_uncertainty, low_uncertainty = get_comparison(
+        h1, h2, comparison="pull"
+    )
+    assert pytest.approx(values) == np.array([-4.08248290463863])
+    assert pytest.approx(high_uncertainty) == np.array([1.0])
+    assert pytest.approx(low_uncertainty) == high_uncertainty
+
+    values, high_uncertainty, low_uncertainty = get_comparison(
+        h1, h2, comparison="pull", h1_uncertainty_type="poisson"
+    )
+    assert pytest.approx(values) == np.array([-3.8818568847803108])
+    assert pytest.approx(high_uncertainty) == np.array([1.0])
+    assert pytest.approx(low_uncertainty) == high_uncertainty
+
+    # No variances
+    h1 = np.histogram([1] * 50, bins=[1, 2])
+    h2 = np.histogram([1] * 100, bins=[1, 2])
+    # will raise an error because no variances
+    with pytest.raises(
+        ValueError,
+        match="Both histograms must have variances defined to compute the pull.",
+    ):
+        get_comparison(h1, h2, comparison="pull")
+
+    # Variances and no variances
+    h1 = bh.Histogram(bins, storage=bh.storage.Weight())
+    h1.fill([1] * 50)
+    with pytest.raises(
+        ValueError,
+        match="Both histograms must have variances defined to compute the pull.",
+    ):
+        get_comparison(h1, h2, comparison="pull")

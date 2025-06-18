@@ -158,7 +158,7 @@ def get_ratio(
     h2 : boost_histogram.Histogram
         The denominator histogram.
     h1_uncertainty_type : str, optional
-        What kind of bin uncertainty to use for h1: "sqrt" for the Poisson standard deviation derived from the variance stored in the histogram object, "poisson" for poisson uncertainties based on a Poisson confidence interval. Default is "sqrt".
+        What kind of bin uncertainty to use for h1: "sqrt" for the Poisson standard deviation derived from the variance stored in the histogram object, "poisson" for asymmetrical uncertainties based on a Poisson confidence interval. Default is "sqrt".
     ratio_uncertainty_type : str, optional
         How to treat the uncertainties of the histograms:
         * "uncorrelated" for the comparison of two uncorrelated histograms,
@@ -259,6 +259,69 @@ def get_ratio(
     )
 
 
+def get_pull(h1, h2, h1_uncertainty_type="sqrt"):
+    """
+    Compute the pull between two histograms.
+
+    Parameters
+    ----------
+    h1 : boost_histogram.Histogram
+        The first histogram.
+    h2 : boost_histogram.Histogram
+        The second histogram.
+    h1_uncertainty_type : str, optional
+        What kind of bin uncertainty to use for h1: "sqrt" for the Poisson standard deviation derived from the variance stored in the histogram object, "asymmetrical" for asymmetrical uncertainties based on a Poisson confidence interval. Default is "symmetrical".
+
+    Returns
+    -------
+    pull_values : numpy.ndarray
+        The pull values.
+    pull_uncertainties_low : numpy.ndarray
+        The lower uncertainties on the pull. Always ones.
+    pull_uncertainties_high : numpy.ndarray
+        The upper uncertainties on the pull. Always ones.
+    """
+    h1_plottable = make_plottable_histogram(h1)
+    h2_plottable = make_plottable_histogram(h2)
+
+    _check_binning_consistency([h1_plottable, h2_plottable])
+    _check_counting_histogram(h1_plottable)
+    _check_counting_histogram(h2_plottable)
+
+    if h1_plottable.variances() is None or h2_plottable.variances() is None:
+        msg = "Both histograms must have variances defined to compute the pull."
+        raise ValueError(msg)
+
+    h1_plottable.method = h1_uncertainty_type
+    h2_plottable.method = "sqrt"
+
+    if h1_plottable.method == "poisson":
+        h1_plottable.errors()
+
+        h1_variances = np.where(
+            h1_plottable.values() >= h2_plottable.values(),
+            h1_plottable.yerr_lo**2,
+            h1_plottable.yerr_hi**2,
+        )
+    else:
+        h1_variances = h1_plottable.variances()
+
+    pull_values = np.where(
+        h1_variances + h2_plottable.variances() != 0,
+        (h1_plottable.values() - h2_plottable.values())
+        / np.sqrt(h1_variances + h2_plottable.variances()),
+        np.nan,
+    )
+    pull_uncertainties_low = np.ones_like(pull_values)
+    pull_uncertainties_high = pull_uncertainties_low
+
+    return (
+        pull_values,
+        pull_uncertainties_low,
+        pull_uncertainties_high,
+    )
+
+
 def get_comparison(
     h1,
     h2,
@@ -302,6 +365,10 @@ def get_comparison(
     h1_plottable = make_plottable_histogram(h1)
     h2_plottable = make_plottable_histogram(h2)
 
+    if h1_uncertainty_type not in ["sqrt", "poisson"]:
+        msg = f"h1_uncertainty_type must be one of ['sqrt', 'poisson'], got {h1_uncertainty_type}."
+        raise ValueError(msg)
+
     _check_binning_consistency([h1_plottable, h2_plottable])
     _check_counting_histogram(h1_plottable)
     _check_counting_histogram(h2_plottable)
@@ -321,10 +388,10 @@ def get_comparison(
             h1_plottable, h2_plottable, h1_uncertainty_type, "uncorrelated"
         )
         values -= 1  # relative difference is ratio-1
-    # elif comparison == "pull":
-    #     values, lower_uncertainties, upper_uncertainties = get_pull(
-    #         h1_plottable, h2_plottable, h1_uncertainty_type
-    #     )
+    elif comparison == "pull":
+        values, lower_uncertainties, upper_uncertainties = get_pull(
+            h1_plottable, h2_plottable, h1_uncertainty_type
+        )
     elif comparison == "difference":
         values, lower_uncertainties, upper_uncertainties = get_difference(
             h1_plottable, h2_plottable, h1_uncertainty_type
