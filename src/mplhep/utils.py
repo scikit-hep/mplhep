@@ -536,6 +536,9 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         if self.kind != Kind.COUNT or other.kind != Kind.COUNT:
             msg = "Histograms must be of kind COUNT to be added."
             raise TypeError(msg)
+        if self.method != other.method:
+            msg = f"Histograms must have the same w2method to be added. (got {self.method} and {other.method})"
+            raise ValueError(msg)
         if self._errors_present or other._errors_present:
             msg = "Cannot add histograms with fixed errors."
             raise RuntimeError(msg)
@@ -726,7 +729,7 @@ def make_plottable_histogram(hist, **kwargs):
 
     Parameters
     ----------
-    hist : Histogram object
+    hist : Histogram object (e.g. Hist, boost_histogram, np.histogram, TH1)
         The histogram to be converted.
     **kwargs : dict, optional
         Additional keyword arguments to pass to the EnhancedPlottableHistogram constructor.
