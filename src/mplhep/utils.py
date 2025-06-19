@@ -599,8 +599,11 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         edges[1:] = [self.axes[0].edges[i][1] for i in range(len(self.axes[0]))]
         return edges
 
-    def is_unweighted(self) -> bool:
-        """Check if the histogram is weighted."""
+    def is_unweighted(self):
+        """Check if the histogram is unweighted."""
+        if self.variances() is None:
+            msg = "Variances are not set, cannot determine if histogram is unweighted."
+            raise RuntimeError(msg)
         return np.allclose(self.variances(), np.around(self.variances()))
 
     def errors(self, method=None, assume_variances_equal_values=False):

@@ -301,6 +301,19 @@ def test_efficiency_subsample():
         get_comparison(h1, h2, comparison="efficiency")
 
 
+def test_efficiency_no_variances(setup_np_histograms):
+    """
+    Test efficiency with no variances.
+    """
+    h1, h2 = setup_np_histograms(h1_fill=[1] * 10, h2_fill=[1] * 100)
+
+    with pytest.raises(
+        RuntimeError,
+        match="Variances are not set, cannot determine if histogram is unweighted.",
+    ):
+        get_comparison(h1, h2, comparison="efficiency")
+
+
 def simple_efficiency_uncertainty(total, sample):
     """
     Calculate the uncertainty of the efficiency of a sample, derived from the Binomial Statistics.
