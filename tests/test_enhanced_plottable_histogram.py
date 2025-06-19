@@ -118,16 +118,15 @@ def test_mul_and_rmul_and_typeerror(basic_hist):
     original_values = h.values().copy()
     original_variances = h.variances().copy()
     result = h * 3
-    assert result is h
-    assert np.array_equal(h.values(), original_values * 3)
-    assert np.array_equal(h.variances(), original_variances * 3**2)
+    assert np.array_equal(result.values(), original_values * 3)
+    assert np.array_equal(result.variances(), original_variances * 3**2)
 
     h_no_variances = EnhancedPlottableHistogram(
         original_values, edges=basic_hist.axes[0].edges
     )
-    _ = 4 * h_no_variances
-    assert np.array_equal(h_no_variances.values(), original_values * 4)
-    assert h_no_variances.variances() is None
+    result = 4 * h_no_variances
+    assert np.array_equal(result.values(), original_values * 4)
+    assert result.variances() is None
 
     with pytest.raises(TypeError):
         _ = basic_hist * "a"
@@ -138,6 +137,12 @@ def test_mul_not_implemented_for_multidimensional(basic_hist):
     h.axes = [h.axes[0], h.axes[0]]
     with pytest.raises(NotImplementedError):
         _ = h * 2
+
+
+def test_mul_no_fixed_errors(basic_hist):
+    basic_hist.fixed_errors(np.array([0.1, 0.1, 0.1]), np.array([0.2, 0.2, 0.2]))
+    with pytest.raises(RuntimeError):
+        _ = basic_hist * 2
 
 
 def test_scale_and_scale_error(basic_hist):
@@ -176,6 +181,13 @@ def test_set_values_and_set_variances(basic_hist):
     new_vars = np.array([1.0, 1.0, 1.0])
     h.set_variances(new_vars)
     assert np.array_equal(h.variances(), new_vars)
+
+
+def test_is_unweighted(basic_hist):
+    h = basic_hist
+    assert h.is_unweighted()
+    basic_hist.set_variances(h.values() / 2)
+    assert not h.is_unweighted()
 
 
 # --- Bin edges and structure ---

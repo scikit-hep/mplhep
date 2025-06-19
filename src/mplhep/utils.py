@@ -536,6 +536,9 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         if self.kind != Kind.COUNT or other.kind != Kind.COUNT:
             msg = "Histograms must be of kind COUNT to be added."
             raise TypeError(msg)
+        if self.method != other.method:
+            msg = f"Histograms must have the same w2method to be added. (got {self.method} and {other.method})"
+            raise ValueError(msg)
         if self._errors_present or other._errors_present:
             msg = "Cannot add histograms with fixed errors."
             raise RuntimeError(msg)
@@ -550,6 +553,7 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
             edges=self.axes[0].edges,
             variances=added_variances,
             kind=self.kind,
+            w2method=self.method,
         )
 
     def __radd__(self, other):
@@ -564,8 +568,18 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         if len(self.axes) > 1:
             msg = "Scaling of multi-dimensional histograms is not supported."
             raise NotImplementedError(msg)
-        self.scale(factor)
-        return self
+        if self._errors_present:
+            msg = "Cannot multiply a histogram with fixed errors."
+            raise RuntimeError(msg)
+        return EnhancedPlottableHistogram(
+            self.values() * factor,
+            edges=self.axes[0].edges,
+            variances=(
+                self.variances() * factor**2 if self.variances() is not None else None
+            ),
+            kind=self.kind,
+            w2method=self.method,
+        )
 
     def __rmul__(self, factor):
         return self.__mul__(factor)
@@ -585,6 +599,13 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         edges[1:] = [self.axes[0].edges[i][1] for i in range(len(self.axes[0]))]
         return edges
 
+    def is_unweighted(self):
+        """Check if the histogram is unweighted."""
+        if self.variances() is None:
+            msg = "Variances are not set, cannot determine if histogram is unweighted."
+            raise RuntimeError(msg)
+        return np.allclose(self.variances(), np.around(self.variances()))
+
     def errors(self, method=None, assume_variances_equal_values=False):
         """
         Calculate y-errors using a specified or inferred method ('poisson', 'sqrt', or callable).
@@ -601,10 +622,7 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         if method is None:
             method = self.method
             if method is None:
-                if np.allclose(self.variances(), np.around(self.variances())):
-                    method = "poisson"
-                else:
-                    method = "sqrt"
+                method = "poisson" if self.is_unweighted() else "sqrt"
 
         def sqrt_method(values, variances):
             return values - np.sqrt(variances), values + np.sqrt(variances)
@@ -708,14 +726,16 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         }
 
 
-def make_plottable_histogram(hist):
+def make_plottable_histogram(hist, **kwargs):
     """
     Convert a histogram to a plottable histogram.
 
     Parameters
     ----------
-    hist : Histogram object
+    hist : Histogram object (e.g. Hist, boost_histogram, np.histogram, TH1)
         The histogram to be converted.
+    **kwargs : dict, optional
+        Additional keyword arguments to pass to the EnhancedPlottableHistogram constructor.
 
     Returns
     -------
@@ -727,6 +747,13 @@ def make_plottable_histogram(hist):
     ValueError
         If the input histogram is not 1D.
     """
+    if isinstance(hist, EnhancedPlottableHistogram) and kwargs:
+        warnings.warn(
+            "Additional keyword arguments are ignored when converting an already plottable histogram.",
+            stacklevel=2,
+        )
+        return hist
+
     hist = ensure_plottable_histogram(hist)
     if len(hist.axes) != 1:
         msg = "Only 1D histograms are supported."
@@ -747,16 +774,17 @@ def make_plottable_histogram(hist):
         edges=edges,
         variances=np.array(hist.variances()),  # copy to avoid further modification
         kind=hist.kind,
+        **kwargs,
     )
 
 
-def _check_counting_histogram(hist):
+def _check_counting_histogram(hist_list):
     """
-    Check that the histogram is a counting histogram.
+    Check that the histograms in the list are counting histograms.
 
     Parameters
     ----------
-    hist : histogram
+    hist_list : list of PlottableHistogram
 
     Raise
     -----
@@ -764,9 +792,10 @@ def _check_counting_histogram(hist):
         If the histogram is not a counting histogram.
 
     """
-    if hist.kind != Kind.COUNT:
-        msg = f"The histogram must be a counting histogram, but the input histogram has kind {hist.kind}."
-        raise ValueError(msg)
+    for hist in hist_list:
+        if hist.kind != Kind.COUNT:
+            msg = f"The histogram must be a counting histogram, but the input histogram has kind {hist.kind}."
+            raise ValueError(msg)
 
 
 def stack(*plottables):
