@@ -304,6 +304,8 @@ def test_fixed_errors(basic_hist):
 
 
 def test_binwnorm_idempotence(basic_hist):
+    # The basic histogram has unitary bin widths,
+    # so binwnorm should not change the values.
     h = basic_hist
     before = h.values().copy()
     h1 = h.binwnorm()
@@ -311,6 +313,26 @@ def test_binwnorm_idempotence(basic_hist):
     assert np.allclose(h1.values(), before)
     h2 = h1.binwnorm()
     assert np.allclose(h2.values(), before)
+
+
+def test_binwnorm_non_unitary_bin_widths():
+    edges = np.array([[0, 1], [1, 3]], dtype=float)
+    values = np.array([1.0, 4.0], dtype=float)
+    variances = values
+    h = EnhancedPlottableHistogram(
+        values, edges=edges, variances=variances, w2method="sqrt"
+    )
+    # The first bin is normalized by 1, the second by 2.
+    h.binwnorm()
+    assert np.allclose(h.values(), [1.0, 2.0])
+    assert np.allclose([h.yerr_lo], [1.0, 1.0])
+    assert np.allclose([h.yerr_hi], [1.0, 1.0])
+
+    # Another normalization should not change the values
+    h.binwnorm()
+    assert np.allclose(h.values(), [1.0, 2.0])
+    assert np.allclose([h.yerr_lo], [1.0, 1.0])
+    assert np.allclose([h.yerr_hi], [1.0, 1.0])
 
 
 def test_density_normalization(basic_hist):
