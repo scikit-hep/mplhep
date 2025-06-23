@@ -230,15 +230,15 @@ def histplot(
         _chunked_kwargs.append({})
     for kwarg, kwarg_content in kwargs.items():
         # Check if iterable
-        if iterable_not_string(kwargs[kwarg]):
+        if iterable_not_string(kwarg_content):
             # Check if tuple of floats or ints (can be used for colors)
-            if isinstance(kwargs[kwarg], tuple) and all(
+            if isinstance(kwarg_content, tuple) and all(
                 isinstance(x, (int, float)) for x in kwarg_content
             ):
                 for i in range(len(_chunked_kwargs)):
                     _chunked_kwargs[i][kwarg] = kwarg_content
             else:
-                for i, kw in enumerate(kwargs[kwarg]):
+                for i, kw in enumerate(kwarg_content):
                     _chunked_kwargs[i][kwarg] = kw
         else:
             for i in range(len(_chunked_kwargs)):
