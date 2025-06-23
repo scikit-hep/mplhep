@@ -42,24 +42,28 @@ def get_plottable_protocol_bins(
 
 
 def hist_object_handler(
-    hist: (
+    hist_like: (
         ArrayLike | PlottableHistogram | tuple[ArrayLike | None, ...] | list[ArrayLike]
     ),
     *bins: Sequence[float | None],
 ) -> PlottableHistogram:
     if not bins or all(b is None for b in bins):
-        if isinstance(hist, list):
-            if not bins and len(hist) > 0 and not isinstance(hist[0], (list, Real)):
-                hist = tuple(hist)
+        if isinstance(hist_like, list):
+            if (
+                not bins
+                and len(hist_like) > 0
+                and not isinstance(hist_like[0], (list, Real))
+            ):
+                hist_like = tuple(hist_like)
             else:
-                hist = (np.asarray(hist), None)
-        elif isinstance(hist, np.ndarray):
-            hist = (hist, None)
-        hist_obj = ensure_plottable_histogram(hist)
-    elif isinstance(hist, PlottableHistogram):
-        hist_obj = hist
+                hist_like = (np.asarray(hist_like), None)
+        elif isinstance(hist_like, np.ndarray):
+            hist_like = (hist_like, None)
+        hist_obj = ensure_plottable_histogram(hist_like)
+    elif isinstance(hist_like, PlottableHistogram):
+        hist_obj = hist_like
     else:
-        hist_obj = ensure_plottable_histogram((hist, *bins))
+        hist_obj = ensure_plottable_histogram((hist_like, *bins))
 
     if len(hist_obj.axes) not in {1, 2}:
         msg = "Must have only 1 or 2 axes"
@@ -106,8 +110,8 @@ def _process_histogram_parts_iter(
 ) -> Iterable[PlottableHistogram]:
     original_bins: tuple[Sequence[float], ...] = bins  # type: ignore[assignment]
 
-    for hist in hists:
-        h = hist_object_handler(hist, *bins)
+    for hist_like in hists:
+        h = hist_object_handler(hist_like, *bins)
         current_bins: tuple[Sequence[float], ...] = tuple(
             get_plottable_protocol_bins(a)[0]  # type: ignore[misc]
             for a in h.axes  # type: ignore[misc]
@@ -726,13 +730,13 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         }
 
 
-def make_plottable_histogram(hist, **kwargs):
+def make_plottable_histogram(hist_like, **kwargs):
     """
     Convert a histogram to a plottable histogram.
 
     Parameters
     ----------
-    hist : Histogram object (e.g. Hist, boost_histogram, np.histogram, TH1)
+    hist_like : Histogram object (e.g. Hist, boost_histogram, np.histogram, TH1)
         The histogram to be converted.
     **kwargs : dict, optional
         Additional keyword arguments to pass to the EnhancedPlottableHistogram constructor.
@@ -747,19 +751,19 @@ def make_plottable_histogram(hist, **kwargs):
     ValueError
         If the input histogram is not 1D.
     """
-    if isinstance(hist, EnhancedPlottableHistogram) and kwargs:
+    if isinstance(hist_like, EnhancedPlottableHistogram) and kwargs:
         warnings.warn(
             "Additional keyword arguments are ignored when converting an already plottable histogram.",
             stacklevel=2,
         )
-        return hist
+        return hist_like
 
-    hist = ensure_plottable_histogram(hist)
-    if len(hist.axes) != 1:
+    hist_obj = ensure_plottable_histogram(hist_like)
+    if len(hist_obj.axes) != 1:
         msg = "Only 1D histograms are supported."
         raise ValueError(msg)
 
-    axis = hist.axes[0]
+    axis = hist_obj.axes[0]
 
     edges = np.arange(len(axis) + 1).astype(float)
     if isinstance(axis[0], tuple):  # Regular axis
@@ -770,10 +774,10 @@ def make_plottable_histogram(hist, **kwargs):
         raise NotImplementedError(msg)
 
     return EnhancedPlottableHistogram(
-        np.array(hist.values()),  # copy to avoid further modification
+        np.array(hist_obj.values()),  # copy to avoid further modification
         edges=edges,
-        variances=np.array(hist.variances()),  # copy to avoid further modification
-        kind=hist.kind,
+        variances=np.array(hist_obj.variances()),  # copy to avoid further modification
+        kind=hist_obj.kind,
         **kwargs,
     )
 
@@ -792,9 +796,9 @@ def _check_counting_histogram(hist_list):
         If the histogram is not a counting histogram.
 
     """
-    for hist in hist_list:
-        if hist.kind != Kind.COUNT:
-            msg = f"The histogram must be a counting histogram, but the input histogram has kind {hist.kind}."
+    for hist_obj in hist_list:
+        if hist_obj.kind != Kind.COUNT:
+            msg = f"The histogram must be a counting histogram, but the input histogram has kind {hist_obj.kind}."
             raise ValueError(msg)
 
 
