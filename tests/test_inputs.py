@@ -53,7 +53,7 @@ def test_inputs_uproot():
     return fig
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=("png", "pdf"))
 def test_uproot_versions(fig_test, fig_ref):
     import uproot
     import uproot4
