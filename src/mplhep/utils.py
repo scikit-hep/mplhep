@@ -751,11 +751,12 @@ def make_plottable_histogram(hist_like, **kwargs):
     ValueError
         If the input histogram is not 1D.
     """
-    if isinstance(hist_like, EnhancedPlottableHistogram) and kwargs:
-        warnings.warn(
-            "Additional keyword arguments are ignored when converting an already plottable histogram.",
-            stacklevel=2,
-        )
+    if isinstance(hist_like, EnhancedPlottableHistogram):
+        if kwargs:
+            warnings.warn(
+                "Additional keyword arguments are ignored when converting an already plottable histogram.",
+                stacklevel=2,
+            )
         return hist_like
 
     hist_obj = ensure_plottable_histogram(hist_like)
