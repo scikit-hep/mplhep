@@ -5,10 +5,9 @@ from typing import Any
 import matplotlib as mpl
 from cycler import cycler
 
-# For depreciated colors
-from .._deprecate import deprecated_dict
-
 # Color wheel from https://arxiv.org/pdf/2107.02270 Table 1, 10 color palette
+# This is the color wheel recommended for plots that require a large number
+# of colors that would not be satisfied by the below palette
 color_sequence1 = [
     "#3f90da",
     "#ffa90e",
@@ -24,18 +23,16 @@ color_sequence1 = [
 
 # Color wheel based on internal discussions of optimal
 # colors for visibility, accounting for color vision deficiency
-# The recommendation for signal is ROOT.kRed aka '#ff0000'; for
-# plots with no signal, '#ff0000' should be used as the final
-# color in the standard palette / color wheel.
+# The recommendation for signal is the first color (Vermillion)
 # For large signals, ROOT.kWhite / '#ffffff' is also an option
 color_sequence2 = [
+    "#d55e00",
     "#56b4e9",
     "#e69f00",
     "#f0e442",
     "#009e73",
     "#cc79a7",
     "#0072b2",
-    "#ff0000",
 ]
 
 _base = {
@@ -150,19 +147,6 @@ ATLAS2: dict[str, Any] = {
     "mathtext.default": "it",
 }
 
-ATLAS2NoRed: dict[str, Any] = {
-    **_base,
-    "axes.prop_cycle": cycler("color", color_sequence2[0:6]),
-    "mathtext.fontset": "custom",
-    "mathtext.rm": "TeX Gyre Heros",
-    "mathtext.bf": "TeX Gyre Heros:bold",
-    "mathtext.sf": "TeX Gyre Heros",
-    "mathtext.it": "TeX Gyre Heros:italic",
-    "mathtext.tt": "TeX Gyre Heros",
-    "mathtext.cal": "TeX Gyre Heros",
-    "mathtext.default": "it",
-}
-
 # use dejavusans (default math fontset)
 ATLASAlt: dict[str, Any] = {
     **_base,
@@ -197,12 +181,3 @@ ATLASTex = {k: v for k, v in ATLASTex.items() if k in mpl.rcParams}
 
 # Alias 'ATLAS' to the one that most folks should use
 ATLAS = ATLAS2.copy()
-
-# Add warnings for the older sets
-color_msg = (
-    "This ATLAS style uses a color sequence not preferred by the collaboration. "
-    "Please switch to 'ATLAS2' or 'ATLAS' style. ATLAS members can see more at "
-    "https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PubComPlotStyle#Colors"
-)
-ATLAS1 = deprecated_dict(ATLAS1, message=color_msg, warning=FutureWarning)
-ATLASAlt = deprecated_dict(ATLASAlt, message=color_msg, warning=FutureWarning)

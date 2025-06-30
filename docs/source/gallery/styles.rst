@@ -27,13 +27,10 @@ to illustrate the visual appearance of the styles.
 ATLAS
 ------------
 
-ATLAS has one recommended style, named ``ATLAS`` (or ``ATLAS2``).
-The recommended color for signal is ``#ff0000`` (``ROOT.kRed``);
-for large signals, ``#ffffff`` (``ROOT.kWhite``) is also an option.
-In plots without a signal, ``#ff0000`` is intended to be used as
-the last color in the palette. An ``ATLAS2NoRed`` style is also
-provided for those who would like to separately handle their signal
-histogram.
+ATLAS has two recommended style. The main recommendation, ``ATLAS``
+(or ``ATLAS2``) provides 7 colors, with Vermillion, the first color
+in the palette, recommended for signal. In the case of large
+signals, white can also be used.
 
 .. image:: ../../_static/_generated/ATLAS/fill/pos0.png
    :width: 45%
@@ -45,6 +42,21 @@ histogram.
     :width: 45%
 
 .. image:: ../../_static/_generated/ATLAS/band/pos0.png
+    :width: 45%
+
+For plots that require large numbers of colors, the ``ATLAS1``
+palette is provided with 10 colors.
+
+.. image:: ../../_static/_generated/ATLAS1/fill/pos0.png
+   :width: 45%
+
+.. image:: ../../_static/_generated/ATLAS1/step/pos0.png
+    :width: 45%
+
+.. image:: ../../_static/_generated/ATLAS1/errorbar/pos0.png
+    :width: 45%
+
+.. image:: ../../_static/_generated/ATLAS1/band/pos0.png
     :width: 45%
 
 CMS
