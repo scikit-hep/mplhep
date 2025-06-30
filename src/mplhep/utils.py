@@ -31,7 +31,7 @@ def isLight(rgb):
 def get_plottable_protocol_bins(
     axis: PlottableAxis,
 ) -> tuple[np.ndarray, np.ndarray | None]:
-    out = np.arange(len(axis) + 1).astype(float)
+    out: np.ndarray = np.arange(len(axis) + 1).astype(float)
     if isinstance(axis[0], tuple):  # Regular axis
         out[0] = axis[0][0]
         out[1:] = [axis[i][1] for i in range(len(axis))]  # type: ignore[index]
@@ -451,7 +451,7 @@ def norm_stack_plottables(plottables, bins, stack=False, density=False, binwnorm
 
     # Stack
     if stack and len(plottables) > 1:
-        from .utils import stack as stack_fun
+        from .utils import stack as stack_fun  # noqa: PLC0415
 
         plottables = stack_fun(*plottables)
 
@@ -504,6 +504,7 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
                 np.zeros_like(self.values()),
                 np.zeros_like(self.values()),
             )
+        self._hash = None
 
     def __eq__(self, other):
         """Check equality between two EnhancedPlottableHistogram instances based on values(), variances(), and edges."""
@@ -514,6 +515,22 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
                 np.array_equal(self.edges_1d(), other.edges_1d()),
             ]
         )
+
+    def __hash__(self):
+        """Return a hash of the EnhancedPlottableHistogram object based on its values, variances, and edges."""
+        if self._hash is None:
+            self._hash = hash(
+                (
+                    tuple(self.values().flatten()),
+                    tuple(
+                        self.variances().flatten()
+                        if self.variances() is not None
+                        else []
+                    ),
+                    tuple(self.edges_1d().flatten()),
+                )
+            )
+        return self._hash
 
     def __repr__(self):
         """Return string representation of the EnhancedPlottableHistogram object."""
@@ -640,7 +657,7 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
             )
         elif method == "poisson":
             try:
-                from .error_estimation import poisson_interval
+                from .error_estimation import poisson_interval  # noqa: PLC0415
 
                 self.yerr_lo, self.yerr_hi = calculate_relative(
                     poisson_interval, self.variances()
