@@ -26,8 +26,6 @@ plt.switch_backend("Agg")
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @pytest.mark.mpl_image_compare(style="default", remove_text=False)
 def test_style_atlas():
-    plt.rcParams.update(plt.rcParamsDefault)
-
     # Test suite does not have Helvetica
     plt.style.use([hep.style.ATLAS, {"font.sans-serif": ["Tex Gyre Heros"]}])
     fig, ax = plt.subplots()
@@ -39,8 +37,6 @@ def test_style_atlas():
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @pytest.mark.mpl_image_compare(style="default", remove_text=False)
 def test_style_cms():
-    plt.rcParams.update(plt.rcParamsDefault)
-
     plt.style.use(hep.style.CMS)
     fig, ax = plt.subplots()
     hep.cms.label("Preliminary")
@@ -51,8 +47,6 @@ def test_style_cms():
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @pytest.mark.mpl_image_compare(style="default", remove_text=False)
 def test_style_alice():
-    plt.rcParams.update(plt.rcParamsDefault)
-
     plt.style.use(hep.style.ALICE)
     fig, ax = plt.subplots()
     hep.alice.label("Preliminary")
@@ -63,8 +57,6 @@ def test_style_alice():
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @pytest.mark.mpl_image_compare(style="default", remove_text=False)
 def test_style_lhcb():
-    plt.rcParams.update(plt.rcParamsDefault)
-
     plt.style.use([hep.style.LHCb1, {"figure.autolayout": False}])
     fig, ax = plt.subplots()
     hep.lhcb.label("Preliminary")
@@ -74,8 +66,6 @@ def test_style_lhcb():
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @pytest.mark.mpl_image_compare(style="default", remove_text=False)
 def test_style_lhcb2():
-    plt.rcParams.update(plt.rcParamsDefault)
-
     plt.style.use([hep.style.LHCb2, {"figure.autolayout": False}])
     fig, ax = plt.subplots()
     hep.lhcb.label("Preliminary")
@@ -85,7 +75,6 @@ def test_style_lhcb2():
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @pytest.mark.mpl_image_compare(style="default", remove_text=False)
 def test_style_plothist():
-    plt.rcParams.update(plt.rcParamsDefault)
     plt.style.use(hep.style.PLOTHIST)
     fig, ax = plt.subplots()
     return fig
@@ -106,8 +95,6 @@ def test_style_plothist():
     ids=["ALICE", "ATLAS", "CMS", "LHCb1", "LHCb2", "ROOT"],
 )
 def test_use_style(fig_test, fig_ref, mplhep_style):
-    plt.rcParams.update(plt.rcParamsDefault)
-
     hep.rcParams.clear()
     plt.style.use(mplhep_style)
     fig_ref.subplots()
@@ -120,8 +107,6 @@ def test_use_style(fig_test, fig_ref, mplhep_style):
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @check_figures_equal(extensions=["pdf"])
 def test_use_style_LHCb_dep(fig_test, fig_ref):
-    plt.rcParams.update(plt.rcParamsDefault)
-
     hep.rcParams.clear()
     with pytest.warns(FutureWarning):
         plt.style.use(hep.style.LHCb)
@@ -148,8 +133,6 @@ def test_use_style_LHCb_dep(fig_test, fig_ref):
     ids=["ALICE", "ATLAS", "CMS", "LHCb", "LHCb1", "LHCb2", "ROOT"],
 )
 def test_use_style_str_alias(fig_test, fig_ref, mplhep_style, str_alias):
-    plt.rcParams.update(plt.rcParamsDefault)
-
     hep.rcParams.clear()
     plt.style.use(mplhep_style)
     fig_ref.subplots()
@@ -175,8 +158,6 @@ def test_use_style_str_alias(fig_test, fig_ref, mplhep_style, str_alias):
     ids=["ALICE", "ATLAS", "CMS", "LHCb", "LHCb1", "LHCb2", "ROOT"],
 )
 def test_use_style_self_consistent(fig_test, fig_ref, mplhep_style, str_alias):
-    plt.rcParams.update(plt.rcParamsDefault)
-
     hep.rcParams.clear()
     hep.style.use(mplhep_style)
     fig_ref.subplots()
@@ -202,8 +183,6 @@ def test_use_style_self_consistent(fig_test, fig_ref, mplhep_style, str_alias):
     ids=["ALICE", "ATLAS", "CMS", "LHCb", "LHCb1", "LHCb2", "ROOT"],
 )
 def test_use_style_style_list(fig_test, fig_ref, mplhep_style, str_alias):
-    plt.rcParams.update(plt.rcParamsDefault)
-
     hep.rcParams.clear()
     plt.style.use([mplhep_style, {"font.sans-serif": "Comic Sans MS"}])
     fig_ref.subplots()
