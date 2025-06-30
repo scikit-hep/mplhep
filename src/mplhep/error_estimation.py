@@ -50,5 +50,5 @@ def poisson_interval(sumw, sumw2, coverage=_coverage1sd):
     lo = scale * scipy.stats.chi2.ppf((1 - coverage) / 2, 2 * counts) / 2.0
     hi = scale * scipy.stats.chi2.ppf((1 + coverage) / 2, 2 * (counts + 1)) / 2.0
     interval = np.array([lo, hi])
-    interval[interval == np.nan] = 0.0  # chi2.ppf produces nan for counts=0
+    interval[np.isnan(interval)] = 0.0  # chi2.ppf produces nan for counts=0
     return interval

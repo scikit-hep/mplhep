@@ -9,7 +9,10 @@ from typing import TYPE_CHECKING, Any, NamedTuple, Union
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.lines import Line2D
 from matplotlib.offsetbox import AnchoredText
+from matplotlib.patches import Patch, Rectangle
+from matplotlib.text import Text
 from matplotlib.transforms import Bbox
 from mpl_toolkits.axes_grid1 import axes_size, make_axes_locatable
 
@@ -1031,9 +1034,6 @@ def overlap(ax, bbox, get_vertices=False):
     """
     Find overlap of bbox for drawn elements an axes.
     """
-    from matplotlib.lines import Line2D
-    from matplotlib.patches import Patch, Rectangle
-    from matplotlib.text import Text
 
     # From
     # https://github.com/matplotlib/matplotlib/blob/08008d5cb4d1f27692e9aead9a76396adc8f0b19/lib/matplotlib/legend.py#L845
@@ -1371,13 +1371,13 @@ def append_axes(ax, size=0.1, pad=0.1, position="right", extend=False):
                 fig.get_size_inches()[1],
             )
         elif position in ["left"]:
-            divider.set_horizontal(xsizes[::-1] + [axes_size.Fixed(width)])
+            divider.set_horizontal([*xsizes[::-1], axes_size.Fixed(width)])
             fig.set_size_inches(
                 fig.get_size_inches()[0] * extend_ratio(ax, yhax)[0],
                 fig.get_size_inches()[1],
             )
         elif position in ["top"]:
-            divider.set_vertical([axes_size.Fixed(height)] + xsizes[::-1])
+            divider.set_vertical([axes_size.Fixed(height), *xsizes[::-1]])
             fig.set_size_inches(
                 fig.get_size_inches()[0],
                 fig.get_size_inches()[1] * extend_ratio(ax, yhax)[1],
@@ -1397,8 +1397,6 @@ def append_axes(ax, size=0.1, pad=0.1, position="right", extend=False):
 ####################
 # Legend Helpers
 def hist_legend(ax=None, **kwargs):
-    from matplotlib.lines import Line2D
-
     if ax is None:
         ax = plt.gca()
 

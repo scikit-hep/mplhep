@@ -9,6 +9,11 @@ from matplotlib.testing.decorators import check_figures_equal
 
 os.environ["RUNNING_PYTEST"] = "true"
 
+import boost_histogram as bh
+import uproot
+import uproot4
+from skhep_testdata import data_path
+
 import mplhep as hep
 
 """
@@ -39,9 +44,6 @@ def test_inputs_basic():
 
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_inputs_uproot():
-    import uproot4
-    from skhep_testdata import data_path
-
     fname = data_path("uproot-hepdata-example.root")
     f = uproot4.open(fname)
 
@@ -55,10 +57,6 @@ def test_inputs_uproot():
 
 @check_figures_equal(extensions=("png", "pdf"))
 def test_uproot_versions(fig_test, fig_ref):
-    import uproot
-    import uproot4
-    from skhep_testdata import data_path
-
     fname = data_path("uproot-hepdata-example.root")
     f4 = uproot4.open(fname)
     f3 = uproot.open(fname)
@@ -80,7 +78,6 @@ def test_uproot_versions(fig_test, fig_ref):
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_inputs_bh():
     np.random.seed(0)
-    import boost_histogram as bh
 
     hist2d = bh.Histogram(bh.axis.Regular(10, 0.0, 1.0), bh.axis.Regular(10, 0, 1))
     hist2d.fill(np.random.normal(0.5, 0.2, 1000), np.random.normal(0.5, 0.2, 1000))
@@ -95,7 +92,6 @@ def test_inputs_bh():
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_inputs_bh_cat():
     np.random.seed(0)
-    import boost_histogram as bh
 
     hist2d = bh.Histogram(
         bh.axis.IntCategory(range(10)), bh.axis.StrCategory("", growth=True)
