@@ -23,7 +23,7 @@ color_sequence1 = [
 
 # Color wheel based on internal discussions of optimal
 # colors for visibility, accounting for color vision deficiency
-# The recommendation for signal is the first color (Vermillion)
+# The recommendation for signal is the first color (Vermilion)
 # For large signals, ROOT.kWhite / '#ffffff' is also an option
 color_sequence2 = [
     "#d55e00",
