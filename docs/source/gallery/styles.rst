@@ -32,16 +32,16 @@ ATLAS has two recommended style. The main recommendation, ``ATLAS``
 in the palette, recommended for signal. In the case of large
 signals, white can also be used.
 
-.. image:: ../../_static/_generated/ATLAS/fill/pos0.png
+.. image:: ../../_static/_generated/ATLAS2/fill/pos0.png
    :width: 45%
 
-.. image:: ../../_static/_generated/ATLAS/step/pos0.png
+.. image:: ../../_static/_generated/ATLAS2/step/pos0.png
     :width: 45%
 
-.. image:: ../../_static/_generated/ATLAS/errorbar/pos0.png
+.. image:: ../../_static/_generated/ATLAS2/errorbar/pos0.png
     :width: 45%
 
-.. image:: ../../_static/_generated/ATLAS/band/pos0.png
+.. image:: ../../_static/_generated/ATLAS2/band/pos0.png
     :width: 45%
 
 For plots that require large numbers of colors, the ``ATLAS1``
