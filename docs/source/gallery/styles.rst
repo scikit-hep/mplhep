@@ -28,7 +28,7 @@ ATLAS
 ------------
 
 ATLAS has two recommended style. The main recommendation, ``ATLAS``
-(or ``ATLAS2``) provides 7 colors, with Vermillion, the first color
+(or ``ATLAS2``) provides 7 colors, with Vermilion, the first color
 in the palette, recommended for signal. In the case of large
 signals, white can also be used.
 
