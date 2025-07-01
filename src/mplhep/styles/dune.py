@@ -25,19 +25,19 @@ DUNE = {
     "mathtext.cal": "TeX Gyre Heros",
     "mathtext.default": "regular",
     # Figure configuration
-    "figure.figsize": (12, 9),
+    "figure.figsize": (10, 10),
     "figure.facecolor": "white",
     "figure.dpi": 100,
     # Text properties
     "text.hinting_factor": 8,
-    "font.size": 26,
+    "font.size": 12,
     # Axes properties
     "axes.facecolor": "white",
     "axes.edgecolor": "black",
     "axes.grid": False,
     "axes.linewidth": 1.5,
-    "axes.labelsize": "xx-large",
-    "axes.titlesize": 36,
+    "axes.labelsize": "x-large",
+    "axes.titlesize": 18,
     # "axes.labelpad": 8,  # Better spacing between labels and axes
     # "axes.formatter.limits": "-3, 4",  # Better scientific notation limits
     "axes.formatter.use_mathtext": True,
@@ -48,7 +48,6 @@ DUNE = {
     "axes.prop_cycle": cycler(
         "color",
         [
-            "#000000",  # Black (high contrast)
             "#D55E00",  # DUNE Orange (primary)
             "#56B4E9",  # DUNE Sky Blue (primary)
             "#E69F00",  # DUNE Yellow/Gold (primary)
@@ -63,7 +62,7 @@ DUNE = {
     "lines.markersize": 8,
     # Patch properties (histograms)
     "patch.linewidth": 1.5,
-    "patch.facecolor": "#D55E00",
+    "patch.facecolor": "blue",
     "patch.edgecolor": "black",
     "patch.antialiased": True,
     # Image properties - Color Vision Deficiency friendly
@@ -75,7 +74,7 @@ DUNE = {
     "grid.linewidth": 0.5,
     "grid.alpha": 0.8,
     # Legend properties
-    "legend.fontsize": "medium",  # Better relative sizing
+    "legend.fontsize": 12,
     "legend.title_fontsize": "medium",
     "legend.frameon": False,
     "legend.handlelength": 2.0,
@@ -85,9 +84,9 @@ DUNE = {
     # Enhanced tick properties
     "xtick.color": "black",
     "xtick.direction": "in",
-    "xtick.labelsize": "large",
-    "xtick.major.size": 8,
-    "xtick.minor.size": 4,
+    "xtick.labelsize": "x-large",
+    "xtick.major.size": 10,
+    "xtick.minor.size": 5,
     "xtick.major.pad": 6,
     "xtick.minor.visible": True,
     "xtick.top": True,
@@ -98,9 +97,9 @@ DUNE = {
     "xtick.minor.bottom": True,
     "ytick.color": "black",
     "ytick.direction": "in",
-    "ytick.labelsize": "large",
-    "ytick.major.size": 8,
-    "ytick.minor.size": 4,
+    "ytick.labelsize": "x-large",
+    "ytick.major.size": 10,
+    "ytick.minor.size": 5,
     "ytick.major.pad": 6,
     "ytick.minor.visible": True,
     "ytick.right": True,
