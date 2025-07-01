@@ -555,7 +555,7 @@ def save_variations(fig, name, text_list=None, exp=None):
     if text_list is None:
         text_list = ["Preliminary", ""]
 
-    from mplhep.label import ExpSuffix, ExpText
+    from mplhep.label import ExpSuffix, ExpText  # noqa: PLC0415
 
     for text in text_list:
         for ax in fig.get_axes():

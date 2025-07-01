@@ -11,6 +11,14 @@ from . import alice, atlas, cms, label, lhcb, plot
 from . import styles as style
 from ._tools import Config
 from ._version import version as __version__  # noqa: F401
+from .comparison import (
+    get_asymmetry,
+    get_comparison,
+    get_difference,
+    get_efficiency,
+    get_pull,
+    get_ratio,
+)
 from .label import save_variations, savelabels
 from .plot import (
     append_axes,
@@ -27,7 +35,12 @@ from .plot import (
     yscale_legend,
 )
 from .styles import set_style
-from .utils import get_plottables
+from .utils import (
+    EnhancedPlottableHistogram,
+    _check_counting_histogram,
+    get_plottables,
+    make_plottable_histogram,
+)
 
 # Configs
 rcParams = Config(
@@ -54,28 +67,37 @@ for font in font_files:
 
 # Log submodules
 __all__ = [
-    "cms",
-    "atlas",
-    "lhcb",
+    "EnhancedPlottableHistogram",
+    "_check_counting_histogram",
     "alice",
-    "plot",
-    "style",
-    "label",
-    "savelabels",
+    "append_axes",
+    "atlas",
+    "box_aspect",
+    "cms",
+    "get_asymmetry",
+    "get_comparison",
+    "get_difference",
+    "get_efficiency",
+    "get_plottables",
+    "get_pull",
+    "get_ratio",
+    "hist2dplot",
     # Log plot functions
     "histplot",
-    "hist2dplot",
-    "mpl_magic",
-    "yscale_legend",
-    "yscale_anchored_text",
-    "ylow",
-    "rescale_to_axessize",
-    "box_aspect",
+    "label",
+    "lhcb",
+    "make_plottable_histogram",
     "make_square_add_cbar",
     "merge_legend_handles_labels",
-    "append_axes",
-    "sort_legend",
+    "mpl_magic",
+    "plot",
+    "rescale_to_axessize",
     "save_variations",
+    "savelabels",
     "set_style",
-    "get_plottables",
+    "sort_legend",
+    "style",
+    "ylow",
+    "yscale_anchored_text",
+    "yscale_legend",
 ]

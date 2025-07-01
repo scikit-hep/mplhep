@@ -3,6 +3,7 @@ src/mplhep/_version.py
 *.root
 result_images/
 test/
+.nox/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

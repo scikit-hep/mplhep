@@ -8,6 +8,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
+import uproot
 
 os.environ["RUNNING_PYTEST"] = "true"
 
@@ -94,8 +95,6 @@ def test_log():
 
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_onebin_hist():
-    import hist
-
     fig, axs = plt.subplots()
     h = hist.Hist(hist.axis.Regular(1, 0, 1))
     h.fill([-1, 0.5])
@@ -217,7 +216,6 @@ def test_histplot_uproot_flow():
     h2.fill(entries[entries < 15])
     h3.fill(entries[entries > 5])
     h4.fill(entries[(entries > 5) & (entries < 15)])
-    import uproot
 
     with uproot.recreate("flow_th1.root") as f:
         f["h"] = h
