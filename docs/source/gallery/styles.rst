@@ -27,10 +27,9 @@ to illustrate the visual appearance of the styles.
 ATLAS
 ------------
 
-ATLAS has two recommended style. The main recommendation, ``ATLAS``
-(or ``ATLAS2``) provides 7 colors, with Vermilion, the first color
-in the palette, recommended for signal. In the case of large
-signals, white can also be used.
+ATLAS has two `recommended styles <https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PubComPlotStyle#Color_vision_deficiency_palette>`__.
+The main recommendation, ``ATLAS`` (or ``ATLAS2``, based on `this work <https://jfly.uni-koeln.de/color/>`__) provides 7 colors,
+with Vermilion, the first color in the palette, recommended for signal. In the case of large signals, white can also be used.
 
 .. image:: ../../_static/_generated/ATLAS2/fill/pos0.png
    :width: 45%
@@ -44,8 +43,7 @@ signals, white can also be used.
 .. image:: ../../_static/_generated/ATLAS2/band/pos0.png
     :width: 45%
 
-For plots that require large numbers of colors, the ``ATLAS1``
-palette is provided with 10 colors.
+For plots that require large numbers of colors, the ``ATLAS1`` palette is provided with 10 colors `based on this paper <https://arxiv.org/pdf/2107.02270>`__.
 
 .. image:: ../../_static/_generated/ATLAS1/fill/pos0.png
    :width: 45%
