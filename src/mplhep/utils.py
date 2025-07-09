@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import copy
 import inspect
+import re
 import warnings
 from numbers import Real
 from typing import TYPE_CHECKING, Any, Iterable, Sequence
-import re
 
 import numpy as np
 from matplotlib import markers

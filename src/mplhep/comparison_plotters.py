@@ -7,20 +7,18 @@ from __future__ import annotations
 import matplotlib.pyplot as plt
 import numpy as np
 
+from .comparison import (
+    _check_binning_consistency,
+    get_comparison,
+)
 from .plot import (
     histplot,
 )
-
 from .utils import (
-    make_plottable_histogram,
     EnhancedPlottableHistogram,
     _check_counting_histogram,
     _get_math_text,
-)
-
-from .comparison import (
-    get_comparison,
-    _check_binning_consistency,
+    make_plottable_histogram,
 )
 
 
@@ -67,7 +65,6 @@ def create_comparison_figure(
         _ = ax.xaxis.set_ticklabels([])
 
     return fig, axes
-
 
 
 def plot_two_hist_comparison(
