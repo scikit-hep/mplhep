@@ -5,6 +5,7 @@ import inspect
 import warnings
 from numbers import Real
 from typing import TYPE_CHECKING, Any, Iterable, Sequence
+import re
 
 import numpy as np
 from matplotlib import markers
@@ -639,6 +640,11 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
             self._variances = self.values()
         if self.variances() is None:
             return
+        if np.allclose(self.variances(), 0):
+            self.yerr_lo = np.zeros_like(self.values())
+            self.yerr_hi = np.zeros_like(self.values())
+            self._errors_present = True
+            return
         assert method in ["poisson", "sqrt", None] or callable(method)
         if method is None:
             method = self.method
@@ -814,6 +820,8 @@ def _check_counting_histogram(hist_list):
         If the histogram is not a counting histogram.
 
     """
+    if not isinstance(hist_list, list):
+        hist_list = [hist_list]
     for hist_obj in hist_list:
         if hist_obj.kind != Kind.COUNT:
             msg = f"The histogram must be a counting histogram, but the input histogram has kind {hist_obj.kind}."
@@ -927,3 +935,23 @@ def to_padded2d(h, variances=False):
     if variances:
         return padded, padded_varis
     return padded
+
+
+def _get_math_text(text):
+    """
+    Search for text between $ and return it.
+
+    Parameters
+    ----------
+    text : str
+        The input string.
+
+    Returns
+    -------
+    str
+        The text between $ or the input string if no $ are found.
+    """
+    match = re.search(r"\$(.*?)\$", text)
+    if match:
+        return match.group(1)
+    return text
