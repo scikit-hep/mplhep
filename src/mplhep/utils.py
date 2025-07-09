@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import copy
 import inspect
-import re
 import warnings
 from numbers import Real
 from typing import TYPE_CHECKING, Any, Iterable, Sequence
@@ -937,21 +936,39 @@ def to_padded2d(h, variances=False):
     return padded
 
 
-def _get_math_text(text):
+def set_fitting_ylabel_fontsize(ax):
     """
-    Search for text between $ and return it.
+    Get the suitable font size for a ylabel text that fits within the plot's y-axis limits.
 
     Parameters
     ----------
-    text : str
-        The input string.
+    ax : matplotlib.axes.Axes
+        The matplotlib subplot to adjust the ylabel font size for.
 
     Returns
     -------
-    str
-        The text between $ or the input string if no $ are found.
+    float
+        The adjusted font size for the ylabel text.
     """
-    match = re.search(r"\$(.*?)\$", text)
-    if match:
-        return match.group(1)
-    return text
+    ylabel_fontsize = ax.yaxis.get_label().get_fontsize()
+
+    # Check if renderer is available
+    if ax.figure.canvas.get_renderer() is None:
+        ax.figure.canvas.draw()
+
+    while (
+        ax.yaxis.get_label()
+        .get_window_extent(renderer=ax.figure.canvas.get_renderer())
+        .transformed(ax.transData.inverted())
+        .y1
+        > ax.get_ylim()[1]
+    ):
+        ylabel_fontsize -= 0.1
+
+        if ylabel_fontsize <= 0:
+            msg = "Cannot fit ylabel text within the y-axis limits."
+            raise ValueError(msg)
+
+        ax.get_yaxis().get_label().set_size(ylabel_fontsize)
+
+    return ylabel_fontsize
