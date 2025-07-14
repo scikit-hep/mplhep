@@ -7,7 +7,7 @@ Plot the comparison between two 1D histograms.
 
 from plothist_utils import get_dummy_data
 
-df = get_dummy_data()
+df = get_dummy_data()  # noqa: PD901
 
 name = "variable_1"
 
@@ -16,8 +16,8 @@ x_sample = x_total[: int(len(x_total) * 0.75)]
 
 x_range = (min(x_total), max(x_total))
 
-import hist
-from hist import Hist
+import hist  # noqa: E402
+from hist import Hist  # noqa: E402
 
 h_sample = Hist(hist.axis.Regular(50, x_range[0], x_range[1]))
 h_total = Hist(hist.axis.Regular(50, x_range[0], x_range[1]))
@@ -26,9 +26,9 @@ h_sample.fill(x_sample)
 h_total.fill(x_total)
 
 ###
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt  # noqa: E402
 
-from mplhep import plot_comparison
+from mplhep import plot_comparison  # noqa: E402
 
 fig, ax = plt.subplots()
 

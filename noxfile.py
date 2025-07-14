@@ -28,6 +28,7 @@ def tests(session: nox.Session) -> None:
     session.install(*pyproject["project"]["optional-dependencies"]["test"])
     session.run("pytest", "--mpl", "-n", "auto", *session.posargs)
 
+
 @nox.session(reuse_venv=True)
 def generate_examples_figures(session: nox.Session) -> None:
     """

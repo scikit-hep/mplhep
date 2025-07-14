@@ -26,6 +26,7 @@ from .comparison_plotters import (
     plot_two_hist_comparison,
 )
 from .label import add_text, save_variations, savelabels
+from .palettes import get_color_palette
 from .plot import (
     append_axes,
     box_aspect,
@@ -75,6 +76,7 @@ for font in font_files:
 __all__ = [
     "EnhancedPlottableHistogram",
     "_check_counting_histogram",
+    "add_text",
     "alice",
     "append_axes",
     "atlas",
@@ -84,6 +86,7 @@ __all__ = [
     "get_comparison",
     "get_difference",
     "get_efficiency",
+    "get_color_palette",
     "get_plottables",
     "get_pull",
     "get_ratio",
