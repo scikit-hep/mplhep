@@ -8,7 +8,7 @@ import mplhep
 from mplhep.test_helpers import run_script_and_get_object
 
 mpl_image_compare_kwargs = {
-    "baseline_dir": "tests/baseline",
+    "baseline_dir": "baseline",
     "savefig_kwargs": {"bbox_inches": "tight"},
     "style": "mplhep.default_style",
     "deterministic": True,
