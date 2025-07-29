@@ -14,8 +14,7 @@ mpl_image_compare_kwargs = {
     "deterministic": True,
 }
 
-
-script_dir = Path(mplhep.__file__).parent / ".." / ".." / "examples" / "1d_histograms"
+script_dir = Path(mplhep.__file__).parent / ".." / ".." / "examples" / "model_ex"
 
 current_module = sys.modules[__name__]
 

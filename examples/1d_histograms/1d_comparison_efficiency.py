@@ -7,7 +7,7 @@ Compare the ratio between two histograms h1 and h2 when the entries of h1 are a 
 
 from plothist_utils import get_dummy_data
 
-df = get_dummy_data()  # noqa: PD901
+df = get_dummy_data()
 
 name = "variable_1"
 
@@ -16,8 +16,8 @@ x_sample = x_total[: int(len(x_total) * 0.75)]
 
 x_range = (min(x_total), max(x_total))
 
-import hist  # noqa: E402
-from hist import Hist  # noqa: E402
+import hist
+from hist import Hist
 
 h_sample = Hist(hist.axis.Regular(50, x_range[0], x_range[1]))
 h_total = Hist(hist.axis.Regular(50, x_range[0], x_range[1]))
@@ -26,7 +26,7 @@ h_sample.fill(x_sample)
 h_total.fill(x_total)
 
 ###
-from mplhep import plot_two_hist_comparison  # noqa: E402
+from mplhep import plot_two_hist_comparison
 
 fig, ax_main, ax_comparison = plot_two_hist_comparison(
     h_sample,

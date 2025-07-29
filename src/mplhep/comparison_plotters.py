@@ -65,6 +65,7 @@ def create_comparison_figure(
 
     for ax in axes[:-1]:
         _ = ax.xaxis.set_ticklabels([])
+        ax.set_xlabel(" ")
 
     return fig, axes
 
@@ -900,6 +901,7 @@ def plot_data_model_comparison(
         ax_main.set_xlabel(xlabel)
     else:
         _ = ax_main.xaxis.set_ticklabels([])
+        ax_main.set_xlabel(" ")
 
     if model_type == "histograms":
         model_hist = sum(model_components)

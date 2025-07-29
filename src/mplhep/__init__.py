@@ -20,12 +20,13 @@ from .comparison import (
     get_ratio,
 )
 from .comparison_plotters import (
+    create_comparison_figure,
     plot_comparison,
     plot_data_model_comparison,
     plot_model,
     plot_two_hist_comparison,
 )
-from .label import add_text, save_variations, savelabels
+from .label import add_luminosity, add_text, save_variations, savelabels
 from .palettes import get_color_palette
 from .plot import (
     append_axes,
@@ -47,6 +48,7 @@ from .utils import (
     _check_counting_histogram,
     get_plottables,
     make_plottable_histogram,
+    set_fitting_ylabel_fontsize,
 )
 
 # Configs
@@ -113,4 +115,9 @@ __all__ = [
     "ylow",
     "yscale_anchored_text",
     "yscale_legend",
+    "get_color_palette",
+    "add_text",
+    "add_luminosity",
+    "create_comparison_figure",
+    "set_fitting_ylabel_fontsize",
 ]

@@ -141,6 +141,8 @@ ignore = [
   "G004",     # Logging with f-string
   "PD011",    # .values vs .to_numpy can get confused
   "PT013",    # Import from pytest
+  "PD901",    # Make examples more readable
+  "E402",     # Make examples more readable
 ]
 
 [tool.ruff.lint.per-file-ignores]

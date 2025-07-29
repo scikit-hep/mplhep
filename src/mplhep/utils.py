@@ -6,6 +6,7 @@ import warnings
 from numbers import Real
 from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
+import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import markers
 from matplotlib.path import Path
@@ -936,7 +937,7 @@ def to_padded2d(h, variances=False):
     return padded
 
 
-def set_fitting_ylabel_fontsize(ax):
+def set_fitting_ylabel_fontsize(ax: plt.Axes) -> float:
     """
     Get the suitable font size for a ylabel text that fits within the plot's y-axis limits.
 
@@ -950,15 +951,14 @@ def set_fitting_ylabel_fontsize(ax):
     float
         The adjusted font size for the ylabel text.
     """
-    ylabel_fontsize = ax.yaxis.get_label().get_fontsize()
+    ylabel_fontsize = float(ax.yaxis.get_label().get_fontsize())
 
-    # Check if renderer is available
-    if ax.figure.canvas.get_renderer() is None:
-        ax.figure.canvas.draw()
+    # Force renderer to be initialized
+    ax.figure.canvas.draw()
 
     while (
         ax.yaxis.get_label()
-        .get_window_extent(renderer=ax.figure.canvas.get_renderer())
+        .get_window_extent(renderer=ax.figure.canvas.get_renderer())  # type: ignore[attr-defined]
         .transformed(ax.transData.inverted())
         .y1
         > ax.get_ylim()[1]
@@ -966,9 +966,9 @@ def set_fitting_ylabel_fontsize(ax):
         ylabel_fontsize -= 0.1
 
         if ylabel_fontsize <= 0:
-            msg = "Cannot fit ylabel text within the y-axis limits."
+            msg = "Only a y-label with a negative font size would fit on the y-axis."
             raise ValueError(msg)
 
-        ax.get_yaxis().get_label().set_size(ylabel_fontsize)
+        ax.get_yaxis().get_label().set_size(ylabel_fontsize)  # type: ignore[attr-defined]
 
     return ylabel_fontsize

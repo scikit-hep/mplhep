@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Dict, Literal, Sequence, Tuple, cast
-
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -78,16 +76,13 @@ def cubehelix_palette(
         "blue": f(1.97294, 0.0),
     }
 
-    cmap = mpl.colors.LinearSegmentedColormap(
-        "cubehelix",
-        cast(Dict[Literal['red', 'green', 'blue', 'alpha'], Sequence[Tuple[float, ...]]], cdict)
-    )
+    cmap = mpl.colors.LinearSegmentedColormap("cubehelix", cdict)  # type: ignore[arg-type]
 
     x = np.linspace(lightest, darkest, int(ncolors))
     pal = cmap(x)[:, :3].tolist()
     if reverse:
         pal = pal[::-1]
-    return pal
+    return [tuple(c) for c in pal]
 
 
 def get_color_palette(
@@ -144,4 +139,5 @@ def get_color_palette(
         raise ValueError(msg)
 
     plt_cmap = plt.get_cmap(cmap)
-    return plt_cmap(np.linspace(0, 1, N))
+    plt_cmap = plt_cmap(np.linspace(0, 1, N))
+    return [tuple(k) for k in plt_cmap]
