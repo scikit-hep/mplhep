@@ -53,7 +53,7 @@ background_hists = [background_scaling_factor * h for h in background_hists]
 
 ###
 from mplhep import plot_data_model_comparison
-print(background_categories_colors)
+
 fig, ax_main, ax_comparison = plot_data_model_comparison(
     data_hist=data_hist,
     stacked_components=background_hists[:2],

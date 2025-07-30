@@ -55,7 +55,7 @@ signal_scaling_factor = data_hist.sum().value / signal_hist.sum().value
 signal_hist *= signal_scaling_factor
 
 ###
-from mplhep import add_luminosity, plot_data_model_comparison, histplot
+from mplhep import add_luminosity, histplot, plot_data_model_comparison
 
 fig, ax_main, ax_comparison = plot_data_model_comparison(
     data_hist=data_hist,

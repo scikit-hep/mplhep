@@ -294,6 +294,9 @@ def plot_comparison(
             ax.set_ylabel(r"$\frac{" + h1_label + "}{" + h2_label + "}$")
 
         if comparison == "split_ratio":
+            if h2_plottable.variances() is None:
+                msg = "Cannot plot split ratio with h2 uncertainties not defined."
+                raise ValueError(msg)
             with np.errstate(divide="ignore", invalid="ignore"):
                 h2_scaled_uncertainties = np.where(
                     h2_plottable.values() != 0,
