@@ -22,7 +22,7 @@ jobs:
           - runs-on: macOS-13
             python-version: "3.9"
           - runs-on: macOS-14
-            python-version: "3.8"  # min version available for Apple silicon
+            python-version: "3.9"  # min version available for Apple silicon # changed to 3.9 as conflicts with plothist_utils for now
           - runs-on: windows-latest
             python-version: "3.9"
 
