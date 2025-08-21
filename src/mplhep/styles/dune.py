@@ -127,5 +127,14 @@ DUNETex = {
     "text.latex.preamble": r"\usepackage{siunitx},\sisetup{detect-all}, \
                               \usepackage{tgheros},\renewcommand{\familydefault}{\sfdefault}, \
                               \usepackage{sansmath},\sansmath, \
-                              \usepackage{amsmath},\usepackage{physics}",
+    "text.latex.preamble": r"""
+\usepackage{siunitx}
+\sisetup{detect-all}
+\usepackage{tgheros}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{sansmath}
+\sansmath
+\usepackage{amsmath}
+\usepackage{physics}
+""",
 }
