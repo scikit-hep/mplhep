@@ -27,33 +27,34 @@ to illustrate the visual appearance of the styles.
 ATLAS
 ------------
 
-ATLAS has two styles, the default one and the alternative one.
+ATLAS has two `recommended styles <https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PubComPlotStyle#Color_vision_deficiency_palette>`__.
+The main recommendation, ``ATLAS`` (or ``ATLAS2``, based on `this work <https://jfly.uni-koeln.de/color/>`__) provides 7 colors,
+with Vermilion, the first color in the palette, recommended for signal. In the case of large signals, white can also be used.
 
-
-.. image:: ../_static/_generated/ATLAS/fill/pos0.png
+.. image:: ../../_static/_generated/ATLAS2/fill/pos0.png
    :width: 45%
 
-.. image:: ../_static/_generated/ATLAS/step/pos0.png
+.. image:: ../../_static/_generated/ATLAS2/step/pos0.png
     :width: 45%
 
-.. image:: ../_static/_generated/ATLAS/errorbar/pos0.png
+.. image:: ../../_static/_generated/ATLAS2/errorbar/pos0.png
     :width: 45%
 
-.. image:: ../_static/_generated/ATLAS/band/pos0.png
+.. image:: ../../_static/_generated/ATLAS2/band/pos0.png
     :width: 45%
 
-ATLAS alternative, named ``ATLASAlt``
+For plots that require large numbers of colors, the ``ATLAS1`` palette is provided with 10 colors `based on this paper <https://arxiv.org/pdf/2107.02270>`__.
 
-.. image:: ../_static/_generated/ATLASAlt/fill/pos0.png
+.. image:: ../../_static/_generated/ATLAS1/fill/pos0.png
    :width: 45%
 
-.. image:: ../_static/_generated/ATLASAlt/step/pos0.png
+.. image:: ../../_static/_generated/ATLAS1/step/pos0.png
     :width: 45%
 
-.. image:: ../_static/_generated/ATLASAlt/errorbar/pos0.png
+.. image:: ../../_static/_generated/ATLAS1/errorbar/pos0.png
     :width: 45%
 
-.. image:: ../_static/_generated/ATLASAlt/band/pos0.png
+.. image:: ../../_static/_generated/ATLAS1/band/pos0.png
     :width: 45%
 
 CMS

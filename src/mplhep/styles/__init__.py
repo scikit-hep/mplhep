@@ -8,7 +8,7 @@ import mplhep._deprecate as deprecate
 
 # Short cut to all styles
 from .alice import ALICE
-from .atlas import ATLAS, ATLASAlt, ATLASTex
+from .atlas import ATLAS, ATLAS1, ATLAS2, ATLASAlt, ATLASTex
 from .cms import CMS, ROOT, CMSTex, ROOTTex
 from .dune import DUNE, DUNETex
 from .lhcb import LHCb, LHCb1, LHCb2, LHCbTex, LHCbTex1, LHCbTex2
@@ -20,6 +20,8 @@ __all__ = (
     "CMS",
     "PLOTHIST",
     "ROOT",
+    "ATLAS1",
+    "ATLAS2",
     "ATLASAlt",
     "ATLASTex",
     "CMSTex",
