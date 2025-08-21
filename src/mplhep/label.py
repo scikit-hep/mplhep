@@ -570,3 +570,175 @@ def save_variations(fig, name, text_list=None, exp=None):
             name_ext = exp.lower() + name_ext
         save_name = name.split(".")[0] + name_ext + "." + name.split(".")[1]
         fig.savefig(save_name)
+
+
+def add_text(
+    text: str,
+    x: float | str = "left",
+    y: float | str = "top",
+    fontsize: int = 12,
+    white_background: bool = False,
+    ax: plt.Axes | None = None,
+    **kwargs,
+) -> None:
+    """
+    Add text to an axis.
+
+    Parameters
+    ----------
+    text : str
+        The text to add.
+    x : float | str, optional
+        Horizontal position of the text in unit of the normalized x-axis length. The default is value "left", which is an alias for 0.0. Other aliases are "right", "left_in", "right_in", "right_out".
+    y : float | str, optional
+        Vertical position of the text in unit of the normalized y-axis length. The default is value "top", which is an alias for 1.01. Other aliases are "top_in", "bottom_in", "top_out"="top", "bottom_out"="bottom".
+    fontsize : int, optional
+        Font size, by default 12.
+    white_background : bool, optional
+        Draw a white rectangle under the text, by default False.
+    ax : matplotlib.axes.Axes, optional
+        Figure axis, by default None.
+    kwargs : dict
+        Keyword arguments to be passed to the ax.text() function.
+        In particular, the keyword arguments ha and va, which are set by default to accommodate to the x and y aliases, can be used to change the text alignment.
+
+    Raises
+    ------
+    ValueError
+        If the x or y position is not a float or a valid position.
+
+    Returns
+    -------
+    None
+    """
+    kwargs.setdefault("ha", "right" if x in ["right", "right_in"] else "left")
+    kwargs.setdefault(
+        "va", "top" if y in ["top_in", "bottom", "bottom_out"] else "bottom"
+    )
+
+    if ax is None:
+        ax = plt.gca()
+    transform = ax.transAxes
+
+    x_values = {
+        "left": 0.0,
+        "right": 1.0,
+        "left_in": 0.04,
+        "right_in": 0.97,
+        "right_out": 1.02,
+    }
+
+    y_values = {
+        "top": 1.01,
+        "bottom": -0.11,
+        "top_out": 1.01,
+        "bottom_out": -0.11,
+        "top_in": 0.96,
+        "bottom_in": 0.04,
+    }
+
+    if isinstance(x, str):
+        if x not in x_values:
+            msg = f"{x!r} is not a valid x position."
+            raise ValueError(msg)
+        x = x_values[x]
+
+    if isinstance(y, str):
+        if y not in y_values:
+            msg = f"{y!r} is not a valid y position."
+            raise ValueError(msg)
+        y = y_values[y]
+
+    t = ax.text(
+        x,
+        y,
+        text,
+        fontsize=fontsize,
+        transform=transform,
+        **kwargs,
+    )
+
+    # Add background
+    if white_background:
+        t.set_bbox({"facecolor": "white", "edgecolor": "white"})
+
+
+def add_luminosity(
+    collaboration: str,
+    x: float | str = "right",
+    y: float | str = "top",
+    fontsize: int = 12,
+    is_data: bool = True,
+    lumi: int | str = "",
+    lumi_unit: str = "fb",
+    preliminary: bool = False,
+    two_lines: bool = False,
+    white_background: bool = False,
+    ax: plt.Axes | None = None,
+    **kwargs,
+) -> None:
+    """
+    Add the collaboration name and the integrated luminosity (or "Simulation").
+
+    Parameters
+    ----------
+    collaboration : str
+        Collaboration name.
+    x : float | str, optional
+        Horizontal position of the text in unit of the normalized x-axis length. The default is value "right", which is an alias for 1.0. Can take other aliases such as "left", "left_in", "right_in", "right_out".
+    y : float | str, optional
+        Vertical position of the text in unit of the normalized y-axis length. The default is value "top", which is an alias for 1.01. Can take other aliases such as "top_in", "bottom_in", "top_out"="top", "bottom_out"="bottom".
+    fontsize : int, optional
+        Font size, by default 12.
+    is_data : bool, optional
+        If True, plot integrated luminosity. If False, plot "Simulation", by default True.
+    lumi : int | str, optional
+        Integrated luminosity. If empty, do not plot luminosity. Default value is empty.
+    lumi_unit : str, optional
+        Integrated luminosity unit. Default value is fb. The exponent is automatically -1.
+    preliminary : bool, optional
+        If True, print "preliminary", by default False.
+    two_lines : bool, optional
+        If True, write the information on two lines, by default False.
+    white_background : bool, optional
+        Draw a white rectangle under the text, by default False.
+    ax : matplotlib.axes.Axes, optional
+        Figure axis, by default None.
+    kwargs : dict
+        Keyword arguments to be passed to the ax.text() function.
+        In particular, the keyword arguments ha and va, which are set to "left" (or "right" if x="right") and "bottom" by default, can be used to change the text alignment.
+
+    Returns
+    -------
+    None
+
+    See Also
+    --------
+    add_text : Add information on the plot.
+    """
+
+    text = (
+        r"$\mathrm{\mathbf{"
+        + collaboration.replace(" ", r"\,\,")
+        + "}"
+        + (r"\,\,preliminary}$" if preliminary else "}$")
+    )
+    if two_lines:
+        text += "\n"
+    else:
+        text += " "
+    if is_data:
+        if lumi:
+            text += rf"$\int\,\mathcal{{L}}\,\mathrm{{d}}\mathit{{t}}={lumi}\,{lumi_unit}^{{-1}}$"
+    else:
+        text += r"$\mathrm{simulation}$"
+
+    add_text(
+        text,
+        x,
+        y,
+        fontsize=fontsize,
+        white_background=white_background,
+        ax=ax,
+        **kwargs,
+    )

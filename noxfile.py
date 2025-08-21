@@ -26,7 +26,22 @@ def tests(session: nox.Session) -> None:
     pyproject = nox.project.load_toml("pyproject.toml")
     session.install("-e", ".")
     session.install(*pyproject["project"]["optional-dependencies"]["test"])
-    session.run("pytest", *session.posargs)
+    session.run("pytest", "--mpl", "-n", "auto", *session.posargs)
+
+
+@nox.session(reuse_venv=True)
+def generate_examples_figures(session: nox.Session) -> None:
+    """
+    Generate the example figures. Pass "-- tests/test_examples_*.py" to run only the relevant tests.
+    """
+    pyproject = nox.project.load_toml("pyproject.toml")
+    session.install("-e", ".")
+    session.install(*pyproject["project"]["optional-dependencies"]["test"])
+    session.run(
+        "pytest",
+        "--mpl-generate-path=tests/baseline",
+        *session.posargs,
+    )
 
 
 @nox.session(venv_backend="conda", reuse_venv=True)

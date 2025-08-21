@@ -4,6 +4,7 @@ src/mplhep/_version.py
 result_images/
 test/
 .nox/
+.vscode/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
