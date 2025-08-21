@@ -143,7 +143,7 @@ html_static_path = ["_static"]
 x = np.linspace(0, 10, 100)
 y = np.sin(x)
 
-allstyle = ["ATLAS", "ATLASAlt", "CMS", "LHCb1", "LHCb2", "ALICE", "DUNE"]
+allstyle = ["ATLAS1", "ATLAS2", "CMS", "LHCb1", "LHCb2", "ALICE", "DUNE"]
 allstyle = sorted(allstyle, key=lambda s: s.lower())
 # allstyle = sorted(allstyle, key=lambda s: s.lower().endswith("tex"))
 allstyle = sorted(allstyle, key=lambda s: s.lower().endswith("alt"))
