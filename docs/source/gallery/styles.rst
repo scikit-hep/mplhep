@@ -128,16 +128,17 @@ ALICE style
 DUNE
 ------------
 
-DUNE style
+DUNE neutrino experiment style. DUNE points to the newest style, currently only DUNE1 is available.
+If you want to use the newest style, in case of updates, use :py:obj:`~mplhep.style.DUNE`, if you want to make sure that backwards compatibility is kept, use :py:obj:`~mplhep.style.DUNE1`.
 
-.. image:: ../_static/_generated/DUNE/fill/pos0.png
+.. image:: ../_static/_generated/DUNE1/fill/pos0.png
    :width: 45%
 
-.. image:: ../_static/_generated/DUNE/step/pos0.png
+.. image:: ../_static/_generated/DUNE1/step/pos0.png
     :width: 45%
 
-.. image:: ../_static/_generated/DUNE/errorbar/pos0.png
+.. image:: ../_static/_generated/DUNE1/errorbar/pos0.png
     :width: 45%
 
-.. image:: ../_static/_generated/DUNE/band/pos0.png
+.. image:: ../_static/_generated/DUNE1/band/pos0.png
     :width: 45%
