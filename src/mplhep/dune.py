@@ -46,4 +46,5 @@ def label(label=None, **kwargs):
     if label is not None:
         kwargs["label"] = label
     kwargs.setdefault("exp", "DUNE")
+    kwargs.setdefault("loc", 1)
     return label_base.exp_label(**kwargs)

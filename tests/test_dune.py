@@ -68,6 +68,57 @@ def test_dune_style_str_alias(fig_test, fig_ref):
     fig_test.subplots()
 
 
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+@pytest.mark.mpl_image_compare(style="default", remove_text=False)
+def test_style_dunetex():
+    plt.rcParams.update(plt.rcParamsDefault)
+
+    plt.style.use(hep.style.DUNETex)
+    fig, ax = plt.subplots()
+    hep.dune.label(label="Preliminary")
+
+    plt.rcParams.update(plt.rcParamsDefault)
+    return fig
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+@pytest.mark.mpl_image_compare(style="default", remove_text=False)
+def test_style_dunetex1():
+    plt.rcParams.update(plt.rcParamsDefault)
+
+    plt.style.use(hep.style.DUNETex1)
+    fig, ax = plt.subplots()
+    hep.dune.label(label="Preliminary")
+
+    plt.rcParams.update(plt.rcParamsDefault)
+    return fig
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+@check_figures_equal(extensions=["pdf"])
+@pytest.mark.parametrize(
+    ("style", "str_alias"),
+    [
+        (hep.style.DUNE, "DUNE"),
+        (hep.style.DUNE1, "DUNE1"),
+        (hep.style.DUNETex, "DUNETex"),
+        (hep.style.DUNETex1, "DUNETex1"),
+    ],
+    ids=["DUNE", "DUNE1", "DUNETex", "DUNETex1"],
+)
+def test_dune_style_string_aliases(fig_test, fig_ref, style, str_alias):
+    """Test that string aliases work for all DUNE style variants."""
+    plt.rcParams.update(plt.rcParamsDefault)
+
+    hep.rcParams.clear()
+    plt.style.use(style)
+    fig_ref.subplots()
+
+    hep.rcParams.clear()
+    hep.style.use(str_alias)
+    fig_test.subplots()
+
+
 @pytest.mark.mpl_image_compare(style="default")
 def test_dune_label_loc():
     fig, axs = plt.subplots(1, 4, figsize=(16, 4))
