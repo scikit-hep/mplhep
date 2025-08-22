@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import copy
+
 import matplotlib as mpl
 from cycler import cycler
 
 # DUNE style based on dune_plot_style package
-DUNE = {
+DUNE1 = {
     # Font configuration
     "font.sans-serif": [
         "TeX Gyre Heros",  # Better, free Helvetica-like font with math support
@@ -118,14 +120,15 @@ DUNE = {
 }
 
 # Filter extra items if needed
-DUNE = {k: v for k, v in DUNE.items() if k in mpl.rcParams}
+DUNE1 = {k: v for k, v in DUNE1.items() if k in mpl.rcParams}
 
 # Add a tex variant
-DUNETex = {
-    **DUNE,
+DUNETex1 = {
+    **DUNE1,
     "text.usetex": True,
-    "text.latex.preamble": r"\usepackage{siunitx},\sisetup{detect-all}, \
-                              \usepackage{tgheros},\renewcommand{\familydefault}{\sfdefault}, \
-                              \usepackage{sansmath},\sansmath, \
-                              \usepackage{amsmath},\usepackage{physics}",
+    "text.latex.preamble": r"\usepackage{siunitx}\sisetup{detect-all}\usepackage{tgheros}\renewcommand{\familydefault}{\sfdefault}\usepackage{sansmath}\sansmath\usepackage{amsmath}\usepackage{physics}",
 }
+
+# moving targets
+DUNE = copy.deepcopy(DUNE1)
+DUNETex = copy.deepcopy(DUNETex1)
