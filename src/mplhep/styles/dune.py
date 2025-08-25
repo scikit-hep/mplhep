@@ -39,7 +39,7 @@ DUNE1 = {
     "axes.edgecolor": "black",
     "axes.grid": False,
     "axes.linewidth": 1.5,
-    "axes.labelsize": "xx-large",
+    "axes.labelsize": "medium",
     "axes.titlesize": 36,
     # "axes.labelpad": 8,  # Better spacing between labels and axes
     # "axes.formatter.limits": "-3, 4",  # Better scientific notation limits
@@ -78,7 +78,7 @@ DUNE1 = {
     "grid.alpha": 0.8,
     # Legend properties
     "legend.fontsize": 12,
-    "legend.title_fontsize": "medium",
+    "legend.title_fontsize": "large",
     "legend.frameon": False,
     "legend.handlelength": 2.0,
     "legend.borderpad": 0.8,
@@ -89,7 +89,7 @@ DUNE1 = {
     # Enhanced tick properties
     "xtick.color": "black",
     "xtick.direction": "in",
-    "xtick.labelsize": "x-large",
+    "xtick.labelsize": "small",
     "xtick.major.size": 10,
     "xtick.minor.size": 5,
     "xtick.major.pad": 6,
@@ -102,7 +102,7 @@ DUNE1 = {
     "xtick.minor.bottom": True,
     "ytick.color": "black",
     "ytick.direction": "in",
-    "ytick.labelsize": "x-large",
+    "ytick.labelsize": "small",
     "ytick.major.size": 10,
     "ytick.minor.size": 5,
     "ytick.major.pad": 6,
