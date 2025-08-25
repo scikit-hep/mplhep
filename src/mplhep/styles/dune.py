@@ -33,14 +33,14 @@ DUNE1 = {
     "figure.autolayout": True,
     # Text properties
     "text.hinting_factor": 8,
-    "font.size": 12,
+    "font.size": 24,
     # Axes properties
     "axes.facecolor": "white",
     "axes.edgecolor": "black",
     "axes.grid": False,
     "axes.linewidth": 1.5,
-    "axes.labelsize": "x-large",
-    "axes.titlesize": 18,
+    "axes.labelsize": "xx-large",
+    "axes.titlesize": 36,
     # "axes.labelpad": 8,  # Better spacing between labels and axes
     # "axes.formatter.limits": "-3, 4",  # Better scientific notation limits
     "axes.formatter.use_mathtext": True,
