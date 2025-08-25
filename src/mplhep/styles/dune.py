@@ -30,6 +30,7 @@ DUNE1 = {
     "figure.figsize": (10, 10),
     "figure.facecolor": "white",
     "figure.dpi": 100,
+    "figure.autolayout": True,
     # Text properties
     "text.hinting_factor": 8,
     "font.size": 12,
@@ -83,6 +84,8 @@ DUNE1 = {
     "legend.borderpad": 0.8,
     "legend.columnspacing": 1.0,
     "legend.labelspacing": 0.5,
+    # Automatically choose the best location
+    "legend.loc": "best",
     # Enhanced tick properties
     "xtick.color": "black",
     "xtick.direction": "in",

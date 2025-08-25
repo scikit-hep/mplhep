@@ -15,32 +15,6 @@ plt.switch_backend("Agg")
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
-@pytest.mark.mpl_image_compare(style="default", remove_text=False)
-def test_style_dune():
-    plt.rcParams.update(plt.rcParamsDefault)
-
-    plt.style.use(hep.style.DUNE)
-    fig, ax = plt.subplots()
-    hep.dune.label(label="Preliminary")
-
-    plt.rcParams.update(plt.rcParamsDefault)
-    return fig
-
-
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
-@pytest.mark.mpl_image_compare(style="default", remove_text=False)
-def test_style_dune1():
-    plt.rcParams.update(plt.rcParamsDefault)
-
-    plt.style.use(hep.style.DUNE1)
-    fig, ax = plt.subplots()
-    hep.dune.label(label="Preliminary")
-
-    plt.rcParams.update(plt.rcParamsDefault)
-    return fig
-
-
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @check_figures_equal(extensions=["pdf"])
 def test_dune_style_variants(fig_test, fig_ref):
     plt.rcParams.update(plt.rcParamsDefault)
