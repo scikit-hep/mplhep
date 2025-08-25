@@ -74,6 +74,26 @@ def test_style_lhcb2():
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @pytest.mark.mpl_image_compare(style="default", remove_text=False)
+def test_style_dune():
+    plt.style.use(hep.style.DUNE)
+    fig, ax = plt.subplots()
+    hep.dune.label(label="Preliminary")
+
+    return fig
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+@pytest.mark.mpl_image_compare(style="default", remove_text=False)
+def test_style_dune1():
+    plt.style.use(hep.style.DUNE1)
+    fig, ax = plt.subplots()
+    hep.dune.label(label="Preliminary")
+
+    return fig
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+@pytest.mark.mpl_image_compare(style="default", remove_text=False)
 def test_style_plothist():
     plt.style.use(hep.style.PLOTHIST)
     fig, ax = plt.subplots()
@@ -88,11 +108,13 @@ def test_style_plothist():
         hep.style.ALICE,
         hep.style.ATLAS,
         hep.style.CMS,
+        hep.style.DUNE1,
+        hep.style.DUNE,
         hep.style.LHCb1,
         hep.style.LHCb2,
         hep.style.ROOT,
     ],
-    ids=["ALICE", "ATLAS", "CMS", "LHCb1", "LHCb2", "ROOT"],
+    ids=["ALICE", "ATLAS", "CMS", "DUNE1", "DUNE", "LHCb1", "LHCb2", "ROOT"],
 )
 def test_use_style(fig_test, fig_ref, mplhep_style):
     hep.rcParams.clear()
@@ -125,12 +147,14 @@ def test_use_style_LHCb_dep(fig_test, fig_ref):
         (hep.style.ALICE, "ALICE"),
         (hep.style.ATLAS, "ATLAS"),
         (hep.style.CMS, "CMS"),
+        (hep.style.DUNE1, "DUNE1"),
+        (hep.style.DUNE, "DUNE"),
         (hep.style.LHCb, "LHCb"),
         (hep.style.LHCb1, "LHCb1"),
         (hep.style.LHCb2, "LHCb2"),
         (hep.style.ROOT, "ROOT"),
     ],
-    ids=["ALICE", "ATLAS", "CMS", "LHCb", "LHCb1", "LHCb2", "ROOT"],
+    ids=["ALICE", "ATLAS", "CMS", "DUNE1", "DUNE", "LHCb", "LHCb1", "LHCb2", "ROOT"],
 )
 def test_use_style_str_alias(fig_test, fig_ref, mplhep_style, str_alias):
     hep.rcParams.clear()
@@ -150,12 +174,14 @@ def test_use_style_str_alias(fig_test, fig_ref, mplhep_style, str_alias):
         (hep.style.ALICE, "ALICE"),
         (hep.style.ATLAS, "ATLAS"),
         (hep.style.CMS, "CMS"),
+        (hep.style.DUNE1, "DUNE1"),
+        (hep.style.DUNE, "DUNE"),
         (hep.style.LHCb, "LHCb"),
         (hep.style.LHCb1, "LHCb1"),
         (hep.style.LHCb2, "LHCb2"),
         (hep.style.ROOT, "ROOT"),
     ],
-    ids=["ALICE", "ATLAS", "CMS", "LHCb", "LHCb1", "LHCb2", "ROOT"],
+    ids=["ALICE", "ATLAS", "CMS", "DUNE1", "DUNE", "LHCb", "LHCb1", "LHCb2", "ROOT"],
 )
 def test_use_style_self_consistent(fig_test, fig_ref, mplhep_style, str_alias):
     hep.rcParams.clear()
@@ -175,12 +201,14 @@ def test_use_style_self_consistent(fig_test, fig_ref, mplhep_style, str_alias):
         (hep.style.ALICE, "ALICE"),
         (hep.style.ATLAS, "ATLAS"),
         (hep.style.CMS, "CMS"),
+        (hep.style.DUNE1, "DUNE1"),
+        (hep.style.DUNE, "DUNE"),
         (hep.style.LHCb, "LHCb"),
         (hep.style.LHCb1, "LHCb1"),
         (hep.style.LHCb2, "LHCb2"),
         (hep.style.ROOT, "ROOT"),
     ],
-    ids=["ALICE", "ATLAS", "CMS", "LHCb", "LHCb1", "LHCb2", "ROOT"],
+    ids=["ALICE", "ATLAS", "CMS", "DUNE1", "DUNE", "LHCb", "LHCb1", "LHCb2", "ROOT"],
 )
 def test_use_style_style_list(fig_test, fig_ref, mplhep_style, str_alias):
     hep.rcParams.clear()

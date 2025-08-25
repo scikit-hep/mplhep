@@ -46,7 +46,7 @@ hep.style.use(hep.style.ROOT) # For now ROOT defaults to CMS
 hep.style.use(hep.style.ATLAS)
 # or
 hep.style.use("CMS") # string aliases work too
-# {"ALICE" | "ATLAS" | "CMS" | "LHCb1" | "LHCb2"}
+# {"ALICE" | "ATLAS" | "CMS" | "LHCb1" | "LHCb2" | "DUNE" | "DUNE1"}
 ```
 
 Or use `matplotlib` API directly
