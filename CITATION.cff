@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
-doi: "10.5281/zenodo.6807166"
+doi: "10.5281/zenodo.15784647"
 date-released: "2020-04-25"
 authors:
 - family-names: "Novak"
@@ -15,6 +15,10 @@ authors:
   given-names: "Matthew"
   affiliation: "University of Wisconsin-Madison"
   orcid: "https://orcid.org/0000-0003-4124-7862"
+- family-names: "Eschle"
+  given-names: "Jonas"
+  affiliation: "CERN"
+  orcid: "https://orcid.org/0000-0002-7312-3699"
 title: "mplhep"
 url: "https://github.com/scikit-hep/mplhep"
 keywords:
