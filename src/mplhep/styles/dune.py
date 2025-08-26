@@ -51,13 +51,14 @@ DUNE1 = {
     "axes.prop_cycle": cycler(
         "color",
         [
+            "#000000",  # Black
             "#D55E00",  # DUNE Orange (primary)
             "#56B4E9",  # DUNE Sky Blue (primary)
             "#E69F00",  # DUNE Yellow/Gold (primary)
-            "#009E73",  # Green (accessible)
-            "#CC79A7",  # Pink (accessible)
-            "#0072B2",  # Blue (accessible)
-            "#F0E442",  # Bright Yellow (accessible)
+            "#009E73",  # Green
+            "#CC79A7",  # Pink
+            "#0072B2",  # Blue
+            "#F0E442",  # Bright Yellow
         ],
     ),
     # Line properties
