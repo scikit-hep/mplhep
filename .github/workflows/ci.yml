@@ -15,6 +15,7 @@ jobs:
     name: "🐍 ${{ matrix.python-version }} • ${{ matrix.runs-on }}"
     runs-on: ${{ matrix.runs-on }}
     strategy:
+      fail-fast: false
       matrix:
         runs-on: [ ubuntu-latest ]
         python-version: [ "3.8", "3.10", "3.11", "3.12", "3.13"]
