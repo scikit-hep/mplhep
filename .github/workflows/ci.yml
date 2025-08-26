@@ -28,6 +28,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Install TeX Live
+        uses: xu-cheng/texlive-action@v3
+        with:
+          # A minimal scheme is recommended to reduce installation time
+          scheme: small
+          run: ''
 
       - name: Setup uv
         uses: astral-sh/setup-uv@v5
