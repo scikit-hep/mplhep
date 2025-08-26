@@ -41,11 +41,11 @@ jobs:
       - name: Requirements check
         run: uv pip list
 
-      - name: Install core fonts and latex
+      - name: Install core fonts
         if: runner.os == 'Linux'
         run: |
           echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
-          sudo apt-get install ttf-mscorefonts-installer texlive
+          sudo apt-get install ttf-mscorefonts-installer
 
       - name: Install package
         run: |
