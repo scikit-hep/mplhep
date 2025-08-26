@@ -29,8 +29,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Install TeX Live
-        uses: zauguin/install-texlive@v4
 
       - name: Setup uv
         uses: astral-sh/setup-uv@v5
@@ -43,11 +41,11 @@ jobs:
       - name: Requirements check
         run: uv pip list
 
-      - name: Install core fonts
+      - name: Install core fonts and latex
         if: runner.os == 'Linux'
         run: |
           echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
-          sudo apt-get install ttf-mscorefonts-installer
+          sudo apt-get install ttf-mscorefonts-installer texlive
 
       - name: Install package
         run: |
