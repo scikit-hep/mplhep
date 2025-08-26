@@ -51,6 +51,7 @@ DUNE1 = {
     "axes.prop_cycle": cycler(
         "color",
         [
+            "#000000",  # Black
             "#D55E00",  # DUNE Orange (primary)
             "#56B4E9",  # DUNE Sky Blue (primary)
             "#E69F00",  # DUNE Yellow/Gold (primary)
