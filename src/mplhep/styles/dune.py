@@ -33,7 +33,7 @@ DUNE1 = {
     "figure.autolayout": True,
     # Text properties
     "text.hinting_factor": 8,
-    "font.size": 24,
+    "font.size": 22,
     # Axes properties
     "axes.facecolor": "white",
     "axes.edgecolor": "black",

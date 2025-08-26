@@ -116,3 +116,4 @@ venv.bak/
 .idea/
 /docs/source/_generated/
 /tmp/
+/docs/source/_static/_generated/
