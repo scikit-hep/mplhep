@@ -14,7 +14,8 @@ from .dune import DUNE, DUNE1, DUNETex, DUNETex1
 from .lhcb import LHCb, LHCb1, LHCb2, LHCbTex, LHCbTex1, LHCbTex2
 from .plothist import PLOTHIST
 
-__all__ = (
+
+__style_aliases__ = (
     "ALICE",
     "ATLAS",
     "CMS",
@@ -39,9 +40,14 @@ __all__ = (
     "fabiola",
     "fira",
     "firamath",
+)
+
+__all__ = (
+    *__style_aliases__,
     "set_style",
     "use",
 )
+
 
 
 @deprecate.deprecate(
@@ -75,6 +81,14 @@ def use(styles=None):
         styles = [styles]
 
     # passed in experiment mplhep.style dict or str alias
+    _passed_aliases = [style for style in styles if not isinstance(style, dict)]
+    if len(_passed_aliases) > 1:
+        raise ValueError(
+            'Can only pass in one style alias at a time, but can modify settings eg. `use(["CMS", {"font.size":25}])`. '
+            f"Got {', '.join(_passed_aliases)}"
+        )
+    if _passed_aliases[0] not in sys.modules[__name__].__dict__:
+        raise ValueError(f"Unknown style alias: {_passed_aliases[0]}. Choose from {list(__style_aliases__)}")
     styles = [
         style if isinstance(style, dict) else getattr(sys.modules[__name__], f"{style}")
         for style in styles
