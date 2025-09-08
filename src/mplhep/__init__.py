@@ -26,7 +26,6 @@ from .comparison_plotters import (
     plot_two_hist_comparison,
 )
 from .label import add_luminosity, add_text, save_variations, savelabels
-from .palettes import get_color_palette
 from .plot import (
     append_axes,
     box_aspect,
@@ -91,7 +90,6 @@ __all__ = [
     "get_comparison",
     "get_difference",
     "get_efficiency",
-    "get_color_palette",
     "get_plottables",
     "get_pull",
     "get_ratio",
@@ -118,7 +116,6 @@ __all__ = [
     "ylow",
     "yscale_anchored_text",
     "yscale_legend",
-    "get_color_palette",
     "add_text",
     "add_luminosity",
     "set_fitting_ylabel_fontsize",
