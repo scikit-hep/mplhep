@@ -9,6 +9,7 @@ from __future__ import annotations
 # -- Path setup --------------------------------------------------------------
 import importlib
 import inspect
+import logging
 import os
 import subprocess
 import sys
@@ -152,7 +153,7 @@ here = Path("__file__").parent.resolve()  # jupyter workaround, use string
 
 with Path(here / "_static/bkg_sig_plot.yaml").resolve().open() as f:
     plotdata = yaml.load(f, Loader=yaml.FullLoader)
-print("Creating gallery plots on the fly... (this takes a minute or two)")
+logging.info("Creating gallery plots on the fly... (this takes a minute or two)")
 for style in allstyle:
     plt.style.use("default")  # make sure it's reset
     plt.style.use(getattr(mplhep.style, style))

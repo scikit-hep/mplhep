@@ -19,7 +19,15 @@ from .comparison import (
     get_pull,
     get_ratio,
 )
-from .label import save_variations, savelabels
+from .comparison_plotters import (
+    create_comparison_figure,
+    plot_comparison,
+    plot_data_model_comparison,
+    plot_model,
+    plot_two_hist_comparison,
+)
+from .label import add_luminosity, add_text, save_variations, savelabels
+from .palettes import get_color_palette
 from .plot import (
     append_axes,
     box_aspect,
@@ -40,6 +48,7 @@ from .utils import (
     _check_counting_histogram,
     get_plottables,
     make_plottable_histogram,
+    set_fitting_ylabel_fontsize,
 )
 
 # Configs
@@ -69,6 +78,7 @@ for font in font_files:
 __all__ = [
     "EnhancedPlottableHistogram",
     "_check_counting_histogram",
+    "add_text",
     "alice",
     "append_axes",
     "atlas",
@@ -79,9 +89,14 @@ __all__ = [
     "get_comparison",
     "get_difference",
     "get_efficiency",
+    "get_color_palette",
     "get_plottables",
     "get_pull",
     "get_ratio",
+    "plot_comparison",
+    "plot_two_hist_comparison",
+    "plot_model",
+    "plot_data_model_comparison",
     "hist2dplot",
     # Log plot functions
     "histplot",
@@ -101,4 +116,9 @@ __all__ = [
     "ylow",
     "yscale_anchored_text",
     "yscale_legend",
+    "get_color_palette",
+    "add_text",
+    "add_luminosity",
+    "create_comparison_figure",
+    "set_fitting_ylabel_fontsize",
 ]

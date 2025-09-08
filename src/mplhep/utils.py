@@ -6,6 +6,7 @@ import warnings
 from numbers import Real
 from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
+import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import markers
 from matplotlib.path import Path
@@ -639,6 +640,11 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
             self._variances = self.values()
         if self.variances() is None:
             return
+        if np.allclose(self.variances(), 0):
+            self.yerr_lo = np.zeros_like(self.values())
+            self.yerr_hi = np.zeros_like(self.values())
+            self._errors_present = True
+            return
         assert method in ["poisson", "sqrt", None] or callable(method)
         if method is None:
             method = self.method
@@ -814,6 +820,8 @@ def _check_counting_histogram(hist_list):
         If the histogram is not a counting histogram.
 
     """
+    if not isinstance(hist_list, list):
+        hist_list = [hist_list]
     for hist_obj in hist_list:
         if hist_obj.kind != Kind.COUNT:
             msg = f"The histogram must be a counting histogram, but the input histogram has kind {hist_obj.kind}."
@@ -927,3 +935,40 @@ def to_padded2d(h, variances=False):
     if variances:
         return padded, padded_varis
     return padded
+
+
+def set_fitting_ylabel_fontsize(ax: plt.Axes) -> float:
+    """
+    Get the suitable font size for a ylabel text that fits within the plot's y-axis limits.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        The matplotlib subplot to adjust the ylabel font size for.
+
+    Returns
+    -------
+    float
+        The adjusted font size for the ylabel text.
+    """
+    ylabel_fontsize = float(ax.yaxis.get_label().get_fontsize())
+
+    # Force renderer to be initialized
+    ax.figure.canvas.draw()
+
+    while (
+        ax.yaxis.get_label()
+        .get_window_extent(renderer=ax.figure.canvas.get_renderer())  # type: ignore[attr-defined]
+        .transformed(ax.transData.inverted())
+        .y1
+        > ax.get_ylim()[1]
+    ):
+        ylabel_fontsize -= 0.1
+
+        if ylabel_fontsize <= 0:
+            msg = "Only a y-label with a negative font size would fit on the y-axis."
+            raise ValueError(msg)
+
+        ax.get_yaxis().get_label().set_size(ylabel_fontsize)  # type: ignore[attr-defined]
+
+    return ylabel_fontsize
