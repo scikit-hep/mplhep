@@ -25,10 +25,10 @@ import mplhep
 from mplhep import label as label_base
 
 from ._compat import docstring
-from .label import lumitext
+from .label import lumitext as _base_lumitext
 from .styles import lhcb as style
 
-__all__ = ("label", "lumitext", "style", "text")
+__all__ = ("label", "_base_lumitext", "style", "text")
 
 
 @docstring.copy(label_base.exp_text)
@@ -66,3 +66,20 @@ def label(label=None, **kwargs):
     if label is not None:
         kwargs["label"] = label
     return label_base.exp_label("LHCb", **kwargs)
+
+
+@docstring.copy(label_base.lumitext)
+def lumitext(text="", **kwargs):
+    for key, value in dict(mplhep.rcParams.text._get_kwargs()).items():
+        if (
+            value is not None
+            and key not in kwargs
+            and key in inspect.getfullargspec(label_base.lumitext).kwonlyargs
+        ):
+            kwargs.setdefault(key, value)
+    # kwargs.setdefault("italic", (False, False, False))
+    # kwargs.setdefault("fontsize", 28)
+    kwargs.setdefault("fontname", "Times New Roman")
+    # kwargs.setdefault("loc", 1)
+    # kwargs.setdefault("exp_weight", "normal")
+    return label_base.lumitext("LHCb", text=text, **kwargs)
