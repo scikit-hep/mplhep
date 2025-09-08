@@ -9,11 +9,12 @@ import re
 import matplotlib.pyplot as plt
 import numpy as np
 
-from .comparison import (
+from .comparison_functions import (
     _check_binning_consistency,
     get_comparison,
 )
 from .plot import (
+    funcplot,
     histplot,
 )
 from .utils import (
@@ -353,80 +354,6 @@ def plot_comparison(
     return ax
 
 
-def _invert_collection_order(ax, n=0):
-    """
-    Invert the order of the collection objects in an Axes instance.
-
-    Parameters
-    ----------
-    ax : matplotlib.axes.Axes
-        The Axes instance for plotting.
-    n : int, optional
-        The number of collections to keep in the original order. Default is 0.
-
-    """
-    # Retrieve the list of collection objects
-    collections = list(ax.collections)
-
-    # Separate the first n collections and reverse the rest
-    first_n = collections[:n]
-    rest = collections[n:]
-    rest.reverse()
-
-    # Remove all collections and re-add them in the new order
-    for collection in ax.collections:
-        collection.remove()
-    for collection in first_n + rest:
-        ax.add_collection(collection)
-
-
-def plot_function(func, range, ax, stack=False, npoints=1000, **kwargs):
-    """
-    Plot a 1D function on a given range.
-
-    Parameters
-    ----------
-    func : function or list of functions
-        The 1D function or list of functions to plot.
-        The function(s) should support vectorization (i.e. accept a numpy array as input).
-    range : tuple
-        The range of the function(s). The function(s) will be plotted on the interval [range[0], range[1]].
-    ax : matplotlib.axes.Axes
-        The Axes instance for plotting.
-    stacked : bool, optional
-        Whether to use ax.stackplot() to plot the function(s) as a stacked plot. Default is False.
-    npoints : int, optional
-        The number of points to use for plotting. Default is 1000.
-    **kwargs
-        Additional keyword arguments forwarded to ax.plot() (in case stack=False) or ax.stackplot() (in case stack=True).
-    """
-    x = np.linspace(range[0], range[1], npoints)
-
-    if not stack:
-        if not isinstance(func, list):
-            ax.plot(x, func(x), **kwargs)
-        else:
-            ax.plot(
-                x,
-                np.array([func(x) for func in func]).T,
-                **kwargs,
-            )
-    else:
-        if kwargs.get("labels") is None:
-            kwargs["labels"] = []
-
-        if not isinstance(func, list):
-            func = [func]
-        n_collections_before = len(list(ax.collections))
-        ax.stackplot(
-            x,
-            [f(x) for f in func],
-            **kwargs,
-        )
-        # Invert the order of the collection objects to match the top-down order of the stackplot
-        _invert_collection_order(ax, n_collections_before)
-
-
 def _get_model_type(components):
     """
     Check that all components of a model are either all histograms or all functions
@@ -590,7 +517,7 @@ def plot_model(
                     histtype="band",
                 )
         else:
-            plot_function(
+            funcplot(
                 stacked_components,
                 ax=ax,
                 stack=True,
@@ -625,7 +552,7 @@ def plot_model(
                     **unstacked_kwargs,
                 )
             else:
-                plot_function(
+                funcplot(
                     component,
                     ax=ax,
                     stack=False,
@@ -657,7 +584,7 @@ def plot_model(
                 def sum_function(x):
                     return sum(f(x) for f in components)
 
-                plot_function(
+                funcplot(
                     sum_function,
                     ax=ax,
                     range=xlim,

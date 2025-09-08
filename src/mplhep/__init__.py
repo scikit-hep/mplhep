@@ -7,11 +7,11 @@ import mplhep_data
 
 # Get styles directly, also available within experiment helpers.
 # Get helper functions
-from . import alice, atlas, cms, dune, label, lhcb, plot
+from . import alice, atlas, cms, comp, dune, label, lhcb, plot
 from . import styles as style
 from ._tools import Config
 from ._version import version as __version__  # noqa: F401
-from .comparison import (
+from .comparison_functions import (
     get_asymmetry,
     get_comparison,
     get_difference,
@@ -31,6 +31,7 @@ from .palettes import get_color_palette
 from .plot import (
     append_axes,
     box_aspect,
+    funcplot,
     hist2dplot,
     histplot,
     make_square_add_cbar,
@@ -84,7 +85,9 @@ __all__ = [
     "atlas",
     "box_aspect",
     "cms",
+    "comp",
     "dune",
+    "funcplot",
     "get_asymmetry",
     "get_comparison",
     "get_difference",
