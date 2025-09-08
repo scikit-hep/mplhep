@@ -110,7 +110,10 @@ def use(styles=None):
             f"Got {', '.join(_passed_aliases)}"
         )
         raise ValueError(error_msg)
-    if len(_passed_aliases) == 1 and _passed_aliases[0] not in sys.modules[__name__].__dict__:
+    if (
+        len(_passed_aliases) == 1
+        and _passed_aliases[0] not in sys.modules[__name__].__dict__
+    ):
         error_msg = f"Unknown style alias: {_passed_aliases[0]}. Choose from {list(__style_aliases__)}"
         raise ValueError(error_msg)
     styles = [
