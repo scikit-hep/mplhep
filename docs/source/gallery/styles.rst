@@ -60,16 +60,16 @@ For plots that require large numbers of colors, the ``ATLAS1`` palette is provid
 CMS
 ------------
 
-.. image:: ../../_static/_generated/CMS/fill/pos0.png
+.. image:: ../_static/_generated/CMS/fill/pos0.png
    :width: 45%
 
-.. image:: ../../_static/_generated/CMS/step/pos0.png
+.. image:: ../_static/_generated/CMS/step/pos0.png
     :width: 45%
 
-.. image:: ../../_static/_generated/CMS/errorbar/pos0.png
+.. image:: ../_static/_generated/CMS/errorbar/pos0.png
     :width: 45%
 
-.. image:: ../../_static/_generated/CMS/band/pos0.png
+.. image:: ../_static/_generated/CMS/band/pos0.png
     :width: 45%
 
 LHCb
@@ -81,30 +81,30 @@ LHCb has two styles, the older one, :py:obj:`~mplhep.style.LHCb1`, and the newer
 
 LHCb1 style (old)
 
-.. image:: ../../_static/_generated/LHCb1/fill/pos0.png
+.. image:: ../_static/_generated/LHCb1/fill/pos0.png
    :width: 45%
 
-.. image:: ../../_static/_generated/LHCb1/step/pos0.png
+.. image:: ../_static/_generated/LHCb1/step/pos0.png
     :width: 45%
 
-.. image:: ../../_static/_generated/LHCb1/errorbar/pos0.png
+.. image:: ../_static/_generated/LHCb1/errorbar/pos0.png
     :width: 45%
 
-.. image:: ../../_static/_generated/LHCb1/band/pos0.png
+.. image:: ../_static/_generated/LHCb1/band/pos0.png
     :width: 45%
 
 LHCb2 style
 
-.. image:: ../../_static/_generated/LHCb2/fill/pos0.png
+.. image:: ../_static/_generated/LHCb2/fill/pos0.png
    :width: 45%
 
-.. image:: ../../_static/_generated/LHCb2/step/pos0.png
+.. image:: ../_static/_generated/LHCb2/step/pos0.png
     :width: 45%
 
-.. image:: ../../_static/_generated/LHCb2/errorbar/pos0.png
+.. image:: ../_static/_generated/LHCb2/errorbar/pos0.png
     :width: 45%
 
-.. image:: ../../_static/_generated/LHCb2/band/pos0.png
+.. image:: ../_static/_generated/LHCb2/band/pos0.png
     :width: 45%
 
 
@@ -113,14 +113,32 @@ ALICE
 
 ALICE style
 
-.. image:: ../../_static/_generated/ALICE/fill/pos0.png
+.. image:: ../_static/_generated/ALICE/fill/pos0.png
    :width: 45%
 
-.. image:: ../../_static/_generated/ALICE/step/pos0.png
+.. image:: ../_static/_generated/ALICE/step/pos0.png
     :width: 45%
 
-.. image:: ../../_static/_generated/ALICE/errorbar/pos0.png
+.. image:: ../_static/_generated/ALICE/errorbar/pos0.png
     :width: 45%
 
-.. image:: ../../_static/_generated/ALICE/band/pos0.png
+.. image:: ../_static/_generated/ALICE/band/pos0.png
+    :width: 45%
+
+DUNE
+------------
+
+DUNE neutrino experiment style. DUNE points to the newest style, currently only DUNE1 is available.
+If you want to use the newest style, in case of updates, use :py:obj:`~mplhep.style.DUNE`, if you want to make sure that backwards compatibility is kept, use :py:obj:`~mplhep.style.DUNE1`.
+
+.. image:: ../_static/_generated/DUNE1/fill/pos0.png
+   :width: 45%
+
+.. image:: ../_static/_generated/DUNE1/step/pos0.png
+    :width: 45%
+
+.. image:: ../_static/_generated/DUNE1/errorbar/pos0.png
+    :width: 45%
+
+.. image:: ../_static/_generated/DUNE1/band/pos0.png
     :width: 45%

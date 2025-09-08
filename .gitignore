@@ -116,3 +116,5 @@ venv.bak/
 # PyCharm
 .idea/
 /docs/source/_generated/
+/tmp/
+/docs/source/_static/_generated/
