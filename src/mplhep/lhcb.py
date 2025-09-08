@@ -68,7 +68,7 @@ def label(label=None, **kwargs):
     return label_base.exp_label("LHCb", **kwargs)
 
 
-@docstring.copy(label_base.exp_text)
+@docstring.copy(label_base.lumitext)
 def lumitext(text="", **kwargs):
     for key, value in dict(mplhep.rcParams.text._get_kwargs()).items():
         if (

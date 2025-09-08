@@ -15,6 +15,36 @@ from .lhcb import LHCb, LHCb1, LHCb2, LHCbTex, LHCbTex1, LHCbTex2
 from .plothist import PLOTHIST
 
 
+__all__ = (
+    "ALICE",
+    "ATLAS",
+    "CMS",
+    "PLOTHIST",
+    "ROOT",
+    "ATLAS1",
+    "ATLAS2",
+    "ATLASAlt",
+    "ATLASTex",
+    "CMSTex",
+    "DUNE1",
+    "DUNETex1",
+    "DUNE",
+    "DUNETex",
+    "LHCb",
+    "LHCb1",
+    "LHCb2",
+    "LHCbTex",
+    "LHCbTex1",
+    "LHCbTex2",
+    "ROOTTex",
+    "fabiola",
+    "fira",
+    "firamath",
+    "set_style",
+    "use",
+)
+
+
 __style_aliases__ = (
     "ALICE",
     "ATLAS",
@@ -41,13 +71,6 @@ __style_aliases__ = (
     "fira",
     "firamath",
 )
-
-__all__ = (
-    *__style_aliases__,
-    "set_style",
-    "use",
-)
-
 
 
 @deprecate.deprecate(
@@ -88,7 +111,9 @@ def use(styles=None):
             f"Got {', '.join(_passed_aliases)}"
         )
     if _passed_aliases[0] not in sys.modules[__name__].__dict__:
-        raise ValueError(f"Unknown style alias: {_passed_aliases[0]}. Choose from {list(__style_aliases__)}")
+        raise ValueError(
+            f"Unknown style alias: {_passed_aliases[0]}. Choose from {list(__style_aliases__)}"
+        )
     styles = [
         style if isinstance(style, dict) else getattr(sys.modules[__name__], f"{style}")
         for style in styles
