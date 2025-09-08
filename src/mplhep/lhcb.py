@@ -25,10 +25,10 @@ import mplhep
 from mplhep import label as label_base
 
 from ._compat import docstring
-from .label import lumitext
+from .label import lumitext as _base_lumitext
 from .styles import lhcb as style
 
-__all__ = ("label", "lumitext", "style", "text")
+__all__ = ("label", "_base_lumitext", "style", "text")
 
 
 @docstring.copy(label_base.exp_text)
