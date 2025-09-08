@@ -22,20 +22,20 @@ for i in "$@" ; do [ $i = "--unmerged" ] && UNMERGED=1 && break ; done
 MERGED=$((1-$UNMERGED))
 ####
 
-if [ $USER != anovak ]; then
+if [ $USER != anovak ] && [ $USER != novak ]; then
   echo "Don't do that. If you insist, change lines 23-26 in .tools/git-cleanup.sh"
   exit 1
 fi
 
 if [ "$1" =   "local" ]; then
   echo  $([ $DRYRUN = 1  ] && echo "Would" || echo "Will") "delete the following local branches:"
-  git branch $([ $MERGED = 1  ] && echo "--merged" || echo "") | egrep -v "(^\*|master|dev)"
+  git branch $([ $MERGED = 1  ] && echo "--merged" || echo "") | egrep -v "(^\*|master|main|dev)"
   echo $lstring
 
   if [ $DRYRUN = 0 ]; then
     read -r -p "Are you sure? [y/n]" CONT
     if [ "$CONT" = "y" ] || [ -z $CONT ]; then
-      git branch $([ $MERGED = 1  ] && echo "--merged" || echo "") | egrep -v "(^\*|master|dev)" | xargs git branch $([ $MERGED = 1  ] && echo "-d" || echo "-D")
+      git branch $([ $MERGED = 1  ] && echo "--merged" || echo "") | egrep -v "(^\*|master|main|dev)" | xargs git branch $([ $MERGED = 1  ] && echo "-d" || echo "-D")
     else
       echo
       echo "No action taken";
@@ -45,13 +45,13 @@ if [ "$1" =   "local" ]; then
   fi
 elif [ "$1" = "remote" ]; then
   echo  $([ $DRYRUN = 1  ] && echo "Would" || echo "Will") "delete the following remote branches:"
-  git branch -r $([ $MERGED = 1  ] && echo "--merged" || echo "") | egrep -v "(^\*|master|dev)"
+  git branch -r $([ $MERGED = 1  ] && echo "--merged" || echo "") | egrep -v "(^\*|master|main|dev)"
   echo $lstring
 
   if [ $DRYRUN = 0 ]; then
     read -r -p "Are you sure? [y/n]" CONT
     if [ "$CONT" = "y" ] || [ -z $CONT ]; then
-      git branch -r $([ $MERGED = 1  ] && echo "--merged" || echo "") | egrep -v "(^\*|master|dev)" | awk -F/ '{print $NF}' | xargs -n 1 git push --delete origin
+      git branch -r $([ $MERGED = 1  ] && echo "--merged" || echo "") | egrep -v "(^\*|master|main|dev)" | awk -F/ '{print $NF}' | xargs -n 1 git push --delete origin
     else
       echo
       echo "No action taken";
