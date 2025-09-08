@@ -25,52 +25,6 @@ from .utils import (
 )
 
 
-def create_comparison_figure(
-    figsize=(6, 5),
-    nrows=2,
-    gridspec_kw=None,
-    hspace=0.15,
-):
-    """
-    Create a figure with subplots for comparison.
-
-    Parameters
-    ----------
-    figsize : tuple, optional
-        Figure size in inches. Default is (6, 5).
-    nrows : int, optional
-        Number of rows in the subplot grid. Default is 2.
-    gridspec_kw : dict, optional
-        Additional keyword arguments for the GridSpec. Default is None.
-        If None is provided, this is set to {"height_ratios": [4, 1]}.
-    hspace : float, optional
-        Height spacing between subplots. Default is 0.15.
-
-
-    Returns
-    -------
-    fig : matplotlib.figure.Figure
-        The created figure.
-    axes : ndarray
-        Array of Axes objects representing the subplots.
-
-    """
-    if gridspec_kw is None:
-        gridspec_kw = {"height_ratios": [4, 1]}
-    if figsize is None:
-        figsize = plt.rcParams["figure.figsize"]
-
-    fig, axes = plt.subplots(nrows=nrows, figsize=figsize, gridspec_kw=gridspec_kw)
-    if nrows > 1:
-        fig.subplots_adjust(hspace=hspace)
-
-    for ax in axes[:-1]:
-        _ = ax.xaxis.set_ticklabels([])
-        ax.set_xlabel(" ")
-
-    return fig, axes
-
-
 def _get_math_text(text):
     """
     Search for text between $ and return it.
@@ -151,7 +105,12 @@ def plot_two_hist_comparison(
     _check_counting_histogram(h2_plottable)
 
     if fig is None and ax_main is None and ax_comparison is None:
-        fig, (ax_main, ax_comparison) = create_comparison_figure()
+        fig, (ax_main, ax_comparison) = plt.subplots(
+            nrows=2, figsize=(6, 5), gridspec_kw={"height_ratios": [4, 1]}
+        )
+        fig.subplots_adjust(hspace=0.15)
+        ax_main.xaxis.set_ticklabels([])
+        ax_main.set_xlabel(" ")
     elif fig is None or ax_main is None or ax_comparison is None:
         msg = "Need to provide fig, ax_main and ax_comparison (or none of them)."
         raise ValueError(msg)
@@ -780,7 +739,12 @@ def plot_data_model_comparison(
 
     if fig is None and ax_main is None and ax_comparison is None:
         if plot_only is None:
-            fig, (ax_main, ax_comparison) = create_comparison_figure()
+            fig, (ax_main, ax_comparison) = plt.subplots(
+                nrows=2, figsize=(6, 5), gridspec_kw={"height_ratios": [4, 1]}
+            )
+            fig.subplots_adjust(hspace=0.15)
+            ax_main.xaxis.set_ticklabels([])
+            ax_main.set_xlabel(" ")
         elif plot_only == "ax_main":
             fig, ax_main = plt.subplots()
             _, ax_comparison = plt.subplots()

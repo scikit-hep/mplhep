@@ -6,9 +6,6 @@ with shorter, more ergonomic names.
 """
 
 from .comparison_plotters import (
-    create_comparison_figure as figure,
-)
-from .comparison_plotters import (
     plot_comparison as ratio,
 )
 from .comparison_plotters import (
@@ -29,6 +26,5 @@ __all__ = [
     "ratio",
     "data_model",
     "model",
-    "figure",
     "compare",
 ]

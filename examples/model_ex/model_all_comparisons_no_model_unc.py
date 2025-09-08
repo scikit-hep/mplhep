@@ -52,22 +52,25 @@ background_scaling_factor = data_hist.sum().value / sum(background_hists).sum().
 background_hists = [background_scaling_factor * h for h in background_hists]
 
 ###
+import matplotlib.pyplot as plt
 import numpy as np
 
 from mplhep import (
     add_text,
-    create_comparison_figure,
     plot_comparison,
     plot_data_model_comparison,
     set_fitting_ylabel_fontsize,
 )
 
-fig, axes = create_comparison_figure(
-    figsize=(6, 13),
+fig, axes = plt.subplots(
     nrows=6,
+    figsize=(6, 13),
     gridspec_kw={"height_ratios": [3, 1, 1, 1, 1, 1]},
-    hspace=0.3,
 )
+fig.subplots_adjust(hspace=0.3)
+for ax in axes[:-1]:
+    ax.xaxis.set_ticklabels([])
+    ax.set_xlabel(" ")
 background_sum = sum(background_hists)
 
 plot_data_model_comparison(

@@ -20,7 +20,6 @@ from .comparison_functions import (
     get_ratio,
 )
 from .comparison_plotters import (
-    create_comparison_figure,
     plot_comparison,
     plot_data_model_comparison,
     plot_model,
@@ -122,6 +121,5 @@ __all__ = [
     "get_color_palette",
     "add_text",
     "add_luminosity",
-    "create_comparison_figure",
     "set_fitting_ylabel_fontsize",
 ]
