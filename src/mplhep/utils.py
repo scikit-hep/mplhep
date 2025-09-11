@@ -972,3 +972,30 @@ def set_fitting_ylabel_fontsize(ax: plt.Axes) -> float:
         ax.get_yaxis().get_label().set_size(ylabel_fontsize)  # type: ignore[attr-defined]
 
     return ylabel_fontsize
+
+
+def _invert_collection_order(ax, n=0):
+    """
+    Invert the order of the collection objects in an Axes instance.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        The Axes instance for plotting.
+    n : int, optional
+        The number of collections to keep in the original order. Default is 0.
+
+    """
+    # Retrieve the list of collection objects
+    collections = list(ax.collections)
+
+    # Separate the first n collections and reverse the rest
+    first_n = collections[:n]
+    rest = collections[n:]
+    rest.reverse()
+
+    # Remove all collections and re-add them in the new order
+    for collection in ax.collections:
+        collection.remove()
+    for collection in first_n + rest:
+        ax.add_collection(collection)

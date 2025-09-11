@@ -7,11 +7,11 @@ import mplhep_data
 
 # Get styles directly, also available within experiment helpers.
 # Get helper functions
-from . import alice, atlas, cms, dune, label, lhcb, plot
+from . import alice, atlas, cms, comp, dune, label, lhcb, plot
 from . import styles as style
 from ._tools import Config
 from ._version import version as __version__  # noqa: F401
-from .comparison import (
+from .comparison_functions import (
     get_asymmetry,
     get_comparison,
     get_difference,
@@ -20,17 +20,16 @@ from .comparison import (
     get_ratio,
 )
 from .comparison_plotters import (
-    create_comparison_figure,
     plot_comparison,
     plot_data_model_comparison,
     plot_model,
     plot_two_hist_comparison,
 )
-from .label import add_luminosity, add_text, save_variations, savelabels
-from .palettes import get_color_palette
+from .label import add_text, save_variations, savelabels
 from .plot import (
     append_axes,
     box_aspect,
+    funcplot,
     hist2dplot,
     histplot,
     make_square_add_cbar,
@@ -84,12 +83,13 @@ __all__ = [
     "atlas",
     "box_aspect",
     "cms",
+    "comp",
     "dune",
+    "funcplot",
     "get_asymmetry",
     "get_comparison",
     "get_difference",
     "get_efficiency",
-    "get_color_palette",
     "get_plottables",
     "get_pull",
     "get_ratio",
@@ -116,9 +116,6 @@ __all__ = [
     "ylow",
     "yscale_anchored_text",
     "yscale_legend",
-    "get_color_palette",
     "add_text",
-    "add_luminosity",
-    "create_comparison_figure",
     "set_fitting_ylabel_fontsize",
 ]

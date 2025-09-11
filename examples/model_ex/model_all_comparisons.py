@@ -9,7 +9,7 @@ from plothist_utils import get_dummy_data
 
 df = get_dummy_data()
 
-from mplhep import get_color_palette
+import seaborn as sns
 
 # Define the histograms
 
@@ -23,7 +23,7 @@ data_mask = df[category] == 8
 
 background_categories = [0, 1, 2]
 background_categories_labels = [f"c{i}" for i in background_categories]
-background_categories_colors = get_color_palette(
+background_categories_colors = sns.color_palette(
     "cubehelix", len(background_categories)
 )
 
@@ -52,20 +52,24 @@ background_scaling_factor = data_hist.sum().value / sum(background_hists).sum().
 background_hists = [background_scaling_factor * h for h in background_hists]
 
 ###
+import matplotlib.pyplot as plt
+
 from mplhep import (
     add_text,
-    create_comparison_figure,
     plot_comparison,
     plot_data_model_comparison,
     set_fitting_ylabel_fontsize,
 )
 
-fig, axes = create_comparison_figure(
-    figsize=(6, 13),
+fig, axes = plt.subplots(
     nrows=6,
+    figsize=(6, 13),
     gridspec_kw={"height_ratios": [3, 1, 1, 1, 1, 1]},
-    hspace=0.3,
 )
+fig.subplots_adjust(hspace=0.3)
+for ax in axes[:-1]:
+    ax.xaxis.set_ticklabels([])
+    ax.set_xlabel(" ")
 background_sum = sum(background_hists)
 
 plot_data_model_comparison(
@@ -84,8 +88,12 @@ plot_data_model_comparison(
 add_text(
     r"Multiple data-model comparisons, $\mathbf{with}$ model uncertainty",
     ax=axes[0],
+    loc="over left",
+    fontsize="small",
 )
-add_text(r'  $\mathbf{→}$ comparison = "ratio"', ax=axes[1], fontsize=13)
+add_text(
+    r'  $\mathbf{→}$ comparison = "ratio"', ax=axes[1], loc="over left", fontsize=13
+)
 
 for k_comp, comparison in enumerate(
     ["split_ratio", "pull", "relative_difference", "difference"], start=2
@@ -106,6 +114,7 @@ for k_comp, comparison in enumerate(
         rf'  $\mathbf{{→}}$ comparison = "{comparison}"',
         ax=ax_comparison,
         fontsize=13,
+        loc="over left",
     )
     set_fitting_ylabel_fontsize(ax_comparison)
 

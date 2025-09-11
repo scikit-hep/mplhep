@@ -9,7 +9,7 @@ from plothist_utils import get_dummy_data
 
 df = get_dummy_data()
 
-from mplhep import get_color_palette
+import seaborn as sns
 
 # Define the histograms
 
@@ -23,7 +23,7 @@ data_mask = df[category] == 8
 
 background_categories = [0, 1, 2]
 background_categories_labels = [f"c{i}" for i in background_categories]
-background_categories_colors = get_color_palette(
+background_categories_colors = sns.color_palette(
     "cubehelix", len(background_categories)
 )
 
@@ -71,7 +71,11 @@ fig, ax = plot_model(
     model_uncertainty_label="Stat. unc.",
 )
 
-add_text("Model made of histograms", ax=ax)
+add_text(
+    "Model made of histograms",
+    ax=ax,
+    loc="over left",
+)
 
 fig.savefig(
     "model_with_stacked_and_unstacked_histograms_components.svg",
