@@ -588,7 +588,7 @@ def _parse_loc_to_xy(loc):
 
 def add_text(
     text: str,
-    loc: str | None = "upper left",
+    loc: str | None = None,
     x: float | str | None = None,
     y: float | str | None = None,
     pad: float | None = None,
@@ -651,6 +651,8 @@ def add_text(
     if loc is not None and (x is not None or y is not None):
         error_msg = "Cannot specify both `loc` and `x`/`y` parameters."
         raise ValueError(error_msg)
+    if loc is None and x is None and y is None:
+        loc = "upper left"
     if loc is not None:
         x, y = _parse_loc_to_xy(loc)
 
