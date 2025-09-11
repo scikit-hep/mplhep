@@ -25,7 +25,7 @@ from .comparison_plotters import (
     plot_model,
     plot_two_hist_comparison,
 )
-from .label import add_luminosity, add_text, save_variations, savelabels
+from .label import add_text, save_variations, savelabels
 from .plot import (
     append_axes,
     box_aspect,
@@ -117,6 +117,5 @@ __all__ = [
     "yscale_anchored_text",
     "yscale_legend",
     "add_text",
-    "add_luminosity",
     "set_fitting_ylabel_fontsize",
 ]
