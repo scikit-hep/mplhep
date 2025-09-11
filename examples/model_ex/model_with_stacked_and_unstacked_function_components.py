@@ -43,7 +43,7 @@ fig, ax = plot_model(
     function_range=range,
 )
 
-add_text("Model made of functions", ax=ax)
+add_text("Model made of functions", ax=ax, loc="over left", fontsize="small")
 
 fig.savefig(
     "model_with_stacked_and_unstacked_function_components.svg", bbox_inches="tight"

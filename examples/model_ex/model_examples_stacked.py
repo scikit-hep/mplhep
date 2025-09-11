@@ -9,7 +9,7 @@ from plothist_utils import get_dummy_data
 
 df = get_dummy_data()
 
-from mplhep import get_color_palette
+import seaborn as sns
 
 # Define the histograms
 
@@ -23,7 +23,7 @@ data_mask = df[category] == 8
 
 background_categories = [0, 1, 2]
 background_categories_labels = [f"c{i}" for i in background_categories]
-background_categories_colors = get_color_palette(
+background_categories_colors = sns.color_palette(
     "cubehelix", len(background_categories)
 )
 
@@ -55,7 +55,7 @@ signal_scaling_factor = data_hist.sum().value / signal_hist.sum().value
 signal_hist *= signal_scaling_factor
 
 ###
-from mplhep import add_luminosity, histplot, plot_data_model_comparison
+from mplhep import histplot, plot_data_model_comparison
 
 fig, ax_main, ax_comparison = plot_data_model_comparison(
     data_hist=data_hist,
@@ -76,9 +76,5 @@ histplot(
 )
 
 ax_main.legend()
-
-add_luminosity(
-    collaboration="mplhep", ax=ax_main, lumi=3, lumi_unit="zb", preliminary=True
-)
 
 fig.savefig("model_examples_stacked.svg", bbox_inches="tight")

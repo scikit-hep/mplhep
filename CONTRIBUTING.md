@@ -41,7 +41,7 @@ Note: This ignores the notebook tests (which are run via
 sure to run the complete suite before submitting a PR
 
 ```bash
-pytest --mpl
+python -m pytest -r sa --mpl --mpl-results-path=pytest_results -n 4
 ```
 
 ### Making a pull request
@@ -56,7 +56,7 @@ If you modified expected outcomes of the tests. New baseline visuals can be
 generated using this command:
 
 ```bash
-pytest --mpl-generate-path=tests/baseline
+ python -m pytest -r sa --mpl -n 4 --mpl-generate-path=tests/baseline
 ```
 
 Only include the actually modified baseline images in your PR! Running `git add

@@ -24,6 +24,71 @@ class SuppText(mtext.Text):
         return f"supptext: Custom Text({self._x}, {self._y}, {self._text!r})"
 
 
+def _calculate_dynamic_padding(ax, pad=5, xpad=None, ypad=None):
+    """
+    Calculate dynamic padding based on axes dimensions.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        The axes object
+    pad : float, optional
+        User-specified padding percentage that overrides dynamic calculation for both dimensions
+    xpad : float, optional
+        User-specified horizontal padding percentage, overrides pad and dynamic calculation for x-direction
+    ypad : float, optional
+        User-specified vertical padding percentage, overrides pad and dynamic calculation for y-direction
+
+    Returns
+    -------
+    tuple[float, float]
+        (x_padding, y_padding) in axes fraction units
+    """
+    # Get axes dimensions to calculate aspect-aware padding
+    bbox = ax.get_position()
+    fig = ax.figure
+
+    # Handle both Figure and SubFigure cases
+    try:
+        # Try to get size directly (works for Figure)
+        fig_width, fig_height = fig.get_size_inches()
+    except AttributeError:
+        # For SubFigure, get size from parent figure
+        parent_fig = fig.figure if hasattr(fig, "figure") else fig
+        fig_width, fig_height = parent_fig.get_size_inches()
+        # Scale by the subfigure's relative size if it's a SubFigure
+        if hasattr(fig, "get_position"):
+            subfig_bbox = fig.get_position()
+            fig_width *= subfig_bbox.width
+            fig_height *= subfig_bbox.height
+    ax_width = bbox.width * fig_width
+    ax_height = bbox.height * fig_height
+
+    # Calculate dynamic padding based on the shorter dimension
+    shorter_dim = min(ax_width, ax_height)
+    longer_dim = max(ax_width, ax_height)
+    aspect_ratio = longer_dim / shorter_dim
+
+    # Convert base percentage to proportional values
+    base_padding = pad / 100.0
+
+    # Calculate dynamic padding for the longer dimension, scale down to maintain visual consistency
+    if ax_width > ax_height:
+        # Width is longer, scale x padding down
+        dynamic_x_padding = base_padding / aspect_ratio
+        dynamic_y_padding = base_padding
+    else:
+        # Height is longer, scale y padding down
+        dynamic_x_padding = base_padding
+        dynamic_y_padding = base_padding / aspect_ratio
+
+    # Use user-specified padding if provided, otherwise use dynamic calculation
+    x_padding = xpad / 100.0 if xpad is not None else dynamic_x_padding
+    y_padding = ypad / 100.0 if ypad is not None else dynamic_y_padding
+
+    return x_padding, y_padding
+
+
 def exp_text(
     exp="",
     text="",
@@ -35,7 +100,7 @@ def exp_text(
     fontsize=None,
     exp_weight="bold",
     italic=(False, False, False),
-    pad=0,
+    pad=None,
 ):
     """Add typical LHC experiment primary label to the axes.
 
@@ -75,30 +140,41 @@ def exp_text(
     if ax is None:
         ax = plt.gca()
 
+    # Calculate dynamic padding based on axes dimensions
+    if pad is None:
+        pad = 5 if loc in [1, 2, 3, 4] else 0
+    x_padding, y_padding = _calculate_dynamic_padding(ax, pad=pad)
+
     loc1_dict = {
-        0: {"xy": (0.001, 1 + pad), "va": "bottom"},
-        1: {"xy": (0.05, 0.95 - pad), "va": "top"},
+        0: {"xy": (0, 1), "va": "bottom"},
+        1: {"xy": (x_padding, 1 - y_padding), "va": "top"},
     }
 
+    _text_offset = 0.005  # Small offset to align smaller text next to larger text
     loc2_dict = {
-        0: {"xy": (0.001, 1.005 + pad), "va": "bottom"},
-        1: {"xy": (0.05, 0.9550 - pad), "va": "bottom"},
-        2: {"xy": (0.05, 0.9450 - pad), "va": "top"},
-        3: {"xy": (0.05, 0.95 - pad), "va": "top"},
-        4: {"xy": (0.05, 0.9550 - pad), "va": "bottom"},
+        0: {"xy": (0, 1 + y_padding + _text_offset), "va": "bottom"},
+        1: {"xy": (x_padding, 1 - y_padding + _text_offset), "va": "bottom"},
+        2: {"xy": (x_padding, 1 - y_padding), "va": "top"},
+        3: {"xy": (x_padding, 1 - y_padding), "va": "top"},
+        4: {"xy": (x_padding, 1 - y_padding + _text_offset), "va": "bottom"},
     }
 
+    _ax_offset = 0.01
     loc3_dict = {
-        0: {"xy": (1.012, 1 + pad), "va": "top", "ha": "left"},
-        1: {"xy": (0.05, 0.945 - pad), "va": "top"},
-        2: {"xy": (0.05, 0.935 - pad), "va": "top"},
-        3: {"xy": (0.05, 0.940 - pad), "va": "top"},
-        4: {"xy": (0.05, 0.9450 - pad), "va": "top"},
+        0: {
+            "xy": (1.0 + x_padding + _ax_offset, 1 + y_padding),
+            "va": "top",
+            "ha": "left",
+        },
+        1: {"xy": (x_padding, 1 - y_padding), "va": "top"},
+        2: {"xy": (x_padding, 1 - y_padding), "va": "top"},
+        3: {"xy": (x_padding, 1 - y_padding), "va": "top"},
+        4: {"xy": (x_padding, 1 - y_padding), "va": "top"},
     }
 
     if loc not in [0, 1, 2, 3, 4]:
         msg = (
-            "loc must be in {0, 1, 2}:\n"
+            "loc must be in {0, 1, 2, 3, 4}:\n"
             "0 : Above axes, left aligned\n"
             "1 : Top left corner\n"
             "2 : Top left corner, multiline\n"
@@ -231,21 +307,29 @@ def exp_text(
 
 
 # Lumi text
-def lumitext(text="", ax=None, fontname=None, fontsize=None):
+def lumitext(
+    text: str = "",
+    ax: plt.Axes | None = None,
+    fontname: str | None = None,
+    fontsize: float | None = None,
+    pad: float | None = None,
+) -> plt.Axes:
     """Add typical LHC experiment top-right label. Usually used to indicate year
     or aggregate luminosity in the plot.
 
     Parameters
     ----------
-        text : string, optional
+        text : str, optional
             Secondary experiment label, typically not-bold and smaller
             font-size. For example "Simulation" or "Preliminary"
         ax : matplotlib.axes.Axes, optional
             Axes object (if None, last one is fetched)
-        fontname : string, optional
+        fontname : str, optional
             Name of font to be used.
-        fontsize : string, optional
+        fontsize : int or float, optional
             Defines size of "secondary label". Experiment label is 1.3x larger.
+        pad : float, optional
+            Padding value to override dynamic calculation, by default 0.0
 
     Returns
     -------
@@ -254,14 +338,22 @@ def lumitext(text="", ax=None, fontname=None, fontsize=None):
     """
 
     _font_size = rcParams["font.size"] if fontsize is None else fontsize
-    fontname = "TeX Gyre Heros" if fontname is None else fontname
+    _font_family = rcParams.get("font.family", "sans-serif")
+    _font_family = _font_family[0] if isinstance(_font_family, list) else _font_family
+    _font = rcParams.get(f"font.{_font_family}", "DejaVu Sans")
+    _font = _font[0] if isinstance(_font, list) else _font
+    fontname = _font if fontname is None else fontname
 
     if ax is None:
         ax = plt.gca()
 
+    # Calculate dynamic padding for consistent positioning
+    _pad = 0 if pad is None else pad
+    _, y_padding = _calculate_dynamic_padding(ax, pad=_pad)
+
     ax.text(
         x=1,
-        y=1.005,
+        y=1 + y_padding,
         s=text,
         transform=ax.transAxes,
         ha="right",
@@ -291,7 +383,7 @@ def exp_label(
     fontname=None,
     fontsize=None,
     exp_weight="bold",
-    pad=0,
+    pad=None,
     italic=(False, False, False),
     ax=None,
 ):
@@ -451,6 +543,198 @@ def exp_label(
     return exptext, expsuffix, supptext
 
 
+def _parse_loc_to_xy(loc):
+    """
+    Parse location string to x, y coordinates.
+
+    Parameters
+    ----------
+    loc : str
+        Location specification
+
+    Returns
+    -------
+    tuple[str, str]
+        (x, y) position strings
+    """
+    # Normalize string
+    if isinstance(loc, str):
+        loc = loc.replace("-", " ").lower().strip()
+
+    # Map location strings to (x, y) coordinates
+    loc_map = {
+        # Inside positions
+        "upper left": ("left_in", "top_in"),
+        "upper right": ("right_in", "top_in"),
+        "lower left": ("left_in", "bottom_in"),
+        "lower right": ("right_in", "bottom_in"),
+        # Outside positions (over frame)
+        "over left": ("left", "top_out"),
+        "over right": ("right", "top_out"),
+        "under left": ("left", "bottom_out"),
+        "under right": ("right", "bottom_out"),
+        # Alternative spellings
+        "top left": ("left_in", "top_in"),
+        "top right": ("right_in", "top_in"),
+        "bottom left": ("left_in", "bottom_in"),
+        "bottom right": ("right_in", "bottom_in"),
+    }
+
+    if loc in loc_map:
+        return loc_map[loc]
+    error_msg = f"Invalid location: {loc!r}. Valid options are: {list(loc_map.keys())}"
+    raise ValueError(error_msg)
+
+
+def add_text(
+    text: str,
+    loc: str | None = None,
+    x: float | str | None = None,
+    y: float | str | None = None,
+    pad: float | None = None,
+    xpad: float | None = None,
+    ypad: float | None = None,
+    fontsize: int | None = None,
+    white_background: bool = False,
+    ax: plt.Axes | None = None,
+    **kwargs,
+) -> mtext.Text:
+    """
+    Add text to an axis.
+
+    Parameters
+    ----------
+    text : str
+        The text to add.
+    loc : str | None, optional
+        Location shortcut similar to plt.legend(). Can be:
+        - "upper left", "upper right", "lower left", "lower right" (inside axes)
+        - "over left", "over right", "under left", "under right" (outside axes)
+        - Alternative: "top left", "top right", "bottom left", "bottom right"
+        If provided, overrides x and y parameters.
+    x : float | str | None, optional
+        Horizontal position of the text in unit of the normalized x-axis length.
+        Aliases: "left", "right", "left_in", "right_in", "right_out".
+        Ignored if loc is provided.
+    y : float | str | None, optional
+        Vertical position of the text in unit of the normalized y-axis length.
+        Aliases: "top", "bottom", "top_in", "bottom_in", "top_out", "bottom_out".
+        Ignored if loc is provided.
+    pad : float, optional
+        Padding percentage from edges for "in" positions, by default 5.0. This is applied to the shorter dimension and scaled proportionally for the longer dimension.
+    xpad : float | None, optional
+        Horizontal padding percentage, overrides pad value for x-direction if provided.
+    ypad : float | None, optional
+        Vertical padding percentage, overrides pad value for y-direction if provided.
+    fontsize : int, optional
+        Font size, by default None (uses rcParams default).
+    white_background : bool, optional
+        Draw a white rectangle under the text, by default False.
+    ax : matplotlib.axes.Axes, optional
+        Figure axis, by default None.
+    kwargs : dict
+        Keyword arguments to be passed to the ax.text() function.
+        In particular, the keyword arguments ha and va, which are set by default to accommodate to the x and y aliases, can be used to change the text alignment.
+
+    Raises
+    ------
+    ValueError
+        If the x or y position is not a float or a valid position.
+
+    Returns
+    -------
+    matplotlib.text.Text
+        The text object that was added to the axes.
+    """
+
+    # Handle loc parameter first
+    if loc is not None and (x is not None or y is not None):
+        error_msg = "Cannot specify both `loc` and `x`/`y` parameters."
+        raise ValueError(error_msg)
+    if loc is None and x is None and y is None:
+        loc = "upper left"
+    if loc is not None:
+        x, y = _parse_loc_to_xy(loc)
+
+    # Normalize string arguments
+    if isinstance(x, str):
+        x = x.replace("-", "_").lower()
+    if isinstance(y, str):
+        y = y.replace("-", "_").lower()
+
+    # Set default padding if not provided
+    if pad is None and "out" not in (str(x) + str(y)):
+        pad = 5.0
+    elif pad is None:
+        pad = 1.0
+
+    _font_size = rcParams["font.size"] if fontsize is None else fontsize
+
+    # Set default horizontal alignment based on x position
+    default_ha = "right" if x in ["right", "right_in"] else "left"
+
+    # Set default vertical alignment based on y position
+    default_va = "top" if y in ["top_in", "bottom", "bottom_out"] else "bottom"
+
+    kwargs.setdefault("ha", default_ha)
+    kwargs.setdefault("va", default_va)
+
+    if ax is None:
+        ax = plt.gca()
+    transform = ax.transAxes
+
+    # Calculate dynamic padding based on axes dimensions
+    x_padding, y_padding = _calculate_dynamic_padding(ax, pad=pad, xpad=xpad, ypad=ypad)
+
+    x_values = {
+        "left": 0.0,
+        "right": 1.0,
+        "left_in": x_padding,
+        "right_in": 1.0 - x_padding,
+        "right_out": 1.0 + x_padding,
+    }
+
+    y_values = {
+        "top": 1.0 + y_padding,
+        "bottom": -0.1 - y_padding,
+        "top_out": 1.0 + y_padding,
+        "bottom_out": -0.1 - y_padding,
+        "top_in": 1.0 - y_padding,
+        "bottom_in": y_padding,
+    }
+
+    if isinstance(x, str):
+        if x not in x_values:
+            msg = f"{x!r} is not a valid x position."
+            raise ValueError(msg)
+        x = x_values[x]
+
+    if isinstance(y, str):
+        if y not in y_values:
+            msg = f"{y!r} is not a valid y position."
+            raise ValueError(msg)
+        y = y_values[y]
+
+    # At this point, x and y should be float values
+    assert isinstance(x, (int, float)), f"x should be numeric, got {type(x)}"
+    assert isinstance(y, (int, float)), f"y should be numeric, got {type(y)}"
+
+    t = ax.text(
+        float(x),
+        float(y),
+        text,
+        fontsize=_font_size,
+        transform=transform,
+        **kwargs,
+    )
+
+    # Add background
+    if white_background:
+        t.set_bbox({"facecolor": "white", "edgecolor": "white"})
+
+    return t
+
+
 def savelabels(
     fname: str = "",
     ax: plt.Axes | None = None,
@@ -570,175 +854,3 @@ def save_variations(fig, name, text_list=None, exp=None):
             name_ext = exp.lower() + name_ext
         save_name = name.split(".")[0] + name_ext + "." + name.split(".")[1]
         fig.savefig(save_name)
-
-
-def add_text(
-    text: str,
-    x: float | str = "left",
-    y: float | str = "top",
-    fontsize: int = 12,
-    white_background: bool = False,
-    ax: plt.Axes | None = None,
-    **kwargs,
-) -> None:
-    """
-    Add text to an axis.
-
-    Parameters
-    ----------
-    text : str
-        The text to add.
-    x : float | str, optional
-        Horizontal position of the text in unit of the normalized x-axis length. The default is value "left", which is an alias for 0.0. Other aliases are "right", "left_in", "right_in", "right_out".
-    y : float | str, optional
-        Vertical position of the text in unit of the normalized y-axis length. The default is value "top", which is an alias for 1.01. Other aliases are "top_in", "bottom_in", "top_out"="top", "bottom_out"="bottom".
-    fontsize : int, optional
-        Font size, by default 12.
-    white_background : bool, optional
-        Draw a white rectangle under the text, by default False.
-    ax : matplotlib.axes.Axes, optional
-        Figure axis, by default None.
-    kwargs : dict
-        Keyword arguments to be passed to the ax.text() function.
-        In particular, the keyword arguments ha and va, which are set by default to accommodate to the x and y aliases, can be used to change the text alignment.
-
-    Raises
-    ------
-    ValueError
-        If the x or y position is not a float or a valid position.
-
-    Returns
-    -------
-    None
-    """
-    kwargs.setdefault("ha", "right" if x in ["right", "right_in"] else "left")
-    kwargs.setdefault(
-        "va", "top" if y in ["top_in", "bottom", "bottom_out"] else "bottom"
-    )
-
-    if ax is None:
-        ax = plt.gca()
-    transform = ax.transAxes
-
-    x_values = {
-        "left": 0.0,
-        "right": 1.0,
-        "left_in": 0.04,
-        "right_in": 0.97,
-        "right_out": 1.02,
-    }
-
-    y_values = {
-        "top": 1.01,
-        "bottom": -0.11,
-        "top_out": 1.01,
-        "bottom_out": -0.11,
-        "top_in": 0.96,
-        "bottom_in": 0.04,
-    }
-
-    if isinstance(x, str):
-        if x not in x_values:
-            msg = f"{x!r} is not a valid x position."
-            raise ValueError(msg)
-        x = x_values[x]
-
-    if isinstance(y, str):
-        if y not in y_values:
-            msg = f"{y!r} is not a valid y position."
-            raise ValueError(msg)
-        y = y_values[y]
-
-    t = ax.text(
-        x,
-        y,
-        text,
-        fontsize=fontsize,
-        transform=transform,
-        **kwargs,
-    )
-
-    # Add background
-    if white_background:
-        t.set_bbox({"facecolor": "white", "edgecolor": "white"})
-
-
-def add_luminosity(
-    collaboration: str,
-    x: float | str = "right",
-    y: float | str = "top",
-    fontsize: int = 12,
-    is_data: bool = True,
-    lumi: int | str = "",
-    lumi_unit: str = "fb",
-    preliminary: bool = False,
-    two_lines: bool = False,
-    white_background: bool = False,
-    ax: plt.Axes | None = None,
-    **kwargs,
-) -> None:
-    """
-    Add the collaboration name and the integrated luminosity (or "Simulation").
-
-    Parameters
-    ----------
-    collaboration : str
-        Collaboration name.
-    x : float | str, optional
-        Horizontal position of the text in unit of the normalized x-axis length. The default is value "right", which is an alias for 1.0. Can take other aliases such as "left", "left_in", "right_in", "right_out".
-    y : float | str, optional
-        Vertical position of the text in unit of the normalized y-axis length. The default is value "top", which is an alias for 1.01. Can take other aliases such as "top_in", "bottom_in", "top_out"="top", "bottom_out"="bottom".
-    fontsize : int, optional
-        Font size, by default 12.
-    is_data : bool, optional
-        If True, plot integrated luminosity. If False, plot "Simulation", by default True.
-    lumi : int | str, optional
-        Integrated luminosity. If empty, do not plot luminosity. Default value is empty.
-    lumi_unit : str, optional
-        Integrated luminosity unit. Default value is fb. The exponent is automatically -1.
-    preliminary : bool, optional
-        If True, print "preliminary", by default False.
-    two_lines : bool, optional
-        If True, write the information on two lines, by default False.
-    white_background : bool, optional
-        Draw a white rectangle under the text, by default False.
-    ax : matplotlib.axes.Axes, optional
-        Figure axis, by default None.
-    kwargs : dict
-        Keyword arguments to be passed to the ax.text() function.
-        In particular, the keyword arguments ha and va, which are set to "left" (or "right" if x="right") and "bottom" by default, can be used to change the text alignment.
-
-    Returns
-    -------
-    None
-
-    See Also
-    --------
-    add_text : Add information on the plot.
-    """
-
-    text = (
-        r"$\mathrm{\mathbf{"
-        + collaboration.replace(" ", r"\,\,")
-        + "}"
-        + (r"\,\,preliminary}$" if preliminary else "}$")
-    )
-    if two_lines:
-        text += "\n"
-    else:
-        text += " "
-    if is_data:
-        if lumi:
-            text += rf"$\int\,\mathcal{{L}}\,\mathrm{{d}}\mathit{{t}}={lumi}\,{lumi_unit}^{{-1}}$"
-    else:
-        text += r"$\mathrm{simulation}$"
-
-    add_text(
-        text,
-        x,
-        y,
-        fontsize=fontsize,
-        white_background=white_background,
-        ax=ax,
-        **kwargs,
-    )

@@ -17,6 +17,7 @@ from matplotlib.transforms import Bbox
 from mpl_toolkits.axes_grid1 import axes_size, make_axes_locatable
 
 from .utils import (
+    _invert_collection_order,
     align_marker,
     get_histogram_axes_title,
     get_plottable_protocol_bins,
@@ -1459,3 +1460,50 @@ def merge_legend_handles_labels(handles, labels):
         seen_label_handles[i] = tuple(seen_label_handles[i])
 
     return seen_label_handles, seen_labels
+
+
+def funcplot(func, range, ax, stack=False, npoints=1000, **kwargs):
+    """
+    Plot a 1D function on a given range.
+
+    Parameters
+    ----------
+    func : function or list of functions
+        The 1D function or list of functions to plot.
+        The function(s) should support vectorization (i.e. accept a numpy array as input).
+    range : tuple
+        The range of the function(s). The function(s) will be plotted on the interval [range[0], range[1]].
+    ax : matplotlib.axes.Axes
+        The Axes instance for plotting.
+    stack : bool, optional
+        Whether to use ax.stackplot() to plot the function(s) as a stacked plot. Default is False.
+    npoints : int, optional
+        The number of points to use for plotting. Default is 1000.
+    **kwargs
+        Additional keyword arguments forwarded to ax.plot() (in case stack=False) or ax.stackplot() (in case stack=True).
+    """
+    x = np.linspace(range[0], range[1], npoints)
+
+    if not stack:
+        if not isinstance(func, list):
+            ax.plot(x, func(x), **kwargs)
+        else:
+            ax.plot(
+                x,
+                np.array([func(x) for func in func]).T,
+                **kwargs,
+            )
+    else:
+        if kwargs.get("labels") is None:
+            kwargs["labels"] = []
+
+        if not isinstance(func, list):
+            func = [func]
+        n_collections_before = len(list(ax.collections))
+        ax.stackplot(
+            x,
+            [f(x) for f in func],
+            **kwargs,
+        )
+        # Invert the order of the collection objects to match the top-down order of the stackplot
+        _invert_collection_order(ax, n_collections_before)

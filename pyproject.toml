@@ -53,6 +53,7 @@ test = [
     "scipy>=1.1.0",
     "uproot",
     "uproot4",
+    "seaborn",
 ]
 all = [
     "mplhep[dev,test]",
