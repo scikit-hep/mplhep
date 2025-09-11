@@ -71,7 +71,11 @@ fig, ax = plot_model(
     model_uncertainty_label="Stat. unc.",
 )
 
-add_text("Model made of histograms", ax=ax)
+add_text(
+    "Model made of histograms",
+    ax=ax,
+    loc="over left",
+)
 
 fig.savefig(
     "model_with_stacked_and_unstacked_histograms_components.svg",

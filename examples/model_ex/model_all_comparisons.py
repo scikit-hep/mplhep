@@ -88,8 +88,12 @@ plot_data_model_comparison(
 add_text(
     r"Multiple data-model comparisons, $\mathbf{with}$ model uncertainty",
     ax=axes[0],
+    loc="over left",
+    fontsize="small",
 )
-add_text(r'  $\mathbf{→}$ comparison = "ratio"', ax=axes[1], fontsize=13)
+add_text(
+    r'  $\mathbf{→}$ comparison = "ratio"', ax=axes[1], loc="over left", fontsize=13
+)
 
 for k_comp, comparison in enumerate(
     ["split_ratio", "pull", "relative_difference", "difference"], start=2
@@ -110,6 +114,7 @@ for k_comp, comparison in enumerate(
         rf'  $\mathbf{{→}}$ comparison = "{comparison}"',
         ax=ax_comparison,
         fontsize=13,
+        loc="over left",
     )
     set_fitting_ylabel_fontsize(ax_comparison)
 

@@ -52,7 +52,7 @@ background_scaling_factor = data_hist.sum().value / sum(background_hists).sum().
 background_hists = [background_scaling_factor * h for h in background_hists]
 
 ###
-from mplhep import add_luminosity, plot_data_model_comparison
+from mplhep import plot_data_model_comparison
 
 fig, ax_main, ax_comparison = plot_data_model_comparison(
     data_hist=data_hist,
@@ -64,7 +64,5 @@ fig, ax_main, ax_comparison = plot_data_model_comparison(
     comparison="pull",
     model_uncertainty=False,  # <--
 )
-
-add_luminosity(collaboration="mplhep", ax=ax_main, is_data=False)
 
 fig.savefig("model_examples_pull_no_model_unc.svg", bbox_inches="tight")

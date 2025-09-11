@@ -38,7 +38,12 @@ fig, ax_main, ax_comparison = plot_two_hist_comparison(
     comparison="difference",  # <--
 )
 
-add_text("Comparison of two hist with difference plot", ax=ax_main)
-add_text("Difference ax", x="right", ax=ax_comparison)
+add_text(
+    "Comparison of two hist with difference plot",
+    ax=ax_main,
+    fontsize="small",
+    loc="over left",
+)
+add_text("Difference ax", ax=ax_comparison, loc="over right", fontsize="small")
 
 fig.savefig("1d_comparison_difference.svg", bbox_inches="tight")
