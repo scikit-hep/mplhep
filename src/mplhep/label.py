@@ -526,7 +526,7 @@ def exp_text(
     fontweight : tuple[str, str, str, str], optional
         Tuple of fontweights for (exp, text, lumi, supp), by default ("bold", "normal", "normal", "normal").
     fontstyle : tuple[str, str, str, str], optional
-        Tuple of fontstyles for (exp, text, lumi, supp), by default ("normal", "italic", "normal", "normal").=
+        Tuple of fontstyles for (exp, text, lumi, supp), by default ("normal", "italic", "normal", "normal").
     **kwargs
         Additional keyword arguments passed to text functions.
 

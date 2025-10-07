@@ -69,18 +69,47 @@ def linkcode_resolve(domain, info):
         return None
     if not info["module"]:
         return None
-    mod = importlib.import_module(info["module"])
+
+    # Handle module aliasing for experiment modules
+    module_name = info["module"]
+    if module_name.startswith("mplhep.") and module_name.split(".")[-1] in [
+        "cms",
+        "atlas",
+        "lhcb",
+        "alice",
+        "dune",
+    ]:
+        # Map aliased modules to their actual module names
+        alias_map = {
+            "mplhep.cms": "mplhep.exp_cms",
+            "mplhep.atlas": "mplhep.exp_atlas",
+            "mplhep.lhcb": "mplhep.exp_lhcb",
+            "mplhep.alice": "mplhep.exp_alice",
+            "mplhep.dune": "mplhep.exp_dune",
+        }
+        module_name = alias_map.get(module_name, module_name)
+
+    try:
+        mod = importlib.import_module(module_name)
+    except ImportError:
+        return None
+
     modpath = [p for p in sys.path if mod.__file__.startswith(p)]
     if len(modpath) < 1:
         msg = "Cannot deduce module path"
         raise RuntimeError(msg)
     modpath = modpath[0]
-    obj = reduce(getattr, [mod, *info["fullname"].split(".")])
+
+    try:
+        obj = reduce(getattr, [mod, *info["fullname"].split(".")])
+    except AttributeError:
+        return None
+
     try:
         path = inspect.getsourcefile(obj)
         relpath = path[len(modpath) + 1 :]
         _, lineno = inspect.getsourcelines(obj)
-    except TypeError:
+    except (TypeError, OSError):
         # skip property or other type that inspect doesn't like
         return None
     return f"http://github.com/scikit-hep/mplhep/blob/{githash}/{relpath}#L{lineno}"
@@ -172,7 +201,7 @@ for style in allstyle:
                 ax.plot(x, np.asarray(y), label=label)
 
             kwargs = {
-                "label": "Preliminary",
+                "text": "Preliminary",
                 "data": True,
                 "ax": ax,
                 "year": 2016,
@@ -188,7 +217,7 @@ for style in allstyle:
             elif "dune" in style.lower():
                 mplhep.dune.label(**kwargs)
             ax.legend()
-            ax.set_xlabel("$m_{\mu\mu}$ [GeV]")
+            ax.set_xlabel(r"$m_{\mu\mu}$ [GeV]")
             ax.set_ylabel("Events")
             path = Path(
                 here / f"_static/_generated/{style}/{histtype}/pos{position}.png"
