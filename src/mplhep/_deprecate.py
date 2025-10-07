@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import functools
+import inspect
 import warnings
 
 # Adapted from:
@@ -19,6 +21,7 @@ class deprecate:
         self._reason = reason
 
     def __call__(self, func):
+        @functools.wraps(func)
         def decorated_func(*args, **kwargs):
             if not (self._warn_once and self._already_warned):
                 warnings.warn(
@@ -29,7 +32,11 @@ class deprecate:
                 self._already_warned = True
             return func(*args, **kwargs)
 
-        decorated_func.__name__ = func.__name__
+        # Copy signature-related attributes that inspection tools rely on
+        decorated_func.__signature__ = inspect.signature(func)
+        decorated_func.__wrapped__ = func  # This helps some inspection tools
+
+        # Override __doc__ after functools.wraps
         decorated_func.__doc__ = "deprecated: " + self._reason
         return decorated_func
 
@@ -39,26 +46,40 @@ class deprecate_parameter:
     Decorator indicating that parameter *name* is being deprecated.
     """
 
-    def __init__(self, name, reason="", warn_once: bool = True, warning=FutureWarning):
+    def __init__(
+        self,
+        name,
+        reason="",
+        warn_once: bool = True,
+        removed: bool = False,
+        warning=FutureWarning,
+    ):
         self._warning = warning
         self._already_warned = False
         self._warn_once = warn_once
         self._name = name
         self._reason = reason
+        self._removed = removed
 
     def __call__(self, func):
+        @functools.wraps(func)
         def decorated_func(*args, **kwargs):
             if self._name in kwargs and not (self._warn_once and self._already_warned):
+                if self._removed:
+                    msg = f"kwarg `{self._name}` in function `{func.__name__}()` has been removed: {self._reason}"
+                    raise TypeError(msg)
                 warnings.warn(
-                    f'kwarg "{self._name}" in function ``{func.__name__}`` is deprecated and may be removed in future versions: {self._reason}',
+                    f"kwarg `{self._name}` in function `{func.__name__}()` is deprecated and will be removed: {self._reason}",
                     category=self._warning,
                     stacklevel=2,
                 )
                 self._already_warned = True
             return func(*args, **kwargs)
 
-        decorated_func.__name__ = func.__name__
-        decorated_func.__doc__ = func.__doc__
+        # Copy signature-related attributes that inspection tools rely on
+        decorated_func.__signature__ = inspect.signature(func)
+        decorated_func.__wrapped__ = func  # This helps some inspection tools
+
         return decorated_func
 
 

@@ -29,7 +29,7 @@ def test_style_atlas():
     # Test suite does not have Helvetica
     plt.style.use([hep.style.ATLAS, {"font.sans-serif": ["Tex Gyre Heros"]}])
     fig, ax = plt.subplots()
-    hep.atlas.label(label="Preliminary")
+    hep.atlas.label(text="Preliminary")
 
     return fig
 
@@ -77,7 +77,7 @@ def test_style_lhcb2():
 def test_style_dune():
     plt.style.use(hep.style.DUNE)
     fig, ax = plt.subplots()
-    hep.dune.label(label="Preliminary")
+    hep.dune.label(text="Preliminary")
 
     return fig
 
@@ -87,7 +87,7 @@ def test_style_dune():
 def test_style_dune1():
     plt.style.use(hep.style.DUNE1)
     fig, ax = plt.subplots()
-    hep.dune.label(label="Preliminary")
+    hep.dune.label(text="Preliminary")
 
     return fig
 
@@ -240,7 +240,7 @@ def test_label_loc():
 def test_pub_loc():
     fig, axs = plt.subplots(2, 5, figsize=(20, 8))
     for i, ax in enumerate(axs.flatten()):
-        hep.cms.label(loc=i % 5, ax=ax, lumi=50, pub="arXiv:aaaa.bbbbb", data=(i >= 5))
+        hep.cms.label(loc=i % 5, ax=ax, lumi=50, supp="arXiv:aaaa.bbbbb", data=(i >= 5))
     return fig
 
 
@@ -248,11 +248,11 @@ def test_pub_loc():
 def test_label_config(fig_test, fig_ref):
     hep.rcParams.label.data = True
     hep.rcParams.label.lumi = 30
-    hep.rcParams.label.label = "Internal"
+    hep.rcParams.label.text = "Internal"
 
     test_ax = fig_test.subplots()
     hep.cms.label(data=False, ax=test_ax)
 
     ref_ax = fig_ref.subplots()
     hep.rcParams.clear()
-    hep.cms.label(data=False, lumi=30, label="Internal", ax=ref_ax)
+    hep.cms.label(data=False, lumi=30, text="Internal", ax=ref_ax)
