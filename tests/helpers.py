@@ -4,6 +4,7 @@ import runpy
 from pathlib import Path
 from typing import Any
 
+import matplotlib as mpl
 import matplotlib.figure
 
 
@@ -28,17 +29,16 @@ def run_script_and_get_object(script_path_str: str, name: str) -> Any | None:
     if not script_path.is_file():
         msg = f"Script file not found: {script_path_str}"
         raise FileNotFoundError(msg)
-
-    original_savefig = matplotlib.figure.Figure.savefig
+    original_savefig = mpl.figure.Figure.savefig
 
     def suppressed_savefig(*args, **kwargs):
         pass
 
-    matplotlib.figure.Figure.savefig = suppressed_savefig  # type: ignore[method-assign]
+    mpl.figure.Figure.savefig = suppressed_savefig  # type: ignore[method-assign]
 
     try:
         globals_dict = runpy.run_path(str(script_path))
     finally:
-        matplotlib.figure.Figure.savefig = original_savefig  # type: ignore[method-assign]
+        mpl.figure.Figure.savefig = original_savefig  # type: ignore[method-assign]
 
     return globals_dict.get(name)

@@ -24,45 +24,14 @@ except ImportError:
     HAS_QUESTIONARY = False
 
 
-def check_and_install_dev_dependencies() -> bool:
-    """Check if questionary is available and install all dependencies if not."""
+def check_dev_dependencies() -> bool:
+    """Check if questionary is available."""
     if HAS_QUESTIONARY:
         return True
 
     print("\n🔧 Missing development dependencies (questionary)")
-    print(
-        '📦 Install command:\n    python -m pip install --upgrade --editable ".[all]"'
-    )
-
-    try:
-        response = input("\nRun install Command? [Y/n]: ").strip().lower()
-        if response in ["", "y", "yes"]:
-            print("\n🔄 Installing all dependencies...")
-            result = subprocess.run(
-                [
-                    sys.executable,
-                    "-m",
-                    "pip",
-                    "install",
-                    "--upgrade",
-                    "--editable",
-                    ".[all]",
-                ],
-                check=True,
-            )
-            if result.returncode == 0:
-                print("✅ All dependencies installed successfully!")
-                return True
-            print("❌ Failed to install dependencies")
-            return False
-        print("⚠️  Skipping dependency installation")
-        return False
-    except subprocess.CalledProcessError:
-        print("❌ Failed to install dependencies")
-        return False
-    except KeyboardInterrupt:
-        print("\n⚠️  Installation cancelled")
-        return False
+    print('📦 Install with: python -m pip install --upgrade --editable ".[all]"')
+    return False
 
 
 class DevScript:
@@ -71,16 +40,15 @@ class DevScript:
     def __init__(self):
         self.default_jobs = self._get_default_jobs()
         self.project_root = Path.cwd()
+        self.style = self._get_style()
 
     def _get_default_jobs(self) -> int:
         """Get default number of parallel jobs (half of CPU cores)."""
         try:
-            cpu_count = os.cpu_count()
-            if cpu_count is None:
-                return 4  # fallback
+            cpu_count = os.cpu_count() or 4
             return max(1, cpu_count // 2)
         except (TypeError, AttributeError):
-            return 4  # fallback
+            return 4
 
     def _print_header(self, text: str) -> None:
         """Print a formatted header."""
@@ -104,6 +72,29 @@ class DevScript:
             return shutil.get_terminal_size().columns
         except (AttributeError, OSError):
             return 80
+
+    def _run_command_with_confirmation(
+        self, cmd: List[str], prompt: str = "Confirm command (editable):"
+    ) -> bool:
+        """Run a command with user confirmation and editing capability."""
+        if not HAS_QUESTIONARY or questionary is None:
+            return self._run_command(cmd)
+
+        modified_cmd_str = questionary.text(
+            prompt, default=" ".join(cmd), style=self.style
+        ).ask()
+
+        if modified_cmd_str is None:
+            return False
+
+        if modified_cmd_str.strip():
+            try:
+                cmd = shlex.split(modified_cmd_str)
+            except ValueError as e:
+                self._print_error(f"Invalid command syntax: {e}")
+                return False
+
+        return self._run_command(cmd)
 
     def _run_command(self, cmd: List[str], cwd: Optional[Path] = None) -> bool:
         """Run a command and return True if successful."""
@@ -187,6 +178,7 @@ class DevScript:
         jobs: Optional[int] = None,
         filter_pattern: Optional[str] = None,
         skip_cleanup: bool = False,
+        extra_args: Optional[List[str]] = None,
     ) -> bool:
         """Run pytest with matplotlib comparison."""
         if jobs is None:
@@ -194,18 +186,7 @@ class DevScript:
 
         # Handle pytest_results cleanup (only for direct command-line usage)
         if not skip_cleanup:
-            pytest_results = self.project_root / "pytest_results"
-            if pytest_results.exists():
-                if self._confirm(
-                    "Remove existing pytest_results/ directory?", default=True
-                ):
-                    self._print_warning(
-                        "Removing existing pytest_results/ directory..."
-                    )
-                    shutil.rmtree(pytest_results)
-                    self._print_success("Removed pytest_results/")
-                else:
-                    self._print_warning("Keeping existing pytest_results/")
+            self._handle_pytest_results_cleanup()
 
         self._print_header("Running Tests")
 
@@ -218,30 +199,20 @@ class DevScript:
             "sa",
             "--mpl",
             "--mpl-results-path=pytest_results",
-            "-n",
-            str(jobs),
         ]
+
+        # Only add -n flag if using parallelism (jobs > 1)
+        if jobs > 1:
+            cmd.extend(["-n", str(jobs)])
 
         if filter_pattern:
             cmd.extend(["-k", filter_pattern])
 
-        # Show the exact command and allow modification
-        modified_cmd_str = questionary.text(
-            "Confirm command (editable):",
-            default=" ".join(cmd),
-            style=self._get_style(),
-        ).ask()
-        if modified_cmd_str is None:
-            return False
+        # Add any extra arguments passed through from CLI
+        if extra_args:
+            cmd.extend(extra_args)
 
-        if modified_cmd_str and modified_cmd_str.strip():
-            try:
-                cmd = shlex.split(modified_cmd_str)
-            except ValueError as e:
-                self._print_error(f"Invalid command syntax: {e}")
-                return False
-
-        success = self._run_command(cmd)
+        success = self._run_command_with_confirmation(cmd)
 
         if success:
             self._print_success("Tests completed successfully!")
@@ -255,28 +226,19 @@ class DevScript:
         self._print_header("Generating Baseline Images")
 
         # Ask for baseline directory path
-        if HAS_QUESTIONARY and questionary is not None:
-            baseline_path = questionary.text(
-                "Enter baseline directory path:",
-                default="tests/baseline",
-                style=self._get_style(),
-            ).ask()
-            if baseline_path is None:
-                self._print_warning("Baseline generation cancelled")
-                return False
+        baseline_path = self._get_text_input(
+            "Confirm baseline path:",
+            default="tests/baseline",
+            fallback_prompt="Enter baseline directory path",
+        )
 
-            if not baseline_path.strip():
-                baseline_path = "tests/baseline"
-                self._print_warning(
-                    "Empty path provided, using default: tests/baseline"
-                )
-        else:
-            # Fallback for when questionary is not available
-            baseline_path = input(
-                "Enter baseline directory path [tests/baseline]: "
-            ).strip()
-            if not baseline_path:
-                baseline_path = "tests/baseline"
+        if baseline_path is None:
+            self._print_warning("Baseline generation cancelled")
+            return False
+
+        if not baseline_path.strip():
+            baseline_path = "tests/baseline"
+            self._print_warning("Empty path provided, using default: tests/baseline")
 
         # Check if directory exists and warn about overwriting
         baseline_dir = Path(baseline_path)
@@ -285,7 +247,7 @@ class DevScript:
                 f"Directory '{baseline_path}' exists and contains files!"
             )
             self._print_warning("Existing baseline images will be overwritten.")
-            if not self._confirm("Continue with baseline generation?", default=False):
+            if not self._confirm("Continue with baseline generation?", default=True):
                 self._print_warning("Baseline generation cancelled")
                 return False
         else:
@@ -304,23 +266,7 @@ class DevScript:
             f"--mpl-generate-path={baseline_path}",
         ]
 
-        # Show the command and allow modification
-        modified_cmd_str = questionary.text(
-            "Confirm command (editable):",
-            default=" ".join(cmd),
-            style=self._get_style(),
-        ).ask()
-        if modified_cmd_str is None:
-            return False
-
-        if modified_cmd_str and modified_cmd_str.strip():
-            try:
-                cmd = shlex.split(modified_cmd_str)
-            except ValueError as e:
-                self._print_error(f"Invalid command syntax: {e}")
-                return False
-
-        success = self._run_command(cmd)
+        success = self._run_command_with_confirmation(cmd)
 
         if success:
             self._print_success("Baseline generation completed successfully!")
@@ -377,64 +323,22 @@ class DevScript:
 
     def cmd_precommit(self) -> bool:
         """Run pre-commit hooks on all files."""
-        # Check if pre-commit is installed
-        try:
-            result = subprocess.run(
-                ["pre-commit", "--version"], capture_output=True, text=True, check=True
-            )
-            self._print_success(f"Pre-commit version: {result.stdout.strip()}")
-        except (subprocess.CalledProcessError, FileNotFoundError):
-            self._print_error("pre-commit not found!")
-            install_precommit = self._confirm("Install pre-commit?", default=True)
-            if install_precommit:
-                install_cmd = [sys.executable, "-m", "pip", "install", "pre-commit"]
-                if self._run_command(install_cmd):
-                    self._print_success("Pre-commit installed successfully!")
-                else:
-                    self._print_error("Failed to install pre-commit")
-                    return False
-            else:
-                self._print_warning("Pre-commit is required to run hooks")
-                return False
+        # Check if pre-commit is available
+        if not self._check_tool_available("pre-commit", ["pre-commit", "--version"]):
+            return False
 
         # Check if .pre-commit-config.yaml exists
         precommit_config = self.project_root / ".pre-commit-config.yaml"
         if not precommit_config.exists():
             self._print_warning("No .pre-commit-config.yaml found")
-            create_config = self._confirm(
-                "Install pre-commit hooks for this repository?", default=True
+            self._print_warning(
+                "Run 'pre-commit install' to set up hooks for this repository"
             )
-            if create_config:
-                install_cmd = ["pre-commit", "install"]
-                if self._run_command(install_cmd):
-                    self._print_success("Pre-commit hooks installed!")
-                else:
-                    self._print_error("Failed to install pre-commit hooks")
-                    return False
-            else:
-                self._print_warning("Cannot run pre-commit without configuration")
-                return False
+            return False
 
         # Run pre-commit on all files
         cmd = ["pre-commit", "run", "--all-files"]
-
-        # Show the command and allow modification
-        modified_cmd_str = questionary.text(
-            "Confirm command (editable):",
-            default=" ".join(cmd),
-            style=self._get_style(),
-        ).ask()
-        if modified_cmd_str is None:
-            return False
-
-        if modified_cmd_str and modified_cmd_str.strip():
-            try:
-                cmd = shlex.split(modified_cmd_str)
-            except ValueError as e:
-                self._print_error(f"Invalid command syntax: {e}")
-                return False
-
-        success = self._run_command(cmd)
+        success = self._run_command_with_confirmation(cmd)
 
         if success:
             self._print_success("Pre-commit hooks completed successfully!")
@@ -461,13 +365,15 @@ Commands:
   help      Show this help
 
 Test command options:
-  -j, --jobs N     Number of parallel jobs (default: {self.default_jobs})
+  -n, --jobs N     Number of parallel jobs (default: {self.default_jobs})
   -k, --filter     Run only tests matching pattern
   --skip-cleanup   Keep existing pytest_results directory
+  [pytest args]    Any unrecognized arguments are passed through to pytest
 
 Examples:
-  ./dev test -j 4                 # Run tests with 4 jobs
+  ./dev test -n 4                 # Run tests with 4 jobs
   ./dev test -k "test_basic"      # Run only tests matching "test_basic"
+  ./dev test --verbose -s         # Pass pytest arguments directly
   ./dev clean                     # Clean up test artifacts
         """
         print(help_text)
@@ -491,6 +397,73 @@ Examples:
                 ("disabled", "fg:#858585 italic"),
             ]
         )
+
+    def _get_text_input(
+        self, prompt: str, default: str = "", fallback_prompt: str = ""
+    ) -> Optional[str]:
+        """Get text input with questionary or basic fallback."""
+        if HAS_QUESTIONARY and questionary is not None:
+            return questionary.text(prompt, default=default, style=self.style).ask()
+        # Fallback mode
+        display_prompt = fallback_prompt or prompt
+        if default:
+            display_prompt += f" [{default}]"
+        display_prompt += ": "
+
+        response = input(display_prompt).strip()
+        return response if response else default
+
+    def _get_choice(
+        self, prompt: str, choices: List[tuple], fallback_prompt: str = ""
+    ) -> Optional[str]:
+        """Get choice selection with questionary or basic fallback."""
+        if HAS_QUESTIONARY and questionary is not None:
+            choice_objects = [
+                questionary.Choice(label, value) for label, value in choices
+            ]
+            return questionary.select(
+                prompt, choices=choice_objects, style=self.style
+            ).ask()
+        # Fallback mode
+        print(f"\n{fallback_prompt or prompt}")
+        for i, (label, _) in enumerate(choices, 1):
+            print(f"  {i}. {label}")
+
+        while True:
+            try:
+                response = input("Enter choice (number): ").strip()
+                idx = int(response) - 1
+                if 0 <= idx < len(choices):
+                    return choices[idx][1]
+                print(f"Please enter a number between 1 and {len(choices)}")
+            except (ValueError, KeyboardInterrupt):
+                return None
+
+    def _check_tool_available(self, tool_name: str, check_cmd: List[str]) -> bool:
+        """Check if a tool is available."""
+        try:
+            result = subprocess.run(
+                check_cmd, capture_output=True, text=True, check=True
+            )
+            self._print_success(f"{tool_name} version: {result.stdout.strip()}")
+            return True
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            self._print_error(f"{tool_name} not found!")
+            self._print_warning(f"Please install {tool_name} to use this feature")
+            return False
+
+    def _handle_pytest_results_cleanup(self) -> None:
+        """Handle cleanup of pytest_results directory."""
+        pytest_results = self.project_root / "pytest_results"
+        if pytest_results.exists():
+            if self._confirm(
+                "Remove existing pytest_results/ directory?", default=True
+            ):
+                self._print_warning("Removing existing pytest_results/ directory...")
+                shutil.rmtree(pytest_results)
+                self._print_success("Removed pytest_results/")
+            else:
+                self._print_warning("Keeping existing pytest_results/")
 
     def _get_test_modules(self) -> List[str]:
         """Get available test modules/directories."""
@@ -535,48 +508,36 @@ Examples:
 
     def _interactive_test_options(self) -> dict:
         """Get test options interactively."""
-        if not HAS_QUESTIONARY or questionary is None:
-            # Fallback mode - basic implementation
-            print("\n🔧 Configure Test Run")
-            print("Interactive mode requires questionary. Using basic mode.")
-            jobs = self.default_jobs
-            filter_pattern = None
-            return {"jobs": jobs, "filter_pattern": filter_pattern}
-
         print("\n🔧 Configure Test Run")
 
         # Jobs selection with choices
-        jobs_choice = questionary.select(
-            "Parallel execution mode:",
-            choices=[
-                questionary.Choice(
-                    f"🚀 Default ({self.default_jobs} cores)", "default"
-                ),
-                questionary.Choice("🔄 No parallelism (1 core)", "none"),
-                questionary.Choice("⚙️  Custom number", "custom"),
-            ],
-            style=self._get_style(),
-        ).ask()
+        jobs_choices = [
+            (f"🚀 Default ({self.default_jobs} cores)", "default"),
+            ("🔄 No parallelism", "none"),
+            ("⚙️ Custom number", "custom"),
+        ]
+
+        jobs_choice = self._get_choice(
+            "Parallel execution mode:", jobs_choices, "Select parallel execution mode:"
+        )
 
         if jobs_choice == "default":
             jobs = self.default_jobs
         elif jobs_choice == "none":
             jobs = 1
         elif jobs_choice == "custom":
-            jobs_input = questionary.text(
+            jobs_input = self._get_text_input(
                 "Enter number of parallel jobs:",
                 default=str(self.default_jobs),
-                style=self._get_style(),
-            ).ask()
+                fallback_prompt="Enter number of parallel jobs",
+            )
             if jobs_input is None:
                 jobs = self.default_jobs
                 self._print_warning(f"Input cancelled, using default: {jobs}")
             else:
                 try:
                     jobs = int(jobs_input)
-                    if jobs < 1:
-                        self._print_warning("Jobs must be at least 1, using 1")
-                        jobs = 1
+                    jobs = max(1, jobs)  # Ensure at least 1
                 except (ValueError, TypeError):
                     jobs = self.default_jobs
                     self._print_warning(f"Invalid jobs value, using default: {jobs}")
@@ -584,15 +545,15 @@ Examples:
             jobs = self.default_jobs
 
         # Test selection with choices
-        test_choice = questionary.select(
-            "Test selection mode:",
-            choices=[
-                questionary.Choice("🎯 Run all tests", "all"),
-                questionary.Choice("📦 Select submodules", "submodules"),
-                questionary.Choice("🔍 Custom pattern", "custom"),
-            ],
-            style=self._get_style(),
-        ).ask()
+        test_choices = [
+            ("🎯 Run all tests", "all"),
+            ("📦 Select submodules", "submodules"),
+            ("🔍 Custom pattern", "custom"),
+        ]
+
+        test_choice = self._get_choice(
+            "Test selection mode:", test_choices, "Select test mode:"
+        )
 
         filter_pattern = None
         if test_choice == "all":
@@ -634,27 +595,23 @@ Examples:
                 filter_pattern = None
         elif test_choice == "custom":
             print("\n💡 Custom pattern examples:")
-            print("  • test_basic                    - Run tests matching 'test_basic'")
-            print("  • test_plot                     - Run tests matching 'test_plot'")
-            print(
-                "  • test_basic or test_plot       - Run tests matching either pattern"
-            )
-            print(
-                "  • test_basic and not slow       - Run test_basic but exclude 'slow' tests"
-            )
-            print("  • TestClass                     - Run all tests in TestClass")
-            print("  • TestClass::test_method        - Run specific test method")
-            print(
-                "  • test_*.py                     - Run tests in files matching pattern"
-            )
+            examples = [
+                "test_basic                    - Run tests matching 'test_basic'",
+                "test_plot                     - Run tests matching 'test_plot'",
+                "test_basic or test_plot       - Run tests matching either pattern",
+                "test_basic and not slow       - Run test_basic but exclude 'slow' tests",
+                "TestClass                     - Run all tests in TestClass",
+                "TestClass::test_method        - Run specific test method",
+                "test_*.py                     - Run tests in files matching pattern",
+            ]
+            for example in examples:
+                print(f"  • {example}")
 
-            filter_pattern = questionary.text(
-                "Enter custom test pattern:", style=self._get_style()
-            ).ask()
-            if filter_pattern is None:
-                self._print_warning("Input cancelled - all tests will be run")
-                filter_pattern = None
-            elif not filter_pattern or not filter_pattern.strip():
+            filter_pattern = self._get_text_input(
+                "Enter custom test pattern:",
+                fallback_prompt="Enter custom test pattern",
+            )
+            if not filter_pattern or not filter_pattern.strip():
                 self._print_warning("No pattern entered - all tests will be run")
                 filter_pattern = None
 
@@ -663,52 +620,75 @@ Examples:
             "filter_pattern": filter_pattern,
         }
 
+    def _print_interactive_header(self) -> None:
+        """Print the interactive mode header."""
+        print("\n" + "=" * 60)
+        print("🚀 mplhep Development Helper - Interactive Mode")
+        print("=" * 60)
+
     def interactive_mode(self) -> None:
         """Run in interactive mode with questionary menu."""
         if not HAS_QUESTIONARY or questionary is None:
             print("\n❌ Interactive mode requires questionary.")
             print('Install with: python -m pip install --upgrade --editable ".[all]"')
+            print("\nFallback: Use direct commands like './dev test' or './dev help'")
             return
 
-        print("\n" + "=" * 60)
-        print("🚀 mplhep Development Helper - Interactive Mode")
-        print("=" * 60)
+        # self._print_interactive_header()
+
+        # Create styled menu choices with colored command snippets
+        def make_menu_item(title, command_text):
+            return f"{title}\n       └─ {command_text}"
+
+        menu_choices = [
+            (
+                make_menu_item("🔍 Run pre-commit", "pre-commit run --all-files"),
+                "precommit",
+            ),
+            (
+                make_menu_item(
+                    "🧪 Run pytest",
+                    "python -m pytest -r sa --mpl --mpl-results-path=pytest_results",
+                ),
+                "test",
+            ),
+            (
+                make_menu_item(
+                    "🖼️ Run pytest (generate new baseline)",
+                    "python -m pytest -r sa --mpl --mpl-generate-path=tests/baseline",
+                ),
+                "baseline",
+            ),
+            (
+                make_menu_item(
+                    "🧹 Remove Artifacts", "rm -rf __pycache__ pytest_results .coverage"
+                ),
+                "clean",
+            ),
+            (
+                make_menu_item("📖 Help", "Show detailed help and usage examples"),
+                "help",
+            ),
+            ("🚪 Exit", "exit"),
+        ]
 
         while True:
             try:
-                choice = questionary.select(
+                self._print_interactive_header()
+                choice = self._get_choice(
                     "What would you like to do?",
-                    choices=[
-                        questionary.Choice("🔍 Run Pre-commit", "precommit"),
-                        questionary.Choice("🧪 Run Tests", "test"),
-                        questionary.Choice("🖼️ Generate Baselines", "baseline"),
-                        questionary.Choice("🧹 Clean Artifacts", "clean"),
-                        questionary.Choice("📖 Show Help", "help"),
-                        questionary.Choice("🚪 Exit", "exit"),
-                    ],
-                    style=self._get_style(),
-                ).ask()
+                    menu_choices,
+                    "Main Menu - What would you like to do?",
+                )
 
                 if choice is None or choice == "exit":
                     print("\n👋 Goodbye!")
                     break
                 if choice == "test":
                     # Handle pytest_results cleanup first
-                    pytest_results = self.project_root / "pytest_results"
-                    if pytest_results.exists():
-                        if self._confirm(
-                            "Remove existing pytest_results/ directory?", default=True
-                        ):
-                            self._print_warning(
-                                "Removing existing pytest_results/ directory..."
-                            )
-                            shutil.rmtree(pytest_results)
-                            self._print_success("Removed pytest_results/")
-                        else:
-                            self._print_warning("Keeping existing pytest_results/")
-
+                    self._handle_pytest_results_cleanup()
                     options = self._interactive_test_options()
-                    self.cmd_test(**options, skip_cleanup=True)
+                    self.cmd_test(**options, skip_cleanup=True, extra_args=None)
                 elif choice == "baseline":
                     self.cmd_baseline()
                 elif choice == "clean":
@@ -727,8 +707,8 @@ Examples:
 
 def main():
     """Main entry point."""
-    # Check and install dev dependencies if needed
-    if not check_and_install_dev_dependencies():
+    # Check dev dependencies
+    if not check_dev_dependencies():
         print("❌ Cannot run without required dependencies. Exiting.")
         sys.exit(1)
 
@@ -759,7 +739,7 @@ def main():
         "test", help="Run pytest with matplotlib comparison"
     )
     test_parser.add_argument(
-        "-j",
+        "-n",
         "--jobs",
         type=int,
         default=dev.default_jobs,
@@ -780,23 +760,71 @@ def main():
         "baseline", help="Generate baseline images for matplotlib tests"
     )
     subparsers.add_parser("clean", help="Clean up test artifacts")
+    subparsers.add_parser("precommit", help="Run pre-commit hooks on all files")
     subparsers.add_parser("help", help="Show help")
 
-    # Parse arguments
-    args = parser.parse_args()
+    # Parse known arguments and collect unknown ones
+    args, unknown_args = parser.parse_known_args()
 
     # Execute commands
     try:
         if args.command == "test":
+            # Extract argument mappings dynamically from the test parser
+            arg_mappings = {}
+            test_parser = None
+            for action in parser._subparsers._actions:
+                if (
+                    hasattr(action, "choices")
+                    and action.choices
+                    and "test" in action.choices
+                ):
+                    test_parser = action.choices["test"]
+                    break
+
+            if test_parser:
+                for action in test_parser._actions:
+                    if hasattr(action, "option_strings") and action.option_strings:
+                        # Map each option string to (dest, type)
+                        for option_str in action.option_strings:
+                            arg_mappings[option_str] = (action.dest, action.type or str)
+
+            # Handle arguments that might appear in unknown args and override script args
+            filtered_unknown_args = []
+            overrides = {}
+
+            i = 0
+            while i < len(unknown_args):
+                arg = unknown_args[i]
+                if arg in arg_mappings and i + 1 < len(unknown_args):
+                    # Found a known argument with a value, try to extract it
+                    attr_name, parser_func = arg_mappings[arg]
+                    try:
+                        overrides[attr_name] = parser_func(unknown_args[i + 1])
+                        i += 2  # Skip both the argument and its value
+                    except (ValueError, TypeError):
+                        # Not a valid value for this argument type, keep it in unknown args
+                        filtered_unknown_args.append(unknown_args[i])
+                        i += 1
+                else:
+                    filtered_unknown_args.append(unknown_args[i])
+                    i += 1
+
+            # Use overrides if provided, otherwise use parsed args
+            final_jobs = overrides.get("jobs", args.jobs)
+            final_filter = overrides.get("filter", args.filter)
+
             success = dev.cmd_test(
-                jobs=args.jobs,
-                filter_pattern=args.filter,
+                jobs=final_jobs,
+                filter_pattern=final_filter,
                 skip_cleanup=args.skip_cleanup,
+                extra_args=filtered_unknown_args,
             )
         elif args.command == "baseline":
             success = dev.cmd_baseline()
         elif args.command == "clean":
             success = dev.cmd_clean()
+        elif args.command == "precommit":
+            success = dev.cmd_precommit()
         elif args.command == "help":
             dev.show_help()
             success = True
