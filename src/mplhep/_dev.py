@@ -5,6 +5,9 @@ Usage: ./dev [command] [options] or ./dev for interactive mode
 """
 
 import argparse
+import datetime
+import importlib.util
+import json
 import os
 import shlex
 import shutil
@@ -348,6 +351,252 @@ class DevScript:
 
         return True
 
+    def cmd_benchmark(
+        self,
+        action: str = "run",
+        baseline_name: Optional[str] = None,
+        compare_with: Optional[str] = None,
+    ) -> bool:
+        """Run performance benchmarks."""
+        # Check if pytest-benchmark is available
+        if not self._check_benchmark_available():
+            return False
+
+        self._print_header(f"Benchmark {action.title()}")
+
+        # Ensure benchmark baseline directory exists
+        benchmark_dir = self.project_root / "tests" / "baseline" / "benchmark"
+        benchmark_dir.mkdir(parents=True, exist_ok=True)
+
+        if action == "run":
+            return self._run_benchmarks(baseline_name)
+        if action == "compare":
+            return self._compare_benchmarks(compare_with)
+        if action == "list":
+            return self._list_benchmarks()
+        if action == "clean":
+            return self._clean_benchmarks()
+        self._print_error(f"Unknown benchmark action: {action}")
+        return False
+
+    def _check_benchmark_available(self) -> bool:
+        """Check if pytest-benchmark is available."""
+        if importlib.util.find_spec("pytest_benchmark") is not None:
+            self._print_success("pytest-benchmark is available")
+            return True
+        self._print_error("pytest-benchmark not found!")
+        self._print_warning("Install with: pip install pytest-benchmark")
+        return False
+
+    def _run_benchmarks(self, baseline_name: Optional[str] = None) -> bool:
+        """Run benchmark tests."""
+        # Build benchmark command
+        cmd = [
+            sys.executable,
+            "-m",
+            "pytest",
+            "--benchmark-only",  # Only run benchmark tests
+            "--benchmark-sort=mean",  # Sort by mean execution time
+            "--benchmark-warmup=on",  # Enable warmup rounds
+        ]
+
+        # Configure benchmark storage
+        benchmark_dir = self.project_root / "tests" / "baseline" / "benchmark"
+        cmd.extend([f"--benchmark-storage={benchmark_dir}"])
+
+        if baseline_name:
+            cmd.append(f"--benchmark-save={baseline_name}")
+            self._print_success(f"Will save benchmark results as: {baseline_name}")
+        else:
+            # Auto-generate baseline name with timestamp
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            baseline_name = f"run_{timestamp}"
+            cmd.append(f"--benchmark-save={baseline_name}")
+            self._print_success(f"Will save benchmark results as: {baseline_name}")
+
+        success = self._run_command_with_confirmation(cmd)
+
+        if success:
+            self._print_success("Benchmarks completed successfully!")
+            self._print_success(f"Results saved as: {baseline_name}")
+            self._print_warning(
+                "Use './dev benchmark compare --with <baseline>' to compare results"
+            )
+        else:
+            self._print_error("Benchmarks failed!")
+
+        return success
+
+    def _compare_benchmarks(self, compare_with: Optional[str] = None) -> bool:
+        """Compare current benchmarks with a baseline."""
+        benchmark_dir = self.project_root / "tests" / "baseline" / "benchmark"
+
+        if not compare_with:
+            # List available benchmark files for selection
+            available_files = self._get_available_benchmark_files()
+            if not available_files:
+                self._print_error("No benchmark files found!")
+                self._print_warning("Run './dev benchmark run --save <name>' first")
+                return False
+
+            if HAS_QUESTIONARY and questionary is not None:
+                compare_with = questionary.select(
+                    "Select baseline to compare with:",
+                    choices=available_files,
+                    style=self.style,
+                ).ask()
+                if not compare_with:
+                    self._print_warning("Comparison cancelled")
+                    return False
+            else:
+                self._print_warning("Available benchmark files:")
+                for i, baseline in enumerate(available_files, 1):
+                    print(f"  {i}. {baseline}")
+                try:
+                    choice = int(input("Enter choice number: ")) - 1
+                    compare_with = available_files[choice]
+                except (ValueError, IndexError):
+                    self._print_error("Invalid choice")
+                    return False
+
+        # Build comparison command
+        cmd = [
+            sys.executable,
+            "-m",
+            "pytest",
+            "--benchmark-only",
+            "--benchmark-sort=mean",
+            f"--benchmark-storage={benchmark_dir}",
+            f"--benchmark-compare={compare_with}",
+        ]
+
+        success = self._run_command_with_confirmation(cmd)
+
+        if success:
+            self._print_success("Benchmark comparison completed!")
+        else:
+            self._print_warning("Benchmark comparison found performance differences")
+            self._print_warning("Review the output above for details")
+
+        return (
+            True  # Return True even for performance regressions as it's informational
+        )
+
+    def _list_benchmarks(self) -> bool:
+        """List available benchmark baselines."""
+        benchmark_dir = self.project_root / "tests" / "baseline" / "benchmark"
+
+        if not benchmark_dir.exists():
+            self._print_warning("No benchmark directory found")
+            return True
+
+        available_baselines = self._get_available_baselines()
+
+        if not available_baselines:
+            self._print_warning("No benchmark baselines found")
+            self._print_warning(
+                "Run './dev benchmark run --save <name>' to create baselines"
+            )
+        else:
+            self._print_success(
+                f"Found {len(available_baselines)} benchmark baseline(s):"
+            )
+            for baseline in available_baselines:
+                baseline_path = benchmark_dir / baseline
+                if baseline_path.exists():
+                    # Try to get more info about the baseline
+                    try:
+                        json_files = list(baseline_path.glob("*.json"))
+                        if json_files:
+                            with open(json_files[0]) as f:
+                                data = json.load(f)
+                                timestamp = data.get("datetime", "Unknown time")
+                                commit_info = data.get("commit_info", {})
+                                commit_id = (
+                                    commit_info.get("id", "Unknown")[:8]
+                                    if commit_info.get("id")
+                                    else "Unknown"
+                                )
+                                print(
+                                    f"  📊 {baseline} (commit: {commit_id}, {timestamp})"
+                                )
+                        else:
+                            print(f"  📊 {baseline}")
+                    except (json.JSONDecodeError, FileNotFoundError, KeyError):
+                        print(f"  📊 {baseline}")
+                else:
+                    print(f"  📊 {baseline} (missing data)")
+
+        return True
+
+    def _clean_benchmarks(self) -> bool:
+        """Clean up benchmark results."""
+        benchmark_dir = self.project_root / "tests" / "baseline" / "benchmark"
+
+        if not benchmark_dir.exists() or not any(benchmark_dir.iterdir()):
+            self._print_success("No benchmark data to clean!")
+            return True
+
+        # Get list of benchmark baselines
+        available_baselines = self._get_available_baselines()
+
+        if not available_baselines:
+            # Clean up empty directory structure
+            try:
+                benchmark_dir.rmdir()
+                self._print_success("Removed empty benchmark directory")
+            except OSError:
+                pass
+            return True
+
+        self._print_warning(f"Found {len(available_baselines)} benchmark baseline(s)")
+        for baseline in available_baselines:
+            print(f"  📊 {baseline}")
+
+        if not self._confirm("Remove all benchmark baselines?", default=False):
+            self._print_warning("Benchmark cleanup cancelled")
+            return True
+
+        # Remove all benchmark data
+        try:
+            shutil.rmtree(benchmark_dir)
+            self._print_success("All benchmark data removed!")
+        except OSError as e:
+            self._print_error(f"Failed to remove benchmark data: {e}")
+            return False
+
+        return True
+
+    def _get_available_baselines(self) -> List[str]:
+        """Get list of available benchmark baselines."""
+        benchmark_dir = self.project_root / "tests" / "baseline" / "benchmark"
+
+        if not benchmark_dir.exists():
+            return []
+
+        baselines = []
+        for item in benchmark_dir.iterdir():
+            if item.is_dir() and not item.name.startswith("."):
+                baselines.append(item.name)
+
+        return sorted(baselines)
+
+    def _get_available_benchmark_files(self) -> List[str]:
+        """Get list of available benchmark JSON files for comparison."""
+        benchmark_dir = self.project_root / "tests" / "baseline" / "benchmark"
+
+        if not benchmark_dir.exists():
+            return []
+
+        benchmark_files = []
+        for subdir in benchmark_dir.iterdir():
+            if subdir.is_dir() and not subdir.name.startswith("."):
+                for json_file in subdir.glob("*.json"):
+                    # Use just the filename without extension for comparison
+                    benchmark_files.append(json_file.stem)
+
+        return sorted(benchmark_files)
+
     def show_help(self) -> None:
         """Show help information."""
         help_text = f"""
@@ -360,6 +609,7 @@ Usage:
 Commands:
   test      Run pytest with matplotlib comparison
   baseline  Generate baseline images for matplotlib tests
+  benchmark Run performance benchmarks
   clean     Clean up test artifacts
   precommit Run pre-commit hooks on all files
   help      Show this help
@@ -370,11 +620,22 @@ Test command options:
   --skip-cleanup   Keep existing pytest_results directory
   [pytest args]    Any unrecognized arguments are passed through to pytest
 
+Benchmark command options:
+  run              Run benchmarks and save results
+  compare          Compare with previous benchmark results
+  list             List available benchmark baselines
+  clean            Remove all benchmark data
+  --save NAME      Save benchmark results with custom name
+  --with NAME      Compare with specific baseline
+
 Examples:
-  ./dev test -n 4                 # Run tests with 4 jobs
-  ./dev test -k "test_basic"      # Run only tests matching "test_basic"
-  ./dev test --verbose -s         # Pass pytest arguments directly
-  ./dev clean                     # Clean up test artifacts
+  ./dev test -n 4                      # Run tests with 4 jobs
+  ./dev test -k "test_basic"           # Run only tests matching "test_basic"
+  ./dev test --verbose -s              # Pass pytest arguments directly
+  ./dev benchmark run --save baseline  # Run benchmarks and save as 'baseline'
+  ./dev benchmark compare --with baseline  # Compare with 'baseline'
+  ./dev benchmark list                 # List available baselines
+  ./dev clean                          # Clean up test artifacts
         """
         print(help_text)
 
@@ -661,6 +922,12 @@ Examples:
             ),
             (
                 make_menu_item(
+                    "⚡ Run benchmarks", "python -m pytest --benchmark-only"
+                ),
+                "benchmark",
+            ),
+            (
+                make_menu_item(
                     "🧹 Remove Artifacts", "rm -rf __pycache__ pytest_results .coverage"
                 ),
                 "clean",
@@ -695,6 +962,8 @@ Examples:
                     self.cmd_clean()
                 elif choice == "precommit":
                     self.cmd_precommit()
+                elif choice == "benchmark":
+                    self._interactive_benchmark_menu()
                 elif choice == "help":
                     self.show_help()
 
@@ -703,6 +972,41 @@ Examples:
             except KeyboardInterrupt:
                 print("\n👋 Goodbye!")
                 break
+
+    def _interactive_benchmark_menu(self) -> None:
+        """Interactive benchmark menu."""
+        if not self._check_benchmark_available():
+            return
+
+        benchmark_choices = [
+            ("⚡ Run benchmarks", "run"),
+            ("📊 Compare with baseline", "compare"),
+            ("📋 List baselines", "list"),
+            ("🧹 Clean benchmark data", "clean"),
+            ("🔙 Back to main menu", "back"),
+        ]
+
+        while True:
+            choice = self._get_choice(
+                "Benchmark Actions:",
+                benchmark_choices,
+                "What would you like to do with benchmarks?",
+            )
+
+            if choice is None or choice == "back":
+                break
+            if choice == "run":
+                baseline_name = self._get_text_input(
+                    "Enter baseline name (optional):",
+                    fallback_prompt="Enter baseline name (leave empty for auto-generated)",
+                )
+                self.cmd_benchmark("run", baseline_name=baseline_name or None)
+            elif choice == "compare":
+                self.cmd_benchmark("compare")
+            elif choice == "list":
+                self.cmd_benchmark("list")
+            elif choice == "clean":
+                self.cmd_benchmark("clean")
 
 
 def main():
@@ -753,6 +1057,22 @@ def main():
         "--skip-cleanup",
         action="store_true",
         help="Keep existing pytest_results directory",
+    )
+
+    # Benchmark command
+    benchmark_parser = subparsers.add_parser(
+        "benchmark", help="Run performance benchmarks"
+    )
+    benchmark_parser.add_argument(
+        "action",
+        choices=["run", "compare", "list", "clean"],
+        help="Benchmark action to perform",
+    )
+    benchmark_parser.add_argument(
+        "--save", type=str, help="Save benchmark results with custom name"
+    )
+    benchmark_parser.add_argument(
+        "--with", dest="compare_with", type=str, help="Compare with specific baseline"
     )
 
     # Other commands
@@ -821,6 +1141,10 @@ def main():
             )
         elif args.command == "baseline":
             success = dev.cmd_baseline()
+        elif args.command == "benchmark":
+            baseline_name = getattr(args, "save", None)
+            compare_with = getattr(args, "compare_with", None)
+            success = dev.cmd_benchmark(args.action, baseline_name, compare_with)
         elif args.command == "clean":
             success = dev.cmd_clean()
         elif args.command == "precommit":

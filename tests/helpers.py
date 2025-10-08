@@ -1,11 +1,56 @@
 from __future__ import annotations
 
 import runpy
+import sys
 from pathlib import Path
 from typing import Any
 
 import matplotlib as mpl
 import matplotlib.figure
+import matplotlib.pyplot as plt
+import pytest
+
+
+def with_benchmark(func):
+    """
+    Decorator that automatically creates a benchmark version of a test function.
+
+    Usage:
+        @with_benchmark
+        @pytest.mark.mpl_image_compare(style="default", remove_text=True)
+        def test_simple():
+            # your plotting code
+            return fig
+
+    This creates both:
+    - test_simple() - for image comparison
+    - test_simple_benchmark() - for performance benchmarking
+    """
+
+    # Create the benchmark version
+    @pytest.mark.benchmark
+    def benchmark_test(benchmark):
+        def run_test():
+            fig = func()
+            if fig is not None:
+                plt.close(fig)  # Clean up figures to prevent memory issues
+
+        benchmark(run_test)
+
+    # Set the benchmark function name and add to the current module
+    benchmark_name = func.__name__ + "_benchmark"
+    benchmark_test.__name__ = benchmark_name
+    benchmark_test.__doc__ = f"Benchmark version of {func.__name__}"
+
+    # Get the module where the decorator is being used
+    caller_frame = sys._getframe(1)
+    caller_globals = caller_frame.f_globals
+
+    # Add the benchmark test to the caller's globals so pytest can find it
+    caller_globals[benchmark_name] = benchmark_test
+
+    # Return the original function unchanged
+    return func
 
 
 def run_script_and_get_object(script_path_str: str, name: str) -> Any | None:

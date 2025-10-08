@@ -21,6 +21,13 @@ except ModuleNotFoundError:
 
 import mplhep as mh
 
+# Import benchmark decorator from helpers
+try:
+    from .helpers import with_benchmark
+except ImportError:
+    # Fallback for direct execution
+    from helpers import with_benchmark
+
 """
 To test run:
 pytest --mpl
@@ -32,6 +39,7 @@ pytest --mpl-generate-path=tests/baseline
 plt.switch_backend("Agg")
 
 
+@with_benchmark
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_simple():
     fig, ax = plt.subplots(figsize=(10, 10))
