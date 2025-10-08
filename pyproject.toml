@@ -49,6 +49,7 @@ test = [
     "pytest-mock",
     "pytest-mpl",
     "pytest-xdist",
+    "pytest-benchmark",
     "pytest>=6.0",
     "scikit-hep-testdata",
     "scipy>=1.1.0",
