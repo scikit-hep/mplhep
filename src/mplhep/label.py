@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 from typing import TYPE_CHECKING, Any
 
 import matplotlib as mpl
@@ -141,6 +142,20 @@ def _pixel_to_axis(extent: Any, ax: Axes | None = None) -> Any:
     )
 
 
+def _parse_com(com):
+    """Parse center-of-mass energy into value and unit."""
+    if com is None:
+        return "13", "TeV"
+    if isinstance(com, str):
+        match = re.match(r"(\d+\.?\d*)\s*(.*)", com.strip())
+        return (
+            (match.group(1), match.group(2))
+            if match and match.group(2)
+            else (com, "TeV")
+        )
+    return str(com), "TeV"
+
+
 def _lumi_line(
     *,
     year: str | float | None = None,
@@ -150,19 +165,13 @@ def _lumi_line(
     com: str | float | None = None,
 ) -> str:
     """Format luminosity line for standard layout."""
-    # Set default values
-    com_str = str(com) if com is not None else "13"
+    com_str, com_unit = _parse_com(com)
     year_str = f", {year}" if year is not None else ""
 
     if lumi is not None:
-        # Format luminosity with unit
-        lumi_str = lumi_format.format(lumi)
-        lumi_with_unit = f"{lumi_str} $\\mathrm{{{lumi_unit}}}$"
-        _lumi = f"{lumi_with_unit}{year_str} ({com_str} TeV)"
-    else:
-        _lumi = f"$\\ ${year_str} ({com_str} TeV)"
-
-    return _lumi.rstrip()
+        lumi_str = f"{lumi_format.format(lumi)} $\\mathrm{{{lumi_unit}}}$"
+        return f"{lumi_str}{year_str} ({com_str} {com_unit})"
+    return f"$\\ ${year_str} ({com_str} {com_unit})"
 
 
 def _lumi_line_atlas(
@@ -174,21 +183,13 @@ def _lumi_line_atlas(
     com: str | float | None = None,
 ) -> str:
     """Format luminosity line for ATLAS-style layout."""
-    # Format center-of-mass energy
-    if com is not None:
-        com_str = f"$\\sqrt{{s}} = \\mathrm{{{com}\\ TeV}}$"
-    else:
-        com_str = "$\\sqrt{s} = \\mathrm{13\\ TeV}$"
+    com_str, com_unit = _parse_com(com)
+    com_latex = f"$\\sqrt{{s}} = \\mathrm{{{com_str}\\ {com_unit}}}$"
 
     if lumi is not None:
-        # Format luminosity with unit
-        lumi_str = lumi_format.format(lumi)
-        lumi_with_unit = f"{lumi_str} $\\mathrm{{{lumi_unit}}}$"
-        _lumi = f"{com_str}, {lumi_with_unit}"
-    else:
-        _lumi = com_str
-
-    return _lumi.rstrip()
+        lumi_str = f"{lumi_format.format(lumi)} $\\mathrm{{{lumi_unit}}}$"
+        return f"{com_latex}, {lumi_str}"
+    return com_latex
 
 
 def _fontsize_to_points(fontsize: str | float) -> float:
