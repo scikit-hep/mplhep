@@ -324,7 +324,7 @@ class DevScript:
 
         return True
 
-    def cmd_precommit(self) -> bool:
+    def cmd_precommit(self, extra_args: Optional[List[str]] = None) -> bool:
         """Run pre-commit hooks on all files."""
         # Check if pre-commit is available
         if not self._check_tool_available("pre-commit", ["pre-commit", "--version"]):
@@ -341,6 +341,11 @@ class DevScript:
 
         # Run pre-commit on all files
         cmd = ["pre-commit", "run", "--all-files"]
+
+        # Add any extra arguments passed through from CLI
+        if extra_args:
+            cmd.extend(extra_args)
+
         success = self._run_command_with_confirmation(cmd)
 
         if success:
@@ -1148,7 +1153,7 @@ def main():
         elif args.command == "clean":
             success = dev.cmd_clean()
         elif args.command == "precommit":
-            success = dev.cmd_precommit()
+            success = dev.cmd_precommit(extra_args=unknown_args)
         elif args.command == "help":
             dev.show_help()
             success = True
