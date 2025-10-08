@@ -12,14 +12,14 @@ primary functionality can be accessed as follows:
 
    import numpy as np
    import matplotlib.pyplot as plt
-   import mplhep as hep
+   import mplhep as mh
 
    # Load style sheet
-   plt.style.use(hep.style.CMS)  # or ATLAS/LHCb2
+   plt.style.use(mh.style.CMS)  # or ATLAS/LHCb2
 
    h, bins = np.histogram(np.random.random(1000))
    fig, ax = plt.subplots()
-   hep.histplot(h, bins)
+   mh.histplot(h, bins)
 
 Will feature binder
 

@@ -11,9 +11,22 @@ Primary functions.
 
 .. autofunction:: mplhep.hist2dplot
 
+.. autofunction:: mplhep.funcplot
+
 .. # List all modules when appropriately privatized
    .. automodule:: mplhep.plot
       :members:
+
+
+Text functions
+========================
+
+Functions to annotate figures in a convenient way. Typically ``append_text`` can be used to place an additional artist after ``add_text``.
+
+.. autofunction:: mplhep.label.add_text
+
+.. autofunction:: mplhep.label.append_text
+
 
 Experiment label helpers
 ========================
@@ -22,19 +35,26 @@ Experiment specific helpers.
 
 For the effects of the ``label`` method, see also the gallery examples in :ref:`gallery-labels`.
 
-.. autofunction:: mplhep.cms.lumitext
-
-.. autofunction:: mplhep.cms.text
 
 .. autofunction:: mplhep.cms.label
 
-.. autofunction:: mplhep.atlas.text
+.. autofunction:: mplhep.cms.text
 
 .. autofunction:: mplhep.atlas.label
 
-.. autofunction:: mplhep.lhcb.text
+.. autofunction:: mplhep.atlas.text
 
 .. autofunction:: mplhep.lhcb.label
+
+.. autofunction:: mplhep.lhcb.text
+
+.. autofunction:: mplhep.alice.label
+
+.. autofunction:: mplhep.alice.text
+
+.. autofunction:: mplhep.dune.label
+
+.. autofunction:: mplhep.dune.text
 
 
 Axes helpers

@@ -85,9 +85,9 @@ def use(styles=None):
 
     Example:
 
-        >>> import mplhep as hep
-        >>> hep.style.use("ATLAS")
-        >>> hep.style.use(hep.style.CMS)
+        >>> import mplhep as mh
+        >>> mh.style.use("ATLAS")
+        >>> mh.style.use(mh.style.CMS)
 
     Parameters
     ----------

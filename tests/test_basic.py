@@ -19,7 +19,7 @@ except ModuleNotFoundError:
     # NumPy 1
     from numpy import chararray
 
-import mplhep as hep
+import mplhep as mh
 
 """
 To test run:
@@ -37,7 +37,7 @@ def test_simple():
     fig, ax = plt.subplots(figsize=(10, 10))
     h = [1, 3, 2]
     bins = [0, 1, 2, 3]
-    hep.histplot(h, bins, yerr=True, label="X")
+    mh.histplot(h, bins, yerr=True, label="X")
     ax.legend()
     return fig
 
@@ -47,9 +47,9 @@ def test_simple_xerr():
     fig, ax = plt.subplots(figsize=(10, 10))
     h = np.array([1, 3, 2])
     bins = [0, 1, 2, 4]
-    hep.histplot(h, bins, yerr=True, histtype="errorbar")
-    hep.histplot(h * 2, bins, yerr=True, histtype="errorbar", xerr=0.1)
-    hep.histplot(h * 3, bins, yerr=True, histtype="errorbar", xerr=True)
+    mh.histplot(h, bins, yerr=True, histtype="errorbar")
+    mh.histplot(h * 2, bins, yerr=True, histtype="errorbar", xerr=0.1)
+    mh.histplot(h * 3, bins, yerr=True, histtype="errorbar", xerr=True)
     return fig
 
 
@@ -57,7 +57,7 @@ def test_simple_xerr():
 def test_simple2d():
     fig, ax = plt.subplots()
     h = [[1, 3, 2], [1, 3, 2]]
-    hep.hist2dplot(h)
+    mh.hist2dplot(h)
     return fig
 
 
@@ -69,10 +69,10 @@ def test_simple2d():
 def test_log_mpl39():
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
     for ax in axs[0]:
-        hep.histplot([1, 2, 3, 2], range(5), ax=ax)
+        mh.histplot([1, 2, 3, 2], range(5), ax=ax)
     ax.semilogy()
     for ax in axs[1]:
-        hep.histplot([1, 2, 3, 2], range(5), ax=ax, edges=False)
+        mh.histplot([1, 2, 3, 2], range(5), ax=ax, edges=False)
     ax.semilogy()
     return fig
 
@@ -85,10 +85,10 @@ def test_log_mpl39():
 def test_log():
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
     for ax in axs[0]:
-        hep.histplot([1, 2, 3, 2], range(5), ax=ax)
+        mh.histplot([1, 2, 3, 2], range(5), ax=ax)
     ax.semilogy()
     for ax in axs[1]:
-        hep.histplot([1, 2, 3, 2], range(5), ax=ax, edges=False)
+        mh.histplot([1, 2, 3, 2], range(5), ax=ax, edges=False)
     ax.semilogy()
     return fig
 
@@ -98,7 +98,7 @@ def test_onebin_hist():
     fig, axs = plt.subplots()
     h = hist.Hist(hist.axis.Regular(1, 0, 1))
     h.fill([-1, 0.5])
-    hep.histplot(h, ax=axs)
+    mh.histplot(h, ax=axs)
     return fig
 
 
@@ -111,16 +111,16 @@ def test_histplot():
     axs = axs.flatten()
 
     axs[0].set_title("Default", fontsize=18)
-    hep.histplot(h, bins, ax=axs[0])
+    mh.histplot(h, bins, ax=axs[0])
 
     axs[1].set_title("Plot No Edges", fontsize=18)
-    hep.histplot(h, bins, edges=False, ax=axs[1])
+    mh.histplot(h, bins, edges=False, ax=axs[1])
 
     axs[2].set_title("Plot Errorbars", fontsize=18)
-    hep.histplot(h, bins, yerr=np.sqrt(h), ax=axs[2])
+    mh.histplot(h, bins, yerr=np.sqrt(h), ax=axs[2])
 
     axs[3].set_title("Filled Histogram", fontsize=18)
-    hep.histplot(h, bins, histtype="fill", ax=axs[3])
+    mh.histplot(h, bins, histtype="fill", ax=axs[3])
 
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
     return fig
@@ -135,16 +135,16 @@ def test_histplot_density():
     axs = axs.flatten()
 
     axs[0].set_title("Default", fontsize=18)
-    hep.histplot(h, bins, ax=axs[0], density=True)
+    mh.histplot(h, bins, ax=axs[0], density=True)
 
     axs[1].set_title("Plot No Edges", fontsize=18)
-    hep.histplot(h, bins, edges=False, ax=axs[1], density=True)
+    mh.histplot(h, bins, edges=False, ax=axs[1], density=True)
 
     axs[2].set_title("Plot Errorbars", fontsize=18)
-    hep.histplot(h, bins, yerr=np.sqrt(h), ax=axs[2], density=True)
+    mh.histplot(h, bins, yerr=np.sqrt(h), ax=axs[2], density=True)
 
     axs[3].set_title("Filled Histogram", fontsize=18)
-    hep.histplot(h, bins, histtype="fill", ax=axs[3], density=True)
+    mh.histplot(h, bins, histtype="fill", ax=axs[3], density=True)
 
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
     return fig
@@ -158,10 +158,10 @@ def test_histplot_flow():
     fig, axs = plt.subplots(2, 2, sharey=True, figsize=(10, 10))
     axs = axs.flatten()
 
-    hep.histplot(h, ax=axs[0], flow="hint")
-    hep.histplot(h, ax=axs[1], flow="show")
-    hep.histplot(h, ax=axs[2], flow="sum")
-    hep.histplot(h, ax=axs[3], flow=None)
+    mh.histplot(h, ax=axs[0], flow="hint")
+    mh.histplot(h, ax=axs[1], flow="show")
+    mh.histplot(h, ax=axs[2], flow="sum")
+    mh.histplot(h, ax=axs[3], flow=None)
 
     axs[0].set_title("Default(hint)", fontsize=18)
     axs[1].set_title("Show", fontsize=18)
@@ -192,7 +192,7 @@ def test_histplot_hist_flow(variances):
     axs = axs.flatten()
 
     for i, h in enumerate(hists):
-        hep.histplot(h, ax=axs[i], flow="show", yerr=variances)
+        mh.histplot(h, ax=axs[i], flow="show", yerr=variances)
 
     axs[0].set_title("Two-side overflow", fontsize=18)
     axs[1].set_title("Left-side overflow", fontsize=18)
@@ -232,10 +232,10 @@ def test_histplot_uproot_flow():
     fig, axs = plt.subplots(2, 2, sharey=True, figsize=(10, 10))
     axs = axs.flatten()
 
-    hep.histplot(h, ax=axs[0], flow="show")
-    hep.histplot(h2, ax=axs[1], flow="show")
-    hep.histplot(h3, ax=axs[2], flow="show")
-    hep.histplot(h4, ax=axs[3], flow="show")
+    mh.histplot(h, ax=axs[0], flow="show")
+    mh.histplot(h2, ax=axs[1], flow="show")
+    mh.histplot(h3, ax=axs[2], flow="show")
+    mh.histplot(h4, ax=axs[3], flow="show")
 
     axs[0].set_title("Two-side overflow", fontsize=18)
     axs[1].set_title("Left-side overflow", fontsize=18)
@@ -258,8 +258,8 @@ def test_histplot_type_flow():
     fig, axs = plt.subplots(1, 2, sharex=True, sharey=True, figsize=(10, 5))
     axs = axs.flatten()
 
-    hep.histplot(histh, ax=axs[0], flow="hint", yerr=False)
-    hep.histplot(nph, bins, ax=axs[1], flow="hint")
+    mh.histplot(histh, ax=axs[0], flow="hint", yerr=False)
+    mh.histplot(nph, bins, ax=axs[1], flow="hint")
 
     axs[0].set_title("hist, noflow bin", fontsize=18)
     axs[1].set_title("numpy hist", fontsize=18)
@@ -286,7 +286,7 @@ def test_hist2dplot_hist_all_flow_show():
             .Weight()
             .fill(*_fill)
         )
-        hep.hist2dplot(h, ax=axs[i], flow="show", cbar=False)
+        mh.hist2dplot(h, ax=axs[i], flow="show", cbar=False)
         axs[i].set_xticks([])
         axs[i].set_yticks([])
         axs[i].set_xlabel("")
@@ -314,7 +314,7 @@ def test_hist2dplot_hist_all_flow_hint():
             .Weight()
             .fill(*_fill)
         )
-        hep.hist2dplot(h, ax=axs[i], flow="hint", cbar=False)
+        mh.hist2dplot(h, ax=axs[i], flow="hint", cbar=False)
         axs[i].set_xticks([])
         axs[i].set_yticks([])
         axs[i].set_xlabel("")
@@ -331,16 +331,16 @@ def test_histplot_multiple():
     axs = axs.flatten()
 
     axs[0].set_title("Default Overlay", fontsize=18)
-    hep.histplot([h, 1.5 * h], bins, ax=axs[0])
+    mh.histplot([h, 1.5 * h], bins, ax=axs[0])
 
     axs[1].set_title("Default Overlay w/ Errorbars", fontsize=18)
-    hep.histplot([h, 1.5 * h], bins, yerr=[np.sqrt(h), np.sqrt(1.5 * h)], ax=axs[1])
+    mh.histplot([h, 1.5 * h], bins, yerr=[np.sqrt(h), np.sqrt(1.5 * h)], ax=axs[1])
 
     axs[2].set_title("Automatic Errorbars", fontsize=18)
-    hep.histplot([h, 1.5 * h], bins, yerr=True, ax=axs[2])
+    mh.histplot([h, 1.5 * h], bins, yerr=True, ax=axs[2])
 
     axs[3].set_title("With Labels", fontsize=18)
-    hep.histplot([h, 1.5 * h], bins, yerr=True, ax=axs[3], label=["First", "Second"])
+    mh.histplot([h, 1.5 * h], bins, yerr=True, ax=axs[3], label=["First", "Second"])
     axs[3].legend(fontsize=16, prop={"family": "Tex Gyre Heros"})
 
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
@@ -356,18 +356,18 @@ def test_histplot_stack():
     axs = axs.flatten()
 
     axs[0].set_title("Default", fontsize=18)
-    hep.histplot([h, 1.5 * h], bins, stack=True, ax=axs[0])
+    mh.histplot([h, 1.5 * h], bins, stack=True, ax=axs[0])
 
     axs[1].set_title("Plot No Edges", fontsize=18)
-    hep.histplot([h, 1.5 * h], bins, edges=False, stack=True, ax=axs[1])
+    mh.histplot([h, 1.5 * h], bins, edges=False, stack=True, ax=axs[1])
 
     axs[2].set_title("Plot Errorbars", fontsize=18)
-    hep.histplot(
+    mh.histplot(
         [h, 1.5 * h], bins, yerr=[np.sqrt(h), np.sqrt(h)], stack=True, ax=axs[2]
     )
 
     axs[3].set_title("Filled Histogram", fontsize=18)
-    hep.histplot([1.5 * h, h], bins, histtype="fill", stack=True, ax=axs[3])
+    mh.histplot([1.5 * h, h], bins, histtype="fill", stack=True, ax=axs[3])
 
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
     return fig
@@ -383,7 +383,7 @@ def test_hist2dplot():
     H, xedges, yedges = np.histogram2d(x, y, bins=(xedges, yedges))
 
     fig, ax = plt.subplots()
-    hep.hist2dplot(H, xedges, yedges, labels=True)
+    mh.hist2dplot(H, xedges, yedges, labels=True)
     return fig
 
 
@@ -399,10 +399,10 @@ def test_hist2dplot_flow():
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
     axs = axs.flatten()
 
-    hep.hist2dplot(h, ax=axs[0], flow="hint", cmin=0, cmax=10)
-    hep.hist2dplot(h, ax=axs[1], flow="show", cmin=0, cmax=10)
-    hep.hist2dplot(h, ax=axs[2], flow="sum", cmin=0, cmax=10)
-    hep.hist2dplot(h, ax=axs[3], flow=None, cmin=0, cmax=10)
+    mh.hist2dplot(h, ax=axs[0], flow="hint", cmin=0, cmax=10)
+    mh.hist2dplot(h, ax=axs[1], flow="show", cmin=0, cmax=10)
+    mh.hist2dplot(h, ax=axs[2], flow="sum", cmin=0, cmax=10)
+    mh.hist2dplot(h, ax=axs[3], flow=None, cmin=0, cmax=10)
 
     axs[0].set_title("Default(hint)", fontsize=18)
     axs[1].set_title("Show", fontsize=18)
@@ -418,10 +418,10 @@ def test_hist2dplot_inputs_nobin():
     np.random.seed(0)
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
     axs = axs.flatten()
-    hep.hist2dplot([[1, 2, 3]], ax=axs[0])
-    hep.hist2dplot(np.array([[1, 2, 3]]), ax=axs[1])
-    hep.hist2dplot([[1, 2, 3], [3, 4, 1]], ax=axs[2])
-    hep.hist2dplot(np.array([[1, 2, 3], [3, 4, 1]]), ax=axs[3])
+    mh.hist2dplot([[1, 2, 3]], ax=axs[0])
+    mh.hist2dplot(np.array([[1, 2, 3]]), ax=axs[1])
+    mh.hist2dplot([[1, 2, 3], [3, 4, 1]], ax=axs[2])
+    mh.hist2dplot(np.array([[1, 2, 3], [3, 4, 1]]), ax=axs[3])
     return fig
 
 
@@ -436,7 +436,7 @@ def test_hist2dplot_cbar(cbarextend):
     H, xedges, yedges = np.histogram2d(x, y, bins=(xedges, yedges))
 
     fig, ax = plt.subplots()
-    hep.hist2dplot(H, xedges, yedges, labels=True, cbar=True, cbarextend=cbarextend)
+    mh.hist2dplot(H, xedges, yedges, labels=True, cbar=True, cbarextend=cbarextend)
     return fig
 
 
@@ -450,8 +450,8 @@ def test_hist2dplot_cbar_subplots():
     H, xedges, yedges = np.histogram2d(x, y, bins=(xedges, yedges))
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
-    hep.hist2dplot(H, xedges, yedges, labels=True, cbar=True, ax=ax1)
-    hep.hist2dplot(H * 2, xedges, yedges, labels=True, cbar=True, ax=ax2)
+    mh.hist2dplot(H, xedges, yedges, labels=True, cbar=True, ax=ax1)
+    mh.hist2dplot(H * 2, xedges, yedges, labels=True, cbar=True, ax=ax2)
     return fig
 
 
@@ -470,7 +470,7 @@ def test_hist2dplot_custom_labels():
     def _fmt(x):
         return f"${x:.2f}$"
 
-    hep.hist2dplot(H, xedges, yedges, labels=_fmt(H))
+    mh.hist2dplot(H, xedges, yedges, labels=_fmt(H))
     return fig
 
 
@@ -486,13 +486,13 @@ def test_hist2dplot_labels_option():
     yedges = [0, 2, 3, 4, 6, 7]
     H, xedges, yedges = np.histogram2d(x, y, bins=(xedges, yedges))
 
-    assert hep.hist2dplot(H, xedges, yedges, labels=True)
+    assert mh.hist2dplot(H, xedges, yedges, labels=True)
 
-    assert hep.hist2dplot(H, xedges, yedges, labels=False)
+    assert mh.hist2dplot(H, xedges, yedges, labels=False)
 
     label_array = chararray(H.shape, itemsize=2)
     label_array[:] = "hi"
-    assert hep.hist2dplot(H, xedges, yedges, labels=label_array)
+    assert mh.hist2dplot(H, xedges, yedges, labels=label_array)
 
     label_array = chararray(H.shape[0], itemsize=2)
     label_array[:] = "hi"
@@ -501,7 +501,7 @@ def test_hist2dplot_labels_option():
         ValueError,
         match=re.escape("Labels input has incorrect shape (expect: (5, 7), got: (7,))"),
     ):
-        hep.hist2dplot(H, xedges, yedges, labels=label_array)
+        mh.hist2dplot(H, xedges, yedges, labels=label_array)
 
     # Invalid label type
     with pytest.raises(
@@ -510,7 +510,7 @@ def test_hist2dplot_labels_option():
             "Labels not understood, either specify a bool or a Hist-like array"
         ),
     ):
-        hep.hist2dplot(H, xedges, yedges, labels=5)
+        mh.hist2dplot(H, xedges, yedges, labels=5)
 
 
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
@@ -521,7 +521,7 @@ def test_histplot_kwargs():
     fig, axs = plt.subplots(2, 2, sharex=True, sharey=True, figsize=(10, 10))
     axs = axs.flatten()
 
-    hep.histplot(
+    mh.histplot(
         [h * 2, h * 1, h * 0.5],
         bins,
         label=["1", "2", "3"],
@@ -533,7 +533,7 @@ def test_histplot_kwargs():
     )
     axs[0].legend()
 
-    hep.histplot(
+    mh.histplot(
         [h, h, h],
         bins,
         label=["1", "2", "3"],
@@ -545,7 +545,7 @@ def test_histplot_kwargs():
     )
     axs[1].legend()
 
-    hep.histplot(
+    mh.histplot(
         [h, h, h],
         bins,
         label=["1", "2", "3"],
@@ -557,7 +557,7 @@ def test_histplot_kwargs():
     )
     axs[2].legend()
 
-    hep.histplot(
+    mh.histplot(
         [h, h, h],
         bins,
         label=["1", "2", "3"],
@@ -582,18 +582,16 @@ def test_histplot_real():
     axs = axs.flatten()
     a, b, c = h, h * 2, np.random.poisson(h * 3)
 
-    hep.histplot(
+    mh.histplot(
         [a, b, c], bins=bins, ax=axs[0], yerr=True, label=["MC1", "MC2", "Data"]
     )
-    hep.histplot([a, b], bins=bins, ax=axs[1], stack=True, label=["MC1", "MC2"])
-    hep.histplot(
-        [c], bins=bins, ax=axs[1], yerr=True, histtype="errorbar", label="Data"
-    )
+    mh.histplot([a, b], bins=bins, ax=axs[1], stack=True, label=["MC1", "MC2"])
+    mh.histplot([c], bins=bins, ax=axs[1], yerr=True, histtype="errorbar", label="Data")
 
-    hep.histplot(
+    mh.histplot(
         [a, b], bins=bins, ax=axs[2], stack=True, label=["MC1", "MC2"], binwnorm=[1, 1]
     )
-    hep.histplot(
+    mh.histplot(
         c,
         bins=bins,
         ax=axs[2],
@@ -602,10 +600,10 @@ def test_histplot_real():
         label="Data",
         binwnorm=1,
     )
-    hep.histplot(
+    mh.histplot(
         [a, b], bins=bins, ax=axs[3], stack=True, label=["MC1", "MC2"], density=True
     )
-    hep.histplot(
+    mh.histplot(
         c,
         bins=bins,
         ax=axs[3],
@@ -627,7 +625,7 @@ def test_histplot_real():
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_histplot_w2():
     fig, ax = plt.subplots()
-    hep.histplot([0, 3, 0], range(4), w2=np.array([0, 3, 0]))
+    mh.histplot([0, 3, 0], range(4), w2=np.array([0, 3, 0]))
     return fig
 
 
@@ -648,8 +646,8 @@ def test_histplot_w2_methods():
 
     fig, axs = plt.subplots(2, 3, figsize=(12, 8))
     for ax, method in zip(axs.flatten(), [None, "poisson", "sqrt", fcn1, fcn2]):
-        hep.histplot(htype1, w2=htype1_w2, w2method=method, ax=ax, label="With w2")
-        hep.histplot(htype1, w2method=method, ax=ax, label="No w2 passed")
+        mh.histplot(htype1, w2=htype1_w2, w2method=method, ax=ax, label="With w2")
+        mh.histplot(htype1, w2method=method, ax=ax, label="No w2 passed")
         htype2.plot(w2method=method, ax=ax, label="Hist")
         ax.set_title(str(method))
         ax.legend()
@@ -678,8 +676,8 @@ def test_histplot_types():
     axs = axs.flatten()
 
     for i, htype in enumerate(["step", "fill", "errorbar", "bar", "barstep"]):
-        hep.histplot(hs[0], bins, yerr=True, histtype=htype, ax=axs[i * 2], alpha=0.7)
-        hep.histplot(hs, bins, yerr=True, histtype=htype, ax=axs[i * 2 + 1], alpha=0.7)
+        mh.histplot(hs[0], bins, yerr=True, histtype=htype, ax=axs[i * 2], alpha=0.7)
+        mh.histplot(hs, bins, yerr=True, histtype=htype, ax=axs[i * 2 + 1], alpha=0.7)
 
     return fig
 
@@ -696,7 +694,7 @@ def test_histplot_bar():
     axs = axs.flatten()
 
     axs[0].set_title("Histype bar", fontsize=18)
-    hep.histplot(
+    mh.histplot(
         [h1, h2, h3, h4],
         bins,
         histtype="bar",
@@ -706,7 +704,7 @@ def test_histplot_bar():
     axs[0].legend()
 
     axs[1].set_title("Histtype barstep", fontsize=18)
-    hep.histplot(
+    mh.histplot(
         [h1, h2, h3],
         bins,
         histtype="barstep",
@@ -717,13 +715,13 @@ def test_histplot_bar():
     axs[1].legend()
 
     axs[2].set_title("Histtype barstep", fontsize=18)
-    hep.histplot(
+    mh.histplot(
         [h1, h2], bins, histtype="barstep", yerr=True, label=["h1", "h2"], ax=axs[2]
     )
     axs[2].legend()
 
     axs[3].set_title("Histype bar", fontsize=18)
-    hep.histplot(
+    mh.histplot(
         [h1, h2], bins, histtype="bar", label=["h1", "h2"], bin_width=0.2, ax=axs[3]
     )
     axs[3].legend()
@@ -743,7 +741,7 @@ def test_histplot_inputs_pass(h, yerr, htype):
     bins = np.linspace(1, 10, 11)
 
     fig, ax = plt.subplots()
-    hep.histplot(h, bins, yerr=yerr, histtype=htype)
+    mh.histplot(h, bins, yerr=yerr, histtype=htype)
     plt.close(fig)
 
 
@@ -759,7 +757,7 @@ def test_histplot_sort(sort):
         h.fill(np.random.normal(2 + i * 1.5, 3, int(100 + 200 * i)), ix)
 
     fig, ax = plt.subplots()
-    hep.histplot(
+    mh.histplot(
         [h[:, ix] for ix in h.axes[1]],
         label=h.axes[1],
         stack=True,
@@ -778,7 +776,7 @@ def test_histplot_xoffsets():
 
     fig, axs = plt.subplots(2, 2)
     axs = axs.flatten()
-    hep.histplot(
+    mh.histplot(
         [htype1, htype1, htype1],
         ax=axs[0],
         xoffsets=True,
@@ -786,9 +784,9 @@ def test_histplot_xoffsets():
         histtype="errorbar",
         alpha=1,
     )
-    hep.histplot(htype1, yerr=False, alpha=0.2, ax=axs[0])
+    mh.histplot(htype1, yerr=False, alpha=0.2, ax=axs[0])
 
-    hep.histplot(
+    mh.histplot(
         [htype1, htype1, htype1],
         ax=axs[1],
         xoffsets=True,
@@ -796,9 +794,9 @@ def test_histplot_xoffsets():
         histtype="errorbar",
         alpha=1,
     )
-    hep.histplot(htype1, yerr=False, alpha=0.2, ax=axs[1])
+    mh.histplot(htype1, yerr=False, alpha=0.2, ax=axs[1])
 
-    hep.histplot(
+    mh.histplot(
         [htype1, htype1, htype1],
         ax=axs[2],
         xoffsets=True,
@@ -806,9 +804,9 @@ def test_histplot_xoffsets():
         histtype="errorbar",
         alpha=1,
     )
-    hep.histplot(htype1, yerr=False, alpha=0.2, ax=axs[2])
+    mh.histplot(htype1, yerr=False, alpha=0.2, ax=axs[2])
 
-    hep.histplot(
+    mh.histplot(
         [htype1, htype1, htype1],
         ax=axs[3],
         xoffsets=True,
@@ -816,5 +814,5 @@ def test_histplot_xoffsets():
         histtype="errorbar",
         alpha=1,
     )
-    hep.histplot(htype1, yerr=False, alpha=0.2, ax=axs[3])
+    mh.histplot(htype1, yerr=False, alpha=0.2, ax=axs[3])
     return fig

@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 from pytest import approx
 
-import mplhep as hep
+import mplhep as mh
 
 
 @pytest.fixture
@@ -44,7 +44,7 @@ def test_simple(mock_matplotlib):
 
     h = [1, 3, 2]
     bins = [0, 1, 2, 3]
-    hep.histplot(h, bins, yerr=True, label="X", ax=ax)
+    mh.histplot(h, bins, yerr=True, label="X", ax=ax)
 
     assert len(ax.mock_calls) == 13
 
@@ -88,24 +88,24 @@ def test_histplot_real(mock_matplotlib):
     ax = mock_matplotlib.ax
     a, b, c = h, h * 2, np.random.poisson(h * 3)
 
-    hep.histplot([a, b, c], bins=bins, ax=ax, yerr=True, label=["MC1", "MC2", "Data"])
+    mh.histplot([a, b, c], bins=bins, ax=ax, yerr=True, label=["MC1", "MC2", "Data"])
     ax.legend()
     ax.set_title("Raw")
     assert len(ax.mock_calls) == 27
 
     ax.reset_mock()
 
-    hep.histplot([a, b], bins=bins, ax=ax, stack=True, label=["MC1", "MC2"])
-    hep.histplot([c], bins=bins, ax=ax, yerr=True, histtype="errorbar", label="Data")
+    mh.histplot([a, b], bins=bins, ax=ax, stack=True, label=["MC1", "MC2"])
+    mh.histplot([c], bins=bins, ax=ax, yerr=True, histtype="errorbar", label="Data")
     ax.legend()
     ax.set_title("Data/MC")
     assert len(ax.mock_calls) == 20
     ax.reset_mock()
 
-    hep.histplot(
+    mh.histplot(
         [a, b], bins=bins, ax=ax, stack=True, label=["MC1", "MC2"], binwnorm=[2, 1]
     )
-    hep.histplot(
+    mh.histplot(
         c,
         bins=bins,
         ax=ax,
@@ -119,10 +119,10 @@ def test_histplot_real(mock_matplotlib):
     assert len(ax.mock_calls) == 20
     ax.reset_mock()
 
-    hep.histplot(
+    mh.histplot(
         [a, b], bins=bins, ax=ax, stack=True, label=["MC1", "MC2"], density=True
     )
-    hep.histplot(
+    mh.histplot(
         c,
         bins=bins,
         ax=ax,

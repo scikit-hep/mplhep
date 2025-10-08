@@ -7,7 +7,12 @@ import mplhep_data
 
 # Get styles directly, also available within experiment helpers.
 # Get helper functions
-from . import alice, atlas, cms, comp, dune, label, lhcb, plot
+from . import comp, label, plot
+from . import exp_alice as alice
+from . import exp_atlas as atlas
+from . import exp_cms as cms
+from . import exp_dune as dune
+from . import exp_lhcb as lhcb
 from . import styles as style
 from ._tools import Config
 from ._version import version as __version__  # noqa: F401
@@ -25,7 +30,7 @@ from .comparison_plotters import (
     plot_model,
     plot_two_hist_comparison,
 )
-from .label import add_text, save_variations, savelabels
+from .label import add_text, append_text, save_variations, savelabels
 from .plot import (
     append_axes,
     box_aspect,
@@ -53,9 +58,8 @@ from .utils import (
 # Configs
 rcParams = Config(
     label=Config(
+        text=None,
         data=None,
-        kind=None,
-        supplementary=None,
         year=None,
         lumi=None,
         llabel=None,
@@ -80,6 +84,7 @@ __all__ = [
     "add_text",
     "alice",
     "append_axes",
+    "append_text",
     "atlas",
     "box_aspect",
     "cms",

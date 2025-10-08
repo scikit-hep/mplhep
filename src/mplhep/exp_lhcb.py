@@ -25,10 +25,12 @@ import mplhep
 from mplhep import label as label_base
 
 from ._compat import docstring
-from .label import lumitext as _base_lumitext
+from ._deprecate import deprecate_parameter
+
+# from .label import lumitext as _base_lumitext
 from .styles import lhcb as style
 
-__all__ = ("label", "_base_lumitext", "style", "text")
+__all__ = ("label", "style", "text")
 
 
 @docstring.copy(label_base.exp_text)
@@ -40,16 +42,20 @@ def text(text="", **kwargs):
             and key in inspect.getfullargspec(label_base.exp_text).kwonlyargs
         ):
             kwargs.setdefault(key, value)
-    kwargs.setdefault("italic", (False, False, False))
-    kwargs.setdefault("fontsize", 28)
+    kwargs.setdefault("fontsize", (28 * 1.3, 28, 28 * 0.95, 28 / 1.3))
+    kwargs.setdefault("fontstyle", ("normal", "normal", "normal", "normal"))
+    kwargs.setdefault("fontweight", ("normal", "normal", "normal", "normal"))
     kwargs.setdefault("fontname", "Times New Roman")
     kwargs.setdefault("loc", 1)
-    kwargs.setdefault("exp_weight", "normal")
-    return label_base.exp_text("LHCb", text=text, **kwargs)
+    kwargs.setdefault("exp", "LHCb")
+    return label_base.exp_text(text=text, **kwargs)
 
 
+@deprecate_parameter(
+    "label", reason='Use `text="..."` instead.', warn_once=False, removed=True
+)
 @docstring.copy(label_base.exp_label)
-def label(label=None, **kwargs):
+def label(text=None, label=None, **kwargs):  # noqa: ARG001
     for key, value in dict(mplhep.rcParams.label._get_kwargs()).items():
         if (
             value is not None
@@ -57,29 +63,15 @@ def label(label=None, **kwargs):
             and key in inspect.getfullargspec(label_base.exp_label).kwonlyargs
         ):
             kwargs.setdefault(key, value)
-    kwargs.setdefault("italic", (False, False, False))
-    kwargs.setdefault("fontsize", 28)
+    kwargs.setdefault("fontsize", (28 * 1.3, 28, 28 * 0.95, 28 / 1.3))
+    kwargs.setdefault("fontstyle", ("normal", "normal", "normal", "normal"))
+    kwargs.setdefault("fontweight", ("normal", "normal", "normal", "normal"))
     kwargs.setdefault("fontname", "Times New Roman")
-    kwargs.setdefault("exp_weight", "normal")
     kwargs.setdefault("loc", 1)
-    kwargs.setdefault("exp_weight", "normal")
-    if label is not None:
-        kwargs["label"] = label
-    return label_base.exp_label("LHCb", **kwargs)
+    kwargs.setdefault("exp", "LHCb")
+    if text is not None:
+        kwargs["text"] = text
+    return label_base.exp_label(**kwargs)
 
 
-@docstring.copy(label_base.lumitext)
-def lumitext(text="", **kwargs):
-    for key, value in dict(mplhep.rcParams.text._get_kwargs()).items():
-        if (
-            value is not None
-            and key not in kwargs
-            and key in inspect.getfullargspec(label_base.lumitext).kwonlyargs
-        ):
-            kwargs.setdefault(key, value)
-    # kwargs.setdefault("italic", (False, False, False))
-    # kwargs.setdefault("fontsize", 28)
-    kwargs.setdefault("fontname", "Times New Roman")
-    # kwargs.setdefault("loc", 1)
-    # kwargs.setdefault("exp_weight", "normal")
-    return label_base.lumitext("LHCb", text=text, **kwargs)
+# WIP copilot dont remove

@@ -432,9 +432,11 @@ def plot_model(
 
     if model_type == "histograms":
         components = [
-            make_plottable_histogram(c)
-            if not isinstance(c, EnhancedPlottableHistogram)
-            else c
+            (
+                make_plottable_histogram(c)
+                if not isinstance(c, EnhancedPlottableHistogram)
+                else c
+            )
             for c in components
         ]
         _check_counting_histogram(components)

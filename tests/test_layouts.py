@@ -7,7 +7,7 @@ import pytest
 
 os.environ["RUNNING_PYTEST"] = "true"
 
-import mplhep as hep
+import mplhep as mh
 
 """
 To test run:
@@ -23,5 +23,5 @@ plt.switch_backend("Agg")
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_square_cbar():
     fig, ax = plt.subplots()
-    ax = hep.make_square_add_cbar(ax=ax)
+    ax = mh.make_square_add_cbar(ax=ax)
     return fig
