@@ -282,16 +282,21 @@ def test_efficiency_subsample():
     """
     Test subsample error.
     """
+    # Create histograms with a single bin for deterministic testing
     h1 = bh.Histogram(
-        bh.axis.Regular(100, -5, 5, overflow=False, underflow=False),
+        bh.axis.Regular(1, 0, 1, overflow=False, underflow=False),
         storage=bh.storage.Weight(),
     )
-    h1.fill(np.random.normal(size=11))
+    # Fill h1 with 10 counts
+    h1.fill([0.5] * 10)
+
     h2 = bh.Histogram(
-        bh.axis.Regular(100, -5, 5, overflow=False, underflow=False),
+        bh.axis.Regular(1, 0, 1, overflow=False, underflow=False),
         storage=bh.storage.Weight(),
     )
-    h2.fill(np.random.normal(size=100))
+    # Fill h2 with only 5 counts (less than h1, violating subsample condition)
+    h2.fill([0.5] * 5)
+
     with pytest.raises(
         ValueError,
         match=re.escape(

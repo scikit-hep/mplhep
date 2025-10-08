@@ -65,9 +65,9 @@ CMS = {k: v for k, v in CMS.items() if k in mpl.rcParams}
 CMSTex = {
     **CMS,
     "text.usetex": True,
-    "text.latex.preamble": r"\usepackage{siunitx},\sisetup{detect-all}, \
-                              \usepackage{helvet},\usepackage{sansmath}, \
-                              \sansmath",
+    "text.latex.preamble": r"\usepackage{siunitx}\sisetup{detect-all}"
+    r"\usepackage{helvet}\usepackage{sansmath}"
+    r"\sansmath",
 }
 
 ROOT = CMS  # Leave as default

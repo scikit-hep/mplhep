@@ -42,29 +42,33 @@ def test_dune_style_str_alias(fig_test, fig_ref):
     fig_test.subplots()
 
 
-@pytest.mark.skip("Fails in Github Action")
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+@pytest.mark.skipif(
+    os.environ.get("GITHUB_ACTIONS") == "true", reason="Fails in GitHub Actions"
+)
 @pytest.mark.mpl_image_compare(style="default", remove_text=False)
 def test_style_dunetex():
     plt.rcParams.update(plt.rcParamsDefault)
 
     plt.style.use(mh.style.DUNETex)
     fig, ax = plt.subplots()
-    mh.dune.label(label="Preliminary")
+    mh.dune.label(text="Preliminary")
 
     plt.rcParams.update(plt.rcParamsDefault)
     return fig
 
 
-@pytest.mark.skip("Fails in Github Action")
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+@pytest.mark.skipif(
+    os.environ.get("GITHUB_ACTIONS") == "true", reason="Fails in GitHub Actions"
+)
 @pytest.mark.mpl_image_compare(style="default", remove_text=False)
 def test_style_dunetex1():
     plt.rcParams.update(plt.rcParamsDefault)
 
     plt.style.use(mh.style.DUNETex1)
     fig, ax = plt.subplots()
-    mh.dune.label(label="Preliminary")
+    mh.dune.label(text="Preliminary")
 
     plt.rcParams.update(plt.rcParamsDefault)
     return fig
@@ -77,15 +81,24 @@ def test_style_dunetex1():
     [
         (mh.style.DUNE, "DUNE"),
         (mh.style.DUNE1, "DUNE1"),
-        # (mh.style.DUNETex, "DUNETex"),  # fails in github action
-        # (mh.style.DUNETex1, "DUNETex1"),  # fails in github action
+        pytest.param(
+            mh.style.DUNETex,
+            "DUNETex",
+            marks=pytest.mark.skipif(
+                os.environ.get("GITHUB_ACTIONS") == "true",
+                reason="Fails in GitHub Actions",
+            ),
+        ),
+        pytest.param(
+            mh.style.DUNETex1,
+            "DUNETex1",
+            marks=pytest.mark.skipif(
+                os.environ.get("GITHUB_ACTIONS") == "true",
+                reason="Fails in GitHub Actions",
+            ),
+        ),
     ],
-    ids=[
-        "DUNE",
-        "DUNE1",
-        # "DUNETex",  # fails in github action
-        # "DUNETex1"  # fails in github action
-    ],
+    ids=["DUNE", "DUNE1", "DUNETex", "DUNETex1"],
 )
 def test_dune_style_string_aliases(fig_test, fig_ref, style, str_alias):
     """Test that string aliases work for all DUNE style variants."""
@@ -104,6 +117,6 @@ def test_dune_style_string_aliases(fig_test, fig_ref, style, str_alias):
 def test_dune_label_loc():
     fig, axs = plt.subplots(1, 4, figsize=(16, 4))
     for i, ax in enumerate(axs.flatten()):
-        mh.dune.label(label="Preliminary", loc=i, ax=ax, lumi=50, data=True)
+        mh.dune.label(text="Preliminary", loc=i, ax=ax, lumi=50, data=True)
         ax.set_title(f"loc={i}")
     return fig

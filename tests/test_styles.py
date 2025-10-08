@@ -149,12 +149,11 @@ def test_use_style_LHCb_dep(fig_test, fig_ref):
         (mh.style.CMS, "CMS"),
         (mh.style.DUNE1, "DUNE1"),
         (mh.style.DUNE, "DUNE"),
-        (mh.style.LHCb, "LHCb"),
         (mh.style.LHCb1, "LHCb1"),
         (mh.style.LHCb2, "LHCb2"),
         (mh.style.ROOT, "ROOT"),
     ],
-    ids=["ALICE", "ATLAS", "CMS", "DUNE1", "DUNE", "LHCb", "LHCb1", "LHCb2", "ROOT"],
+    ids=["ALICE", "ATLAS", "CMS", "DUNE1", "DUNE", "LHCb1", "LHCb2", "ROOT"],
 )
 def test_use_style_str_alias(fig_test, fig_ref, mplhep_style, str_alias):
     mh.rcParams.clear()
@@ -176,12 +175,11 @@ def test_use_style_str_alias(fig_test, fig_ref, mplhep_style, str_alias):
         (mh.style.CMS, "CMS"),
         (mh.style.DUNE1, "DUNE1"),
         (mh.style.DUNE, "DUNE"),
-        (mh.style.LHCb, "LHCb"),
         (mh.style.LHCb1, "LHCb1"),
         (mh.style.LHCb2, "LHCb2"),
         (mh.style.ROOT, "ROOT"),
     ],
-    ids=["ALICE", "ATLAS", "CMS", "DUNE1", "DUNE", "LHCb", "LHCb1", "LHCb2", "ROOT"],
+    ids=["ALICE", "ATLAS", "CMS", "DUNE1", "DUNE", "LHCb1", "LHCb2", "ROOT"],
 )
 def test_use_style_self_consistent(fig_test, fig_ref, mplhep_style, str_alias):
     mh.rcParams.clear()
@@ -203,12 +201,11 @@ def test_use_style_self_consistent(fig_test, fig_ref, mplhep_style, str_alias):
         (mh.style.CMS, "CMS"),
         (mh.style.DUNE1, "DUNE1"),
         (mh.style.DUNE, "DUNE"),
-        (mh.style.LHCb, "LHCb"),
         (mh.style.LHCb1, "LHCb1"),
         (mh.style.LHCb2, "LHCb2"),
         (mh.style.ROOT, "ROOT"),
     ],
-    ids=["ALICE", "ATLAS", "CMS", "DUNE1", "DUNE", "LHCb", "LHCb1", "LHCb2", "ROOT"],
+    ids=["ALICE", "ATLAS", "CMS", "DUNE1", "DUNE", "LHCb1", "LHCb2", "ROOT"],
 )
 def test_use_style_style_list(fig_test, fig_ref, mplhep_style, str_alias):
     mh.rcParams.clear()

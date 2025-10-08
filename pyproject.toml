@@ -39,6 +39,7 @@ dev = [
     "bumpversion",
     "jupyter",
     "pre-commit",
+    "questionary",
     "twine",
 ]
 test = [
@@ -62,6 +63,9 @@ all = [
 [project.urls]
 Homepage = "https://github.com/scikit-hep/mplhep"
 
+[project.scripts]
+dev = "mplhep._dev:main"
+
 
 [tool.hatch]
 version.source = "vcs"
@@ -79,7 +83,7 @@ dev-dependencies = [
 
 [tool.mypy]
 files = ["src"]
-python_version = 3.8
+python_version = "3.8"
 warn_unused_configs = true
 
 allow_redefinition = true
@@ -98,16 +102,16 @@ check_untyped_defs = false
 # strict_equality = true
 
 [[tool.mypy.overrides]]
-module = ["matplotlib.*", "cycler", "scipy.*", "mpl_toolkits.*", "mplhep_data"]
+module = ["matplotlib.*", "cycler", "scipy.*", "mpl_toolkits.*", "mplhep_data", "questionary.*"]
 ignore_missing_imports = true
 
 
 # Additional configuration is in matplotlib/testing/conftest.py.
-[tool.pytest.ini_config]
+[tool.pytest.ini_options]
 minversion = 6.0
 testpaths = ["tests"]
 python_files = "test*.py"
-
+asyncio_default_fixture_loop_scope = "session"
 
 [tool.ruff.lint]
 extend-select = [
@@ -149,3 +153,4 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["T20"]
 "docs/conf.py" = ["T20"]
+"src/mplhep/_dev.py" = ["T20"]
