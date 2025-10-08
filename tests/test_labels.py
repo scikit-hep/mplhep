@@ -1,3 +1,12 @@
+"""Tests for mplhep label functionality.
+
+To run tests:
+    pytest --mpl
+
+When adding new tests:
+    pytest --mpl-generate-path=tests/baseline
+"""
+
 from __future__ import annotations
 
 import os
@@ -5,23 +14,46 @@ import os
 import matplotlib.pyplot as plt
 import pytest
 
+# Set environment before importing mplhep
 os.environ["RUNNING_PYTEST"] = "true"
 
 import mplhep as mh
 
-"""
-To test run:
-pytest --mpl
-
-When adding new tests, run:
-pytest --mpl-generate-path=tests/baseline
-"""
-
 plt.switch_backend("Agg")
+
+# Test constants
+COLORS = ["red", "blue", "green", "orange"]
+POSITIONS = ["right", "left", "below", "above"]
+LOCATIONS = [
+    "upper left",
+    "upper right",
+    "lower left",
+    "lower right",
+    "over left",
+    "over right",
+]
+
+
+def _setup_test_plot(ax, xlim=(0, 1), ylim=(0, 1)):
+    """Common setup for test plots."""
+    ax.set_xlim(*xlim)
+    ax.set_ylim(*ylim)
 
 
 def _draw_text_boundary_lines(txt_obj, ax=None, color="gray", alpha=0.5):
-    # Get text bounding box in axes coordinates
+    """Draw boundary lines around text object to visualize its extents.
+
+    Parameters
+    ----------
+    txt_obj : matplotlib.text.Text
+        Text object to draw boundaries around
+    ax : matplotlib.axes.Axes, optional
+        Axes to draw on, by default None (uses current axes)
+    color : str, optional
+        Color of boundary lines, by default "gray"
+    alpha : float, optional
+        Transparency of boundary lines, by default 0.5
+    """
     ax = plt.gca() if ax is None else ax
     bbox, _, descent = txt_obj._get_layout(ax.figure.canvas.get_renderer())
     ax_width = ax.get_position().width * ax.figure.get_size_inches()[0]
@@ -69,14 +101,7 @@ def _draw_text_boundary_lines(txt_obj, ax=None, color="gray", alpha=0.5):
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_add_text_placement():
     fig, ax = plt.subplots(figsize=(5, 5))
-    for loc in [
-        "upper left",
-        "upper right",
-        "lower left",
-        "lower right",
-        "over left",
-        "over right",
-    ]:
+    for loc in LOCATIONS:
         mh.add_text("XYZ", ax=ax, loc=loc)
     return fig
 
@@ -84,14 +109,7 @@ def test_add_text_placement():
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_add_text_placement_asym():
     fig, ax = plt.subplots(figsize=(15, 5))
-    for loc in [
-        "upper left",
-        "upper right",
-        "lower left",
-        "lower right",
-        "over left",
-        "over right",
-    ]:
+    for loc in LOCATIONS:
         mh.add_text("XYZ", ax=ax, loc=loc)
     return fig
 
@@ -121,30 +139,34 @@ def test_append_text_placement(fontname):
     }
 
     # Create reference texts with different horizontal alignments
-    t1 = mh.add_text("XyzZ1", x=0.25, y=0.7, **text_kwargs)
-    t2 = mh.add_text("XyzZ2", x=0.75, y=0.7, **text_kwargs)
-    t3 = mh.add_text("1XyZ2", x=0.25, y=0.3, **text_kwargs)
-    t4 = mh.add_text("1XyZ1", x=0.75, y=0.3, **text_kwargs)
+    ref_specs = [
+        ("XyzZ1", 0.25, 0.7, "red"),
+        ("XyzZ2", 0.75, 0.7, "blue"),
+        ("1XyZ2", 0.25, 0.3, "red"),
+        ("1XyZ1", 0.75, 0.3, "blue"),
+    ]
 
-    # Draw boundary lines for reference texts
-    _draw_text_boundary_lines(t1, color="red", alpha=0.3)
-    _draw_text_boundary_lines(t2, color="blue", alpha=0.3)
-    _draw_text_boundary_lines(t3, color="red", alpha=0.3)
-    _draw_text_boundary_lines(t4, color="blue", alpha=0.3)
+    texts = []
+    for text, x, y, color in ref_specs:
+        t = mh.add_text(text, x=x, y=y, **text_kwargs)
+        _draw_text_boundary_lines(t, color=color, alpha=0.3)
+        texts.append(t)
 
     # Test all append positions
-    colors = ["red", "blue", "green", "orange"]
     append_base_kwargs = {"ax": ax, "fontname": fontname}
+    font_sizes = ["xx-large", "small", "xx-large", "small"]
 
-    for i, app_pos in enumerate(["right", "left", "below", "above"]):
-        append_kwargs = {**append_base_kwargs, "loc": app_pos, "color": colors[i]}
-        mh.append_text(f"1-{app_pos}", t1, fontsize="xx-large", **append_kwargs)
-        mh.append_text(f"2-{app_pos}", t2, fontsize="small", **append_kwargs)
-        mh.append_text(f"2-{app_pos}", t3, fontsize="xx-large", **append_kwargs)
-        mh.append_text(f"1-{app_pos}", t4, fontsize="small", **append_kwargs)
+    for i, app_pos in enumerate(POSITIONS):
+        append_kwargs = {**append_base_kwargs, "loc": app_pos, "color": COLORS[i]}
+        # Use original labeling pattern to match baseline images
+        labels = ["1", "2", "2", "1"]  # Original pattern from t1, t2, t3, t4
+        for _, (text_obj, font_size, label_prefix) in enumerate(
+            zip(texts, font_sizes, labels)
+        ):
+            label = f"{label_prefix}-{app_pos}"
+            mh.append_text(label, text_obj, fontsize=font_size, **append_kwargs)
 
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
+    _setup_test_plot(ax)
     ax.set_title(f"Test append_text - {fontname}")
     return fig
 
@@ -158,37 +180,33 @@ def test_append_text_alignment(fontsize):
     ref_kwargs = {"ax": ax, "fontsize": "large"}
 
     # Create reference texts with different alignments
-    t1 = mh.add_text("yha-left", x=0.15, y=0.7, ha="left", va="bottom", **ref_kwargs)
-    t2 = mh.add_text("yha-center", x=0.5, y=0.7, ha="center", va="bottom", **ref_kwargs)
-    t3 = mh.add_text("yha-right", x=0.85, y=0.7, ha="right", va="bottom", **ref_kwargs)
-    t4 = mh.add_text("yva-top", x=0.15, y=0.3, ha="center", va="top", **ref_kwargs)
-    t5 = mh.add_text("yva-base", x=0.5, y=0.3, ha="center", va="baseline", **ref_kwargs)
-    t6 = mh.add_text("yva-bot", x=0.85, y=0.3, ha="center", va="bottom", **ref_kwargs)
+    alignment_specs = [
+        # (text, x, y, ha, va, group)
+        ("yha-left", 0.15, 0.7, "left", "bottom", "top"),
+        ("yha-center", 0.5, 0.7, "center", "bottom", "top"),
+        ("yha-right", 0.85, 0.7, "right", "bottom", "top"),
+        ("yva-top", 0.15, 0.3, "center", "top", "bottom"),
+        ("yva-base", 0.5, 0.3, "center", "baseline", "bottom"),
+        ("yva-bot", 0.85, 0.3, "center", "bottom", "bottom"),
+    ]
 
-    # Draw lines to visualize the text boundaries
-
-    # Draw boundary lines for reference texts
-    for t in [t1, t2, t3]:
+    texts = {"top": [], "bottom": []}
+    for text, x, y, ha, va, group in alignment_specs:
+        t = mh.add_text(text, x=x, y=y, ha=ha, va=va, **ref_kwargs)
         _draw_text_boundary_lines(t, color="gray", alpha=0.25)
-    for t in [t4, t5, t6]:
-        _draw_text_boundary_lines(t, color="gray", alpha=0.25)
+        texts[group].append(t)
 
     # Test all append positions
-    colors = ["red", "blue", "green", "orange"]
     append_kwargs = {"ax": ax, "fontsize": fontsize}
 
-    for t in [t1, t2, t3]:
-        for i, app_pos in enumerate(["right", "left", "below", "above"]):
-            mh.append_text(
-                f"1-{app_pos}", t, loc=app_pos, color=colors[i], **append_kwargs
-            )
-    for t in [t4, t5, t6]:
-        for i, app_pos in enumerate(["right", "left", "below", "above"]):
-            mh.append_text(
-                f"2-{app_pos}", t, loc=app_pos, color=colors[i], **append_kwargs
-            )
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
+    # Use original labeling pattern to match baseline images
+    for group_name, text_list in texts.items():
+        group_label = "1" if group_name == "top" else "2"
+        for t in text_list:
+            for i, app_pos in enumerate(POSITIONS):
+                label = f"{group_label}-{app_pos}"
+                mh.append_text(label, t, loc=app_pos, color=COLORS[i], **append_kwargs)
+    _setup_test_plot(ax)
     title = "Test append_text va/ha"
     if fontsize is not None:
         title += f", fontsize={fontsize}"
@@ -210,15 +228,13 @@ def test_append_text_multiline():
 
     # Test multiline appended text in all four directions
     multiline_text = "Line1\nLine2\nLine3"
-    colors = ["red", "blue", "green", "orange"]
     append_kwargs = {"ax": ax, "fontsize": "medium"}
 
-    for i, direction in enumerate(["right", "left", "below", "above"]):
+    for i, direction in enumerate(POSITIONS):
         mh.append_text(
-            multiline_text, ref_text, loc=direction, color=colors[i], **append_kwargs
+            multiline_text, ref_text, loc=direction, color=COLORS[i], **append_kwargs
         )
 
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
+    _setup_test_plot(ax)
     ax.set_title("Test append_text with multiline text")
     return fig
