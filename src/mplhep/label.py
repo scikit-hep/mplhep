@@ -368,6 +368,13 @@ def add_text(
         y = y_values[y]
 
     # At this point, x and y should be float values
+    if x is None and y is not None:
+        msg = "Please specify x position if y is given."
+        raise ValueError(msg)
+    if y is None and x is not None:
+        msg = "Please specify y position if x is given."
+        raise ValueError(msg)
+
     assert isinstance(x, (int, float)), f"x should be numeric, got {type(x)}"
     assert isinstance(y, (int, float)), f"y should be numeric, got {type(y)}"
 
@@ -401,7 +408,7 @@ def append_text(
     txt_obj : matplotlib.text.Text
         The existing text object to append to.
     loc : str, default "right"
-        Location relative to the existing text. Options are "right" or "below".
+        Location relative to the existing text. Options are "right", "below", "above", or "left".
     pad : str | float, default "auto"
         Padding between texts. If "auto", uses automatic spacing.
         If float, specifies padding as percentage of axes size.
@@ -417,15 +424,9 @@ def append_text(
     matplotlib.text.Text
         The appended text object.
 
-    Raises
-    ------
-    ValueError
-        If txt_obj has unrecognized vertical alignment.
-    RuntimeError
-        If loc is not "right" or "below".
     """
     ax = ax if ax is not None else plt.gca()
-    fontsize = kwargs.get("fontsize", rcParams["font.size"])
+    fontsize = _fontsize_to_points(kwargs.get("fontsize", rcParams["font.size"]))
 
     ax_width = ax.get_position().width * ax.figure.get_size_inches()[0]  # type: ignore[union-attr]
     ax_height = ax.get_position().height * ax.figure.get_size_inches()[1]  # type: ignore[union-attr]
@@ -437,12 +438,23 @@ def append_text(
     text_width = width / ax_width / dpi
     text_width_corr = fontsize / 3 / ax_width / dpi
     yoffset = descent / ax_height / dpi
+
+    # Account for horizontal alignment of the reference text
+    ref_ha = txt_obj.get_horizontalalignment()
+    ref_x = txt_obj.get_position()[0]
+    if ref_ha == "center":
+        ref_left = ref_x - text_width / 2
+        ref_right = ref_x + text_width / 2
+    elif ref_ha == "right":
+        ref_left = ref_x - text_width
+        ref_right = ref_x
+    else:  # "left" or default
+        ref_left = ref_x
+        ref_right = ref_x + text_width
+
     if loc == "right":
-        _x = (
-            txt_obj.get_position()[0]
-            + text_width
-            + (text_width_corr if pad == "auto" else float(pad) * 100)
-        )
+        pad_offset = 0.0 if pad == "auto" else float(pad) / 100
+        _x = ref_right + (text_width_corr if pad == "auto" else pad_offset)
         va = txt_obj.get_verticalalignment()
         if va == "bottom":
             _y = txt_obj.get_position()[1] + yoffset + text_height_corr
@@ -456,22 +468,66 @@ def append_text(
         va = "baseline"
         ha = "left"
     elif loc == "below":
-        _x = txt_obj.get_position()[0]
-        pad_offset = 0.0 if pad == "auto" else float(pad) * 100
+        _x = ref_left
+        pad_offset = 0.0 if pad == "auto" else float(pad) / 100
         va = txt_obj.get_verticalalignment()
+        ref_y = txt_obj.get_position()[1]
+
+        # Calculate the actual bottom edge of the reference text
         if va == "bottom":
-            _y = txt_obj.get_position()[1] - yoffset + pad_offset
+            # For bottom alignment, the text sits on the yoffset (descent) line
+            ref_bottom = ref_y
         elif va == "top":
-            _y = txt_obj.get_position()[1] - text_height - pad_offset
+            # For top alignment, bottom is at position - text_height + yoffset
+            ref_bottom = ref_y + yoffset - text_height
         elif va == "baseline":
-            _y = txt_obj.get_position()[1] + pad_offset
+            # For baseline alignment, need to account for descent below baseline
+            ref_bottom = ref_y - yoffset
         else:
             msg = f"Text option `verticalalignment={va}` not recognized."
             raise ValueError(msg)
+
+        # Add proper spacing: always include descent offset plus padding
+        auto_spacing = text_height_corr if pad == "auto" else pad_offset
+        _y = ref_bottom - yoffset - auto_spacing
         va = "top"
         ha = "left"
+    elif loc == "above":
+        _x = ref_left
+        pad_offset = 0.0 if pad == "auto" else float(pad) / 100
+        va = txt_obj.get_verticalalignment()
+        ref_y = txt_obj.get_position()[1]
+        # Calculate the top edge of the reference text
+        if va == "bottom":
+            ref_top = ref_y + yoffset + text_height
+        elif va == "top":
+            ref_top = ref_y + yoffset
+        elif va == "baseline":
+            # Special case: baseline positioning - use a smaller offset than full text height
+            ref_top = ref_y + text_height
+        else:
+            msg = f"Text option `verticalalignment={va}` not recognized."
+            raise ValueError(msg)
+        _y = ref_top + pad_offset
+        va = "bottom"
+        ha = "left"
+    elif loc == "left":
+        pad_offset = 0.0 if pad == "auto" else float(pad) / 100
+        _x = ref_left - (text_width_corr if pad == "auto" else pad_offset)
+        va = txt_obj.get_verticalalignment()
+        if va == "bottom":
+            _y = txt_obj.get_position()[1] + yoffset + text_height_corr
+        elif va == "top":
+            _y = txt_obj.get_position()[1] + yoffset - text_height
+        elif va == "baseline":
+            _y = txt_obj.get_position()[1] + text_height_corr
+        else:
+            msg = f"Text option `verticalalignment={va}` not recognized."
+            raise ValueError(msg)
+        va = "baseline"
+        ha = "right"
     else:
-        msg = f'Kwarg `loc={loc}` is not a valid specifier. Choose from `["right", "below"]`'
+        msg = f'Kwarg `loc={loc}` is not a valid specifier. Choose from `["right", "below", "above", "left"]`'
         raise RuntimeError(msg)
     txt_artist = text_class(_x, _y, s, va=va, ha=ha, transform=ax.transAxes, **kwargs)
     ax._add_text(txt_artist)  # type: ignore[attr-defined]

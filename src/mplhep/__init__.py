@@ -30,7 +30,7 @@ from .comparison_plotters import (
     plot_model,
     plot_two_hist_comparison,
 )
-from .label import add_text, save_variations, savelabels
+from .label import add_text, append_text, save_variations, savelabels
 from .plot import (
     append_axes,
     box_aspect,
@@ -84,6 +84,7 @@ __all__ = [
     "add_text",
     "alice",
     "append_axes",
+    "append_text",
     "atlas",
     "box_aspect",
     "cms",
