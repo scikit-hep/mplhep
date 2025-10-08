@@ -2,6 +2,12 @@ ci:
   autoupdate_commit_msg: "chore(deps): pre-commit.ci autoupdate"
 
 repos:
+- repo: https://github.com/compilerla/conventional-pre-commit
+  rev: v4.2.0
+  hooks:
+    - id: conventional-pre-commit
+      stages: [commit-msg]
+      args: [--verbose]
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v6.0.0
   hooks:
@@ -18,7 +24,7 @@ repos:
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
   # Ruff version.
-  rev: v0.12.12
+  rev: v0.14.0
   hooks:
     # Run the linter.
     - id: ruff
@@ -27,7 +33,7 @@ repos:
     - id: ruff-format
 
 - repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v1.17.1
+  rev: v1.18.2
   hooks:
   - id: mypy
     files: src

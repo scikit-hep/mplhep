@@ -49,6 +49,7 @@ test = [
     "pytest-mock",
     "pytest-mpl",
     "pytest-xdist",
+    "pytest-benchmark",
     "pytest>=6.0",
     "scikit-hep-testdata",
     "scipy>=1.1.0",
@@ -146,11 +147,10 @@ ignore = [
   "G004",     # Logging with f-string
   "PD011",    # .values vs .to_numpy can get confused
   "PT013",    # Import from pytest
-  "PD901",    # Make examples more readable
   "E402",     # Make examples more readable
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["T20"]
+"tests/**" = ["T20", "RUF059"]
 "docs/conf.py" = ["T20"]
 "src/mplhep/_dev.py" = ["T20"]

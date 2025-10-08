@@ -224,7 +224,7 @@ def test_pull_simple_values(setup_bh_histograms, setup_np_histograms):
     # will raise an error because no variances
     with pytest.raises(
         ValueError,
-        match="Both histograms must have variances defined to compute the pull.",
+        match=r"Both histograms must have variances defined to compute the pull.",
     ):
         get_comparison(h1, h2, comparison="pull")
 
@@ -233,7 +233,7 @@ def test_pull_simple_values(setup_bh_histograms, setup_np_histograms):
 
     with pytest.raises(
         ValueError,
-        match="Both histograms must have variances defined to compute the pull.",
+        match=r"Both histograms must have variances defined to compute the pull.",
     ):
         get_comparison(h1, h2, comparison="pull")
 
@@ -314,7 +314,7 @@ def test_efficiency_no_variances(setup_np_histograms):
 
     with pytest.raises(
         RuntimeError,
-        match="Variances are not set, cannot determine if histogram is unweighted.",
+        match=r"Variances are not set, cannot determine if histogram is unweighted.",
     ):
         get_comparison(h1, h2, comparison="efficiency")
 
