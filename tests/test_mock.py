@@ -16,10 +16,8 @@ def mock_matplotlib(mocker):
     fig = mocker.Mock(spec=matplotlib.pyplot.Figure)
     ax = mocker.Mock(spec=matplotlib.pyplot.Axes)
     ax.figure = mocker.MagicMock(spec=matplotlib.pyplot.Figure)
-    ax.figure.dpi_scale_trans = mocker.MagicMock(spec=matplotlib.transforms.Affine2D)
-    ax.get_window_extent.return_value = mocker.MagicMock(
-        spec=matplotlib.transforms.Bbox
-    )
+    ax.figure.dpi_scale_trans = mocker.MagicMock()
+    ax.get_window_extent.return_value = mocker.MagicMock()
     line2d = mocker.Mock(name="step", spec=matplotlib.lines.Line2D)
     line2d.get_color.return_value = "current-color"
     # errorbar_cont = mocker.Mock(name="err_cont", spec=matplotlib.container.ErrorbarContainer)

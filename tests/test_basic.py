@@ -199,7 +199,6 @@ def test_histplot_hist_flow(variances):
     axs[2].set_title("Right-side overflow", fontsize=18)
     axs[3].set_title("No overflow", fontsize=18)
     fig.subplots_adjust(hspace=0.2, wspace=0.2)
-    axs[0].legend()
     return fig
 
 
@@ -242,7 +241,6 @@ def test_histplot_uproot_flow():
     axs[2].set_title("Right-side overflow", fontsize=18)
     axs[3].set_title("No overflow", fontsize=18)
     fig.subplots_adjust(hspace=0.2, wspace=0.2)
-    axs[0].legend()
     return fig
 
 

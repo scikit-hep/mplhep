@@ -745,11 +745,35 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
     def to_errorbar(self):
         """Export data in a dictionary format for error bar plotting (e.g., matplotlib 'errorbar')."""
         self.errors()
+
+        # Convert single-element arrays to scalars to avoid NumPy deprecation warnings
+        def _maybe_scalar(arr):
+            """Convert single-element arrays to scalars."""
+            if isinstance(arr, np.ndarray) and arr.ndim > 0 and arr.size == 1:
+                return arr.item()
+            return arr
+
+        # Handle yerr and xerr - ensure they're properly formatted for matplotlib
+        yerr = [self.yerr_lo, self.yerr_hi]
+        xerr = [self.xerr_lo, self.xerr_hi]
+
+        # For single-element arrays, ensure error arrays are also scalars or proper shape
+        if self.yerr_lo.size == 1 and self.yerr_hi.size == 1:
+            # Convert to the shape matplotlib expects: [lower_errors, upper_errors]
+            yerr = np.array(
+                [[_maybe_scalar(self.yerr_lo)], [_maybe_scalar(self.yerr_hi)]]
+            )
+
+        if self.xerr_lo.size == 1 and self.xerr_hi.size == 1:
+            xerr = np.array(
+                [[_maybe_scalar(self.xerr_lo)], [_maybe_scalar(self.xerr_hi)]]
+            )
+
         return {
-            "x": self.centers,
-            "y": self.values(),
-            "yerr": [self.yerr_lo, self.yerr_hi],
-            "xerr": [self.xerr_lo, self.xerr_hi],
+            "x": _maybe_scalar(self.centers),
+            "y": _maybe_scalar(self.values()),
+            "yerr": yerr,
+            "xerr": xerr,
         }
 
 

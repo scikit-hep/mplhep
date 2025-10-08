@@ -3,9 +3,9 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import pytest
+from helpers import run_script_and_get_object
 
 import mplhep
-from mplhep.test_helpers import run_script_and_get_object
 
 mpl_image_compare_kwargs = {
     "baseline_dir": "baseline",

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """
 Development helper script for mplhep. Vibe-coded.
 
@@ -94,11 +92,11 @@ class DevScript:
 
     def _print_warning(self, text: str) -> None:
         """Print a warning message."""
-        print(f"⚠️  {text}")
+        print(f"  ⚠️ {text}")
 
     def _print_error(self, text: str) -> None:
         """Print an error message."""
-        print(f"❌ {text}")
+        print(f"  ❌ {text}")
 
     def _get_terminal_width(self) -> int:
         """Get terminal width, fallback to 80 if unavailable."""
@@ -194,21 +192,22 @@ class DevScript:
         if jobs is None:
             jobs = self.default_jobs
 
-        self._print_header("Running Tests")
+        # Handle pytest_results cleanup (only for direct command-line usage)
+        if not skip_cleanup:
+            pytest_results = self.project_root / "pytest_results"
+            if pytest_results.exists():
+                if self._confirm(
+                    "Remove existing pytest_results/ directory?", default=True
+                ):
+                    self._print_warning(
+                        "Removing existing pytest_results/ directory..."
+                    )
+                    shutil.rmtree(pytest_results)
+                    self._print_success("Removed pytest_results/")
+                else:
+                    self._print_warning("Keeping existing pytest_results/")
 
-        # Handle pytest_results cleanup
-        pytest_results = self.project_root / "pytest_results"
-        if pytest_results.exists() and not skip_cleanup:
-            if self._confirm(
-                "Remove existing pytest_results/ directory?", default=True
-            ):
-                self._print_warning("Removing existing pytest_results/ directory...")
-                shutil.rmtree(pytest_results)
-                self._print_success("Removed pytest_results/")
-            else:
-                self._print_warning("Keeping existing pytest_results/")
-        elif skip_cleanup and pytest_results.exists():
-            self._print_warning("Keeping existing pytest_results/ directory")
+        self._print_header("Running Tests")
 
         # Build pytest command
         cmd = [
@@ -227,46 +226,20 @@ class DevScript:
             cmd.extend(["-k", filter_pattern])
 
         # Show the exact command and allow modification
-        while True:
-            print("\n💻 Command to execute:")
-            print(f"   {' '.join(cmd)}")
+        modified_cmd_str = questionary.text(
+            "Confirm command (editable):",
+            default=" ".join(cmd),
+            style=self._get_style(),
+        ).ask()
+        if modified_cmd_str is None:
+            return False
 
-            modify_cmd = self._confirm(
-                "Modify command before execution?", default=False
-            )
-
-            if modify_cmd:
-                if not HAS_QUESTIONARY or questionary is None:
-                    modified_cmd_str = input(
-                        f"Edit command [{' '.join(cmd)}]: "
-                    ).strip()
-                    if not modified_cmd_str:
-                        modified_cmd_str = " ".join(cmd)
-                else:
-                    modified_cmd_str = questionary.text(
-                        "Edit command:", default=" ".join(cmd), style=self._get_style()
-                    ).ask()
-
-                if modified_cmd_str and modified_cmd_str.strip():
-                    # Split the modified command back into a list
-
-                    try:
-                        cmd = shlex.split(modified_cmd_str)
-                        print("\n✅ Modified command:")
-                        print(f"   {' '.join(cmd)}")
-                        # Continue the loop to show the new command and ask again
-                    except ValueError as e:
-                        self._print_error(f"Invalid command syntax: {e}")
-                        self._print_warning(
-                            "Please try again or press 'n' to use current command"
-                        )
-                        # Continue the loop to let user try again
-                else:
-                    self._print_warning("Empty command - keeping current command")
-                    # Continue the loop to show current command
-            else:
-                # User doesn't want to modify, break out of loop and execute
-                break
+        if modified_cmd_str and modified_cmd_str.strip():
+            try:
+                cmd = shlex.split(modified_cmd_str)
+            except ValueError as e:
+                self._print_error(f"Invalid command syntax: {e}")
+                return False
 
         success = self._run_command(cmd)
 
@@ -274,6 +247,89 @@ class DevScript:
             self._print_success("Tests completed successfully!")
         else:
             self._print_error("Tests failed!")
+
+        return success
+
+    def cmd_baseline(self) -> bool:
+        """Generate baseline images for matplotlib comparison tests."""
+        self._print_header("Generating Baseline Images")
+
+        # Ask for baseline directory path
+        if HAS_QUESTIONARY and questionary is not None:
+            baseline_path = questionary.text(
+                "Enter baseline directory path:",
+                default="tests/baseline",
+                style=self._get_style(),
+            ).ask()
+            if baseline_path is None:
+                self._print_warning("Baseline generation cancelled")
+                return False
+
+            if not baseline_path.strip():
+                baseline_path = "tests/baseline"
+                self._print_warning(
+                    "Empty path provided, using default: tests/baseline"
+                )
+        else:
+            # Fallback for when questionary is not available
+            baseline_path = input(
+                "Enter baseline directory path [tests/baseline]: "
+            ).strip()
+            if not baseline_path:
+                baseline_path = "tests/baseline"
+
+        # Check if directory exists and warn about overwriting
+        baseline_dir = Path(baseline_path)
+        if baseline_dir.exists() and any(baseline_dir.iterdir()):
+            self._print_warning(
+                f"Directory '{baseline_path}' exists and contains files!"
+            )
+            self._print_warning("Existing baseline images will be overwritten.")
+            if not self._confirm("Continue with baseline generation?", default=False):
+                self._print_warning("Baseline generation cancelled")
+                return False
+        else:
+            self._print_success(f"Will generate baselines in: {baseline_path}")
+
+        # Build baseline generation command based on CONTRIBUTING.md
+        cmd = [
+            sys.executable,
+            "-m",
+            "pytest",
+            "-r",
+            "sa",
+            "--mpl",
+            "-n",
+            str(self.default_jobs),
+            f"--mpl-generate-path={baseline_path}",
+        ]
+
+        # Show the command and allow modification
+        modified_cmd_str = questionary.text(
+            "Confirm command (editable):",
+            default=" ".join(cmd),
+            style=self._get_style(),
+        ).ask()
+        if modified_cmd_str is None:
+            return False
+
+        if modified_cmd_str and modified_cmd_str.strip():
+            try:
+                cmd = shlex.split(modified_cmd_str)
+            except ValueError as e:
+                self._print_error(f"Invalid command syntax: {e}")
+                return False
+
+        success = self._run_command(cmd)
+
+        if success:
+            self._print_success("Baseline generation completed successfully!")
+            self._print_warning(
+                "Only include actually modified baseline images in your PR!"
+            )
+            self._print_warning("Review generated baselines before committing.")
+        else:
+            self._print_error("Baseline generation failed!")
 
         return success
 
@@ -321,8 +377,6 @@ class DevScript:
 
     def cmd_precommit(self) -> bool:
         """Run pre-commit hooks on all files."""
-        self._print_header("Running Pre-commit Hooks")
-
         # Check if pre-commit is installed
         try:
             result = subprocess.run(
@@ -365,38 +419,20 @@ class DevScript:
         cmd = ["pre-commit", "run", "--all-files"]
 
         # Show the command and allow modification
-        while True:
-            print("\n💻 Command to execute:")
-            print(f"   {' '.join(cmd)}")
+        modified_cmd_str = questionary.text(
+            "Confirm command (editable):",
+            default=" ".join(cmd),
+            style=self._get_style(),
+        ).ask()
+        if modified_cmd_str is None:
+            return False
 
-            modify_cmd = self._confirm("Modify pre-commit command?", default=False)
-
-            if modify_cmd:
-                if not HAS_QUESTIONARY or questionary is None:
-                    modified_cmd_str = input(
-                        f"Edit command [{' '.join(cmd)}]: "
-                    ).strip()
-                    if not modified_cmd_str:
-                        modified_cmd_str = " ".join(cmd)
-                else:
-                    modified_cmd_str = questionary.text(
-                        "Edit command:", default=" ".join(cmd), style=self._get_style()
-                    ).ask()
-
-                if modified_cmd_str and modified_cmd_str.strip():
-                    try:
-                        cmd = shlex.split(modified_cmd_str)
-                        print("\n✅ Modified command:")
-                        print(f"   {' '.join(cmd)}")
-                    except ValueError as e:
-                        self._print_error(f"Invalid command syntax: {e}")
-                        self._print_warning(
-                            "Please try again or press 'n' to use current command"
-                        )
-                else:
-                    self._print_warning("Empty command - keeping current command")
-            else:
-                break
+        if modified_cmd_str and modified_cmd_str.strip():
+            try:
+                cmd = shlex.split(modified_cmd_str)
+            except ValueError as e:
+                self._print_error(f"Invalid command syntax: {e}")
+                return False
 
         success = self._run_command(cmd)
 
@@ -419,6 +455,7 @@ Usage:
 
 Commands:
   test      Run pytest with matplotlib comparison
+  baseline  Generate baseline images for matplotlib tests
   clean     Clean up test artifacts
   precommit Run pre-commit hooks on all files
   help      Show this help
@@ -531,15 +568,18 @@ Examples:
                 default=str(self.default_jobs),
                 style=self._get_style(),
             ).ask()
-
-            try:
-                jobs = int(jobs_input)
-                if jobs < 1:
-                    self._print_warning("Jobs must be at least 1, using 1")
-                    jobs = 1
-            except (ValueError, TypeError):
+            if jobs_input is None:
                 jobs = self.default_jobs
-                self._print_warning(f"Invalid jobs value, using default: {jobs}")
+                self._print_warning(f"Input cancelled, using default: {jobs}")
+            else:
+                try:
+                    jobs = int(jobs_input)
+                    if jobs < 1:
+                        self._print_warning("Jobs must be at least 1, using 1")
+                        jobs = 1
+                except (ValueError, TypeError):
+                    jobs = self.default_jobs
+                    self._print_warning(f"Invalid jobs value, using default: {jobs}")
         else:
             jobs = self.default_jobs
 
@@ -575,12 +615,12 @@ Examples:
                         # Display selected modules
                         print(f"\n📦 Selected modules: {', '.join(selected_modules)}")
                         # Convert selected modules to pytest pattern
-                        filter_pattern = " or ".join(selected_modules)
+                        filter_pattern = f"'{' or '.join(selected_modules)}'"
                         print(f"🔍 Pattern: {filter_pattern}")
                         break
                     self._print_warning("No modules selected!")
                     retry = questionary.confirm(
-                        "Are you sure you don't want to select any submodules? Use <space> to select, <enter> to confirm. Otherwise, run all tests.",
+                        "Use <space> to select, <enter> to confirm. Otherwise, run all tests.",
                         default=True,
                         style=self._get_style(),
                     ).ask()
@@ -611,7 +651,10 @@ Examples:
             filter_pattern = questionary.text(
                 "Enter custom test pattern:", style=self._get_style()
             ).ask()
-            if not filter_pattern or not filter_pattern.strip():
+            if filter_pattern is None:
+                self._print_warning("Input cancelled - all tests will be run")
+                filter_pattern = None
+            elif not filter_pattern or not filter_pattern.strip():
                 self._print_warning("No pattern entered - all tests will be run")
                 filter_pattern = None
 
@@ -637,7 +680,8 @@ Examples:
                     "What would you like to do?",
                     choices=[
                         questionary.Choice("🔍 Run Pre-commit", "precommit"),
-                        questionary.Choice("� Run Tests", "test"),
+                        questionary.Choice("🧪 Run Tests", "test"),
+                        questionary.Choice("🖼️ Generate Baselines", "baseline"),
                         questionary.Choice("🧹 Clean Artifacts", "clean"),
                         questionary.Choice("📖 Show Help", "help"),
                         questionary.Choice("🚪 Exit", "exit"),
@@ -649,8 +693,24 @@ Examples:
                     print("\n👋 Goodbye!")
                     break
                 if choice == "test":
+                    # Handle pytest_results cleanup first
+                    pytest_results = self.project_root / "pytest_results"
+                    if pytest_results.exists():
+                        if self._confirm(
+                            "Remove existing pytest_results/ directory?", default=True
+                        ):
+                            self._print_warning(
+                                "Removing existing pytest_results/ directory..."
+                            )
+                            shutil.rmtree(pytest_results)
+                            self._print_success("Removed pytest_results/")
+                        else:
+                            self._print_warning("Keeping existing pytest_results/")
+
                     options = self._interactive_test_options()
-                    self.cmd_test(**options)
+                    self.cmd_test(**options, skip_cleanup=True)
+                elif choice == "baseline":
+                    self.cmd_baseline()
                 elif choice == "clean":
                     self.cmd_clean()
                 elif choice == "precommit":
@@ -716,6 +776,9 @@ def main():
     )
 
     # Other commands
+    subparsers.add_parser(
+        "baseline", help="Generate baseline images for matplotlib tests"
+    )
     subparsers.add_parser("clean", help="Clean up test artifacts")
     subparsers.add_parser("help", help="Show help")
 
@@ -730,6 +793,8 @@ def main():
                 filter_pattern=args.filter,
                 skip_cleanup=args.skip_cleanup,
             )
+        elif args.command == "baseline":
+            success = dev.cmd_baseline()
         elif args.command == "clean":
             success = dev.cmd_clean()
         elif args.command == "help":

@@ -452,7 +452,7 @@ def histplot(
             "alpha": 0.5,
             "edgecolor": "darkgray",
             "facecolor": "whitesmoke",
-            "hatch": "////  /",
+            "hatch": "/////",
         }
         for i in range(len(plottables)):
             _kwargs = _chunked_kwargs[i]
