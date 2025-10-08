@@ -127,48 +127,48 @@ def _lumi_line(
     year: str | float | None = None,
     lumi: str | float | None = None,
     lumi_format: str = "{0}",
+    lumi_unit: str = "fb^{-1}",
     com: str | float | None = None,
 ) -> str:
     """Format luminosity line for standard layout."""
+    # Set default values
+    com_str = str(com) if com is not None else "13"
+    year_str = f", {year}" if year is not None else ""
+
     if lumi is not None:
-        _lumi = r"{lumi}{year} ({com} TeV)".format(
-            lumi=lumi_format.format(lumi) + r" $\mathrm{fb^{-1}}$",
-            year=", " + str(year) if year is not None else "",
-            com=str(com) if com is not None else "13",
-        )
+        # Format luminosity with unit
+        lumi_str = lumi_format.format(lumi)
+        lumi_with_unit = f"{lumi_str} $\\mathrm{{{lumi_unit}}}$"
+        _lumi = f"{lumi_with_unit}{year_str} ({com_str} TeV)"
     else:
-        _lumi = r"$\ ${year} ({com} TeV)".format(
-            year=str(year) if year is not None else "",
-            com=str(com) if com is not None else "13",
-        )
+        _lumi = f"$\\ ${year_str} ({com_str} TeV)"
+
     return _lumi.rstrip()
 
 
-def _lumi_line_fancy(
+def _lumi_line_atlas(
     *,
     year: str | float | None = None,  # noqa: ARG001
     lumi: str | float | None = None,
     lumi_format: str = "{0}",
+    lumi_unit: str = "fb^{-1}",
     com: str | float | None = None,
 ) -> str:
     """Format luminosity line for ATLAS-style layout."""
-    if lumi is not None:
-        _lumi = r"{com}, {lumi}".format(
-            com=(
-                r"$\sqrt{s} = \mathrm{" + str(com) + r"\ TeV}$"
-                if com is not None
-                else r"$\sqrt{s} = \mathrm{13\ TeV}$"
-            ),
-            lumi=lumi_format.format(lumi) + r" $\mathrm{fb^{-1}}$",
-        )
+    # Format center-of-mass energy
+    if com is not None:
+        com_str = f"$\\sqrt{{s}} = \\mathrm{{{com}\\ TeV}}$"
     else:
-        _lumi = r"{com}".format(
-            com=(
-                r"$\sqrt{s} = \mathrm{" + str(com) + r"\ TeV}$"
-                if com is not None
-                else r"$\sqrt{s} = \mathrm{13\ TeV}$"
-            ),
-        )
+        com_str = "$\\sqrt{s} = \\mathrm{13\\ TeV}$"
+
+    if lumi is not None:
+        # Format luminosity with unit
+        lumi_str = lumi_format.format(lumi)
+        lumi_with_unit = f"{lumi_str} $\\mathrm{{{lumi_unit}}}$"
+        _lumi = f"{com_str}, {lumi_with_unit}"
+    else:
+        _lumi = com_str
+
     return _lumi.rstrip()
 
 
@@ -702,61 +702,81 @@ def exp_label(
     ax: Axes | None = None,
     **kwargs: Any,
 ) -> tuple[mtext.Text, mtext.Text | None, mtext.Text | None, mtext.Text | None]:
-    """A convenience wrapper combining ``<exp>.text`` and ``lumitext`` providing for
-    the most common use cases.
+    """A convenience wrapper for adding experiment labels with luminosity information.
+
+    This function combines experiment text and luminosity information in a single call,
+    providing common labeling layouts for LHC experiment plots.
 
     Parameters
     ----------
-        loc : int, optional
-            Label position of ``exp_text`` label:
-            - 0 : Above axes, left aligned
-            - 1 : Top left corner
-            - 2 : Top left corner, multiline
-            - 3 : Split EXP above axes, rest of label in top left corner"
-            - 4 : (1) Top left corner, but align "rlabel" underneath
-        ax : matplotlib.axes.Axes, optional
-            Axes object (if None, last one is fetched)
-        data : bool, optional
-            Prevents prepending "Simulation" to experiment label. Default ``False``.
-        label : str, optional
-            Text to append after <exp> (Simulation) <label>. Typically "Preliminary"
-            "Supplementary", "Private Work" or "Work in Progress"
-        year : int, optional
-            Year when data was collected
-        lumi : float, optional
-            Aggregate luminosity shown. Should require ``"data"`` to be ``True``.
-        lumi_format : string, optional, default is `"{0}"`
-            Format string for luminosity number, e.g. `"{0:.1f}"`
-        com: float, optional, default is 13, but can be changed to 7/8/13.6/14 to fit different requirements
-        llabel : string, optional
-            String to manually set left-hand label text. Will overwrite "data" and
-            "label" kwargs.
-        rlabel : string, optional
-            String to manually set right-hand label text.
-        fontsize : int | float | str | tuple[float | str, float | str, float | str, float | str], optional
-            Font size specification. Can be:
-            - None: Uses rcParams default with relative scaling
-            - float: Base size with relative scaling applied
-            - str: Matplotlib size string ("small", "large", etc.) with relative scaling applied
-            - tuple: (exp_size, text_size, lumi_size, supp_size) for explicit control
-              Each element can be float or matplotlib size string
-        fontweight : string, optional
-            Set fontweight of <exp> label. Default "bold".
-        fontstyle : (bool, bool, bool), optional
-            Tuple of bools to switch which label is italicized
-        exp : string
-            Experiment name, unavailable in public ``<experiment>text()``.
+    exp : str, optional
+        Experiment name (e.g., "CMS", "ATLAS"), by default "".
+    text : str, optional
+        Secondary text to append after experiment name, typically "Preliminary",
+        "Supplementary", "Private Work", or "Work in Progress", by default "".
+    supp : str | None, optional
+        Supplementary text to add below main label, by default None.
+    loc : int | None, optional
+        Label position layout:
+        - 0 : Above axes, left aligned
+        - 1 : Top left corner, single line
+        - 2 : Top left corner, multiline
+        - 3 : Split - experiment above axes, secondary text in top left corner
+        - 4 : ATLAS-style - top left corner with luminosity below
+        By default None (uses 0).
+    data : bool, optional
+        If False, prepends "Simulation" to the label text. Default False.
+    year : str | float | None, optional
+        Year when data was collected, by default None.
+    lumi : str | float | None, optional
+        Integrated luminosity value in fb⁻¹, by default None.
+    lumi_format : str, optional
+        Format string for luminosity display, by default "{0}".
+        Example: "{0:.1f}" for one decimal place.
+    com : str | float | None, optional
+        Center-of-mass energy in TeV, by default None (uses 13).
+        Common values: 7, 8, 13, 13.6, 14.
+    llabel : str | None, optional
+        Manual override for left-hand label text. Overrides "data" and "text" parameters.
+    rlabel : str | None, optional
+        Manual override for right-hand label text. Overrides "year", "lumi", "com" parameters.
+    fontsize : int | float | str | tuple[float | str, float | str, float | str, float | str] | None, optional
+        Font size specification:
+        - None: Uses rcParams default with relative scaling
+        - float/int: Base size with relative scaling applied
+        - str: Matplotlib size string ("small", "large", etc.) with relative scaling
+        - tuple: (exp_size, text_size, lumi_size, supp_size) for explicit control
+    fontweight : tuple[str, str, str, str], optional
+        Font weights for (exp, text, lumi, supp) elements,
+        by default ("bold", "normal", "normal", "normal").
+    fontstyle : tuple[str, str, str, str], optional
+        Font styles for (exp, text, lumi, supp) elements,
+        by default ("normal", "italic", "normal", "normal").
+    ax : matplotlib.axes.Axes | None, optional
+        Axes object to add labels to. If None, uses current axes.
+    **kwargs : Any
+        Additional keyword arguments passed to text functions.
 
     Returns
     -------
-        ax : matplotlib.axes.Axes
-            A matplotlib `Axes <https://matplotlib.org/3.1.1/api/axes_api.html>`_ object
+    tuple[mtext.Text, mtext.Text | None, mtext.Text | None, mtext.Text | None]
+        Tuple of text objects: (exp_label, secondary_text, luminosity_text, supplementary_text).
+        Elements are None if not created.
+
+    Examples
+    --------
+    >>> import matplotlib.pyplot as plt
+    >>> import mplhep as mh
+    >>> fig, ax = plt.subplots()
+    >>> mh.exp_label(exp="CMS", text="Preliminary", lumi=138, year=2018)
+
+    >>> # Custom positioning and formatting
+    >>> mh.exp_label(exp="ATLAS", loc=4, lumi=139, lumi_format="{0:.0f}")
     """
     if label is not None and text is None:
         text = label
-        # warning
     if rlabel is None:
-        lumi_func = _lumi_line_fancy if loc == 4 else _lumi_line
+        lumi_func = _lumi_line_atlas if loc == 4 else _lumi_line
         rlabel = lumi_func(year=year, lumi=lumi, lumi_format=lumi_format, com=com)
     if llabel is None:
         _data_sim = "Simulation " if not data else ""
@@ -810,12 +830,12 @@ def savelabels(
 
     Examples
     --------
-    >>> import mplhep as hep
-    >>> hep.cms.label(data=False)
-    >>> hep.savelabels('test.png')
+    >>> import mplhep as mh
+    >>> mh.cms.label(data=False)
+    >>> mh.savelabels('test.png')
     # Produces: test.png, test_pas.png, test_supp.png, test_wip.png
 
-    >>> hep.savelabels('test', labels=[("FOO", "foo.pdf"), ("BAR", "bar")])
+    >>> mh.savelabels('test', labels=[("FOO", "foo.pdf"), ("BAR", "bar")])
     # Produces: foo.pdf, test_bar.png
     """
     if labels is None:

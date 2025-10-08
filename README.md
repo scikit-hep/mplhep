@@ -40,19 +40,18 @@ Documentation can be found at [mplhep.readthedocs.io](https://mplhep.readthedocs
 ### Styling
 
 ```python
-import mplhep as hep
-hep.style.use(hep.style.ROOT) # For now ROOT defaults to CMS
-# Or choose one of the experiment styles
-hep.style.use(hep.style.ATLAS)
-# or
-hep.style.use("CMS") # string aliases work too
-# {"ALICE" | "ATLAS" | "CMS" | "LHCb1" | "LHCb2" | "DUNE" | "DUNE1"}
+import mplhep as mh
+mh.style.use(mh.style.ROOT) # For now ROOT defaults to CMS
+# OR
+mh.style.use(mh.style.ATLAS)
+# OR
+mh.style.use("CMS") # string aliases work too
 ```
 
 Or use `matplotlib` API directly
 
 ```python
-plt.style.use(hep.style.ROOT)
+plt.style.use(mh.style.ROOT)
 ```
 **If the default styles are not what you need, please open an issue.**
 
@@ -60,12 +59,12 @@ Default experiment labels are also available.
 
 ```python
 # Overall - both left and right annotation
-hep.<experiment>.label(<text>, data=<True|False>, lumi=50, year=2017)
-# Just experiment label and <text> such as 'Preliminary' or 'Simulation'
-hep.<experiment>.text(<text>)
+mh.<experiment>.label(<text>, data=<True|False>, lumi=50, year=2017)
+# OR
+mh.<experiment>.text(<text>)
 ```
 
-You can use `loc={0..5}` to control the label positioning.
+You can use `loc={0..4}` to control the label positioning.
 
 <p float="left">
   <img src="tests/baseline/test_label_loc.png" width="100%" />
@@ -77,7 +76,7 @@ You can use `loc={0..5}` to control the label positioning.
 
 ```python
 h, bins = [2, 3, 2], [0, 1, 2, 3]
-hep.histplot(h, bins)
+mh.histplot(h, bins)
 ```
 
 #### 2D Histograms
@@ -86,40 +85,40 @@ hep.histplot(h, bins)
 import numpy as np
 xbins, ybins = [0, 1, 2, 3], [0, 1, 2, 3]
 H = np.array([[2,3,2], [1,2,1], [3,1,3]])
-hep.hist2dplot(H, xbins, ybins)
+mh.hist2dplot(H, xbins, ybins)
 ```
 
 # More Information
 
 ### Save all labels at once
-- `hep.savelabels('test.png')` will produces 4 variation on experiment label
+- `mh.savelabels('test.png')` will produces 4 variation on experiment label
   - "" -> "test.png"
   - "Preliminary" -> "test_pas.png"
   - "Supplementary" -> "test_supp.png"
   - "Work in Progress" -> "test_wip.png"
 - Options can also be specified manually
-  - `hep.savelabels('test', labels=["FOO", "BAR"], suffixes=["foo.pdf", "bar"])` will produce
+  - `mh.savelabels('test', labels=["FOO", "BAR"], suffixes=["foo.pdf", "bar"])` will produce
     - "FOO" -> "foo.pdf"
     - "BAR" -> "test_bar.png"
 - Other components of `<experiment>.label()` will remain unchanged.
 
 ### Other styles:
-- `hep.style.use("fira")` - use Fira Sans
-- `hep.style.use("firamath")` - use Fira Math
+- `mh.style.use("fira")` - use Fira Sans
+- `mh.style.use("firamath")` - use Fira Math
 
 #### Styles can be chained:
-- e.g. `hep.style.use(["CMS", "fira", "firamath"])`
+- e.g. `mh.style.use(["CMS", "fira", "firamath"])`
 - reappearing `rcParams` get overwritten silently
 
 #### Styles can be modified on the fly
 - Since styles are dictionaries and they can be chained/overwritten they can be easily modified on the fly. e.g.
 ```
-hep.style.use("CMS")
-hep.style.use({"font.sans-serif":'Comic Sans MS'})
+mh.style.use("CMS")
+mh.style.use({"font.sans-serif":'Comic Sans MS'})
 ```
 
 #### Styling with LaTeX
-- `hep.style.use("CMSTex")` - Use LaTeX to produce all text labels
+- `mh.style.use("CMSTex")` - Use LaTeX to produce all text labels
 - Requires having the full tex-live distro
 - True Helvetica
 - Use sansmath as the math font

@@ -7,7 +7,7 @@ import pytest
 
 os.environ["RUNNING_PYTEST"] = "true"
 
-import mplhep as hep
+import mplhep as mh
 
 """
 To test run:
@@ -31,7 +31,7 @@ def test_add_text_placement():
         "over left",
         "over right",
     ]:
-        hep.add_text("XYZ", ax=ax, loc=loc)
+        mh.add_text("XYZ", ax=ax, loc=loc)
     return fig
 
 
@@ -46,14 +46,14 @@ def test_add_text_placement_asym():
         "over left",
         "over right",
     ]:
-        hep.add_text("XYZ", ax=ax, loc=loc)
+        mh.add_text("XYZ", ax=ax, loc=loc)
     return fig
 
 
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_add_text_placement_any():
     fig, ax = plt.subplots(figsize=(15, 5))
-    hep.add_text("XYZ", ax=ax, loc="upper left", pad=10)
-    hep.add_text("XYZ", ax=ax, loc="upper right", xpad=5, ypad=20)
-    hep.add_text("XYZ", ax=ax, x=0.5, y=0.5, ha="center", va="center")
+    mh.add_text("XYZ", ax=ax, loc="upper left", pad=10)
+    mh.add_text("XYZ", ax=ax, loc="upper right", xpad=5, ypad=20)
+    mh.add_text("XYZ", ax=ax, x=0.5, y=0.5, ha="center", va="center")
     return fig
