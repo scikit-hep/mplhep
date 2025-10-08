@@ -10,6 +10,15 @@ from matplotlib import rcParams
 
 from ._deprecate import deprecate_parameter
 
+# Constants for font size scaling and positioning
+DEFAULT_PAD_PERCENTAGE = 5.0
+FONT_SIZE_SCALE_EXP = 1.3
+FONT_SIZE_SCALE_LUMI = 1.1
+FONT_SIZE_SCALE_SUPP = 1.3
+FONT_HEIGHT_CORRECTION_FACTOR = 20
+FONT_WIDTH_CORRECTION_FACTOR = 3
+BOTTOM_MARGIN_OFFSET = -0.1
+
 if TYPE_CHECKING:
     from matplotlib.axes import Axes
     from matplotlib.figure import Figure
@@ -35,7 +44,7 @@ class SuppText(mtext.Text):
         return f"Supplementary Text: Text({self._x}, {self._y}, {self._text!r})"
 
 
-def _calculate_dynamic_padding(ax, pad=5, xpad=None, ypad=None):
+def _calculate_dynamic_padding(ax, pad=DEFAULT_PAD_PERCENTAGE, xpad=None, ypad=None):
     """
     Calculate dynamic padding based on axes dimensions.
 
@@ -44,7 +53,8 @@ def _calculate_dynamic_padding(ax, pad=5, xpad=None, ypad=None):
     ax : matplotlib.axes.Axes
         The axes object
     pad : float, optional
-        User-specified padding percentage that overrides dynamic calculation for both dimensions
+        User-specified padding percentage that overrides dynamic calculation for both dimensions,
+        by default DEFAULT_PAD_PERCENTAGE
     xpad : float, optional
         User-specified horizontal padding percentage, overrides pad and dynamic calculation for x-direction
     ypad : float, optional
@@ -54,7 +64,16 @@ def _calculate_dynamic_padding(ax, pad=5, xpad=None, ypad=None):
     -------
     tuple[float, float]
         (x_padding, y_padding) in axes fraction units
+
+    Raises
+    ------
+    ValueError
+        If padding values are negative
     """
+    # Validate inputs
+    if pad < 0 or (xpad is not None and xpad < 0) or (ypad is not None and ypad < 0):
+        msg = "Padding values must be non-negative"
+        raise ValueError(msg)
     # Get axes dimensions to calculate aspect-aware padding
     bbox = ax.get_position()
     fig = ax.figure
@@ -318,7 +337,7 @@ def add_text(
 
     # Set default padding if not provided
     if (pad is None or pad == 0) and "out" not in (str(x) + str(y)):
-        pad = 5.0
+        pad = DEFAULT_PAD_PERCENTAGE
     elif pad is None:
         pad = 0
 
@@ -348,9 +367,9 @@ def add_text(
     }
     y_values = {
         "top": 1.0 + y_padding,
-        "bottom": -0.1 - y_padding,
+        "bottom": BOTTOM_MARGIN_OFFSET - y_padding,
         "top_out": 1.0 + y_padding,
-        "bottom_out": -0.1 - y_padding,
+        "bottom_out": BOTTOM_MARGIN_OFFSET - y_padding,
         "top_in": 1.0 - y_padding,
         "bottom_in": y_padding,
     }
@@ -375,8 +394,12 @@ def add_text(
         msg = "Please specify y position if x is given."
         raise ValueError(msg)
 
-    assert isinstance(x, (int, float)), f"x should be numeric, got {type(x)}"
-    assert isinstance(y, (int, float)), f"y should be numeric, got {type(y)}"
+    if not isinstance(x, (int, float)):
+        msg = f"x should be numeric, got {type(x).__name__}"
+        raise TypeError(msg)
+    if not isinstance(y, (int, float)):
+        msg = f"y should be numeric, got {type(y).__name__}"
+        raise TypeError(msg)
 
     t = text_class(
         float(x), float(y), text, fontsize=_font_size, transform=transform, **kwargs
@@ -434,9 +457,9 @@ def append_text(
     width, height = bbox.width, bbox.height
     dpi = ax.figure.dpi
     text_height = height / ax_height / dpi
-    text_height_corr = fontsize / 20 / ax_height / dpi
+    text_height_corr = fontsize / FONT_HEIGHT_CORRECTION_FACTOR / ax_height / dpi
     text_width = width / ax_width / dpi
-    text_width_corr = fontsize / 3 / ax_width / dpi
+    text_width_corr = fontsize / FONT_WIDTH_CORRECTION_FACTOR / ax_width / dpi
     yoffset = descent / ax_height / dpi
 
     # Account for horizontal alignment of the reference text
@@ -452,83 +475,70 @@ def append_text(
         ref_left = ref_x
         ref_right = ref_x + text_width
 
-    if loc == "right":
-        pad_offset = 0.0 if pad == "auto" else float(pad) / 100
-        _x = ref_right + (text_width_corr if pad == "auto" else pad_offset)
-        va = txt_obj.get_verticalalignment()
-        if va == "bottom":
-            _y = txt_obj.get_position()[1] + yoffset + text_height_corr
-        elif va == "top":
-            _y = txt_obj.get_position()[1] + yoffset - text_height
-        elif va == "baseline":
-            _y = txt_obj.get_position()[1] + text_height_corr
-        else:
-            msg = f"Text option `verticalalignment={va}` not recognized."
+    # Calculate padding offset once
+    pad_offset = 0.0 if pad == "auto" else float(pad) / 100
+    auto_spacing = text_width_corr if pad == "auto" else pad_offset
+
+    # Get reference text properties
+    va = txt_obj.get_verticalalignment()
+    ref_y = txt_obj.get_position()[1]
+
+    def _validate_alignment(alignment: str) -> None:
+        """Validate vertical alignment option."""
+        if alignment not in ["bottom", "top", "baseline"]:
+            msg = f"Text option `verticalalignment={alignment}` not recognized."
             raise ValueError(msg)
-        va = "baseline"
-        ha = "left"
+
+    def _calculate_y_for_right_left(va: str) -> float:
+        """Calculate Y position for right/left positioning."""
+        _validate_alignment(va)
+        if va == "bottom":
+            return ref_y + yoffset + text_height_corr
+        if va == "top":
+            return ref_y + yoffset - text_height
+        # baseline
+        return ref_y + text_height_corr
+
+    if loc == "right":
+        _x = ref_right + auto_spacing
+        _y = _calculate_y_for_right_left(va)
+        va, ha = "baseline", "left"
     elif loc == "below":
         _x = ref_left
-        pad_offset = 0.0 if pad == "auto" else float(pad) / 100
-        va = txt_obj.get_verticalalignment()
-        ref_y = txt_obj.get_position()[1]
+        _validate_alignment(va)
 
         # Calculate the actual bottom edge of the reference text
         if va == "bottom":
-            # For bottom alignment, the text sits on the yoffset (descent) line
             ref_bottom = ref_y
         elif va == "top":
-            # For top alignment, bottom is at position - text_height + yoffset
             ref_bottom = ref_y + yoffset - text_height
-        elif va == "baseline":
-            # For baseline alignment, need to account for descent below baseline
+        else:  # baseline
             ref_bottom = ref_y - yoffset
-        else:
-            msg = f"Text option `verticalalignment={va}` not recognized."
-            raise ValueError(msg)
 
-        # Add proper spacing: always include descent offset plus padding
-        auto_spacing = text_height_corr if pad == "auto" else pad_offset
-        _y = ref_bottom - yoffset - auto_spacing
-        va = "top"
-        ha = "left"
+        _y = ref_bottom - yoffset - (text_height_corr if pad == "auto" else pad_offset)
+        va, ha = "top", "left"
     elif loc == "above":
         _x = ref_left
-        pad_offset = 0.0 if pad == "auto" else float(pad) / 100
-        va = txt_obj.get_verticalalignment()
-        ref_y = txt_obj.get_position()[1]
+        _validate_alignment(va)
+
         # Calculate the top edge of the reference text
         if va == "bottom":
             ref_top = ref_y + yoffset + text_height
         elif va == "top":
             ref_top = ref_y + yoffset
-        elif va == "baseline":
-            # Special case: baseline positioning - use a smaller offset than full text height
+        else:  # baseline
             ref_top = ref_y + text_height
-        else:
-            msg = f"Text option `verticalalignment={va}` not recognized."
-            raise ValueError(msg)
+
         _y = ref_top + pad_offset
-        va = "bottom"
-        ha = "left"
+        va, ha = "bottom", "left"
     elif loc == "left":
-        pad_offset = 0.0 if pad == "auto" else float(pad) / 100
-        _x = ref_left - (text_width_corr if pad == "auto" else pad_offset)
-        va = txt_obj.get_verticalalignment()
-        if va == "bottom":
-            _y = txt_obj.get_position()[1] + yoffset + text_height_corr
-        elif va == "top":
-            _y = txt_obj.get_position()[1] + yoffset - text_height
-        elif va == "baseline":
-            _y = txt_obj.get_position()[1] + text_height_corr
-        else:
-            msg = f"Text option `verticalalignment={va}` not recognized."
-            raise ValueError(msg)
-        va = "baseline"
-        ha = "right"
+        _x = ref_left - auto_spacing
+        _y = _calculate_y_for_right_left(va)
+        va, ha = "baseline", "right"
     else:
-        msg = f'Kwarg `loc={loc}` is not a valid specifier. Choose from `["right", "below", "above", "left"]`'
-        raise RuntimeError(msg)
+        valid_locs = ["right", "below", "above", "left"]
+        msg = f"Invalid `loc={loc}`. Choose from {valid_locs}"
+        raise ValueError(msg)
     txt_artist = text_class(_x, _y, s, va=va, ha=ha, transform=ax.transAxes, **kwargs)
     ax._add_text(txt_artist)  # type: ignore[attr-defined]
     return txt_artist
@@ -607,10 +617,10 @@ def exp_text(
         base_fontsize = (
             rcParams["font.size"] if fontsize is None else _fontsize_to_points(fontsize)
         )
-        _fontsize_exp = base_fontsize * 1.3
+        _fontsize_exp = base_fontsize * FONT_SIZE_SCALE_EXP
         _fontsize = base_fontsize
-        _fontsize_lumi = base_fontsize / 1.1
-        _fontsize_supp = base_fontsize / 1.3
+        _fontsize_lumi = base_fontsize / FONT_SIZE_SCALE_LUMI
+        _fontsize_supp = base_fontsize / FONT_SIZE_SCALE_SUPP
     _inside_pad = max(5, _fontsize_axis(ax, _fontsize_exp) * 100)
     _italic_exp, _italic_suff, _italic_lumi, _italic_supp = fontstyle
     _weight_exp, _weight_suff, _weight_lumi, _weight_supp = fontweight
@@ -900,6 +910,7 @@ def savelabels(
     >>> mh.savelabels('test', labels=[("FOO", "foo.pdf"), ("BAR", "bar")])
     # Produces: foo.pdf, test_bar.png
     """
+    # Set default labels if none provided
     if labels is None:
         labels = [
             ("", ""),
@@ -907,14 +918,30 @@ def savelabels(
             ("Supplementary", "supp"),
             ("Work in Progress", "wip"),
         ]
-    if isinstance(labels, list) and len(labels) > 0 and isinstance(labels[0], str):
-        # Convert list of strings to list of tuples
-        str_labels: list[str] = labels  # type: ignore[assignment]
-        labels = [(label, label.replace(" ", "_").lower()) for label in str_labels]
+
+    # Convert string list to tuple list if needed
+    def _normalize_labels(labels_input):
+        """Convert labels to list of tuples format."""
+        if (
+            isinstance(labels_input, list)
+            and labels_input
+            and isinstance(labels_input[0], str)
+        ):
+            return [(label, label.replace(" ", "_").lower()) for label in labels_input]
+        return labels_input
+
+    labels = _normalize_labels(labels)
+
     if ax is None:
         ax = plt.gca()
 
-    label_base = next(ch for ch in ax.get_children() if isinstance(ch, ExpText))
+    # Find experiment text label
+    try:
+        label_base = next(ch for ch in ax.get_children() if isinstance(ch, ExpText))
+    except StopIteration:
+        msg = "No ExpText object found in axes children"
+        raise ValueError(msg) from None
+
     _sim = "Simulation" if "Simulation" in label_base.get_text() else ""
 
     # At this point, labels is guaranteed to be list[tuple[str, str]]
@@ -922,20 +949,29 @@ def savelabels(
     for label_text, suffix in tuple_labels:
         label_base.set_text(" ".join([_sim, label_text]).lstrip())
 
-        if "." in suffix:  # absolute paths
-            save_name = suffix
-        else:
-            if len(suffix) > 0:
-                suffix = "_" + suffix  # noqa: PLW2901
-            if "." in fname:
-                save_name = f"{fname.split('.')[0]}{suffix}.{fname.split('.')[1]}"
-            else:
-                save_name = f"{fname}{suffix}"
+        def _construct_filename(base_fname: str, suffix: str) -> str:
+            """Construct output filename from base name and suffix."""
+            if "." in suffix:  # suffix is absolute path
+                return suffix
 
-        path_parts: list[str] = save_name.split("/")[:-1]
-        path_dir = os.path.join(*path_parts) if path_parts else ""
-        if path_dir and not os.path.exists(path_dir):
-            os.makedirs(path_dir)
+            # Add underscore prefix to non-empty suffixes
+            if suffix:
+                suffix = f"_{suffix}"
+
+            # Handle extension
+            if "." in base_fname:
+                name_parts = base_fname.rsplit(
+                    ".", 1
+                )  # Split from right to handle multiple dots
+                return f"{name_parts[0]}{suffix}.{name_parts[1]}"
+            return f"{base_fname}{suffix}"
+
+        save_name = _construct_filename(fname, suffix)
+
+        # Create directory if needed
+        save_dir = os.path.dirname(save_name)
+        if save_dir and not os.path.exists(save_dir):
+            os.makedirs(save_dir, exist_ok=True)
 
         if isinstance(ax.figure, plt.Figure):
             ax.figure.savefig(save_name, **kwargs)
