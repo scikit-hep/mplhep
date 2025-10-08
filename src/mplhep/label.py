@@ -835,8 +835,14 @@ def exp_label(
         lumi_func = _lumi_line_atlas if loc == 4 else _lumi_line
         rlabel = lumi_func(year=year, lumi=lumi, lumi_format=lumi_format, com=com)
     if llabel is None:
-        _data_sim = "Simulation " if not data else ""
-        llabel = _data_sim + text
+        # Build label following main branch logic
+        _label = text
+        if supp:  # If supp is truthy, prepend "Supplementary"
+            _label = " ".join(["Supplementary", _label])
+        if not data:
+            _label = " ".join(["Simulation", _label])
+        # Clean up extra whitespace
+        llabel = " ".join(_label.split())
 
     return exp_text(
         exp=exp,
