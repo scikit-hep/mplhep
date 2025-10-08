@@ -112,43 +112,19 @@ def test_add_text_placement_any():
 def test_append_text_placement(fontname):
     fig, ax = plt.subplots()
 
+    # Common kwargs for reference texts
+    text_kwargs = {
+        "ax": ax,
+        "ha": "center",
+        "fontsize": "xx-large",
+        "fontname": fontname,
+    }
+
     # Create reference texts with different horizontal alignments
-    t1 = mh.add_text(
-        "XyzZ1",
-        ax=ax,
-        x=0.25,
-        y=0.7,
-        ha="center",
-        fontsize="xx-large",
-        fontname=fontname,
-    )
-    t2 = mh.add_text(
-        "XyzZ2",
-        ax=ax,
-        x=0.75,
-        y=0.7,
-        ha="center",
-        fontsize="xx-large",
-        fontname=fontname,
-    )
-    t3 = mh.add_text(
-        "1XyZ2",
-        ax=ax,
-        x=0.25,
-        y=0.3,
-        ha="center",
-        fontsize="xx-large",
-        fontname=fontname,
-    )
-    t4 = mh.add_text(
-        "1XyZ1",
-        ax=ax,
-        x=0.75,
-        y=0.3,
-        ha="center",
-        fontsize="xx-large",
-        fontname=fontname,
-    )
+    t1 = mh.add_text("XyzZ1", x=0.25, y=0.7, **text_kwargs)
+    t2 = mh.add_text("XyzZ2", x=0.75, y=0.7, **text_kwargs)
+    t3 = mh.add_text("1XyZ2", x=0.25, y=0.3, **text_kwargs)
+    t4 = mh.add_text("1XyZ1", x=0.75, y=0.3, **text_kwargs)
 
     # Draw boundary lines for reference texts
     _draw_text_boundary_lines(t1, color="red", alpha=0.3)
@@ -158,43 +134,14 @@ def test_append_text_placement(fontname):
 
     # Test all append positions
     colors = ["red", "blue", "green", "orange"]
+    append_base_kwargs = {"ax": ax, "fontname": fontname}
+
     for i, app_pos in enumerate(["right", "left", "below", "above"]):
-        mh.append_text(
-            f"1-{app_pos}",
-            t1,
-            loc=app_pos,
-            ax=ax,
-            fontsize="xx-large",
-            color=colors[i],
-            fontname=fontname,
-        )
-        mh.append_text(
-            f"2-{app_pos}",
-            t2,
-            loc=app_pos,
-            ax=ax,
-            fontsize="small",
-            color=colors[i],
-            fontname=fontname,
-        )
-        mh.append_text(
-            f"2-{app_pos}",
-            t3,
-            loc=app_pos,
-            ax=ax,
-            fontsize="xx-large",
-            color=colors[i],
-            fontname=fontname,
-        )
-        mh.append_text(
-            f"1-{app_pos}",
-            t4,
-            loc=app_pos,
-            ax=ax,
-            fontsize="small",
-            color=colors[i],
-            fontname=fontname,
-        )
+        append_kwargs = {**append_base_kwargs, "loc": app_pos, "color": colors[i]}
+        mh.append_text(f"1-{app_pos}", t1, fontsize="xx-large", **append_kwargs)
+        mh.append_text(f"2-{app_pos}", t2, fontsize="small", **append_kwargs)
+        mh.append_text(f"2-{app_pos}", t3, fontsize="xx-large", **append_kwargs)
+        mh.append_text(f"1-{app_pos}", t4, fontsize="small", **append_kwargs)
 
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
@@ -207,62 +154,16 @@ def test_append_text_placement(fontname):
 def test_append_text_alignment(fontsize):
     fig, ax = plt.subplots()
 
-    # Create reference texts with different horizontal alignments
-    _ref_fs = "large"
-    t1 = mh.add_text(
-        "yha-left",
-        ax=ax,
-        x=0.15,
-        y=0.7,
-        ha="left",
-        va="bottom",
-        fontsize=_ref_fs,
-    )
-    t2 = mh.add_text(
-        "yha-center",
-        ax=ax,
-        x=0.5,
-        y=0.7,
-        ha="center",
-        va="bottom",
-        fontsize=_ref_fs,
-    )
-    t3 = mh.add_text(
-        "yha-right",
-        ax=ax,
-        x=0.85,
-        y=0.7,
-        ha="right",
-        va="bottom",
-        fontsize=_ref_fs,
-    )
-    t4 = mh.add_text(
-        "yva-top",
-        ax=ax,
-        x=0.15,
-        y=0.3,
-        ha="center",
-        va="top",
-        fontsize=_ref_fs,
-    )
-    t5 = mh.add_text(
-        "yva-base",
-        ax=ax,
-        x=0.5,
-        y=0.3,
-        ha="center",
-        va="baseline",
-        fontsize=_ref_fs,
-    )
-    t6 = mh.add_text(
-        "yva-bot",
-        ax=ax,
-        x=0.85,
-        y=0.3,
-        ha="center",
-        va="bottom",
-        fontsize=_ref_fs,
-    )
+    # Common kwargs for reference texts
+    ref_kwargs = {"ax": ax, "fontsize": "large"}
+
+    # Create reference texts with different alignments
+    t1 = mh.add_text("yha-left", x=0.15, y=0.7, ha="left", va="bottom", **ref_kwargs)
+    t2 = mh.add_text("yha-center", x=0.5, y=0.7, ha="center", va="bottom", **ref_kwargs)
+    t3 = mh.add_text("yha-right", x=0.85, y=0.7, ha="right", va="bottom", **ref_kwargs)
+    t4 = mh.add_text("yva-top", x=0.15, y=0.3, ha="center", va="top", **ref_kwargs)
+    t5 = mh.add_text("yva-base", x=0.5, y=0.3, ha="center", va="baseline", **ref_kwargs)
+    t6 = mh.add_text("yva-bot", x=0.85, y=0.3, ha="center", va="bottom", **ref_kwargs)
 
     # Draw lines to visualize the text boundaries
 
@@ -274,25 +175,17 @@ def test_append_text_alignment(fontsize):
 
     # Test all append positions
     colors = ["red", "blue", "green", "orange"]
+    append_kwargs = {"ax": ax, "fontsize": fontsize}
+
     for t in [t1, t2, t3]:
         for i, app_pos in enumerate(["right", "left", "below", "above"]):
             mh.append_text(
-                f"1-{app_pos}",
-                t,
-                loc=app_pos,
-                ax=ax,
-                fontsize=fontsize,
-                color=colors[i],
+                f"1-{app_pos}", t, loc=app_pos, color=colors[i], **append_kwargs
             )
     for t in [t4, t5, t6]:
         for i, app_pos in enumerate(["right", "left", "below", "above"]):
             mh.append_text(
-                f"2-{app_pos}",
-                t,
-                loc=app_pos,
-                ax=ax,
-                fontsize=fontsize,
-                color=colors[i],
+                f"2-{app_pos}", t, loc=app_pos, color=colors[i], **append_kwargs
             )
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
@@ -318,15 +211,11 @@ def test_append_text_multiline():
     # Test multiline appended text in all four directions
     multiline_text = "Line1\nLine2\nLine3"
     colors = ["red", "blue", "green", "orange"]
+    append_kwargs = {"ax": ax, "fontsize": "medium"}
 
     for i, direction in enumerate(["right", "left", "below", "above"]):
         mh.append_text(
-            multiline_text,
-            ref_text,
-            loc=direction,
-            ax=ax,
-            fontsize="medium",
-            color=colors[i],
+            multiline_text, ref_text, loc=direction, color=colors[i], **append_kwargs
         )
 
     ax.set_xlim(0, 1)
