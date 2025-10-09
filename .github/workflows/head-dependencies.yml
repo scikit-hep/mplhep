@@ -16,9 +16,9 @@ jobs:
         python-version: ['3.12']
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
-    - uses: astral-sh/setup-uv@v3
+    - uses: astral-sh/setup-uv@v5
       with:
         version: "latest"
 
@@ -35,12 +35,12 @@ jobs:
 
     - name: Install dependencies
       run: |
-        uv pip install --upgrade pip setuptools wheel
-        uv pip install pytest-github-actions-annotate-failures
-        uv pip --quiet install --upgrade --pre .[test]
+        uv pip install --system --upgrade pip setuptools wheel
+        uv pip install --system pytest-github-actions-annotate-failures
+        uv pip install --system --quiet --upgrade --pre .[test]
 
     - name: List installed Python packages
-      run: uv pip list
+      run: uv pip list --system
 
     - name: Test with pytest
       run: |
@@ -65,7 +65,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - uses: astral-sh/setup-uv@v3
+    - uses: astral-sh/setup-uv@v5
       with:
         version: "latest"
 
@@ -82,10 +82,10 @@ jobs:
 
     - name: Install dependencies
       run: |
-        uv pip install --upgrade pip setuptools wheel
-        uv pip install pytest-github-actions-annotate-failures
-        uv pip --no-cache-dir --quiet install --upgrade .[test]
-        uv pip install \
+        uv pip install --system --upgrade pip setuptools wheel
+        uv pip install --system pytest-github-actions-annotate-failures
+        uv pip install --system --no-cache-dir --quiet --upgrade .[test]
+        uv pip install --system \
           --upgrade \
           --pre \
           --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
@@ -93,7 +93,7 @@ jobs:
           matplotlib
 
     - name: List installed Python packages
-      run: uv pip list
+      run: uv pip list --system
 
     - name: Test with pytest
       run: |
@@ -118,7 +118,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - uses: astral-sh/setup-uv@v3
+    - uses: astral-sh/setup-uv@v5
       with:
         version: "latest"
 
@@ -128,20 +128,21 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install core fonts
+      if: runner.os == 'Linux'
       run: |
         echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
         sudo apt-get install ttf-mscorefonts-installer
 
     - name: Install dependencies
       run: |
-        uv pip install --upgrade pip setuptools wheel
-        uv pip install pytest-github-actions-annotate-failures
-        uv pip --no-cache-dir --quiet install --upgrade .[test]
-        uv pip uninstall --yes uhi
-        uv pip install --upgrade git+https://github.com/scikit-hep/uhi.git
+        uv pip install --system --upgrade pip setuptools wheel
+        uv pip install --system pytest-github-actions-annotate-failures
+        uv pip install --system --no-cache-dir --quiet --upgrade .[test]
+        uv pip uninstall --system --yes uhi
+        uv pip install --system --upgrade git+https://github.com/scikit-hep/uhi.git
 
     - name: List installed Python packages
-      run: uv pip list
+      run: uv pip list --system
 
     - name: Test with pytest
       run: |
@@ -166,7 +167,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - uses: astral-sh/setup-uv@v3
+    - uses: astral-sh/setup-uv@v5
       with:
         version: "latest"
 
@@ -176,20 +177,21 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install core fonts
+      if: runner.os == 'Linux'
       run: |
         echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
         sudo apt-get install ttf-mscorefonts-installer
 
     - name: Install dependencies
       run: |
-        uv pip install --upgrade pip setuptools wheel
-        uv pip install pytest-github-actions-annotate-failures
-        uv pip --no-cache-dir --quiet install --upgrade .[test]
-        uv pip uninstall --yes pytest
-        uv pip install --upgrade git+https://github.com/pytest-dev/pytest.git
+        uv pip install --system --upgrade pip setuptools wheel
+        uv pip install --system pytest-github-actions-annotate-failures
+        uv pip install --system --no-cache-dir --quiet --upgrade .[test]
+        uv pip uninstall --system --yes pytest
+        uv pip install --system --upgrade git+https://github.com/pytest-dev/pytest.git
 
     - name: List installed Python packages
-      run: uv pip list
+      run: uv pip list --system
 
     - name: Test with pytest
       run: |
