@@ -3,29 +3,39 @@ from __future__ import annotations
 import collections.abc
 import inspect
 import logging
-from collections import OrderedDict
 from typing import TYPE_CHECKING, Any, NamedTuple, Union
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.lines import Line2D
-from matplotlib.offsetbox import AnchoredText
-from matplotlib.patches import Patch, Rectangle
-from matplotlib.text import Text
-from matplotlib.transforms import Bbox
-from mpl_toolkits.axes_grid1 import axes_size, make_axes_locatable
 
-from .utils import (
+logger = logging.getLogger(__name__)
+
+from ._utils import (
+    _align_marker as align_marker,
+)
+from ._utils import (
+    _get_histogram_axes_title as get_histogram_axes_title,
+)
+from ._utils import (
+    _get_plottable_protocol_bins,
+    _hist_object_handler,
     _invert_collection_order,
-    align_marker,
-    get_histogram_axes_title,
-    get_plottable_protocol_bins,
-    get_plottables,
-    hist_object_handler,
-    isLight,
-    process_histogram_parts,
-    to_padded2d,
+)
+from ._utils import (
+    _get_plottables as get_plottables,
+)
+from ._utils import (
+    _isLight as isLight,
+)
+from ._utils import (
+    _process_histogram_parts as process_histogram_parts,
+)
+from ._utils import (
+    _to_padded2d as to_padded2d,
+)
+from .utils import (
+    append_axes,
 )
 
 if TYPE_CHECKING:
@@ -205,7 +215,7 @@ def histplot(
 
     # Process input
     hists = list(process_histogram_parts(H, bins))
-    final_bins, xtick_labels = get_plottable_protocol_bins(hists[0].axes[0])
+    final_bins, xtick_labels = _get_plottable_protocol_bins(hists[0].axes[0])
     _bin_widths = np.diff(final_bins)
     _bin_centers = final_bins[1:] - _bin_widths / float(2)
     assert final_bins.ndim == 1, "bins need to be 1 dimensional"
@@ -761,13 +771,13 @@ def hist2dplot(
         msg = "ax must be a matplotlib Axes object"
         raise ValueError(msg)
 
-    h = hist_object_handler(H, xbins, ybins)
+    h = _hist_object_handler(H, xbins, ybins)
 
     # TODO: use Histogram everywhere
 
     H = np.copy(h.values())
-    xbins, xtick_labels = get_plottable_protocol_bins(h.axes[0])
-    ybins, ytick_labels = get_plottable_protocol_bins(h.axes[1])
+    xbins, xtick_labels = _get_plottable_protocol_bins(h.axes[0])
+    ybins, ytick_labels = _get_plottable_protocol_bins(h.axes[1])
     # Show under/overflow bins
     # "show": Add additional bin with 2 times bin width
     if (
@@ -1027,439 +1037,6 @@ def hist2dplot(
                 )
 
     return ColormeshArtists(pc, cb_obj, text_artists)
-
-
-#############################################
-# Utils
-def overlap(ax, bbox, get_vertices=False):
-    """
-    Find overlap of bbox for drawn elements an axes.
-    """
-
-    # From
-    # https://github.com/matplotlib/matplotlib/blob/08008d5cb4d1f27692e9aead9a76396adc8f0b19/lib/matplotlib/legend.py#L845
-    lines = []
-    bboxes = []
-    for handle in ax.lines:
-        assert isinstance(handle, Line2D)
-        path = handle.get_path()
-        lines.append(path)
-    for handle in ax.collections:
-        for path in handle.get_paths():
-            lines.append(path.interpolated(20))
-
-    for handle in ax.patches:
-        assert isinstance(handle, Patch)
-        if isinstance(handle, Rectangle):
-            transform = handle.get_data_transform()
-            bboxes.append(handle.get_bbox().transformed(transform))
-        else:
-            if len(handle.get_path().vertices) == 0:
-                continue
-            lines.append(handle.get_path().interpolated(20))
-
-    for handle in ax.texts:
-        assert isinstance(handle, Text)
-        bboxes.append(handle.get_window_extent())
-
-    # TODO Possibly other objects
-
-    vertices = np.concatenate([line.vertices for line in lines])
-    tvertices = [ax.transData.transform(v) for v in vertices]
-
-    overlap = bbox.count_contains(tvertices) + bbox.count_overlaps(bboxes)
-
-    if get_vertices:
-        return overlap, vertices
-    return overlap
-
-
-def _draw_leg_bbox(ax):
-    """
-    Draw legend() and fetch it's bbox
-    """
-    fig = ax.figure
-    leg = ax.get_legend()
-    if leg is None:
-        leg = next(
-            c for c in ax.get_children() if isinstance(c, plt.matplotlib.legend.Legend)
-        )
-
-    fig.canvas.draw()
-    return leg.get_frame().get_bbox()
-
-
-def _draw_text_bbox(ax):
-    """
-    Draw legend() and fetch it's bbox
-    """
-    fig = ax.figure
-    textboxes = [k for k in ax.get_children() if isinstance(k, AnchoredText)]
-    fig.canvas.draw()
-    if len(textboxes) > 1:
-        logging.warning("More than one textbox found")
-        for box in textboxes:
-            if box.loc in [1, 2]:
-                bbox = box.get_tightbbox(fig.canvas.renderer)
-    else:
-        bbox = textboxes[0].get_tightbbox(fig.canvas.renderer)
-
-    return bbox
-
-
-def yscale_legend(
-    ax: mpl.axes.Axes | None = None,
-    otol: float | None = None,
-    soft_fail: bool = False,
-) -> mpl.axes.Axes:
-    """
-    Automatically scale y-axis up to fit in legend().
-
-    Parameters
-    ----------
-        ax : matplotlib.axes.Axes, optional
-            Axes object (if None, last one is fetched or one is created)
-        otol : float, optional
-            Tolerance for overlap, default 0. Set ``otol > 0`` for less strict scaling.
-        soft_fail : bool, optional
-            Set ``soft_fail=True`` to return even if it could not fit the legend.
-
-    Returns
-    -------
-        ax : matplotlib.axes.Axes
-    """
-    if ax is None:
-        ax = plt.gca()
-    if otol is None:
-        otol = 0
-
-    scale_factor = 10 ** (1.05) if ax.get_yscale() == "log" else 1.05
-    max_scales = 0
-    while overlap(ax, _draw_leg_bbox(ax)) > otol:
-        logging.debug(
-            f"Legend overlap with other artists is {overlap(ax, _draw_leg_bbox(ax))}."
-        )
-        logging.info("Scaling y-axis by 5% to fit legend")
-        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[-1] * scale_factor)
-        if (fig := ax.figure) is None:
-            msg = "Could not fetch figure, maybe no plot is drawn yet?"
-            raise RuntimeError(msg)
-        fig.canvas.draw()
-        if max_scales > 10:
-            if not soft_fail:
-                msg = "Could not fit legend in 10 iterations, return anyway by passing `soft_fail=True`."
-                raise RuntimeError(msg)
-            logging.warning("Could not fit legend in 10 iterations")
-            break
-        max_scales += 1
-    return ax
-
-
-def yscale_anchored_text(
-    ax: mpl.axes.Axes | None = None,
-    otol: float | None = None,
-    soft_fail: bool = False,
-) -> mpl.axes.Axes:
-    """
-    Automatically scale y-axis up to fit AnchoredText
-
-    Parameters
-    ----------
-        ax : matplotlib.axes.Axes, optional
-            Axes object (if None, last one is fetched or one is created)
-        otol : float, optional
-            Tolerance for overlap, default 0. Set ``otol > 0`` for less strict scaling.
-        soft_fail : bool, optional
-            Set ``soft_fail=True`` to return even if it could not fit the legend.
-
-    Returns
-    -------
-        ax : matplotlib.axes.Axes
-    """
-    if ax is None:
-        ax = plt.gca()
-    if otol is None:
-        otol = 0
-
-    scale_factor = 10 ** (1.05) if ax.get_yscale() == "log" else 1.05
-    max_scales = 0
-    while overlap(ax, _draw_text_bbox(ax)) > otol:
-        logging.debug(
-            f"AnchoredText overlap with other artists is {overlap(ax, _draw_text_bbox(ax))}."
-        )
-        logging.info("Scaling y-axis by 5% to fit legend")
-        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[-1] * scale_factor)
-        if (fig := ax.figure) is None:
-            msg = "Could not fetch figure, maybe no plot is drawn yet?"
-            raise RuntimeError(msg)
-        fig.canvas.draw()
-        if max_scales > 10:
-            if not soft_fail:
-                msg = "Could not fit AnchoredText in 10 iterations, return anyway by passing `soft_fail=True`."
-                raise RuntimeError(msg)
-            logging.warning("Could not fit AnchoredText in 10 iterations")
-            break
-        max_scales += 1
-    return ax
-
-
-def ylow(ax: mpl.axes.Axes | None = None, ylow: float | None = None) -> mpl.axes.Axes:
-    """
-    Set lower y limit to 0 or a specific value if not data/errors go lower.
-
-    Parameters
-    ----------
-        ax : matplotlib.axes.Axes, optional
-            Axes object (if None, last one is fetched or one is created)
-        ylow : float, optional
-            Set lower y limit to a specific value.
-
-    Returns
-    -------
-        ax : matplotlib.axes.Axes
-    """
-    if ax is None:
-        ax = plt.gca()
-
-    if ax.get_yaxis().get_scale() == "log":
-        return ax
-
-    if ylow is None:
-        # Check full figsize below 0
-        bbox = Bbox.from_bounds(
-            0, 0, ax.get_window_extent().width, -ax.get_window_extent().height
-        )
-        if overlap(ax, bbox) == 0:
-            ax.set_ylim(0, None)
-        else:
-            ydata = overlap(ax, bbox, get_vertices=True)[1][:, 1]
-            ax.set_ylim(np.min([np.min(ydata), ax.get_ylim()[0]]), None)
-
-    else:
-        ax.set_ylim(0, ax.get_ylim()[-1])
-
-    return ax
-
-
-def mpl_magic(ax=None, info=True):
-    """
-    Consolidate all ex-post style adjustments:
-        ylow
-        yscale_legend
-    """
-    if ax is None:
-        ax = plt.gca()
-    if info:
-        pass
-
-    ax = ylow(ax)
-    ax = yscale_legend(ax)
-    return yscale_anchored_text(ax)
-
-
-########################################
-# Figure/axes helpers
-def rescale_to_axessize(ax, w, h):
-    """
-    Adjust figure size to axes size in inches
-    Parameters: w, h: width, height in inches
-    """
-    if not ax:
-        ax = plt.gca()
-    left = ax.figure.subplotpars.left
-    r = ax.figure.subplotpars.right
-    t = ax.figure.subplotpars.top
-    b = ax.figure.subplotpars.bottom
-    figw = float(w) / (r - left)
-    figh = float(h) / (t - b)
-    ax.figure.set_size_inches(figw, figh)
-
-
-def box_aspect(ax, aspect=1):
-    """
-    Adjust figure size to axes size in inches
-    Parameters: aspect: float, optional aspect ratio
-
-    """
-    position = ax.get_position()
-
-    fig_width, fig_height = ax.get_figure().get_size_inches()
-    fig_aspect = fig_height / fig_width
-
-    pb = position.frozen()
-    pb1 = pb.shrunk_to_aspect(aspect, pb, fig_aspect)
-    ax.set_position(pb1)
-
-
-class RemainderFixed(axes_size.Scaled):
-    def __init__(self, xsizes, ysizes, divider):
-        self.xsizes = xsizes
-        self.ysizes = ysizes
-        self.div = divider
-
-    def get_size(self, renderer):
-        _xrel, xabs = sum(self.xsizes, start=axes_size.Fixed(0)).get_size(renderer)
-        _yrel, yabs = sum(self.ysizes, start=axes_size.Fixed(0)).get_size(renderer)
-        bb = Bbox.from_bounds(*self.div.get_position()).transformed(
-            self.div._fig.transFigure
-        )
-        w = bb.width / self.div._fig.dpi - xabs
-        h = bb.height / self.div._fig.dpi - yabs
-        return 0, min([w, h])
-
-
-def make_square_add_cbar(ax, size=0.4, pad=0.1):
-    """
-    Make input axes square and return an appended axes to the right for
-    a colorbar. Both axes resize together to fit figure automatically.
-    Works with tight_layout().
-    """
-    divider = make_axes_locatable(ax)
-
-    margin_size = axes_size.Fixed(size)
-    pad_size = axes_size.Fixed(pad)
-    xsizes = [pad_size, margin_size]
-    ysizes = xsizes
-
-    cax = divider.append_axes("right", size=margin_size, pad=pad_size)
-
-    divider.set_horizontal([RemainderFixed(xsizes, ysizes, divider), *xsizes])
-    divider.set_vertical([RemainderFixed(xsizes, ysizes, divider), *ysizes])
-    return cax
-
-
-def append_axes(ax, size=0.1, pad=0.1, position="right", extend=False):
-    """
-    Append a side ax to the current figure and return it.
-    Figure is automatically extended along the direction of the added axes to
-    accommodate it. Unfortunately can not be reliably chained.
-    """
-    fig = ax.figure
-    bbox = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
-    width, height = bbox.width, bbox.height
-
-    def convert(fraction, position=position):
-        if isinstance(fraction, str) and fraction.endswith("%"):
-            if position in ["right", "left"]:
-                fraction = width * float(fraction.strip("%")) / 100
-            elif position in ["top", "bottom"]:
-                fraction = height * float(fraction.strip("%")) / 100
-        return fraction
-
-    size = convert(size)
-    pad = convert(pad)
-
-    divider = make_axes_locatable(ax)
-    margin_size = axes_size.Fixed(size)
-    pad_size = axes_size.Fixed(pad)
-    xsizes = [pad_size, margin_size]
-    if position in ["top", "bottom"]:
-        xsizes.reverse()
-    yhax = divider.append_axes(position, size=margin_size, pad=pad_size)
-
-    if extend:
-
-        def extend_ratio(ax, yhax):
-            ax.figure.canvas.draw()
-            orig_size = ax.get_position().size
-            new_size = sum(itax.get_position().size for itax in [ax, yhax])
-            return new_size / orig_size
-
-        if position in ["right"]:
-            divider.set_horizontal([axes_size.Fixed(width), *xsizes])
-            fig.set_size_inches(
-                fig.get_size_inches()[0] * extend_ratio(ax, yhax)[0],
-                fig.get_size_inches()[1],
-            )
-        elif position in ["left"]:
-            divider.set_horizontal([*xsizes[::-1], axes_size.Fixed(width)])
-            fig.set_size_inches(
-                fig.get_size_inches()[0] * extend_ratio(ax, yhax)[0],
-                fig.get_size_inches()[1],
-            )
-        elif position in ["top"]:
-            divider.set_vertical([axes_size.Fixed(height), *xsizes[::-1]])
-            fig.set_size_inches(
-                fig.get_size_inches()[0],
-                fig.get_size_inches()[1] * extend_ratio(ax, yhax)[1],
-            )
-            ax.get_shared_x_axes().join(ax, yhax)
-        elif position in ["bottom"]:
-            divider.set_vertical([*xsizes, axes_size.Fixed(height)])
-            fig.set_size_inches(
-                fig.get_size_inches()[0],
-                fig.get_size_inches()[1] * extend_ratio(ax, yhax)[1],
-            )
-            ax.get_shared_x_axes().join(ax, yhax)
-
-    return yhax
-
-
-####################
-# Legend Helpers
-def hist_legend(ax=None, **kwargs):
-    if ax is None:
-        ax = plt.gca()
-
-    handles, labels = ax.get_legend_handles_labels()
-    new_handles = [
-        Line2D([], [], c=h.get_edgecolor()) if isinstance(h, mpl.patches.Polygon) else h
-        for h in handles
-    ]
-    ax.legend(handles=new_handles[::-1], labels=labels[::-1], **kwargs)
-
-    return ax
-
-
-def sort_legend(ax, order=None):
-    """
-    ax : axes with legend labels in it
-    order : Ordered dict with renames or array with order
-    """
-
-    handles, labels = ax.get_legend_handles_labels()
-    by_label = OrderedDict(zip(labels, handles))
-
-    if isinstance(order, OrderedDict):
-        ordered_label_list = list(order.keys())
-    elif isinstance(order, (list, tuple, np.ndarray)):
-        ordered_label_list = list(order)
-    elif order is None:
-        ordered_label_list = labels
-    else:
-        msg = f"Unexpected values type of order: {type(order)}"
-        raise TypeError(msg)
-
-    ordered_label_list = [entry for entry in ordered_label_list if entry in labels]
-    ordered_label_values = [by_label[k] for k in ordered_label_list]
-    if isinstance(order, OrderedDict):
-        ordered_label_list = [order[k] for k in ordered_label_list]
-    return ordered_label_values, ordered_label_list
-
-
-def merge_legend_handles_labels(handles, labels):
-    """
-    Merge handles for identical labels.
-    This is useful when combining multiple plot functions into a single label.
-
-    handles : List of handles
-    labels : List of labels
-    """
-
-    seen_labels = []
-    seen_label_handles = []
-    for handle, label in zip(handles, labels):
-        if label not in seen_labels:
-            seen_labels.append(label)
-            seen_label_handles.append([handle])
-        else:
-            idx = seen_labels.index(label)
-            seen_label_handles[idx].append(handle)
-
-    for i in range(len(seen_labels)):
-        seen_label_handles[i] = tuple(seen_label_handles[i])
-
-    return seen_label_handles, seen_labels
 
 
 def funcplot(func, range, ax, stack=False, npoints=1000, **kwargs):

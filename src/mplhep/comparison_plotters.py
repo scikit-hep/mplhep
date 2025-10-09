@@ -9,6 +9,13 @@ import re
 import matplotlib.pyplot as plt
 import numpy as np
 
+from ._utils import (
+    EnhancedPlottableHistogram,
+    _check_counting_histogram,
+)
+from ._utils import (
+    _make_plottable_histogram as make_plottable_histogram,
+)
 from .comparison_functions import (
     _check_binning_consistency,
     get_comparison,
@@ -18,9 +25,6 @@ from .plot import (
     histplot,
 )
 from .utils import (
-    EnhancedPlottableHistogram,
-    _check_counting_histogram,
-    make_plottable_histogram,
     set_fitting_ylabel_fontsize,
 )
 

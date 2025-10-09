@@ -1,9 +1,11 @@
 import numpy as np
 
-from .utils import (
+from ._utils import (
     EnhancedPlottableHistogram,
     _check_counting_histogram,
-    make_plottable_histogram,
+)
+from ._utils import (
+    _make_plottable_histogram as make_plottable_histogram,
 )
 
 

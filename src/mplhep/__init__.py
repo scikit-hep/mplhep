@@ -15,6 +15,16 @@ from . import exp_dune as dune
 from . import exp_lhcb as lhcb
 from . import styles as style
 from ._tools import Config
+from ._utils import (
+    EnhancedPlottableHistogram,
+    _check_counting_histogram,
+)
+from ._utils import (
+    _get_plottables as get_plottables,
+)
+from ._utils import (
+    _make_plottable_histogram as make_plottable_histogram,
+)
 from ._version import version as __version__  # noqa: F401
 from .comparison_functions import (
     get_asymmetry,
@@ -32,27 +42,23 @@ from .comparison_plotters import (
 )
 from .label import add_text, append_text, save_variations, savelabels
 from .plot import (
-    append_axes,
-    box_aspect,
     funcplot,
     hist2dplot,
     histplot,
+)
+from .styles import set_style
+from .utils import (
+    append_axes,
+    box_aspect,
     make_square_add_cbar,
     merge_legend_handles_labels,
     mpl_magic,
     rescale_to_axessize,
+    set_fitting_ylabel_fontsize,
+    set_ylow,
     sort_legend,
-    ylow,
     yscale_anchored_text,
     yscale_legend,
-)
-from .styles import set_style
-from .utils import (
-    EnhancedPlottableHistogram,
-    _check_counting_histogram,
-    get_plottables,
-    make_plottable_histogram,
-    set_fitting_ylabel_fontsize,
 )
 
 # Configs
@@ -118,7 +124,7 @@ __all__ = [
     "set_style",
     "sort_legend",
     "style",
-    "ylow",
+    "set_ylow",
     "yscale_anchored_text",
     "yscale_legend",
     "add_text",
