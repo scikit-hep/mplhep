@@ -1273,17 +1273,12 @@ def mpl_magic(
     -------
         ax : matplotlib.axes.Axes
     """
-    # Save references to module functions before parameter names shadow them
-    ylow_fn = globals()["ylow"]
-    yscale_legend_fn = globals()["yscale_legend"]
-    yscale_anchored_text_fn = globals()["yscale_anchored_text"]
-
     if ax is None:
         ax = plt.gca()
 
-    ax = ylow_fn(ax, ylow=ylow)
-    ax = yscale_legend_fn(ax, otol=legend_otol, soft_fail=soft_fail)
-    return yscale_anchored_text_fn(ax, otol=yscale_otol, soft_fail=soft_fail)
+    ax = ylow(ax, ylow=ylow)
+    ax = yscale_legend(ax, otol=legend_otol, soft_fail=soft_fail)
+    return yscale_anchored_text(ax, otol=yscale_otol, soft_fail=soft_fail)
 
 
 ########################################
