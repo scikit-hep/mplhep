@@ -1236,7 +1236,7 @@ def ylow(ax: mpl.axes.Axes | None = None, ylow: float | None = None) -> mpl.axes
             ax.set_ylim(np.min([np.min(ydata), ax.get_ylim()[0]]), None)
 
     else:
-        ax.set_ylim(0, ax.get_ylim()[-1])
+        ax.set_ylim(ylow, ax.get_ylim()[-1])
 
     return ax
 
