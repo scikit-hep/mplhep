@@ -5,12 +5,16 @@ Data vs model with stacked and unstacked components
 Plot data and a model with stacked and unstacked components.
 """
 
+# --8<-- [start:imports]
 from plothist_utils import get_dummy_data
 
 df = get_dummy_data()
 
 import seaborn as sns
 
+# --8<-- [end:imports]
+
+# --8<-- [start:setup]
 # Define the histograms
 
 key = "variable_1"
@@ -50,7 +54,9 @@ for mask in background_masks:
 # Optional: scale to data
 background_scaling_factor = data_hist.sum().value / sum(background_hists).sum().value
 background_hists = [background_scaling_factor * h for h in background_hists]
+# --8<-- [end:setup]
 
+# --8<-- [start:plot_body]
 ###
 from mplhep import plot_data_model_comparison
 
@@ -67,5 +73,6 @@ fig, ax_main, ax_comparison = plot_data_model_comparison(
     model_sum_kwargs={"show": True, "label": "Model", "color": "navy"},
     comparison_ylim=(0.5, 1.5),
 )
+# --8<-- [end:plot_body]
 
 fig.savefig("model_examples_stacked_unstacked.svg", bbox_inches="tight")

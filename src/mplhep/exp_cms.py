@@ -7,7 +7,7 @@ from matplotlib import rcParams
 import mplhep
 
 from . import label as label_base
-from ._compat import docstring
+from ._compat import copy_doc
 from ._deprecate import deprecate_parameter
 
 # Log styles
@@ -18,8 +18,8 @@ from .styles import cms as style
 __all__ = ("label", "style", "text")
 
 
-@docstring.copy(label_base.exp_text)
-def text(text=None, **kwargs):
+@copy_doc(label_base.exp_text)
+def text(text="", **kwargs):
     for key, value in dict(mplhep.rcParams.text._get_kwargs()).items():
         if (
             value is not None
@@ -35,8 +35,8 @@ def text(text=None, **kwargs):
 
 
 @deprecate_parameter("label", reason='Use `text="..."` instead.', warn_once=False)
-@docstring.copy(label_base.exp_label)
-def label(text=None, **kwargs):
+@copy_doc(label_base.exp_label)
+def label(text=None, label=None, **kwargs):  # noqa: ARG001
     for key, value in dict(mplhep.rcParams.label._get_kwargs()).items():
         if (
             value is not None
