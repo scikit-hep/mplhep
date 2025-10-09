@@ -253,3 +253,46 @@ def test_label_config(fig_test, fig_ref):
     ref_ax = fig_ref.subplots()
     mh.rcParams.clear()
     mh.cms.label(data=False, lumi=30, text="Internal", ax=ref_ax)
+
+
+def test_atlas_gridspec_zero_crossing():
+    """
+    Test ATLAS style with GridSpec and data crossing zero.
+    
+    This is a regression test for an IndexError that occurred with:
+    - ATLAS style
+    - Multiple axes with specific height ratios  
+    - Data crossing zero
+    - Specific figure sizes
+    
+    The issue was caused by axes.autolimit_mode="round_numbers" triggering
+    a matplotlib AutoLocator bug in edge cases.
+    """
+    from matplotlib import gridspec
+
+    mh.style.use(mh.style.ATLAS)
+    
+    x_vals = [0, 1]
+    y_vals = [1, -1]  # crosses zero
+    
+    # Test with plot()
+    fig = plt.figure(figsize=(6, 5))
+    gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1])
+    ax1 = plt.subplot(gs[0])
+    ax2 = plt.subplot(gs[1])
+    ax2.plot(x_vals, y_vals)
+    
+    # This should not raise an IndexError
+    fig.canvas.draw()
+    plt.close(fig)
+    
+    # Test with scatter() as mentioned in the issue
+    fig = plt.figure(figsize=(6, 5))
+    gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1])
+    ax1 = plt.subplot(gs[0])
+    ax2 = plt.subplot(gs[1])
+    ax2.scatter(x_vals, y_vals)
+    
+    # This should not raise an IndexError
+    fig.canvas.draw()
+    plt.close(fig)
