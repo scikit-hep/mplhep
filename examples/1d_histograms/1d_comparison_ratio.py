@@ -5,37 +5,35 @@ Ratio
 Compare two 1D histograms using the ratio [h1/h2].
 """
 
-from plothist_utils import get_dummy_data
-
-df = get_dummy_data()
-
-name = "variable_1"
-
-x1 = df[name][df["category"] == 2]
-x2 = df[name][df["category"] == 3]
-
-x_range = (min(*x1, *x2), max(*x1, *x2))
-
 import hist
+import matplotlib as mpl
+import numpy as np
 from hist import Hist
 
-h1 = Hist(hist.axis.Regular(50, x_range[0], x_range[1]))
-h2 = Hist(hist.axis.Regular(50, x_range[0], x_range[1]))
+import mplhep as mh
 
+mpl.use("Agg")
+np.random.seed(42)
+
+# Generate dummy data
+x1 = np.r_[np.random.normal(0.4, 0.1, 5000), np.random.normal(0.7, 0.1, 5000)]
+x2 = np.r_[np.random.normal(0.4, 0.1, 1000), np.random.normal(0.7, 0.11, 7000)]
+
+# Create and fill histograms
+h1 = Hist(hist.axis.Regular(50, 0, 1), storage=hist.storage.Weight())  # Long interface
+h2 = hist.new.Regular(50, 0, 1).Weight()  # Shorthand interface
 h1.fill(x1)
 h2.fill(x2)
 
 ###
-from mplhep import plot_two_hist_comparison
-
-# Default comparison is ratio
-fig, ax_main, ax_comparison = plot_two_hist_comparison(
+fig, ax_main, ax_comparison = mh.comp.hists(
     h1,
     h2,
-    xlabel=name,
+    xlabel="Variable",
     ylabel="Entries",
-    h1_label="h1",
-    h2_label="h2",
+    h1_label=r"$h_1$",
+    h2_label=r"$h_2$",
+    comparison="ratio",  # <--
 )
 
 fig.savefig("1d_comparison_ratio.svg", bbox_inches="tight")

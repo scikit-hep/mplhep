@@ -154,3 +154,4 @@ ignore = [
 "tests/**" = ["T20", "RUF059"]
 "docs/conf.py" = ["T20"]
 "src/mplhep/_dev.py" = ["T20"]
+"test_*.py" = ["T20"]

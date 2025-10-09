@@ -1,0 +1,24 @@
+/* Custom CSS for mplhep docs */
+
+.md-header__topic {
+  font-weight: 600;
+}
+
+.md-nav__link--active {
+  font-weight: 600;
+}
+
+/* MathJax styling */
+.math {
+  font-size: 1.1em;
+}
+
+/* Code block styling */
+.highlight pre {
+  border-radius: 0.3rem;
+}
+
+/* Admonition styling */
+.md-typeset .admonition {
+  border-radius: 0.3rem;
+}

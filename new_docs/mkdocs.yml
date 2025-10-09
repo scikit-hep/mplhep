@@ -1,0 +1,78 @@
+site_name: mplhep
+site_description: The documentation for the mplhep software library.
+site_author: scikit-hep
+site_url: https://mplhep.readthedocs.io/
+
+repo_url: https://github.com/scikit-hep/mplhep
+repo_name: scikit-hep/mplhep
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - toc.integrate
+    - header.autohide
+    - content.code.copy
+  palette:
+    - scheme: default
+      primary: white
+      accent: amber
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      primary: black
+      accent: amber
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
+  logo: "material/library"
+
+extra_javascript:
+  - _static/mathjax.js
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+extra_css:
+  - _static/custom_css.css
+
+markdown_extensions:
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.superfences
+  - pymdownx.details
+  - admonition
+  - toc:
+      permalink: "¤"
+      toc_depth: 4
+
+plugins:
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [/home/anovak/software/mplhep/src]
+          options:
+            docstring_style: numpy
+            docstring_section_style: table
+            members_order: source
+            show_signature: false
+            separate_signature: true
+            show_signature_annotations: true
+            show_source: true
+            show_overloads: false
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            show_docstring_attributes: true
+            show_docstring_functions: true
+            show_docstring_modules: true
+            show_docstring_examples: false
+
+nav:
+  - Home: index.md
+  - Install: install.md
+  - Guide: guide.md
+  - Gallery:
+    - Styles: gallery/styles.md
+    - Labels: gallery/labels.md
+  - API: api.md

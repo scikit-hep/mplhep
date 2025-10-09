@@ -38,6 +38,10 @@ class deprecate:
 
         # Override __doc__ after functools.wraps
         decorated_func.__doc__ = "deprecated: " + self._reason
+
+        # Add __deprecated__ attribute for griffe_warnings_deprecated filter
+        decorated_func.__deprecated__ = True
+
         return decorated_func
 
 
