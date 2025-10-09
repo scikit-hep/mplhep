@@ -10,7 +10,7 @@ from matplotlib import rcParams
 import mplhep
 
 from . import label as label_base
-from ._compat import docstring
+from ._compat import copy_doc
 from ._deprecate import deprecate_parameter
 
 # Import styles
@@ -19,7 +19,7 @@ from .styles import dune as style
 __all__ = ("label", "style", "text")
 
 
-@docstring.copy(label_base.exp_text)
+@copy_doc(label_base.exp_text)
 def text(text="", **kwargs):
     """Add DUNE experiment text to a plot."""
     for key, value in dict(mplhep.rcParams.text._get_kwargs()).items():
@@ -44,7 +44,7 @@ def text(text="", **kwargs):
 
 
 @deprecate_parameter("label", reason='Use `text="..."` instead.', warn_once=False)
-@docstring.copy(label_base.exp_label)
+@copy_doc(label_base.exp_label)
 def label(text=None, label=None, **kwargs):
     """Add DUNE experiment label to a plot."""
     for key, value in dict(mplhep.rcParams.label._get_kwargs()).items():

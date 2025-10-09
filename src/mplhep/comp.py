@@ -1,8 +1,8 @@
 """
-Comparison plotting module with shortened function names.
+Comparison/compound plotting module.
 
-This module provides convenient aliases for comparison plotting functions
-with shorter, more ergonomic names.
+This module provides functions to create comparison plots, such as ratio plots,
+data vs. model comparisons, and more.
 """
 
 from .comparison_plotters import (

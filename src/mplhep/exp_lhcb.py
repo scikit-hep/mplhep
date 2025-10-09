@@ -24,7 +24,7 @@ import inspect
 import mplhep
 from mplhep import label as label_base
 
-from ._compat import docstring
+from ._compat import copy_doc
 from ._deprecate import deprecate_parameter
 
 # from .label import lumitext as _base_lumitext
@@ -33,7 +33,7 @@ from .styles import lhcb as style
 __all__ = ("label", "style", "text")
 
 
-@docstring.copy(label_base.exp_text)
+@copy_doc(label_base.exp_text)
 def text(text="", **kwargs):
     for key, value in dict(mplhep.rcParams.text._get_kwargs()).items():
         if (
@@ -54,7 +54,7 @@ def text(text="", **kwargs):
 @deprecate_parameter(
     "label", reason='Use `text="..."` instead.', warn_once=False, removed=True
 )
-@docstring.copy(label_base.exp_label)
+@copy_doc(label_base.exp_label)
 def label(text=None, label=None, **kwargs):  # noqa: ARG001
     for key, value in dict(mplhep.rcParams.label._get_kwargs()).items():
         if (

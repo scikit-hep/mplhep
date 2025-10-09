@@ -1,3 +1,7 @@
+"""
+Primary namespace for mplhep. Holds primary plotting and most common functions.
+"""
+
 from __future__ import annotations
 
 import os

@@ -1,0 +1,114 @@
+site_name: mplhep
+site_description: The documentation for the mplhep software library.
+site_author: scikit-hep
+site_url: https://mplhep.readthedocs.io/
+
+repo_url: https://github.com/scikit-hep/mplhep
+repo_name: scikit-hep/mplhep
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - toc.integrate
+    - header.autohide
+    - content.code.copy
+  palette:
+    - scheme: default
+      primary: white
+      accent: amber
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      primary: black
+      accent: amber
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
+  logo: "material/library"
+
+extra_javascript:
+  - _static/mathjax.js
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+extra_css:
+  - stylesheets/neoteroi-mkdocs.css
+  - _static/custom_css.css
+
+markdown_extensions:
+  - neoteroi.cards
+  - attr_list
+  - md_in_html
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.snippets:
+      base_path: ../
+      check_paths: false
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.details
+  - admonition
+  - toc:
+      permalink: "¤"
+      toc_depth: 4
+
+
+plugins:
+  - mkdocs_matplotlib
+  - markdown-exec
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [/home/anovak/software/mplhep/src]
+          options:
+            docstring_style: numpy
+            docstring_section_style: table
+            members_order: source
+            show_signature: true
+            separate_signature: true
+            show_signature_annotations: true
+            show_source: true
+            show_overloads: false
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            show_docstring_attributes: true
+            show_docstring_functions: true
+            show_docstring_modules: true
+            show_docstring_examples: false
+            show_object_full_path: true
+            extensions:
+            - griffe_inherited_docstrings
+            - docstring_inheritance.griffe
+
+nav:
+  - Home: index.md
+  - Install: install.md
+  - Guide: guide.md
+  - Gallery:
+    - Overview: gallery.md
+    - 1D Comparisons:
+      - Asymmetry: gallery/1d_comparison_asymmetry.md
+      - Difference: gallery/1d_comparison_difference.md
+      - Efficiency: gallery/1d_comparison_efficiency.md
+      - Only Efficiency: gallery/1d_comparison_only_efficiency.md
+      - Pull: gallery/1d_comparison_pull.md
+      - Ratio: gallery/1d_comparison_ratio.md
+      - Relative Difference: gallery/1d_comparison_relative_difference.md
+      - Split Ratio: gallery/1d_comparison_split_ratio.md
+    - Model Comparisons:
+      - All Comparisons: gallery/model_all_comparisons.md
+      - All Comparisons No Model Uncertainty: gallery/model_all_comparisons_no_model_unc.md
+      - Pull: gallery/model_examples_pull.md
+      - Pull No Model Uncertainty: gallery/model_examples_pull_no_model_unc.md
+      - Stacked: gallery/model_examples_stacked.md
+      - Stacked Unstacked: gallery/model_examples_stacked_unstacked.md
+      - Unstacked: gallery/model_examples_unstacked.md
+      - Stacked and Unstacked Function Components: gallery/model_with_stacked_and_unstacked_function_components.md
+      - Stacked and Unstacked Histograms Components: gallery/model_with_stacked_and_unstacked_histograms_components.md
+      - Ratio Data vs Model with Stacked and Unstacked Function Components: gallery/ratio_data_vs_model_with_stacked_and_unstacked_function_components.md
+  - API: api.md
