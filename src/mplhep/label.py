@@ -599,9 +599,10 @@ def exp_text(
 
     Returns
     -------
-    tuple
-        Tuple of text objects (exp_txt, exp_suff, exp_lumi, exp_supp).
+    tuple[mtext.Text, mtext.Text | None, mtext.Text | None, mtext.Text | None]
+        Tuple of text objects: (exp_label, secondary_text, luminosity_text, supplementary_text).
         Elements are None if not created.
+
     """
 
     loc = 0 if loc is None else loc
