@@ -1241,20 +1241,54 @@ def ylow(ax: mpl.axes.Axes | None = None, ylow: float | None = None) -> mpl.axes
     return ax
 
 
-def mpl_magic(ax=None, info=True):
+def mpl_magic(
+    ax=None,
+    info=True,
+    ylow_param=None,
+    yscale_legend_otol=None,
+    yscale_legend_soft_fail=False,
+    yscale_text_otol=None,
+    yscale_text_soft_fail=False,
+):
     """
     Consolidate all ex-post style adjustments:
         ylow
         yscale_legend
+        yscale_anchored_text
+
+    Parameters
+    ----------
+        ax : matplotlib.axes.Axes, optional
+            Axes object (if None, last one is fetched or one is created)
+        info : bool, optional
+            Info flag (currently unused)
+        ylow_param : float, optional
+            Parameter passed to ylow function. Set lower y limit to a specific value.
+        yscale_legend_otol : float, optional
+            Tolerance for overlap passed to yscale_legend, default None (uses 0).
+            Set ``otol > 0`` for less strict scaling.
+        yscale_legend_soft_fail : bool, optional
+            Set ``soft_fail=True`` to return from yscale_legend even if it could not fit the legend.
+        yscale_text_otol : float, optional
+            Tolerance for overlap passed to yscale_anchored_text, default None (uses 0).
+            Set ``otol > 0`` for less strict scaling.
+        yscale_text_soft_fail : bool, optional
+            Set ``soft_fail=True`` to return from yscale_anchored_text even if it could not fit the anchored text.
+
+    Returns
+    -------
+        ax : matplotlib.axes.Axes
     """
     if ax is None:
         ax = plt.gca()
     if info:
         pass
 
-    ax = ylow(ax)
-    ax = yscale_legend(ax)
-    return yscale_anchored_text(ax)
+    ax = ylow(ax, ylow=ylow_param)
+    ax = yscale_legend(ax, otol=yscale_legend_otol, soft_fail=yscale_legend_soft_fail)
+    return yscale_anchored_text(
+        ax, otol=yscale_text_otol, soft_fail=yscale_text_soft_fail
+    )
 
 
 ########################################
