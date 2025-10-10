@@ -5,6 +5,7 @@ Comparison
 Plot the comparison between two 1D histograms.
 """
 
+# --8<-- [start:full_code]
 # --8<-- [start:imports]
 import hist
 import matplotlib.pyplot as plt
@@ -36,4 +37,5 @@ fig, ax = plt.subplots()
 mh.comp.ratio(h_sample, h_total, ax=ax, xlabel="Variable", comparison="efficiency")
 
 # --8<-- [end:plot_body]
+# --8<-- [end:full_code]
 fig.savefig("1d_comparison_only_efficiency.svg", bbox_inches="tight")

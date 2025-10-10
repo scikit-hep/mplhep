@@ -5,6 +5,7 @@ Model with stacked and unstacked functional components
 Plot a model with stacked and unstacked functional components.
 """
 
+# --8<-- [start:full_code]
 # --8<-- [start:imports]
 key = "variable_1"
 range = (-9, 12)
@@ -53,6 +54,7 @@ fig, ax = plot_model(
 add_text("Model made of functions", ax=ax, loc="over left", fontsize="small")
 # --8<-- [end:plot_body]
 
+# --8<-- [end:full_code]
 fig.savefig(
     "model_with_stacked_and_unstacked_function_components.svg", bbox_inches="tight"
 )

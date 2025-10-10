@@ -5,6 +5,7 @@ Model with stacked and unstacked components
 Plot a model with stacked and unstacked components.
 """
 
+# --8<-- [start:full_code]
 # --8<-- [start:imports]
 from plothist_utils import get_dummy_data
 
@@ -84,6 +85,7 @@ add_text(
 )
 # --8<-- [end:plot_body]
 
+# --8<-- [end:full_code]
 fig.savefig(
     "model_with_stacked_and_unstacked_histograms_components.svg",
     bbox_inches="tight",

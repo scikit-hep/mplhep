@@ -22,7 +22,7 @@ DEFAULT_PAD_PERCENTAGE = 5.0
 FONT_SIZE_SCALE_EXP = 1.3
 FONT_SIZE_SCALE_LUMI = 1.1
 FONT_SIZE_SCALE_SUPP = 1.3
-FONT_HEIGHT_CORRECTION_FACTOR = 20
+FONT_HEIGHT_CORRECTION_FACTOR = 10
 FONT_WIDTH_CORRECTION_FACTOR = 3
 BOTTOM_MARGIN_OFFSET = -0.1
 
@@ -502,7 +502,7 @@ def append_text(
         if va == "bottom":
             return ref_y + yoffset + text_height_corr
         if va == "top":
-            return ref_y + yoffset - text_height
+            return ref_y + yoffset - text_height + text_height_corr
         # baseline
         return ref_y + text_height_corr
 
@@ -513,7 +513,6 @@ def append_text(
     elif loc == "below":
         _x = ref_left
         _validate_alignment(va)
-
         # Calculate the actual bottom edge of the reference text
         if va == "bottom":
             ref_bottom = ref_y
@@ -521,7 +520,6 @@ def append_text(
             ref_bottom = ref_y + yoffset - text_height
         else:  # baseline
             ref_bottom = ref_y - yoffset
-
         _y = ref_bottom - yoffset - (text_height_corr if pad == "auto" else pad_offset)
         va, ha = "top", "left"
     elif loc == "above":

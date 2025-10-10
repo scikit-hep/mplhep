@@ -5,6 +5,7 @@ Data/model comparisons, no model uncertainty
 All supported comparisons between data and model, without model uncertainty.
 """
 
+# --8<-- [start:full_code]
 # --8<-- [start:imports]
 import hist
 import matplotlib.pyplot as plt
@@ -142,4 +143,5 @@ for k_comp, comparison in enumerate(
 axes[-1].set_xlabel("Observable")
 # --8<-- [end:plot_body]
 
+# --8<-- [end:full_code]
 fig.savefig("model_all_comparisons_no_model_unc.svg", bbox_inches="tight")

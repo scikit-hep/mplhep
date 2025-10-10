@@ -5,6 +5,7 @@ Efficiency
 Compare the ratio between two histograms h1 and h2 when the entries of h1 are a subset of the entries of h2.
 """
 
+# --8<-- [start:full_code]
 # --8<-- [start:imports]
 import hist
 import numpy as np
@@ -42,4 +43,5 @@ fig, ax_main, ax_comparison = mh.comp.hists(
 )
 
 # --8<-- [end:plot_body]
+# --8<-- [end:full_code]
 fig.savefig("1d_comparison_efficiency.png", bbox_inches="tight")

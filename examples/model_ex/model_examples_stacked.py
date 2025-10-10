@@ -5,6 +5,7 @@ Data vs model with stacked components
 Plot data and a model with stacked components.
 """
 
+# --8<-- [start:full_code]
 # --8<-- [start:imports]
 from plothist_utils import get_dummy_data
 
@@ -84,4 +85,5 @@ histplot(
 ax_main.legend()
 # --8<-- [end:plot_body]
 
+# --8<-- [end:full_code]
 fig.savefig("model_examples_stacked.svg", bbox_inches="tight")
