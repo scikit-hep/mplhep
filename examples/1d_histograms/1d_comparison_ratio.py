@@ -7,13 +7,11 @@ Compare two 1D histograms using the ratio [h1/h2].
 
 # --8<-- [start:imports]
 import hist
-import matplotlib as mpl
 import numpy as np
 from hist import Hist
 
 import mplhep as mh
 
-mpl.use("Agg")
 np.random.seed(42)
 # --8<-- [end:imports]
 
@@ -41,5 +39,5 @@ fig, ax_main, ax_comparison = mh.comp.hists(
     comparison="ratio",  # <--
 )
 
-fig.savefig("1d_comparison_ratio.png", bbox_inches="tight")
 # --8<-- [end:plot_body]
+fig.savefig("1d_comparison_ratio.png", bbox_inches="tight")

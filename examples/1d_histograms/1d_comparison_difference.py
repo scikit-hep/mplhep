@@ -7,13 +7,11 @@ Compare two 1D histograms using the difference [h1-h2].
 
 # --8<-- [start:imports]
 import hist
-import matplotlib as mpl
 import numpy as np
 from hist import Hist
 
 import mplhep as mh
 
-mpl.use("Agg")
 np.random.seed(42)
 # --8<-- [end:imports]
 
@@ -31,7 +29,6 @@ h2.fill(x2)
 
 
 # --8<-- [start:plot_body]
-###
 from mplhep import add_text
 
 fig, ax_main, ax_comparison = mh.comp.hists(
@@ -52,5 +49,5 @@ add_text(
 )
 add_text("Difference ax", ax=ax_comparison, loc="over right", fontsize="small")
 
-fig.savefig("1d_comparison_difference.png", bbox_inches="tight")
 # --8<-- [end:plot_body]
+fig.savefig("1d_comparison_difference.png", bbox_inches="tight")
