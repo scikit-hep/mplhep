@@ -1,3 +1,9 @@
+"""
+Styling module.
+
+This module provides matplotlib stylesheets for various HEP experiments.
+"""
+
 from __future__ import annotations
 
 import sys

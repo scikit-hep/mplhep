@@ -1,6 +1,19 @@
 # API reference
 
-## Plotting functions
+## Top Level
+
+::: mplhep
+    options:
+      members:
+        - histplot
+        - hist2dplot
+        - funcplot
+        - add_text
+        - append_text
+      show_root_heading: true
+      show_source: false
+
+## Plotting
 
 ::: mplhep.plot
     options:
@@ -8,29 +21,34 @@
         - histplot
         - hist2dplot
         - funcplot
-
-## Comparison/compound plotting functions
+      show_root_heading: true
+      show_source: false
 
 ::: mplhep.comp
+    heading_level: 2
+    options:
+      show_root_heading: true
+      show_source: false
 
-## Styles
-
-::: mplhep.style
-
-## Labeling functions
+## Labeling
 
 ::: mplhep.label
     options:
       filters:
         - "mplhep._compat.filter_deprecated"
-      members:
-        - histplot
-        - hist2dplot
-        - funcplot
+    heading_level: 2
+    options:
+      show_root_heading: true
+      show_source: false
 
-## Experiment label helpers
+## Experiment styling
 
-### ATLAS
+::: mplhep.style
+    heading_level: 2
+    options:
+      show_root_heading: true
+      show_source: false
+
 ::: mplhep.atlas
     options:
       heading_level: 2
@@ -40,7 +58,7 @@
       filters:
         - "mplhep._compat.filter_deprecated"
       show_root_heading: true
-      show_source: true
+      show_source: false
 
 ::: mplhep.cms
     options:
@@ -49,7 +67,7 @@
         - label
         - text
       show_root_heading: true
-      show_source: true
+      show_source: false
 
 ::: mplhep.lhcb
     options:
@@ -58,7 +76,7 @@
         - label
         - text
       show_root_heading: true
-      show_source: true
+      show_source: false
 
 ::: mplhep.alice
     options:
@@ -67,7 +85,7 @@
         - label
         - text
       show_root_heading: true
-      show_source: true
+      show_source: false
 
 ::: mplhep.dune
     options:
@@ -76,10 +94,13 @@
         - label
         - text
       show_root_heading: true
-      show_source: true
+      show_source: false
 
 
 
 ## Utilities
 
 ::: mplhep.utils
+    options:
+      show_root_heading: true
+      show_source: false

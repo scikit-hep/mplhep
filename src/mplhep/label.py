@@ -1,3 +1,9 @@
+"""
+Labeling module.
+
+This module provides functions to create and manage HEP labels for plots.
+"""
+
 from __future__ import annotations
 
 import os
