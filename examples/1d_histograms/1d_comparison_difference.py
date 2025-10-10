@@ -5,6 +5,7 @@ Difference
 Compare two 1D histograms using the difference [h1-h2].
 """
 
+# --8<-- [start:full_code]
 # --8<-- [start:imports]
 import hist
 import numpy as np
@@ -50,4 +51,5 @@ add_text(
 add_text("Difference ax", ax=ax_comparison, loc="over right", fontsize="small")
 
 # --8<-- [end:plot_body]
+# --8<-- [end:full_code]
 fig.savefig("1d_comparison_difference.png", bbox_inches="tight")

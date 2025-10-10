@@ -18,47 +18,137 @@ Or with conda:
 conda install -c conda-forge mplhep
 ```
 
-### Simple Plot Example
+## Simple Example
 
-Here's a quick example to get you started:
+Here's a quick example showing the primary functionality
 
-<!-- ```python exec="1" html="1" result="above" -->
-```python
-# mkdocs: render
-import matplotlib.pyplot as plt
-import mplhep as hep
-import numpy as np
+=== "CMS"
 
-# Set the plotting style (optional)
-hep.style.use("CMS")
+    ```python
+    # mkdocs: render
+    import matplotlib.pyplot as plt
+    import mplhep as mh
+    import numpy as np
+    np.random.seed(42)
+    # Set the plotting style
+    mh.style.use("CMS")
 
-# Create some sample data
-data = np.random.normal(0, 1, 1000)
+    # Create a plot
+    fig, ax = plt.subplots()
+    # Plot a pre-binned histogram
+    mh.histplot(*np.histogram(np.random.normal(0, 1, 1000)), ax=ax, label="Data")
+    # Add appropriate labels
+    mh.cms.label("Preliminary", data=False, lumi=100, com=15)  # ax can be implicit
+    # mh.mpl_magic(soft_fail=True)  # Autofit label - not needed
+    ```
 
-# Create a histogram
-fig, ax = plt.subplots(figsize=(8, 6))
-hep.histplot(*np.histogram(data), ax=ax, label="Data")
+=== "ATLAS"
 
-# Add labels and styling
-ax.set_xlabel("Observable")
-ax.set_ylabel("Events")
-ax.legend()
+    ```python
+    # mkdocs: render
+    import matplotlib.pyplot as plt
+    import mplhep as mh
+    import numpy as np
+    np.random.seed(42)
+    # Set the plotting style
+    mh.style.use("ATLAS")
 
-```
+    # Create a plot
+    fig, ax = plt.subplots()
+    # Plot a pre-binned histogram
+    mh.histplot(*np.histogram(np.random.normal(0, 1, 1000)), ax=ax, label="Data")
+    # Add appropriate labels
+    mh.atlas.label("Preliminary", data=False, lumi=100, com=15)  # ax can be implicit
+    mh.mpl_magic(soft_fail=True)  # Autofit label
+    ```
+
+=== "LHCb"
+
+    ```python
+    # mkdocs: render
+    import matplotlib.pyplot as plt
+    import mplhep as mh
+    import numpy as np
+    np.random.seed(42)
+    # Set the plotting style
+    mh.style.use("LHCb2")
+
+    # Create a plot
+    fig, ax = plt.subplots()
+    # Plot a pre-binned histogram
+    mh.histplot(*np.histogram(np.random.normal(0, 1, 1000)), ax=ax, label="Data")
+    # Add appropriate labels
+    mh.lhcb.label("Preliminary", data=False, lumi=100, com=15)  # ax can be implicit
+    # mh.mpl_magic(soft_fail=True)  # Autofit label - needed but not applied
+    ```
+
+=== "ALICE"
+
+    ```python
+    # mkdocs: render
+    import matplotlib.pyplot as plt
+    import mplhep as mh
+    import numpy as np
+    np.random.seed(42)
+    # Set the plotting style
+    mh.style.use("ALICE")
+
+    # Create a plot
+    fig, ax = plt.subplots()
+    # Plot a pre-binned histogram
+    mh.histplot(*np.histogram(np.random.normal(0, 1, 1000)), ax=ax, label="Data")
+    # Add appropriate labels
+    mh.alice.label("Preliminary", data=False, lumi=100, com=15)  # ax can be implicit
+    mh.mpl_magic(soft_fail=True)  # Autofit label
+    ```
+
+=== "DUNE"
+
+    ```python
+    # mkdocs: render
+    import matplotlib.pyplot as plt
+    import mplhep as mh
+    import numpy as np
+    np.random.seed(42)
+    # Set the plotting style
+    mh.style.use("DUNE")
+
+    # Create a plot
+    fig, ax = plt.subplots()
+    # Plot a pre-binned histogram
+    mh.histplot(*np.histogram(np.random.normal(0, 1, 1000)), ax=ax, label="Data")
+    # Add appropriate labels
+    mh.dune.label("Preliminary", data=False, lumi=100, com=15)  # ax can be implicit
+    # mh.mpl_magic(soft_fail=True)  # Autofit label - not needed
+    ```
+
+=== "PLOTHIST"
+
+    ```python
+    # mkdocs: render
+    import matplotlib.pyplot as plt
+    import mplhep as mh
+    import numpy as np
+    np.random.seed(42)
+    # Set the plotting style
+    mh.style.use("PLOTHIST")
+
+    # Create a plot
+    fig, ax = plt.subplots()
+    # Plot a pre-binned histogram
+    mh.histplot(*np.histogram(np.random.normal(0, 1, 1000)), ax=ax, label="Data")
+    # Add appropriate labels
+    txt_obj = mh.add_text("PLOTHIST", loc='over left')
+    mh.append_text("Demo", txt_obj, loc='right', fontsize='x-small')
+    ```
 
 This creates a simple histogram with HEP-style formatting. Check out the [Gallery](gallery.md) for more advanced examples!
 
-## Getting Started
+## [User Guide](guide.md)
 
-- [Install](install.md)
-- [User Guide](guide.md)
+## [Gallery](gallery.md)
 
-## Gallery
-
-- [Gallery Overview](gallery.md)
 - [1D Histogram Comparisons](gallery.md#1d-histogram-comparisons)
 - [Model Comparisons](gallery.md#model-comparisons)
 
-## Reference
-
-- [API](api.md)
+## [API](api.md)

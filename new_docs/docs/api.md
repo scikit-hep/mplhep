@@ -1,3 +1,8 @@
+---
+search:
+  boost: 10
+---
+
 # API reference
 
 ## Top Level
