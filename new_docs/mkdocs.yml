@@ -83,7 +83,6 @@ plugins:
             show_object_full_path: true
             extensions:
             - griffe_inherited_docstrings
-            - docstring_inheritance.griffe
 
 nav:
   - Home: index.md
