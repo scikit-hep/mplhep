@@ -59,6 +59,8 @@ markdown_extensions:
 
 
 plugins:
+  - mkdocs_matplotlib
+  - markdown-exec
   - mkdocstrings:
       handlers:
         python:
@@ -79,6 +81,9 @@ plugins:
             show_docstring_modules: true
             show_docstring_examples: false
             show_object_full_path: true
+            extensions:
+            - griffe_inherited_docstrings
+            - docstring_inheritance.griffe
 
 nav:
   - Home: index.md
