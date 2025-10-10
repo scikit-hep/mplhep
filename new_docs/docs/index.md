@@ -12,6 +12,9 @@ A [matplotlib](https://matplotlib.org/) wrapper for easy plotting required in hi
 
 ## Gallery
 
+- [Galery](gallery.md)
+
+
 - [Styles](gallery/styles.md)
 - [Labels](gallery/labels.md)
 

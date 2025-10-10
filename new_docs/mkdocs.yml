@@ -35,17 +35,28 @@ extra_javascript:
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 extra_css:
+  - stylesheets/neoteroi-mkdocs.css
   - _static/custom_css.css
 
 markdown_extensions:
-  - pymdownx.arithmatex:
-      generic: true
+  - neoteroi.cards
+  - attr_list
+  - md_in_html
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.snippets:
+      base_path: ../
+      check_paths: false
+  - pymdownx.inlinehilite
   - pymdownx.superfences
   - pymdownx.details
   - admonition
   - toc:
       permalink: "¤"
       toc_depth: 4
+
 
 plugins:
   - mkdocstrings:
@@ -74,6 +85,14 @@ nav:
   - Install: install.md
   - Guide: guide.md
   - Gallery:
-    - Styles: gallery/styles.md
-    - Labels: gallery/labels.md
+    - Overview: gallery.md
+    - 1D Comparisons:
+      - Asymmetry: gallery/1d_comparison_asymmetry.md
+      - Difference: gallery/1d_comparison_difference.md
+      - Efficiency: gallery/1d_comparison_efficiency.md
+      - Only Efficiency: gallery/1d_comparison_only_efficiency.md
+      - Pull: gallery/1d_comparison_pull.md
+      - Ratio: gallery/1d_comparison_ratio.md
+      - Relative Difference: gallery/1d_comparison_relative_difference.md
+      - Split Ratio: gallery/1d_comparison_split_ratio.md
   - API: api.md

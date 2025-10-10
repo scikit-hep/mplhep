@@ -5,15 +5,20 @@ Comparison
 Plot the comparison between two 1D histograms.
 """
 
+# --8<-- [start:imports]
 import hist
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from hist import Hist
 
 import mplhep as mh
 
+mpl.use("Agg")
 np.random.seed(42)
+# --8<-- [end:imports]
 
+# --8<-- [start:setup]
 # Generate dummy data - sample is subset of total
 x_total = np.random.normal(0.4, 0.1, 10000)
 x_sample = x_total[:7500]  # 75% subset
@@ -25,10 +30,13 @@ h_sample = Hist(
 h_total = hist.new.Regular(50, 0, 1).Weight()  # Shorthand interface
 h_sample.fill(x_sample)
 h_total.fill(x_total)
+# --8<-- [end:setup]
 
-###
+# --8<-- [start:plot_body]
+# Plot comparison using efficiency
 fig, ax = plt.subplots()
-
 mh.comp.ratio(h_sample, h_total, ax=ax, xlabel="Variable", comparison="efficiency")
+
+# --8<-- [end:plot_body]
 
 fig.savefig("1d_comparison_only_efficiency.svg", bbox_inches="tight")

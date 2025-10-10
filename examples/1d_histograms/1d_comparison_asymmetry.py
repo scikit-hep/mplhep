@@ -5,14 +5,19 @@ Asymmetry
 Compare two 1D histograms using the asymmetry comparison [(h1-h2)/(h1+h2)].
 """
 
+# --8<-- [start:imports]
 import hist
+import matplotlib as mpl
 import numpy as np
 from hist import Hist
 
 import mplhep as mh
 
+mpl.use("Agg")
 np.random.seed(42)
+# --8<-- [end:imports]
 
+# --8<-- [start:setup]
 # Generate dummy data
 x1 = np.r_[np.random.normal(0.4, 0.1, 5000), np.random.normal(0.7, 0.1, 5000)]
 x2 = np.r_[np.random.normal(0.4, 0.1, 1000), np.random.normal(0.7, 0.11, 7000)]
@@ -22,7 +27,9 @@ h1 = Hist(hist.axis.Regular(50, 0, 1), storage=hist.storage.Weight())  # Long in
 h2 = hist.new.Regular(50, 0, 1).Weight()  # Shorthand interface
 h1.fill(x1)
 h2.fill(x2)
+# --8<-- [end:setup]
 
+# --8<-- [start:plot_body]
 ###
 fig, ax_main, ax_comparison = mh.comp.hists(
     h1,
@@ -35,3 +42,4 @@ fig, ax_main, ax_comparison = mh.comp.hists(
 )
 
 fig.savefig("1d_comparison_asymmetry.svg", bbox_inches="tight")
+# --8<-- [end:plot_body]
