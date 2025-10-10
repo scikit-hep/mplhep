@@ -5,12 +5,16 @@ Data vs model with stacked components
 Plot data and a model with stacked components.
 """
 
+# --8<-- [start:imports]
 from plothist_utils import get_dummy_data
 
 df = get_dummy_data()
 
 import seaborn as sns
 
+# --8<-- [end:imports]
+
+# --8<-- [start:setup]
 # Define the histograms
 
 key = "variable_1"
@@ -53,7 +57,9 @@ background_hists = [background_scaling_factor * h for h in background_hists]
 
 signal_scaling_factor = data_hist.sum().value / signal_hist.sum().value
 signal_hist *= signal_scaling_factor
+# --8<-- [end:setup]
 
+# --8<-- [start:plot_body]
 ###
 from mplhep import histplot, plot_data_model_comparison
 
@@ -76,5 +82,6 @@ histplot(
 )
 
 ax_main.legend()
+# --8<-- [end:plot_body]
 
 fig.savefig("model_examples_stacked.svg", bbox_inches="tight")

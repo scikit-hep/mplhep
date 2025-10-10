@@ -5,6 +5,7 @@ Data/model comparisons, no model uncertainty
 All supported comparisons between data and model, without model uncertainty.
 """
 
+# --8<-- [start:imports]
 import hist
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,6 +14,9 @@ from hist import Hist
 
 import mplhep as mh
 
+# --8<-- [end:imports]
+
+# --8<-- [start:setup]
 # Set seed for reproducible demo
 np.random.seed(42)
 
@@ -64,7 +68,9 @@ background_hists = [scale_factor * h for h in background_hists]
 # Labels and colors
 background_labels = ["Background 1", "Background 2", "Background 3"]
 background_colors = sns.color_palette("cubehelix", 3)
+# --8<-- [end:setup]
 
+# --8<-- [start:plot_body]
 # Create comparison plots
 fig, axes = plt.subplots(
     nrows=6,
@@ -134,5 +140,6 @@ for k_comp, comparison in enumerate(
     mh.set_fitting_ylabel_fontsize(ax_comparison)
 
 axes[-1].set_xlabel("Observable")
+# --8<-- [end:plot_body]
 
 fig.savefig("model_all_comparisons_no_model_unc.svg", bbox_inches="tight")

@@ -5,6 +5,7 @@ Model with stacked and unstacked functional components
 Plot a model with stacked and unstacked functional components.
 """
 
+# --8<-- [start:imports]
 key = "variable_1"
 range = (-9, 12)
 
@@ -15,7 +16,10 @@ background_categories_labels = [f"c{i}" for i in background_categories]
 # Define some random functions that will be used as model components with functions
 from scipy.stats import norm
 
+# --8<-- [end:imports]
 
+
+# --8<-- [start:setup]
 def f_signal(x):
     return 1000 * norm.pdf(x, loc=0.5, scale=3)
 
@@ -28,6 +32,9 @@ def f_background2(x):
     return 3000 * norm.pdf(x, loc=-1.8, scale=1.8)
 
 
+# --8<-- [end:setup]
+
+# --8<-- [start:plot_body]
 ###
 from mplhep import add_text, plot_model
 
@@ -44,6 +51,7 @@ fig, ax = plot_model(
 )
 
 add_text("Model made of functions", ax=ax, loc="over left", fontsize="small")
+# --8<-- [end:plot_body]
 
 fig.savefig(
     "model_with_stacked_and_unstacked_function_components.svg", bbox_inches="tight"

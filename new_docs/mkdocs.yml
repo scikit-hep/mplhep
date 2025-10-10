@@ -95,4 +95,15 @@ nav:
       - Ratio: gallery/1d_comparison_ratio.md
       - Relative Difference: gallery/1d_comparison_relative_difference.md
       - Split Ratio: gallery/1d_comparison_split_ratio.md
+    - Model Comparisons:
+      - All Comparisons: gallery/model_all_comparisons.md
+      - All Comparisons No Model Uncertainty: gallery/model_all_comparisons_no_model_unc.md
+      - Pull: gallery/model_examples_pull.md
+      - Pull No Model Uncertainty: gallery/model_examples_pull_no_model_unc.md
+      - Stacked: gallery/model_examples_stacked.md
+      - Stacked Unstacked: gallery/model_examples_stacked_unstacked.md
+      - Unstacked: gallery/model_examples_unstacked.md
+      - Stacked and Unstacked Function Components: gallery/model_with_stacked_and_unstacked_function_components.md
+      - Stacked and Unstacked Histograms Components: gallery/model_with_stacked_and_unstacked_histograms_components.md
+      - Ratio Data vs Model with Stacked and Unstacked Function Components: gallery/ratio_data_vs_model_with_stacked_and_unstacked_function_components.md
   - API: api.md
