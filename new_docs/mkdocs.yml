@@ -42,6 +42,7 @@ theme:
     - content.code.annotate
     - content.action.view
     - content.action.edit
+    - content.tabs.link
   palette:
     - scheme: default
       primary: white
@@ -97,6 +98,9 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.superfences
   - pymdownx.details
+  - pymdownx.tabbed:
+      combine_header_slug: true
+      alternate_style: true
   - pymdownx.betterem
   - pymdownx.caret
   - pymdownx.mark
@@ -111,7 +115,7 @@ plugins:
   - search
   - minify
   - git-revision-date-localized
-  # - mkdocs_matplotlib
+  - mkdocs_matplotlib
   # - markdown-exec
   - mkdocstrings:
       handlers:
