@@ -48,17 +48,11 @@ ax.legend()
 
 This creates a simple histogram with HEP-style formatting. Check out the [Gallery](gallery.md) for more advanced examples!
 
-## Getting Started
+## [User Guide](guide.md)
 
-- [Install](install.md)
-- [User Guide](guide.md)
+## [Gallery](gallery.md)
 
-## Gallery
-
-- [Gallery Overview](gallery.md)
 - [1D Histogram Comparisons](gallery.md#1d-histogram-comparisons)
 - [Model Comparisons](gallery.md#model-comparisons)
 
-## Reference
-
-- [API](api.md)
+## [API](api.md)

@@ -5,6 +5,7 @@ Data vs model with unstacked components
 Plot data and a model with unstacked components.
 """
 
+# --8<-- [start:full_code]
 # --8<-- [start:imports]
 from plothist_utils import get_dummy_data
 
@@ -72,4 +73,5 @@ fig, ax_main, ax_comparison = plot_data_model_comparison(
 )
 # --8<-- [end:plot_body]
 
+# --8<-- [end:full_code]
 fig.savefig("model_examples_unstacked.svg", bbox_inches="tight")

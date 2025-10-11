@@ -5,6 +5,7 @@ Relative difference
 Compare two 1D histograms using the relative difference [(h1-h2)/h2].
 """
 
+# --8<-- [start:full_code]
 # --8<-- [start:imports]
 import hist
 import numpy as np
@@ -40,4 +41,5 @@ fig, ax_main, ax_comparison = mh.comp.hists(
 )
 
 # --8<-- [end:plot_body]
+# --8<-- [end:full_code]
 fig.savefig("1d_comparison_relative_difference.svg", bbox_inches="tight")

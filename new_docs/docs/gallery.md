@@ -1,3 +1,6 @@
+
+<!-- Well we could have implemented this in https://smarie.github.io/mkdocs-gallery/... -->
+
 # Gallery
 
 ## 1D Histogram Comparisons

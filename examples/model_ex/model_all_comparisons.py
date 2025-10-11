@@ -5,6 +5,7 @@ Data/model comparisons
 All supported comparisons between data and model.
 """
 
+# --8<-- [start:full_code]
 # --8<-- [start:imports]
 from plothist_utils import get_dummy_data
 
@@ -128,5 +129,5 @@ for k_comp, comparison in enumerate(
 axes[-1].set_xlabel("Observable")
 # --8<-- [end:plot_body]
 
+# --8<-- [end:full_code]
 fig.savefig("model_all_comparisons.svg", bbox_inches="tight")
-# --8<-- [end:plot_body]

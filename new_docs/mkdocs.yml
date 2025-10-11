@@ -5,14 +5,43 @@ site_url: https://mplhep.readthedocs.io/
 
 repo_url: https://github.com/scikit-hep/mplhep
 repo_name: scikit-hep/mplhep
+edit_uri: edit/examples/new_docs/docs
 
 theme:
   name: material
   features:
-    - navigation.sections
+    # Navigation
+    # - navigation.instant
+    # - navigation.tracking
+    # - navigation.sections
+    # - navigation.tabs.stick
+    # - navigation.expand
+    # - navigation.path
+    # - navigation.indexes
+    # - toc.integrate
+    - navigation.instant       # SPA-like navigation
+    - navigation.tracking      # Update URL on scroll
+    - navigation.tabs          # Top-level tabs
+    - navigation.tabs.sticky   # Keep tabs visible
+    - navigation.sections      # Render sections as groups
+    - navigation.expand        # Expand all sections
+    - navigation.path          # Breadcrumb navigation
+    - navigation.indexes       # Section index pages
+    - navigation.top           # Back to top button
+    - navigation.footer        # Previous/next links
     - toc.integrate
+    - toc.expand
+    # Search
+    - search.suggest
+    - search.highlight
+    - search.share
+
+
     - header.autohide
     - content.code.copy
+    - content.code.annotate
+    - content.action.view
+    - content.action.edit
   palette:
     - scheme: default
       primary: white
@@ -28,7 +57,23 @@ theme:
         name: Switch to light mode
   icon:
     repo: fontawesome/brands/github
-  logo: "material/library"
+    admonition:
+      note: fontawesome/solid/note-sticky
+      abstract: fontawesome/solid/book
+      info: fontawesome/solid/circle-info
+      tip: fontawesome/solid/bullhorn
+      success: fontawesome/solid/check
+      question: fontawesome/solid/circle-question
+      warning: fontawesome/solid/triangle-exclamation
+      failure: fontawesome/solid/bomb
+      danger: fontawesome/solid/skull
+      bug: fontawesome/solid/robot
+      example: fontawesome/solid/flask
+      quote: fontawesome/solid/quote-left
+      imports: fontawesome/solid/cubes
+      setup: fontawesome/solid/cog
+      code: fontawesome/solid/copy
+  logo: mplhep.png
 
 extra_javascript:
   - _static/mathjax.js
@@ -52,6 +97,10 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.superfences
   - pymdownx.details
+  - pymdownx.betterem
+  - pymdownx.caret
+  - pymdownx.mark
+  - pymdownx.tilde
   - admonition
   - toc:
       permalink: "¤"
@@ -59,8 +108,11 @@ markdown_extensions:
 
 
 plugins:
-  - mkdocs_matplotlib
-  - markdown-exec
+  - search
+  - minify
+  - git-revision-date-localized
+  # - mkdocs_matplotlib
+  # - markdown-exec
   - mkdocstrings:
       handlers:
         python:
@@ -83,10 +135,12 @@ plugins:
             show_object_full_path: true
             extensions:
             - griffe_inherited_docstrings
+  - git-committers:
+      repository: scikit-hep/mplhep
+      branch: main
 
 nav:
   - Home: index.md
-  - Install: install.md
   - Guide: guide.md
   - Gallery:
     - Overview: gallery.md

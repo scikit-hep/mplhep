@@ -5,6 +5,7 @@ Data vs functional model
 Compare data and model with stacked and unstacked functional components.
 """
 
+# --8<-- [start:full_code]
 # --8<-- [start:imports]
 from plothist_utils import get_dummy_data
 
@@ -66,6 +67,7 @@ fig, ax_main, ax_comparison = plot_data_model_comparison(
 )
 # --8<-- [end:plot_body]
 
+# --8<-- [end:full_code]
 fig.savefig(
     "ratio_data_vs_model_with_stacked_and_unstacked_function_components.svg",
     bbox_inches="tight",
