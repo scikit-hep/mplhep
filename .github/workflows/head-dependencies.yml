@@ -187,7 +187,7 @@ jobs:
         uv pip install --system --upgrade pip setuptools wheel
         uv pip install --system pytest-github-actions-annotate-failures
         uv pip install --system --no-cache-dir --quiet --upgrade .[test]
-        uv pip uninstall --system  pytest
+        uv pip uninstall --system pytest
         uv pip install --system --upgrade git+https://github.com/pytest-dev/pytest.git
 
     - name: List installed Python packages

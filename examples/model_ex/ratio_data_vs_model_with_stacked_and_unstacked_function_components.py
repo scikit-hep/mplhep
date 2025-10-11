@@ -5,6 +5,8 @@ Data vs functional model
 Compare data and model with stacked and unstacked functional components.
 """
 
+# --8<-- [start:full_code]
+# --8<-- [start:imports]
 from plothist_utils import get_dummy_data
 
 df = get_dummy_data()
@@ -29,7 +31,10 @@ data_hist.fill(df[key][data_mask])
 # Define some random functions that will be used as model components with functions
 from scipy.stats import norm
 
+# --8<-- [end:imports]
 
+
+# --8<-- [start:setup]
 def f_signal(x):
     return 1000 * norm.pdf(x, loc=0.5, scale=3)
 
@@ -42,6 +47,9 @@ def f_background2(x):
     return 3000 * norm.pdf(x, loc=-1.8, scale=1.8)
 
 
+# --8<-- [end:setup]
+
+# --8<-- [start:plot_body]
 ###
 from mplhep import plot_data_model_comparison
 
@@ -57,7 +65,9 @@ fig, ax_main, ax_comparison = plot_data_model_comparison(
     model_sum_kwargs={"show": True, "label": "Model", "color": "navy"},
     comparison="pull",
 )
+# --8<-- [end:plot_body]
 
+# --8<-- [end:full_code]
 fig.savefig(
     "ratio_data_vs_model_with_stacked_and_unstacked_function_components.svg",
     bbox_inches="tight",

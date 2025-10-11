@@ -1,3 +1,9 @@
+"""
+Styling module.
+
+This module provides matplotlib stylesheets for various HEP experiments.
+"""
+
 from __future__ import annotations
 
 import sys
@@ -91,10 +97,10 @@ def use(styles=None):
 
     Parameters
     ----------
-        styles: `str` or `mplhep.style` or `dict` None
-            The experiment style. Will understand a dictionary
-            of rcParams, a mplhep style or its string alias.
-            Pass ``None`` to reset to mpl defaults.
+    styles : str or mplhep.style or dict or None
+        The experiment style. Will understand a dictionary
+        of rcParams, a mplhep style or its string alias.
+        Pass ``None`` to reset to mpl defaults.
     """
 
     if styles is None:

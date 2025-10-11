@@ -5,12 +5,17 @@ Model with stacked and unstacked components
 Plot a model with stacked and unstacked components.
 """
 
+# --8<-- [start:full_code]
+# --8<-- [start:imports]
 from plothist_utils import get_dummy_data
 
 df = get_dummy_data()
 
 import seaborn as sns
 
+# --8<-- [end:imports]
+
+# --8<-- [start:setup]
 # Define the histograms
 
 key = "variable_1"
@@ -53,7 +58,9 @@ background_hists = [background_scaling_factor * h for h in background_hists]
 
 signal_scaling_factor = data_hist.sum().value / signal_hist.sum().value
 signal_hist *= signal_scaling_factor
+# --8<-- [end:setup]
 
+# --8<-- [start:plot_body]
 ###
 from mplhep import add_text, plot_model
 
@@ -76,7 +83,9 @@ add_text(
     ax=ax,
     loc="over left",
 )
+# --8<-- [end:plot_body]
 
+# --8<-- [end:full_code]
 fig.savefig(
     "model_with_stacked_and_unstacked_histograms_components.svg",
     bbox_inches="tight",

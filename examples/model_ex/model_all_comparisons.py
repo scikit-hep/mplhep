@@ -5,12 +5,19 @@ Data/model comparisons
 All supported comparisons between data and model.
 """
 
+# --8<-- [start:full_code]
+# --8<-- [start:imports]
 from plothist_utils import get_dummy_data
 
 df = get_dummy_data()
 
 import seaborn as sns
 
+import mplhep as mh
+
+# --8<-- [end:imports]
+
+# --8<-- [start:setup]
 # Define the histograms
 
 key = "variable_1"
@@ -50,7 +57,9 @@ for mask in background_masks:
 # Optional: scale to data
 background_scaling_factor = data_hist.sum().value / sum(background_hists).sum().value
 background_hists = [background_scaling_factor * h for h in background_hists]
+# --8<-- [end:setup]
 
+# --8<-- [start:plot_body]
 ###
 import matplotlib.pyplot as plt
 
@@ -58,7 +67,6 @@ from mplhep import (
     add_text,
     plot_comparison,
     plot_data_model_comparison,
-    set_fitting_ylabel_fontsize,
 )
 
 fig, axes = plt.subplots(
@@ -116,8 +124,10 @@ for k_comp, comparison in enumerate(
         fontsize=13,
         loc="over left",
     )
-    set_fitting_ylabel_fontsize(ax_comparison)
+    mh.set_fitting_ylabel_fontsize(ax_comparison)
 
-axes[-1].set_xlabel(key)
+axes[-1].set_xlabel("Observable")
+# --8<-- [end:plot_body]
 
+# --8<-- [end:full_code]
 fig.savefig("model_all_comparisons.svg", bbox_inches="tight")

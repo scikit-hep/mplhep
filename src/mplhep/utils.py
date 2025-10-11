@@ -99,16 +99,16 @@ def yscale_legend(
 
     Parameters
     ----------
-        ax : matplotlib.axes.Axes, optional
-            Axes object (if None, last one is fetched or one is created)
-        otol : float, optional
-            Tolerance for overlap, default 0. Set ``otol > 0`` for less strict scaling.
-        soft_fail : bool, optional
-            Set ``soft_fail=True`` to return even if it could not fit the legend.
+    ax : matplotlib.axes.Axes, optional
+        Axes object (if None, last one is fetched or one is created)
+    otol : float, optional
+        Tolerance for overlap, default 0. Set ``otol > 0`` for less strict scaling.
+    soft_fail : bool, optional
+        Set ``soft_fail=True`` to return even if it could not fit the legend.
 
     Returns
     -------
-        ax : matplotlib.axes.Axes
+    ax : matplotlib.axes.Axes
     """
     if ax is None:
         ax = plt.gca()
@@ -157,16 +157,16 @@ def yscale_anchored_text(
 
     Parameters
     ----------
-        ax : matplotlib.axes.Axes, optional
-            Axes object (if None, last one is fetched or one is created)
-        otol : float, optional
-            Tolerance for overlap, default 0. Set ``otol > 0`` for less strict scaling.
-        soft_fail : bool, optional
-            Set ``soft_fail=True`` to return even if it could not fit the legend.
+    ax : matplotlib.axes.Axes, optional
+        Axes object (if None, last one is fetched or one is created)
+    otol : float, optional
+        Tolerance for overlap, default 0. Set ``otol > 0`` for less strict scaling.
+    soft_fail : bool, optional
+        Set ``soft_fail=True`` to return even if it could not fit the legend.
 
     Returns
     -------
-        ax : matplotlib.axes.Axes
+    ax : matplotlib.axes.Axes
     """
     if ax is None:
         ax = plt.gca()
@@ -212,14 +212,14 @@ def set_ylow(
 
     Parameters
     ----------
-        ax : matplotlib.axes.Axes, optional
-            Axes object (if None, last one is fetched or one is created)
-        ylow : float, optional
-            Set lower y limit to a specific value.
+    ax : matplotlib.axes.Axes, optional
+        Axes object (if None, last one is fetched or one is created)
+    ylow : float, optional
+        Set lower y limit to a specific value.
 
     Returns
     -------
-        ax : matplotlib.axes.Axes
+    ax : matplotlib.axes.Axes
     """
     if ax is None:
         ax = plt.gca()
@@ -258,7 +258,7 @@ def mpl_magic(
     ----------
     ax : matplotlib.axes.Axes, optional
         Axes object (if None, last one is fetched or one is created)
-    ylow_value : float, optional
+    ylow : float, optional
         Set lower y limit to a specific value for ylow function
     otol : float, optional
         Tolerance for overlap for yscale_legend, default 0
@@ -352,6 +352,24 @@ def append_axes(ax, size=0.1, pad=0.1, position="right", extend=False):
     Append a side ax to the current figure and return it.
     Figure is automatically extended along the direction of the added axes to
     accommodate it. Unfortunately can not be reliably chained.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        The axes to append to
+    size : float or str, optional
+        Size of the appended axes. If str ending with '%', interpreted as percentage of parent axes size.
+    pad : float or str, optional
+        Padding between axes. If str ending with '%', interpreted as percentage of parent axes size.
+    position : str, optional
+        Position of appended axes ('right', 'left', 'top', 'bottom')
+    extend : bool, optional
+        Whether to extend the figure size to accommodate the new axes
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        The appended axes object
     """
     fig = ax.figure
     bbox = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
