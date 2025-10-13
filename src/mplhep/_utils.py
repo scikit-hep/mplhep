@@ -1010,7 +1010,7 @@ def _hist_legend(ax=None, **kwargs):
     return ax
 
 
-def _overlap(ax, bboxes, get_vertices=False):
+def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
     """
     Find overlap of bboxes (in display coordinates) with drawn elements on axes.
 
@@ -1020,9 +1020,23 @@ def _overlap(ax, bboxes, get_vertices=False):
 
     Returns number of overlapping points/bboxes.
     If get_vertices, also return vertices in data coordinates.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        The axes to check
+    bboxes : Bbox or list of Bbox
+        Bounding boxes to check for overlap
+    get_vertices : bool, optional
+        If True, also return vertices in data coordinates
+    exclude_texts : list, optional
+        List of Text objects to exclude from overlap detection (to avoid self-overlap)
     """
     if not isinstance(bboxes, list):
         bboxes = [bboxes]
+
+    if exclude_texts is None:
+        exclude_texts = []
 
     lines_display = []
     bboxes_display = []
@@ -1073,9 +1087,9 @@ def _overlap(ax, bboxes, get_vertices=False):
                 vertices_display = ax.transData.transform(path.vertices)
                 lines_display.append(vertices_display)
 
-    # Collect bboxes from texts
+    # Collect bboxes from texts (excluding specified text objects to avoid self-overlap)
     for handle in ax.texts:
-        if isinstance(handle, Text):
+        if isinstance(handle, Text) and handle not in exclude_texts:
             bboxes_display.append(handle.get_window_extent())
 
     # Concatenate all vertices in display coordinates
@@ -1119,7 +1133,7 @@ def _overlap(ax, bboxes, get_vertices=False):
     return overlap_count
 
 
-def _calculate_optimal_scaling(ax, bboxes):
+def _calculate_optimal_scaling(ax, bboxes, exclude_texts=None):
     """
     Calculate the optimal scaling factor for the y-axis to ensure the annotations fit without overlap.
 
@@ -1132,6 +1146,8 @@ def _calculate_optimal_scaling(ax, bboxes):
         The axes containing the plot and annotations
     bboxes : list of matplotlib.transforms.Bbox
         Annotation bounding boxes in display coordinates
+    exclude_texts : list, optional
+        List of Text objects to exclude from overlap detection
 
     Returns
     -------
@@ -1141,7 +1157,9 @@ def _calculate_optimal_scaling(ax, bboxes):
     if not isinstance(bboxes, list):
         bboxes = [bboxes]
 
-    overlap_count, vertices = _overlap(ax, bboxes, get_vertices=True)
+    overlap_count, vertices = _overlap(
+        ax, bboxes, get_vertices=True, exclude_texts=exclude_texts
+    )
 
     if overlap_count == 0:
         return 1.0
@@ -1220,17 +1238,22 @@ def _draw_leg_bbox(ax):
 def _draw_text_bbox(ax):
     """
     Draw text objects and fetch their bboxes
+
+    Returns
+    -------
+    tuple
+        (bboxes, text_objects) - List of bboxes and corresponding text objects
     """
     fig = ax.figure
     textboxes = [k for k in ax.get_children() if isinstance(k, (AnchoredText, Text))]
     logger.debug(f"_draw_text_bbox: Found {len(textboxes)} text objects")
     logger.debug(f"_draw_text_bbox: Found {textboxes}")
     if not textboxes:
-        return []
+        return [], []
 
     fig.canvas.draw()
     bboxes = []
     for box in textboxes:
         bboxes.append(box.get_tightbbox(fig.canvas.renderer))
     logger.debug(f"_draw_text_bbox: Returning {len(bboxes)} bboxes")
-    return bboxes
+    return bboxes, textboxes
