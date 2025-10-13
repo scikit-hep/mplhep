@@ -12,12 +12,6 @@ Install mplhep using pip:
 pip install mplhep
 ```
 
-Or with conda:
-
-```bash
-conda install -c conda-forge mplhep
-```
-
 ## Simple Example
 
 Here's a quick example showing the primary functionality

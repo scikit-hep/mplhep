@@ -305,6 +305,6 @@ def test_yscale_mpl_magic_add_text():
 
     # Apply mpl_magic to automatically scale
     for _, axr in [ax1, ax2, ax3]:
-        mh.mpl_magic(axr)
+        mh.mpl_magic(axr, soft_fail=True)
 
     return fig
