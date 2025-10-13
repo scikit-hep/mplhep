@@ -426,6 +426,7 @@ def append_text(
     pad: str | float = "auto",
     ax: Axes | None = None,
     text_class: type[mtext.Text] = mtext.Text,
+    _debug_x_override: float | None = None,
     **kwargs: Any,
 ) -> mtext.Text:
     """
@@ -549,6 +550,8 @@ def append_text(
         valid_locs = ["right", "below", "above", "left"]
         msg = f"Invalid `loc={loc}`. Choose from {valid_locs}"
         raise ValueError(msg)
+    if _debug_x_override is not None:
+        _x = _debug_x_override
     txt_artist = text_class(_x, _y, s, va=va, ha=ha, transform=ax.transAxes, **kwargs)
     ax._add_text(txt_artist)  # type: ignore[attr-defined]
     return txt_artist
