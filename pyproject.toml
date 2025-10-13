@@ -45,7 +45,7 @@ dev = [
 docs = [
     "mkdocs>=1.6",
     "mkdocs-material[imaging]>=9.0",
-    "mkdocs-matplotlib",
+    "mkdocs-matplotlib @ git+https://github.com/andrzejnovak/mkdocs-matplotlib.git",
     "neoteroi-mkdocs",
     "mkdocs-minify-plugin",
     "mkdocs-git-revision-date-localized-plugin",
@@ -81,14 +81,17 @@ dev = "mplhep._dev:main"
 [tool.hatch]
 version.source = "vcs"
 build.hooks.vcs.version-file = "src/mplhep/_version.py"
+metadata.allow-direct-references = true
 
+
+[dependency-groups]
+dev = [
+    "mplhep[test]",
+]
 
 [tool.uv]
 environments = [
     "python_version >= '3.10'",
-]
-dev-dependencies = [
-    "mplhep[test]",
 ]
 
 

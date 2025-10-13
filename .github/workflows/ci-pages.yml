@@ -45,7 +45,7 @@ jobs:
       - name: Install package and documentation dependencies
         run: |
           uv pip install -e ".[all]"
-          uv pip install mkdocs mkdocs-material mkdocs-matplotlib markdown-exec mkdocstrings[python] neoteroi-mkdocs griffe-inherited-docstrings docstring-inheritance
+          uv pip install markdown-exec griffe-inherited-docstrings docstring-inheritance
           uv pip list
 
       - name: Build documentation
