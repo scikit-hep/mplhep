@@ -128,7 +128,7 @@ LHCb2 = {
     "axes.linewidth": 2,
     "axes.facecolor": "white",
     "axes.xmargin": 0.0,
-    "axes.ymargin": 0.0,
+    # "axes.ymargin": 0.0,
     # Custom colors
     "axes.prop_cycle": cycler("color", colors2),
     "axes.formatter.min_exponent": 3,
