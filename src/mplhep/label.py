@@ -458,6 +458,11 @@ def append_text(
     ax = ax if ax is not None else plt.gca()
     fontsize = _fontsize_to_points(kwargs.get("fontsize", rcParams["font.size"]))
 
+    # Ensure canvas is drawn to get correct text metrics (especially important with certain styles like LHCb2)
+    # Only draw if figure is stale to avoid unnecessary rendering
+    if ax.figure.stale:  # type: ignore[union-attr]
+        ax.figure.canvas.draw()  # type: ignore[union-attr]
+
     ax_width = ax.get_position().width * ax.figure.get_size_inches()[0]  # type: ignore[union-attr]
     ax_height = ax.get_position().height * ax.figure.get_size_inches()[1]  # type: ignore[union-attr]
     bbox, _, descent = txt_obj._get_layout(ax.figure.canvas.get_renderer())  # type: ignore[attr-defined,union-attr]
@@ -500,11 +505,11 @@ def append_text(
         """Calculate Y position for right/left positioning."""
         _validate_alignment(va)
         if va == "bottom":
-            return ref_y + yoffset + text_height_corr
+            return ref_y + yoffset
         if va == "top":
-            return ref_y + yoffset - text_height + text_height_corr
+            return ref_y + yoffset - text_height
         # baseline
-        return ref_y + text_height_corr
+        return ref_y
 
     if loc == "right":
         _x = ref_right + auto_spacing
