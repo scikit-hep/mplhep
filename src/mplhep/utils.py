@@ -93,6 +93,7 @@ def yscale_legend(
     ax: mpl.axes.Axes | None = None,
     otol: float = 0,
     soft_fail: bool = False,
+    N: int = 3,
 ) -> mpl.axes.Axes:
     """
     Automatically scale y-axis up to fit in legend().
@@ -105,6 +106,8 @@ def yscale_legend(
         Tolerance for overlap, default 0. Set ``otol > 0`` for less strict scaling.
     soft_fail : bool, optional
         Set ``soft_fail=True`` to return even if it could not fit the legend.
+    N : int, optional
+        Maximum number of scaling iterations, default 10.
 
     Returns
     -------
@@ -119,10 +122,19 @@ def yscale_legend(
         # No legend found, return axes unchanged
         return ax
 
-    # Calculate optimal scaling
-    scale_factor = _calculate_optimal_scaling(ax, leg_bbox)
+    initial_overlap = _overlap(ax, leg_bbox)
+    if initial_overlap <= otol:
+        return ax
 
-    if scale_factor > 1.0:
+    iterations = 0
+    final_overlap = initial_overlap
+    while iterations < N:
+        # Calculate optimal scaling
+        scale_factor = _calculate_optimal_scaling(ax, leg_bbox)
+
+        if scale_factor <= 1.0:
+            break
+
         # Apply scaling
         y_min, y_max = ax.get_ylim()
         new_y_max = y_max * scale_factor
@@ -136,13 +148,18 @@ def yscale_legend(
 
         # Check if scaling resolved overlap
         final_overlap = _overlap(ax, _draw_leg_bbox(ax))
-        if final_overlap > otol and not soft_fail:
-            msg = f"Could not fit legend after scaling (overlap: {final_overlap}). Try increasing otol or using soft_fail=True."
-            raise RuntimeError(msg)
-        if final_overlap > otol:
-            logging.warning(
-                f"Legend still overlaps after scaling (overlap: {final_overlap})"
-            )
+        if final_overlap <= otol:
+            return ax
+
+        iterations += 1
+
+    if final_overlap > otol and not soft_fail:
+        msg = f"Could not fit legend after {N} scaling iterations (overlap: {final_overlap}). Try increasing otol, N, or using soft_fail=True."
+        raise RuntimeError(msg)
+    if final_overlap > otol:
+        logging.warning(
+            f"Legend still overlaps after {N} scaling iterations (overlap: {final_overlap})"
+        )
 
     return ax
 
@@ -151,6 +168,7 @@ def yscale_anchored_text(
     ax: mpl.axes.Axes | None = None,
     otol: float = 0,
     soft_fail: bool = False,
+    N: int = 3,
 ) -> mpl.axes.Axes:
     """
     Automatically scale y-axis up to fit AnchoredText
@@ -163,6 +181,8 @@ def yscale_anchored_text(
         Tolerance for overlap, default 0. Set ``otol > 0`` for less strict scaling.
     soft_fail : bool, optional
         Set ``soft_fail=True`` to return even if it could not fit the legend.
+    N : int, optional
+        Maximum number of scaling iterations, default 10.
 
     Returns
     -------
@@ -177,9 +197,20 @@ def yscale_anchored_text(
     if not text_bbox:
         return ax
 
-    # Calculate optimal scaling (excluding the text objects we're positioning)
-    scale_factor = _calculate_optimal_scaling(ax, text_bbox, exclude_texts=text_objects)
-    if scale_factor > 1.0:
+    initial_overlap = _overlap(ax, text_bbox, exclude_texts=text_objects)
+    if initial_overlap <= otol:
+        return ax
+
+    iterations = 0
+    final_overlap = initial_overlap
+    while iterations < N:
+        # Calculate optimal scaling (excluding the text objects we're positioning)
+        scale_factor = _calculate_optimal_scaling(
+            ax, text_bbox, exclude_texts=text_objects
+        )
+        if scale_factor <= 1.0:
+            break
+
         # Apply scaling
         y_min, y_max = ax.get_ylim()
         new_y_max = y_max * scale_factor
@@ -196,13 +227,18 @@ def yscale_anchored_text(
         final_overlap = _overlap(
             ax, updated_text_bbox, exclude_texts=updated_text_objects
         )
-        if final_overlap > otol and not soft_fail:
-            msg = f"Could not fit AnchoredText after scaling (overlap: {final_overlap}). Try increasing otol or using soft_fail=True."
-            raise RuntimeError(msg)
-        if final_overlap > otol:
-            logging.warning(
-                f"AnchoredText still overlaps after scaling (overlap: {final_overlap})"
-            )
+        if final_overlap <= otol:
+            return ax
+
+        iterations += 1
+
+    if final_overlap > otol and not soft_fail:
+        msg = f"Could not fit AnchoredText after {N} scaling iterations (overlap: {final_overlap}). Try increasing otol, N, or using soft_fail=True."
+        raise RuntimeError(msg)
+    if final_overlap > otol:
+        logging.warning(
+            f"AnchoredText still overlaps after {N} scaling iterations (overlap: {final_overlap})"
+        )
 
     return ax
 
@@ -250,6 +286,7 @@ def mpl_magic(
     ylow: float | None = None,
     otol=1,
     soft_fail=False,
+    N=10,
 ):
     """
     Consolidate all ex-post style adjustments:
@@ -267,6 +304,8 @@ def mpl_magic(
         Tolerance for overlap for yscale_legend, default 0
     soft_fail : bool, optional
         Set to True to return even if legend could not fit in 10 iterations
+    N : int, optional
+        Maximum number of scaling iterations for yscale functions, default 10
     Returns
     -------
     ax : matplotlib.axes.Axes
@@ -275,8 +314,8 @@ def mpl_magic(
         ax = plt.gca()
 
     ax = set_ylow(ax, ylow=ylow)
-    ax = yscale_legend(ax, otol=otol, soft_fail=soft_fail)
-    return yscale_anchored_text(ax, otol=otol, soft_fail=soft_fail)
+    ax = yscale_legend(ax, otol=otol, soft_fail=soft_fail, N=N)
+    return yscale_anchored_text(ax, otol=otol, soft_fail=soft_fail, N=N)
 
 
 ########################################
