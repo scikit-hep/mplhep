@@ -115,7 +115,9 @@ plugins:
   - search
   - minify
   - git-revision-date-localized
-  - mkdocs_matplotlib
+  - mkdocs_matplotlib:
+      align: left       # Options: left, center, right (default: center)
+      image_width: 50%   # Default width for rendered images (default: 100%)
   # - markdown-exec
   - mkdocstrings:
       handlers:
