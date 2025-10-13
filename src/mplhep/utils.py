@@ -171,14 +171,14 @@ def yscale_anchored_text(
     if ax is None:
         ax = plt.gca()
 
-    # Get text bbox
-    text_bbox = _draw_text_bbox(ax)
+    # Get text bbox and text objects
+    text_bbox, text_objects = _draw_text_bbox(ax)
     logger.debug(f"yscale_anchored_text: Received {len(text_bbox)} text bboxes")
     if not text_bbox:
         return ax
 
-    # Calculate optimal scaling
-    scale_factor = _calculate_optimal_scaling(ax, text_bbox)
+    # Calculate optimal scaling (excluding the text objects we're positioning)
+    scale_factor = _calculate_optimal_scaling(ax, text_bbox, exclude_texts=text_objects)
     if scale_factor > 1.0:
         # Apply scaling
         y_min, y_max = ax.get_ylim()
@@ -191,8 +191,11 @@ def yscale_anchored_text(
             raise RuntimeError(msg)
         fig.canvas.draw()
 
-        # Check if scaling resolved overlap
-        final_overlap = _overlap(ax, _draw_text_bbox(ax))
+        # Check if scaling resolved overlap (excluding the annotation texts themselves)
+        updated_text_bbox, updated_text_objects = _draw_text_bbox(ax)
+        final_overlap = _overlap(
+            ax, updated_text_bbox, exclude_texts=updated_text_objects
+        )
         if final_overlap > otol and not soft_fail:
             msg = f"Could not fit AnchoredText after scaling (overlap: {final_overlap}). Try increasing otol or using soft_fail=True."
             raise RuntimeError(msg)
