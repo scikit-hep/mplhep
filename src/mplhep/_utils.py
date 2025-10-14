@@ -501,6 +501,9 @@ def _norm_stack_plottables(plottables, bins, stack=False, density=False, binwnor
     # Stack
     if stack and len(plottables) > 1:
         _stack(*plottables)
+        # Reset errors so they get recalculated with stacked values and updated variances
+        for plottable in plottables:
+            plottable._errors_present = False
 
 
 def _get_histogram_axes_title(axis: Any) -> str:
@@ -571,12 +574,26 @@ def _make_plottable_histogram(hist_like, **kwargs):
 
 def _stack(*plottables):
     baseline = np.nan_to_num(copy.deepcopy(plottables[0].values()), 0)
+    baseline_variance = (
+        np.nan_to_num(copy.deepcopy(plottables[0].variances()), 0)
+        if plottables[0].variances() is not None
+        else None
+    )
     for i in range(1, len(plottables)):
         _mask = np.isnan(plottables[i].values())
         _baseline = copy.deepcopy(baseline)
         _baseline[_mask] = np.nan
         plottables[i].baseline = _baseline
         baseline += np.nan_to_num(plottables[i].values(), 0)
+
+        # Update variances cumulatively for proper error calculation
+        if baseline_variance is not None and plottables[i].variances() is not None:
+            baseline_variance += np.nan_to_num(plottables[i].variances(), 0)
+            plottables[i].set_variances(np.copy(baseline_variance))
+        elif baseline_variance is None and plottables[i].variances() is not None:
+            baseline_variance = np.nan_to_num(plottables[i].variances(), 0)
+            plottables[i].set_variances(np.copy(baseline_variance))
+
         plottables[i].set_values(np.nansum([plottables[i].values(), _baseline], axis=0))
         plottables[i].set_values(np.where(_mask, np.nan, plottables[i].values()))
     return plottables
