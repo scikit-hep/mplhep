@@ -4,429 +4,582 @@ This guide provides an overview of mplhep's core functionality and common usage 
 
 ## Overview
 
-mplhep is a matplotlib wrapper designed specifically for HEP plotting needs, providing:
+`mplhep` is a matplotlib wrapper designed specifically for HEP plotting needs, providing:
 
-- **Histogram plotting** - Functions for 1D and 2D pre-binned histograms with support for the [Unified Histogram Interface (UHI)](https://uhi.readthedocs.io/)
 - **Experiment styles** - Official styles for ATLAS, CMS, LHCb, ALICE, and DUNE experiments
+- **Histogram plotting** - Functions for 1D and 2D pre-binned histograms with support for the [Unified Histogram Interface (UHI)](https://uhi.readthedocs.io/)
+    - Functions will take `*np.histogram()`, `hist.Hist`, or `ROOT.TH1` objects.
 - **Comparison plotters** - High-level functions for data-model comparisons with ratio, pull, and difference panels
-- **Label utilities** - Experiment-specific label formatters with automatic positioning
+- **Label/plotting utilities** - Experiment-specific label formatters with automatic positioning
+
+Throughout this guide the following codeblock is assumed.
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+import hist
+np.random.seed(42)
+import mplhep as mh
+# mh.style.use('<as appropriate>')
+```
 
 
-## Basic Usage
+## Experiment styles
 
-### Simple Histogram Plot
+Please see our [Homepage](index.md) for a quick demo and for experiment labeling options see [Labels and Text](#labels-and-text)
 
-The primary plotting function is `histplot()`, which accepts various histogram formats. Here's how it looks with different experiment styles:
+## 1D Histogram Plotting
 
-=== "CMS"
-
-    ```python
-    # mkdocs: render
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
-
-    # Apply CMS style
-    mh.style.use('CMS')
-
-    # Generate sample data and create histogram
-    data = np.random.normal(0, 1, 1000)
-    fig, ax = plt.subplots()
-    mh.histplot(*np.histogram(data, bins=50), ax=ax, label='Data')
-
-    # Add CMS label
-    mh.cms.label('Preliminary', data=True, lumi=100, com=13)
-    ax.legend()
-    ```
-
-=== "ATLAS"
-
-    ```python
-    # mkdocs: render
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
-
-    # Apply ATLAS style
-    mh.style.use('ATLAS')
-
-    # Generate sample data and create histogram
-    data = np.random.normal(0, 1, 1000)
-    fig, ax = plt.subplots()
-    mh.histplot(*np.histogram(data, bins=50), ax=ax, label='Data')
-
-    # Add ATLAS label
-    mh.atlas.label('Internal', data=True, lumi=150, com=13)
-    mh.mpl_magic(soft_fail=True)
-    ax.legend()
-    ```
-
-=== "LHCb"
-
-    ```python
-    # mkdocs: render
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
-
-    # Apply LHCb style
-    mh.style.use('LHCb2')
-
-    # Generate sample data and create histogram
-    data = np.random.normal(0, 1, 1000)
-    fig, ax = plt.subplots()
-    mh.histplot(*np.histogram(data, bins=50), ax=ax, label='Data')
-
-    # Add LHCb label
-    mh.lhcb.label('Preliminary', data=True, lumi=50, com=13)
-    ax.legend()
-    ```
-
-=== "ALICE"
-
-    ```python
-    # mkdocs: render
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
-
-    # Apply ALICE style
-    mh.style.use('ALICE')
-
-    # Generate sample data and create histogram
-    data = np.random.normal(0, 1, 1000)
-    fig, ax = plt.subplots()
-    mh.histplot(*np.histogram(data, bins=50), ax=ax, label='Data')
-
-    # Add ALICE label
-    mh.alice.label('Preliminary', data=True, lumi=100, com=13)
-    mh.mpl_magic(soft_fail=True)
-    ax.legend()
-    ```
-
-=== "DUNE"
-
-    ```python
-    # mkdocs: render
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
-
-    # Apply DUNE style
-    mh.style.use('DUNE')
-
-    # Generate sample data and create histogram
-    data = np.random.normal(0, 1, 1000)
-    fig, ax = plt.subplots()
-    mh.histplot(*np.histogram(data, bins=50), ax=ax, label='Data')
-
-    # Add DUNE label
-    mh.dune.label('Preliminary', data=True, lumi=100, com=13)
-    ax.legend()
-    ```
-
-=== "PLOTHIST"
-
-    ```python
-    # mkdocs: render
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
-
-    # Apply PLOTHIST style
-    mh.style.use('PLOTHIST')
-
-    # Generate sample data and create histogram
-    data = np.random.normal(0, 1, 1000)
-    fig, ax = plt.subplots()
-    mh.histplot(*np.histogram(data, bins=50), ax=ax, label='Data')
-
-    # Add PLOTHIST label
-    txt_obj = mh.add_text('PLOTHIST', loc='over left')
-    mh.append_text('Demo', txt_obj, loc='right', fontsize='x-small')
-    ax.legend()
-    ```
-
-
-## Histogram Plotting
+`mh.histplot()` works with multiple histogram formats through the UHI protocol:
 
 ### Supported Input Formats
 
-`histplot()` works with multiple histogram formats through the UHI protocol:
 
-```python
-# 1. Raw data array (will be binned)
-mh.histplot(data, bins=50)
+=== "Default"
 
-# 2. Pre-computed histogram (counts, bins)
-counts, bins = np.histogram(data, bins=50)
-mh.histplot(counts, bins=bins)
+    === "Array-Like"
 
-# 3. UHI-compatible objects (hist, uproot, boost_histogram)
-import hist
-h = hist.Hist(hist.axis.Regular(50, -3, 3))
-h.fill(data)
-mh.histplot(h)
-```
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+          # mkdocs: hide
+        fig, ax = plt.subplots()
+        mh.histplot([1, 2, 3, 6, 3, 5, 2, 1], ax=ax)
+        ```
 
-### Multiple Histograms
+    === "`numpy.histogram`"
 
-Plot multiple histograms on the same axes:
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+          # mkdocs: hide
+        data = np.random.normal(0, 1, 1000)
+        fig, ax = plt.subplots()
+        mh.histplot(*np.histogram(data, bins=40), ax=ax)
+        ```
 
-```python
-data1 = np.random.normal(0, 1, 1000)
-data2 = np.random.normal(0.5, 1.2, 1000)
+    === "`hist.Hist`"
 
-# Define bins once for consistent binning
-bins = np.linspace(-4, 4, 50)
-h1, _ = np.histogram(data1, bins=bins)
-h2, _ = np.histogram(data2, bins=bins)
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+          # mkdocs: hide
+        data = np.random.normal(0, 1, 1000)
+        h_obj = hist.new.Reg(40, -4, 4).Weight().fill(data)
+        fig, ax = plt.subplots()
+        mh.histplot(h_obj, ax=ax)
+        # Note that errorbars are now automatically plotted because hist.Hist inputs objects has .variances() available
+        ```
 
-fig, ax = plt.subplots()
-mh.histplot(
-    [h1, h2],
-    bins=bins,
-    label=['Signal', 'Background'],
-    ax=ax
-)
-ax.legend()
-```
 
-### Stacked Histograms
+    === "`uproot.TH1`"
 
-Create stacked histogram plots to show signal and background contributions:
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+          # mkdocs: hide
+        from skhep_testdata import data_path  # mkdocs: hide
+        uproot_file_name = data_path("uproot-hepdata-example.root")  # mkdocs: hide
+        import uproot
+
+        file = uproot.open(uproot_file_name)
+        h_root = file['hpx']
+        fig, ax = plt.subplots()
+        mh.histplot(h_root, ax=ax)
+        ```
+
+
+
 
 === "CMS"
 
-    ```python
-    # mkdocs: render
+    === "Array-Like"
+
+        ```python
+        # mkdocs: render
         # mkdocs: align=left
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
-    mh.style.use('CMS')
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('CMS')  # mkdocs: hide
+        fig, ax = plt.subplots()
+        mh.histplot([1, 2, 3, 6, 3, 5, 2, 1], ax=ax)
+        ```
 
-    # Generate signal and background data
-    signal = np.random.normal(0, 1, 500)
-    background = np.random.normal(0.5, 1.2, 800)
-    bins = np.linspace(-4, 4, 30)
-    h_sig, _ = np.histogram(signal, bins=bins)
-    h_bkg, _ = np.histogram(background, bins=bins)
+    === "`numpy.histogram`"
 
-    # Create stacked histogram
-    fig, ax = plt.subplots()
-    mh.histplot(
-        [h_sig, h_bkg],
-        bins=bins,
-        stack=True,
-        label=['Signal', 'Background'],
-        ax=ax
-    )
-    mh.cms.label(data=False)
-    ax.legend()
-    ax.set_xlabel('Observable')
-    ax.set_ylabel('Events')
-    ```
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('CMS')  # mkdocs: hide
+        data = np.random.normal(0, 1, 1000)
+        fig, ax = plt.subplots()
+        mh.histplot(*np.histogram(data, bins=40), ax=ax)
+        ```
+
+    === "`hist.Hist`"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('CMS')  # mkdocs: hide
+        data = np.random.normal(0, 1, 1000)
+        h_obj = hist.new.Reg(40, -4, 4).Weight().fill(data)
+        fig, ax = plt.subplots()
+        mh.histplot(h_obj, ax=ax)
+        # Note that errorbars are now automatically plotted because hist.Hist inputs objects has .variances() available
+        ```
+
+
+    === "`uproot.TH1`"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('CMS')  # mkdocs: hide
+        from skhep_testdata import data_path  # mkdocs: hide
+        uproot_file_name = data_path("uproot-hepdata-example.root")  # mkdocs: hide
+        import uproot
+
+        file = uproot.open(uproot_file_name)
+        h_root = file['hpx']
+        fig, ax = plt.subplots()
+        mh.histplot(h_root, ax=ax)
+        ```
+
+
+
 
 === "ATLAS"
 
-    ```python
-    # mkdocs: render
+    === "Array-Like"
+
+        ```python
+        # mkdocs: render
         # mkdocs: align=left
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
-    mh.style.use('ATLAS')
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ATLAS')  # mkdocs: hide
+        fig, ax = plt.subplots()
+        mh.histplot([1, 2, 3, 6, 3, 5, 2, 1], ax=ax)
+        ```
 
-    # Generate signal and background data
-    signal = np.random.normal(0, 1, 500)
-    background = np.random.normal(0.5, 1.2, 800)
-    bins = np.linspace(-4, 4, 30)
-    h_sig, _ = np.histogram(signal, bins=bins)
-    h_bkg, _ = np.histogram(background, bins=bins)
+    === "`numpy.histogram`"
 
-    # Create stacked histogram
-    fig, ax = plt.subplots()
-    mh.histplot(
-        [h_sig, h_bkg],
-        bins=bins,
-        stack=True,
-        label=['Signal', 'Background'],
-        ax=ax
-    )
-    mh.atlas.label(data=False)
-    mh.mpl_magic(soft_fail=True)
-    ax.legend()
-    ax.set_xlabel('Observable')
-    ax.set_ylabel('Events')
-    ```
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ATLAS')  # mkdocs: hide
+        data = np.random.normal(0, 1, 1000)
+        fig, ax = plt.subplots()
+        mh.histplot(*np.histogram(data, bins=40), ax=ax)
+        ```
+
+    === "`hist.Hist`"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ATLAS')  # mkdocs: hide
+        data = np.random.normal(0, 1, 1000)
+        h_obj = hist.new.Reg(40, -4, 4).Weight().fill(data)
+        fig, ax = plt.subplots()
+        mh.histplot(h_obj, ax=ax)
+        # Note that errorbars are now automatically plotted because hist.Hist inputs objects has .variances() available
+        ```
+
+
+    === "`uproot.TH1`"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ATLAS')  # mkdocs: hide
+        from skhep_testdata import data_path  # mkdocs: hide
+        uproot_file_name = data_path("uproot-hepdata-example.root")  # mkdocs: hide
+        import uproot
+
+        file = uproot.open(uproot_file_name)
+        h_root = file['hpx']
+        fig, ax = plt.subplots()
+        mh.histplot(h_root, ax=ax)
+        ```
+
+
+
 
 === "LHCb"
 
-    ```python
-    # mkdocs: render
+    === "Array-Like"
+
+        ```python
+        # mkdocs: render
         # mkdocs: align=left
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
-    mh.style.use('LHCb2')
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('LHCb2')  # mkdocs: hide
+        fig, ax = plt.subplots()
+        mh.histplot([1, 2, 3, 6, 3, 5, 2, 1], ax=ax)
+        ```
 
-    # Generate signal and background data
-    signal = np.random.normal(0, 1, 500)
-    background = np.random.normal(0.5, 1.2, 800)
-    bins = np.linspace(-4, 4, 30)
-    h_sig, _ = np.histogram(signal, bins=bins)
-    h_bkg, _ = np.histogram(background, bins=bins)
+    === "`numpy.histogram`"
 
-    # Create stacked histogram
-    fig, ax = plt.subplots()
-    mh.histplot(
-        [h_sig, h_bkg],
-        bins=bins,
-        stack=True,
-        label=['Signal', 'Background'],
-        ax=ax
-    )
-    mh.lhcb.label(data=False)
-    ax.legend()
-    ax.set_xlabel('Observable')
-    ax.set_ylabel('Events')
-    ```
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('LHCb2')  # mkdocs: hide
+        data = np.random.normal(0, 1, 1000)
+        fig, ax = plt.subplots()
+        mh.histplot(*np.histogram(data, bins=40), ax=ax)
+        ```
+
+    === "`hist.Hist`"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('LHCb2')  # mkdocs: hide
+        data = np.random.normal(0, 1, 1000)
+        h_obj = hist.new.Reg(40, -4, 4).Weight().fill(data)
+        fig, ax = plt.subplots()
+        mh.histplot(h_obj, ax=ax)
+        # Note that errorbars are now automatically plotted because hist.Hist inputs objects has .variances() available
+        ```
+
+
+    === "`uproot.TH1`"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('LHCb2')  # mkdocs: hide
+        from skhep_testdata import data_path  # mkdocs: hide
+        uproot_file_name = data_path("uproot-hepdata-example.root")  # mkdocs: hide
+        import uproot
+
+        file = uproot.open(uproot_file_name)
+        h_root = file['hpx']
+        fig, ax = plt.subplots()
+        mh.histplot(h_root, ax=ax)
+        ```
+
+
+
 
 === "ALICE"
 
-    ```python
-    # mkdocs: render
+    === "Array-Like"
+
+        ```python
+        # mkdocs: render
         # mkdocs: align=left
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
-    mh.style.use('ALICE')
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ALICE')  # mkdocs: hide
+        fig, ax = plt.subplots()
+        mh.histplot([1, 2, 3, 6, 3, 5, 2, 1], ax=ax)
+        ```
 
-    # Generate signal and background data
-    signal = np.random.normal(0, 1, 500)
-    background = np.random.normal(0.5, 1.2, 800)
-    bins = np.linspace(-4, 4, 30)
-    h_sig, _ = np.histogram(signal, bins=bins)
-    h_bkg, _ = np.histogram(background, bins=bins)
+    === "`numpy.histogram`"
 
-    # Create stacked histogram
-    fig, ax = plt.subplots()
-    mh.histplot(
-        [h_sig, h_bkg],
-        bins=bins,
-        stack=True,
-        label=['Signal', 'Background'],
-        ax=ax
-    )
-    mh.alice.label(data=False)
-    mh.mpl_magic(soft_fail=True)
-    ax.legend()
-    ax.set_xlabel('Observable')
-    ax.set_ylabel('Events')
-    ```
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ALICE')  # mkdocs: hide
+        data = np.random.normal(0, 1, 1000)
+        fig, ax = plt.subplots()
+        mh.histplot(*np.histogram(data, bins=40), ax=ax)
+        ```
+
+    === "`hist.Hist`"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ALICE')  # mkdocs: hide
+        data = np.random.normal(0, 1, 1000)
+        h_obj = hist.new.Reg(40, -4, 4).Weight().fill(data)
+        fig, ax = plt.subplots()
+        mh.histplot(h_obj, ax=ax)
+        # Note that errorbars are now automatically plotted because hist.Hist inputs objects has .variances() available
+        ```
+
+
+    === "`uproot.TH1`"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ALICE')  # mkdocs: hide
+        from skhep_testdata import data_path  # mkdocs: hide
+        uproot_file_name = data_path("uproot-hepdata-example.root")  # mkdocs: hide
+        import uproot
+
+        file = uproot.open(uproot_file_name)
+        h_root = file['hpx']
+        fig, ax = plt.subplots()
+        mh.histplot(h_root, ax=ax)
+        ```
+
+
+
 
 === "DUNE"
 
-    ```python
-    # mkdocs: render
+    === "Array-Like"
+
+        ```python
+        # mkdocs: render
         # mkdocs: align=left
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
-    mh.style.use('DUNE')
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('DUNE')  # mkdocs: hide
+        fig, ax = plt.subplots()
+        mh.histplot([1, 2, 3, 6, 3, 5, 2, 1], ax=ax)
+        ```
 
-    # Generate signal and background data
-    signal = np.random.normal(0, 1, 500)
-    background = np.random.normal(0.5, 1.2, 800)
-    bins = np.linspace(-4, 4, 30)
-    h_sig, _ = np.histogram(signal, bins=bins)
-    h_bkg, _ = np.histogram(background, bins=bins)
+    === "`numpy.histogram`"
 
-    # Create stacked histogram
-    fig, ax = plt.subplots()
-    mh.histplot(
-        [h_sig, h_bkg],
-        bins=bins,
-        stack=True,
-        label=['Signal', 'Background'],
-        ax=ax
-    )
-    mh.dune.label(data=False)
-    ax.legend()
-    ax.set_xlabel('Observable')
-    ax.set_ylabel('Events')
-    ```
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('DUNE')  # mkdocs: hide
+        data = np.random.normal(0, 1, 1000)
+        fig, ax = plt.subplots()
+        mh.histplot(*np.histogram(data, bins=40), ax=ax)
+        ```
+
+    === "`hist.Hist`"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('DUNE')  # mkdocs: hide
+        data = np.random.normal(0, 1, 1000)
+        h_obj = hist.new.Reg(40, -4, 4).Weight().fill(data)
+        fig, ax = plt.subplots()
+        mh.histplot(h_obj, ax=ax)
+        # Note that errorbars are now automatically plotted because hist.Hist inputs objects has .variances() available
+        ```
+
+
+    === "`uproot.TH1`"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('DUNE')  # mkdocs: hide
+        from skhep_testdata import data_path  # mkdocs: hide
+        uproot_file_name = data_path("uproot-hepdata-example.root")  # mkdocs: hide
+        import uproot
+
+        file = uproot.open(uproot_file_name)
+        h_root = file['hpx']
+        fig, ax = plt.subplots()
+        mh.histplot(h_root, ax=ax)
+        ```
+
+
+
 
 === "PLOTHIST"
 
-    ```python
-    # mkdocs: render
+    === "Array-Like"
+
+        ```python
+        # mkdocs: render
         # mkdocs: align=left
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
-    mh.style.use('PLOTHIST')
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('PLOTHIST')  # mkdocs: hide
+        fig, ax = plt.subplots()
+        mh.histplot([1, 2, 3, 6, 3, 5, 2, 1], ax=ax)
+        ```
 
-    # Generate signal and background data
-    signal = np.random.normal(0, 1, 500)
-    background = np.random.normal(0.5, 1.2, 800)
-    bins = np.linspace(-4, 4, 30)
-    h_sig, _ = np.histogram(signal, bins=bins)
-    h_bkg, _ = np.histogram(background, bins=bins)
+    === "`numpy.histogram`"
 
-    # Create stacked histogram
-    fig, ax = plt.subplots()
-    mh.histplot(
-        [h_sig, h_bkg],
-        bins=bins,
-        stack=True,
-        label=['Signal', 'Background'],
-        ax=ax
-    )
-    txt_obj = mh.add_text('PLOTHIST', loc='over left')
-    mh.append_text('Stacked', txt_obj, loc='right', fontsize='x-small')
-    ax.legend()
-    ax.set_xlabel('Observable')
-    ax.set_ylabel('Events')
-    ```
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('PLOTHIST')  # mkdocs: hide
+        data = np.random.normal(0, 1, 1000)
+        fig, ax = plt.subplots()
+        mh.histplot(*np.histogram(data, bins=40), ax=ax)
+        ```
+
+    === "`hist.Hist`"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('PLOTHIST')  # mkdocs: hide
+        data = np.random.normal(0, 1, 1000)
+        h_obj = hist.new.Reg(40, -4, 4).Weight().fill(data)
+        fig, ax = plt.subplots()
+        mh.histplot(h_obj, ax=ax)
+        # Note that errorbars are now automatically plotted because hist.Hist inputs objects has .variances() available
+        ```
+
+
+    === "`uproot.TH1`"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('PLOTHIST')  # mkdocs: hide
+        from skhep_testdata import data_path  # mkdocs: hide
+        uproot_file_name = data_path("uproot-hepdata-example.root")  # mkdocs: hide
+        import uproot
+
+        file = uproot.open(uproot_file_name)
+        h_root = file['hpx']
+        fig, ax = plt.subplots()
+        mh.histplot(h_root, ax=ax)
+        ```
+
+
+
 
 ### Histogram Styles
 
 Control the appearance with the `histtype` parameter. Select an experiment style and then choose a histogram type:
 
-=== "CMS"
+
+=== "Default"
 
     === "Step"
 
         ```python
         # mkdocs: render
         # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import mplhep as mh
-        import numpy as np
-        np.random.seed(42)
-        mh.style.use('CMS')
-
-        data = np.random.normal(0, 1, 1000)
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+          # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(*np.histogram(data, bins=40), histtype='step', label='Step histogram', ax=ax)
-        mh.cms.label(data=False)
-        ax.legend()
-        ax.set_xlabel('Observable')
-        ax.set_ylabel('Events')
+        mh.histplot(h, histtype='step', label='Step histogram', ax=ax)
         ```
 
     === "Fill"
@@ -434,19 +587,15 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         ```python
         # mkdocs: render
         # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import mplhep as mh
-        import numpy as np
-        np.random.seed(42)
-        mh.style.use('CMS')
-
-        data = np.random.normal(0, 1, 1000)
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+          # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(*np.histogram(data, bins=40), histtype='fill', alpha=0.5, label='Filled histogram', ax=ax)
-        mh.cms.label(data=False)
-        ax.legend()
-        ax.set_xlabel('Observable')
-        ax.set_ylabel('Events')
+        mh.histplot(h, histtype='fill', alpha=0.5, label='Filled histogram', ax=ax)
         ```
 
     === "Errorbar"
@@ -454,20 +603,174 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         ```python
         # mkdocs: render
         # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import mplhep as mh
-        import numpy as np
-        np.random.seed(42)
-        mh.style.use('CMS')
-
-        data = np.random.normal(0, 1, 1000)
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+          # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(*np.histogram(data, bins=40), histtype='errorbar', yerr=True, label='Data', ax=ax)
-        mh.cms.label(data=True)
-        ax.legend()
-        ax.set_xlabel('Observable')
-        ax.set_ylabel('Events')
+        mh.histplot(h, histtype='errorbar', label='Data', ax=ax)
         ```
+
+    === "Band"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+          # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='band', alpha=0.5, label='Band histogram', ax=ax)
+        # Can be used to visualize uncertainties
+        ```
+
+    === "Bar"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+          # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='bar', label='Bar histogram', ax=ax)
+        # For more `mpl.hist`-like plots
+        ```
+
+    === "Barstep"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+          # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='barstep', label='Barstep histogram', ax=ax)
+        # For more `mpl.hist`-like plots
+        ```
+
+
+
+
+=== "CMS"
+
+    === "Step"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('CMS')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='step', label='Step histogram', ax=ax)
+        ```
+
+    === "Fill"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('CMS')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='fill', alpha=0.5, label='Filled histogram', ax=ax)
+        ```
+
+    === "Errorbar"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('CMS')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', label='Data', ax=ax)
+        ```
+
+    === "Band"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('CMS')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='band', alpha=0.5, label='Band histogram', ax=ax)
+        # Can be used to visualize uncertainties
+        ```
+
+    === "Bar"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('CMS')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='bar', label='Bar histogram', ax=ax)
+        # For more `mpl.hist`-like plots
+        ```
+
+    === "Barstep"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('CMS')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='barstep', label='Barstep histogram', ax=ax)
+        # For more `mpl.hist`-like plots
+        ```
+
+
+
 
 === "ATLAS"
 
@@ -476,20 +779,15 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         ```python
         # mkdocs: render
         # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import mplhep as mh
-        import numpy as np
-        np.random.seed(42)
-        mh.style.use('ATLAS')
-
-        data = np.random.normal(0, 1, 1000)
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ATLAS')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(*np.histogram(data, bins=40), histtype='step', label='Step histogram', ax=ax)
-        mh.atlas.label(data=False)
-        mh.mpl_magic(soft_fail=True)
-        ax.legend()
-        ax.set_xlabel('Observable')
-        ax.set_ylabel('Events')
+        mh.histplot(h, histtype='step', label='Step histogram', ax=ax)
         ```
 
     === "Fill"
@@ -497,20 +795,15 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         ```python
         # mkdocs: render
         # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import mplhep as mh
-        import numpy as np
-        np.random.seed(42)
-        mh.style.use('ATLAS')
-
-        data = np.random.normal(0, 1, 1000)
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ATLAS')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(*np.histogram(data, bins=40), histtype='fill', alpha=0.5, label='Filled histogram', ax=ax)
-        mh.atlas.label(data=False)
-        mh.mpl_magic(soft_fail=True)
-        ax.legend()
-        ax.set_xlabel('Observable')
-        ax.set_ylabel('Events')
+        mh.histplot(h, histtype='fill', alpha=0.5, label='Filled histogram', ax=ax)
         ```
 
     === "Errorbar"
@@ -518,21 +811,70 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         ```python
         # mkdocs: render
         # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import mplhep as mh
-        import numpy as np
-        np.random.seed(42)
-        mh.style.use('ATLAS')
-
-        data = np.random.normal(0, 1, 1000)
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ATLAS')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(*np.histogram(data, bins=40), histtype='errorbar', yerr=True, label='Data', ax=ax)
-        mh.atlas.label(data=True)
-        mh.mpl_magic(soft_fail=True)
-        ax.legend()
-        ax.set_xlabel('Observable')
-        ax.set_ylabel('Events')
+        mh.histplot(h, histtype='errorbar', label='Data', ax=ax)
         ```
+
+    === "Band"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ATLAS')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='band', alpha=0.5, label='Band histogram', ax=ax)
+        # Can be used to visualize uncertainties
+        ```
+
+    === "Bar"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ATLAS')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='bar', label='Bar histogram', ax=ax)
+        # For more `mpl.hist`-like plots
+        ```
+
+    === "Barstep"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ATLAS')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='barstep', label='Barstep histogram', ax=ax)
+        # For more `mpl.hist`-like plots
+        ```
+
+
+
 
 === "LHCb"
 
@@ -541,19 +883,15 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         ```python
         # mkdocs: render
         # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import mplhep as mh
-        import numpy as np
-        np.random.seed(42)
-        mh.style.use('LHCb2')
-
-        data = np.random.normal(0, 1, 1000)
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('LHCb2')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(*np.histogram(data, bins=40), histtype='step', label='Step histogram', ax=ax)
-        mh.lhcb.label(data=False)
-        ax.legend()
-        ax.set_xlabel('Observable')
-        ax.set_ylabel('Events')
+        mh.histplot(h, histtype='step', label='Step histogram', ax=ax)
         ```
 
     === "Fill"
@@ -561,19 +899,15 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         ```python
         # mkdocs: render
         # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import mplhep as mh
-        import numpy as np
-        np.random.seed(42)
-        mh.style.use('LHCb2')
-
-        data = np.random.normal(0, 1, 1000)
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('LHCb2')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(*np.histogram(data, bins=40), histtype='fill', alpha=0.5, label='Filled histogram', ax=ax)
-        mh.lhcb.label(data=False)
-        ax.legend()
-        ax.set_xlabel('Observable')
-        ax.set_ylabel('Events')
+        mh.histplot(h, histtype='fill', alpha=0.5, label='Filled histogram', ax=ax)
         ```
 
     === "Errorbar"
@@ -581,20 +915,70 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         ```python
         # mkdocs: render
         # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import mplhep as mh
-        import numpy as np
-        np.random.seed(42)
-        mh.style.use('LHCb2')
-
-        data = np.random.normal(0, 1, 1000)
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('LHCb2')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(*np.histogram(data, bins=40), histtype='errorbar', yerr=True, label='Data', ax=ax)
-        mh.lhcb.label(data=True)
-        ax.legend()
-        ax.set_xlabel('Observable')
-        ax.set_ylabel('Events')
+        mh.histplot(h, histtype='errorbar', label='Data', ax=ax)
         ```
+
+    === "Band"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('LHCb2')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='band', alpha=0.5, label='Band histogram', ax=ax)
+        # Can be used to visualize uncertainties
+        ```
+
+    === "Bar"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('LHCb2')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='bar', label='Bar histogram', ax=ax)
+        # For more `mpl.hist`-like plots
+        ```
+
+    === "Barstep"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('LHCb2')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='barstep', label='Barstep histogram', ax=ax)
+        # For more `mpl.hist`-like plots
+        ```
+
+
+
 
 === "ALICE"
 
@@ -603,20 +987,15 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         ```python
         # mkdocs: render
         # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import mplhep as mh
-        import numpy as np
-        np.random.seed(42)
-        mh.style.use('ALICE')
-
-        data = np.random.normal(0, 1, 1000)
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ALICE')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(*np.histogram(data, bins=40), histtype='step', label='Step histogram', ax=ax)
-        mh.alice.label(data=False)
-        mh.mpl_magic(soft_fail=True)
-        ax.legend()
-        ax.set_xlabel('Observable')
-        ax.set_ylabel('Events')
+        mh.histplot(h, histtype='step', label='Step histogram', ax=ax)
         ```
 
     === "Fill"
@@ -624,20 +1003,15 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         ```python
         # mkdocs: render
         # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import mplhep as mh
-        import numpy as np
-        np.random.seed(42)
-        mh.style.use('ALICE')
-
-        data = np.random.normal(0, 1, 1000)
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ALICE')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(*np.histogram(data, bins=40), histtype='fill', alpha=0.5, label='Filled histogram', ax=ax)
-        mh.alice.label(data=False)
-        mh.mpl_magic(soft_fail=True)
-        ax.legend()
-        ax.set_xlabel('Observable')
-        ax.set_ylabel('Events')
+        mh.histplot(h, histtype='fill', alpha=0.5, label='Filled histogram', ax=ax)
         ```
 
     === "Errorbar"
@@ -645,21 +1019,70 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         ```python
         # mkdocs: render
         # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import mplhep as mh
-        import numpy as np
-        np.random.seed(42)
-        mh.style.use('ALICE')
-
-        data = np.random.normal(0, 1, 1000)
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ALICE')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(*np.histogram(data, bins=40), histtype='errorbar', yerr=True, label='Data', ax=ax)
-        mh.alice.label(data=True)
-        mh.mpl_magic(soft_fail=True)
-        ax.legend()
-        ax.set_xlabel('Observable')
-        ax.set_ylabel('Events')
+        mh.histplot(h, histtype='errorbar', label='Data', ax=ax)
         ```
+
+    === "Band"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ALICE')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='band', alpha=0.5, label='Band histogram', ax=ax)
+        # Can be used to visualize uncertainties
+        ```
+
+    === "Bar"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ALICE')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='bar', label='Bar histogram', ax=ax)
+        # For more `mpl.hist`-like plots
+        ```
+
+    === "Barstep"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ALICE')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='barstep', label='Barstep histogram', ax=ax)
+        # For more `mpl.hist`-like plots
+        ```
+
+
+
 
 === "DUNE"
 
@@ -668,19 +1091,15 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         ```python
         # mkdocs: render
         # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import mplhep as mh
-        import numpy as np
-        np.random.seed(42)
-        mh.style.use('DUNE')
-
-        data = np.random.normal(0, 1, 1000)
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('DUNE')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(*np.histogram(data, bins=40), histtype='step', label='Step histogram', ax=ax)
-        mh.dune.label(data=False)
-        ax.legend()
-        ax.set_xlabel('Observable')
-        ax.set_ylabel('Events')
+        mh.histplot(h, histtype='step', label='Step histogram', ax=ax)
         ```
 
     === "Fill"
@@ -688,19 +1107,15 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         ```python
         # mkdocs: render
         # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import mplhep as mh
-        import numpy as np
-        np.random.seed(42)
-        mh.style.use('DUNE')
-
-        data = np.random.normal(0, 1, 1000)
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('DUNE')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(*np.histogram(data, bins=40), histtype='fill', alpha=0.5, label='Filled histogram', ax=ax)
-        mh.dune.label(data=False)
-        ax.legend()
-        ax.set_xlabel('Observable')
-        ax.set_ylabel('Events')
+        mh.histplot(h, histtype='fill', alpha=0.5, label='Filled histogram', ax=ax)
         ```
 
     === "Errorbar"
@@ -708,20 +1123,70 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         ```python
         # mkdocs: render
         # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import mplhep as mh
-        import numpy as np
-        np.random.seed(42)
-        mh.style.use('DUNE')
-
-        data = np.random.normal(0, 1, 1000)
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('DUNE')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(*np.histogram(data, bins=40), histtype='errorbar', yerr=True, label='Data', ax=ax)
-        mh.dune.label(data=True)
-        ax.legend()
-        ax.set_xlabel('Observable')
-        ax.set_ylabel('Events')
+        mh.histplot(h, histtype='errorbar', label='Data', ax=ax)
         ```
+
+    === "Band"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('DUNE')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='band', alpha=0.5, label='Band histogram', ax=ax)
+        # Can be used to visualize uncertainties
+        ```
+
+    === "Bar"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('DUNE')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='bar', label='Bar histogram', ax=ax)
+        # For more `mpl.hist`-like plots
+        ```
+
+    === "Barstep"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('DUNE')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='barstep', label='Barstep histogram', ax=ax)
+        # For more `mpl.hist`-like plots
+        ```
+
+
+
 
 === "PLOTHIST"
 
@@ -730,19 +1195,15 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         ```python
         # mkdocs: render
         # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import mplhep as mh
-        import numpy as np
-        np.random.seed(42)
-        mh.style.use('PLOTHIST')
-
-        data = np.random.normal(0, 1, 1000)
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('PLOTHIST')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(*np.histogram(data, bins=40), histtype='step', label='Step histogram', ax=ax)
-        txt_obj = mh.add_text('PLOTHIST', loc='over left')
-        ax.legend()
-        ax.set_xlabel('Observable')
-        ax.set_ylabel('Events')
+        mh.histplot(h, histtype='step', label='Step histogram', ax=ax)
         ```
 
     === "Fill"
@@ -750,19 +1211,15 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         ```python
         # mkdocs: render
         # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import mplhep as mh
-        import numpy as np
-        np.random.seed(42)
-        mh.style.use('PLOTHIST')
-
-        data = np.random.normal(0, 1, 1000)
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('PLOTHIST')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(*np.histogram(data, bins=40), histtype='fill', alpha=0.5, label='Filled histogram', ax=ax)
-        txt_obj = mh.add_text('PLOTHIST', loc='over left')
-        ax.legend()
-        ax.set_xlabel('Observable')
-        ax.set_ylabel('Events')
+        mh.histplot(h, histtype='fill', alpha=0.5, label='Filled histogram', ax=ax)
         ```
 
     === "Errorbar"
@@ -770,45 +1227,2705 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         ```python
         # mkdocs: render
         # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import mplhep as mh
-        import numpy as np
-        np.random.seed(42)
-        mh.style.use('PLOTHIST')
-
-        data = np.random.normal(0, 1, 1000)
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('PLOTHIST')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(*np.histogram(data, bins=40), histtype='errorbar', yerr=True, label='Data', ax=ax)
-        txt_obj = mh.add_text('PLOTHIST', loc='over left')
-        ax.legend()
-        ax.set_xlabel('Observable')
-        ax.set_ylabel('Events')
+        mh.histplot(h, histtype='errorbar', label='Data', ax=ax)
         ```
+
+    === "Band"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('PLOTHIST')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='band', alpha=0.5, label='Band histogram', ax=ax)
+        # Can be used to visualize uncertainties
+        ```
+
+    === "Bar"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('PLOTHIST')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='bar', label='Bar histogram', ax=ax)
+        # For more `mpl.hist`-like plots
+        ```
+
+    === "Barstep"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('PLOTHIST')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='barstep', label='Barstep histogram', ax=ax)
+        # For more `mpl.hist`-like plots
+        ```
+
+
+
+
+### Multiple Histograms
+
+Plot multiple histograms on the same axes with different stacking and sorting options:
+
+
+=== "Default"
+
+    === "Overlay (buggy lol)"
+        FXIME: Keeping this here temporarily
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+          # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            stack=True,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Overlay"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+          # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+    === "Stacked"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+          # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Sorted (by yield)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+          # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            sort='yield',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Sorted (by label)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+          # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            sort='label',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Sorted (by label - reversed)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+          # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            sort='l_r',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+
+
+=== "CMS"
+
+    === "Overlay (buggy lol)"
+        FXIME: Keeping this here temporarily
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('CMS')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            stack=True,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        mh.cms.label(data=False)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Overlay"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('CMS')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+    === "Stacked"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('CMS')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Sorted (by yield)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('CMS')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            sort='yield',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Sorted (by label)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('CMS')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            sort='label',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Sorted (by label - reversed)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('CMS')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            sort='l_r',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+
+
+=== "ATLAS"
+
+    === "Overlay (buggy lol)"
+        FXIME: Keeping this here temporarily
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ATLAS')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            stack=True,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        mh.atlas.label(data=False)
+        mh.mpl_magic(soft_fail=True)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Overlay"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ATLAS')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+    === "Stacked"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ATLAS')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Sorted (by yield)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ATLAS')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            sort='yield',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Sorted (by label)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ATLAS')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            sort='label',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Sorted (by label - reversed)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ATLAS')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            sort='l_r',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+
+
+=== "LHCb"
+
+    === "Overlay (buggy lol)"
+        FXIME: Keeping this here temporarily
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('LHCb2')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            stack=True,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        mh.lhcb.label(data=False)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Overlay"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('LHCb2')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+    === "Stacked"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('LHCb2')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Sorted (by yield)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('LHCb2')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            sort='yield',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Sorted (by label)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('LHCb2')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            sort='label',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Sorted (by label - reversed)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('LHCb2')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            sort='l_r',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+
+
+=== "ALICE"
+
+    === "Overlay (buggy lol)"
+        FXIME: Keeping this here temporarily
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ALICE')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            stack=True,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        mh.alice.label(data=False)
+        mh.mpl_magic(soft_fail=True)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Overlay"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ALICE')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+    === "Stacked"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ALICE')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Sorted (by yield)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ALICE')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            sort='yield',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Sorted (by label)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ALICE')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            sort='label',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Sorted (by label - reversed)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ALICE')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            sort='l_r',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+
+
+=== "DUNE"
+
+    === "Overlay (buggy lol)"
+        FXIME: Keeping this here temporarily
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('DUNE')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            stack=True,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        mh.dune.label(data=False)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Overlay"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('DUNE')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+    === "Stacked"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('DUNE')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Sorted (by yield)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('DUNE')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            sort='yield',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Sorted (by label)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('DUNE')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            sort='label',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Sorted (by label - reversed)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('DUNE')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            sort='l_r',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+
+
+=== "PLOTHIST"
+
+    === "Overlay (buggy lol)"
+        FXIME: Keeping this here temporarily
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('PLOTHIST')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            stack=True,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        txt_obj = mh.add_text('PLOTHIST', loc='over left')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Overlay"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('PLOTHIST')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+    === "Stacked"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('PLOTHIST')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Sorted (by yield)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('PLOTHIST')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            sort='yield',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Sorted (by label)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('PLOTHIST')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            sort='label',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Sorted (by label - reversed)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('PLOTHIST')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            sort='l_r',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+
 
 ### Error Bars
 
-Add statistical uncertainties:
+Control error bar display with `yerr` and `w2method` parameters:
 
-```python
-# Automatic Poisson errors
-mh.histplot(h, bins, yerr=True)
 
-# Custom errors
-errors = np.sqrt(h)  # Or your own error calculation
-mh.histplot(h, bins, yerr=errors)
-```
+=== "Default"
 
-### Density Normalization
+    === "Automatic (Poisson)"
 
-Normalize histograms to unit area:
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+          # mkdocs: hide
+        # Simple histogram with Weight storage for automatic errors
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.poisson(5, 20))
 
-```python
-mh.histplot([h1, h2], bins=bins, density=True, label=['Data', 'MC'])
-```
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', yerr=True, label='Data with Poisson errors', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Set explicitly"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+          # mkdocs: hide
+        # Simple histogram with custom error bars
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
+        custom_errors = np.minimum(np.sqrt(h.values()), np.random.uniform(0, 20, 20))
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', yerr=custom_errors, label='Data with custom errors', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Set yerr calculation method (`'sqrt'`/`'poisson'`)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+          # mkdocs: hide
+        # Weighted histogram - errors from sqrt of sum of weights squared
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', w2method='sqrt', label='Weighted data (sqrt method)', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Set yerr calculation function - full control"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+          # mkdocs: hide
+        # Weighted histogram with custom error calculation
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
+
+        # Custom error function: error = sqrt(sum(weights^2)) / 2
+        def custom_w2_method(weights, variances):
+            import numpy as np  # mkdocs: hide
+            up = weights - np.ones_like(weights) * 0.2 * np.mean(weights)
+            down = weights + np.ones_like(weights) * 0.2 * np.mean(weights)
+            return up, down
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', w2method=custom_w2_method, label='Weighted data (custom error method)', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+
+
+=== "CMS"
+
+    === "Automatic (Poisson)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('CMS')  # mkdocs: hide
+        # Simple histogram with Weight storage for automatic errors
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.poisson(5, 20))
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', yerr=True, label='Data with Poisson errors', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Set explicitly"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('CMS')  # mkdocs: hide
+        # Simple histogram with custom error bars
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
+        custom_errors = np.minimum(np.sqrt(h.values()), np.random.uniform(0, 20, 20))
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', yerr=custom_errors, label='Data with custom errors', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Set yerr calculation method (`'sqrt'`/`'poisson'`)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('CMS')  # mkdocs: hide
+        # Weighted histogram - errors from sqrt of sum of weights squared
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', w2method='sqrt', label='Weighted data (sqrt method)', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Set yerr calculation function - full control"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('CMS')  # mkdocs: hide
+        # Weighted histogram with custom error calculation
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
+
+        # Custom error function: error = sqrt(sum(weights^2)) / 2
+        def custom_w2_method(weights, variances):
+            import numpy as np  # mkdocs: hide
+            up = weights - np.ones_like(weights) * 0.2 * np.mean(weights)
+            down = weights + np.ones_like(weights) * 0.2 * np.mean(weights)
+            return up, down
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', w2method=custom_w2_method, label='Weighted data (custom error method)', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+
+
+=== "ATLAS"
+
+    === "Automatic (Poisson)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ATLAS')  # mkdocs: hide
+        # Simple histogram with Weight storage for automatic errors
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.poisson(5, 20))
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', yerr=True, label='Data with Poisson errors', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Set explicitly"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ATLAS')  # mkdocs: hide
+        # Simple histogram with custom error bars
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
+        custom_errors = np.minimum(np.sqrt(h.values()), np.random.uniform(0, 20, 20))
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', yerr=custom_errors, label='Data with custom errors', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Set yerr calculation method (`'sqrt'`/`'poisson'`)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ATLAS')  # mkdocs: hide
+        # Weighted histogram - errors from sqrt of sum of weights squared
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', w2method='sqrt', label='Weighted data (sqrt method)', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Set yerr calculation function - full control"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ATLAS')  # mkdocs: hide
+        # Weighted histogram with custom error calculation
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
+
+        # Custom error function: error = sqrt(sum(weights^2)) / 2
+        def custom_w2_method(weights, variances):
+            import numpy as np  # mkdocs: hide
+            up = weights - np.ones_like(weights) * 0.2 * np.mean(weights)
+            down = weights + np.ones_like(weights) * 0.2 * np.mean(weights)
+            return up, down
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', w2method=custom_w2_method, label='Weighted data (custom error method)', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+
+
+=== "LHCb"
+
+    === "Automatic (Poisson)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('LHCb2')  # mkdocs: hide
+        # Simple histogram with Weight storage for automatic errors
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.poisson(5, 20))
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', yerr=True, label='Data with Poisson errors', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Set explicitly"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('LHCb2')  # mkdocs: hide
+        # Simple histogram with custom error bars
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
+        custom_errors = np.minimum(np.sqrt(h.values()), np.random.uniform(0, 20, 20))
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', yerr=custom_errors, label='Data with custom errors', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Set yerr calculation method (`'sqrt'`/`'poisson'`)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('LHCb2')  # mkdocs: hide
+        # Weighted histogram - errors from sqrt of sum of weights squared
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', w2method='sqrt', label='Weighted data (sqrt method)', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Set yerr calculation function - full control"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('LHCb2')  # mkdocs: hide
+        # Weighted histogram with custom error calculation
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
+
+        # Custom error function: error = sqrt(sum(weights^2)) / 2
+        def custom_w2_method(weights, variances):
+            import numpy as np  # mkdocs: hide
+            up = weights - np.ones_like(weights) * 0.2 * np.mean(weights)
+            down = weights + np.ones_like(weights) * 0.2 * np.mean(weights)
+            return up, down
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', w2method=custom_w2_method, label='Weighted data (custom error method)', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+
+
+=== "ALICE"
+
+    === "Automatic (Poisson)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ALICE')  # mkdocs: hide
+        # Simple histogram with Weight storage for automatic errors
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.poisson(5, 20))
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', yerr=True, label='Data with Poisson errors', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Set explicitly"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ALICE')  # mkdocs: hide
+        # Simple histogram with custom error bars
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
+        custom_errors = np.minimum(np.sqrt(h.values()), np.random.uniform(0, 20, 20))
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', yerr=custom_errors, label='Data with custom errors', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Set yerr calculation method (`'sqrt'`/`'poisson'`)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ALICE')  # mkdocs: hide
+        # Weighted histogram - errors from sqrt of sum of weights squared
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', w2method='sqrt', label='Weighted data (sqrt method)', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Set yerr calculation function - full control"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ALICE')  # mkdocs: hide
+        # Weighted histogram with custom error calculation
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
+
+        # Custom error function: error = sqrt(sum(weights^2)) / 2
+        def custom_w2_method(weights, variances):
+            import numpy as np  # mkdocs: hide
+            up = weights - np.ones_like(weights) * 0.2 * np.mean(weights)
+            down = weights + np.ones_like(weights) * 0.2 * np.mean(weights)
+            return up, down
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', w2method=custom_w2_method, label='Weighted data (custom error method)', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+
+
+=== "DUNE"
+
+    === "Automatic (Poisson)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('DUNE')  # mkdocs: hide
+        # Simple histogram with Weight storage for automatic errors
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.poisson(5, 20))
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', yerr=True, label='Data with Poisson errors', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Set explicitly"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('DUNE')  # mkdocs: hide
+        # Simple histogram with custom error bars
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
+        custom_errors = np.minimum(np.sqrt(h.values()), np.random.uniform(0, 20, 20))
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', yerr=custom_errors, label='Data with custom errors', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Set yerr calculation method (`'sqrt'`/`'poisson'`)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('DUNE')  # mkdocs: hide
+        # Weighted histogram - errors from sqrt of sum of weights squared
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', w2method='sqrt', label='Weighted data (sqrt method)', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Set yerr calculation function - full control"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('DUNE')  # mkdocs: hide
+        # Weighted histogram with custom error calculation
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
+
+        # Custom error function: error = sqrt(sum(weights^2)) / 2
+        def custom_w2_method(weights, variances):
+            import numpy as np  # mkdocs: hide
+            up = weights - np.ones_like(weights) * 0.2 * np.mean(weights)
+            down = weights + np.ones_like(weights) * 0.2 * np.mean(weights)
+            return up, down
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', w2method=custom_w2_method, label='Weighted data (custom error method)', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+
+
+=== "PLOTHIST"
+
+    === "Automatic (Poisson)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('PLOTHIST')  # mkdocs: hide
+        # Simple histogram with Weight storage for automatic errors
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.poisson(5, 20))
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', yerr=True, label='Data with Poisson errors', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Set explicitly"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('PLOTHIST')  # mkdocs: hide
+        # Simple histogram with custom error bars
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
+        custom_errors = np.minimum(np.sqrt(h.values()), np.random.uniform(0, 20, 20))
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', yerr=custom_errors, label='Data with custom errors', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Set yerr calculation method (`'sqrt'`/`'poisson'`)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('PLOTHIST')  # mkdocs: hide
+        # Weighted histogram - errors from sqrt of sum of weights squared
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', w2method='sqrt', label='Weighted data (sqrt method)', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Set yerr calculation function - full control"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('PLOTHIST')  # mkdocs: hide
+        # Weighted histogram with custom error calculation
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
+
+        # Custom error function: error = sqrt(sum(weights^2)) / 2
+        def custom_w2_method(weights, variances):
+            import numpy as np  # mkdocs: hide
+            up = weights - np.ones_like(weights) * 0.2 * np.mean(weights)
+            down = weights + np.ones_like(weights) * 0.2 * np.mean(weights)
+            return up, down
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', w2method=custom_w2_method, label='Weighted data (custom error method)', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+
+### Normalization Options
+
+Control histogram normalization with `density` and `binwnorm` parameters:
+
+
+=== "Default"
+
+    === "Nominal"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+          # mkdocs: hide
+        # Create histograms with different binning schemes
+        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
+        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
+        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
+        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
+
+        # Plot
+        kwargs = {}
+        fig, ax = plt.subplots()
+        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
+        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+
+        # Style
+        ax.set_xlabel('Observable')
+        ax.set_ylabel('Events')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Density"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+          # mkdocs: hide
+        # Create histograms with different binning schemes
+        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
+        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
+        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
+        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
+
+        # Plot
+        kwargs = {'density': True}
+        fig, ax = plt.subplots()
+        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
+        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+
+        # Style
+        ax.set_xlabel('Observable')
+        ax.set_ylabel('Density')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Bin Width Normalized"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+          # mkdocs: hide
+        # Create histograms with different binning schemes
+        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
+        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
+        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
+        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
+
+        # Plot
+        kwargs = {'binwnorm': True}
+        fig, ax = plt.subplots()
+        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
+        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+
+        # Style
+        ax.set_xlabel('Observable')
+        ax.set_ylabel('Events / Bin Width')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+
+
+=== "CMS"
+
+    === "Nominal"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('CMS')  # mkdocs: hide
+        # Create histograms with different binning schemes
+        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
+        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
+        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
+        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
+
+        # Plot
+        kwargs = {}
+        fig, ax = plt.subplots()
+        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
+        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+
+        # Style
+        ax.set_xlabel('Observable')
+        ax.set_ylabel('Events')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Density"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('CMS')  # mkdocs: hide
+        # Create histograms with different binning schemes
+        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
+        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
+        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
+        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
+
+        # Plot
+        kwargs = {'density': True}
+        fig, ax = plt.subplots()
+        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
+        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+
+        # Style
+        ax.set_xlabel('Observable')
+        ax.set_ylabel('Density')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Bin Width Normalized"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('CMS')  # mkdocs: hide
+        # Create histograms with different binning schemes
+        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
+        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
+        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
+        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
+
+        # Plot
+        kwargs = {'binwnorm': True}
+        fig, ax = plt.subplots()
+        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
+        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+
+        # Style
+        ax.set_xlabel('Observable')
+        ax.set_ylabel('Events / Bin Width')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+
+
+=== "ATLAS"
+
+    === "Nominal"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ATLAS')  # mkdocs: hide
+        # Create histograms with different binning schemes
+        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
+        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
+        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
+        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
+
+        # Plot
+        kwargs = {}
+        fig, ax = plt.subplots()
+        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
+        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+
+        # Style
+        ax.set_xlabel('Observable')
+        ax.set_ylabel('Events')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Density"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ATLAS')  # mkdocs: hide
+        # Create histograms with different binning schemes
+        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
+        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
+        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
+        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
+
+        # Plot
+        kwargs = {'density': True}
+        fig, ax = plt.subplots()
+        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
+        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+
+        # Style
+        ax.set_xlabel('Observable')
+        ax.set_ylabel('Density')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Bin Width Normalized"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ATLAS')  # mkdocs: hide
+        # Create histograms with different binning schemes
+        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
+        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
+        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
+        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
+
+        # Plot
+        kwargs = {'binwnorm': True}
+        fig, ax = plt.subplots()
+        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
+        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+
+        # Style
+        ax.set_xlabel('Observable')
+        ax.set_ylabel('Events / Bin Width')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+
+
+=== "LHCb"
+
+    === "Nominal"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('LHCb2')  # mkdocs: hide
+        # Create histograms with different binning schemes
+        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
+        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
+        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
+        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
+
+        # Plot
+        kwargs = {}
+        fig, ax = plt.subplots()
+        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
+        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+
+        # Style
+        ax.set_xlabel('Observable')
+        ax.set_ylabel('Events')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Density"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('LHCb2')  # mkdocs: hide
+        # Create histograms with different binning schemes
+        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
+        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
+        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
+        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
+
+        # Plot
+        kwargs = {'density': True}
+        fig, ax = plt.subplots()
+        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
+        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+
+        # Style
+        ax.set_xlabel('Observable')
+        ax.set_ylabel('Density')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Bin Width Normalized"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('LHCb2')  # mkdocs: hide
+        # Create histograms with different binning schemes
+        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
+        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
+        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
+        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
+
+        # Plot
+        kwargs = {'binwnorm': True}
+        fig, ax = plt.subplots()
+        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
+        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+
+        # Style
+        ax.set_xlabel('Observable')
+        ax.set_ylabel('Events / Bin Width')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+
+
+=== "ALICE"
+
+    === "Nominal"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ALICE')  # mkdocs: hide
+        # Create histograms with different binning schemes
+        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
+        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
+        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
+        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
+
+        # Plot
+        kwargs = {}
+        fig, ax = plt.subplots()
+        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
+        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+
+        # Style
+        ax.set_xlabel('Observable')
+        ax.set_ylabel('Events')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Density"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ALICE')  # mkdocs: hide
+        # Create histograms with different binning schemes
+        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
+        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
+        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
+        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
+
+        # Plot
+        kwargs = {'density': True}
+        fig, ax = plt.subplots()
+        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
+        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+
+        # Style
+        ax.set_xlabel('Observable')
+        ax.set_ylabel('Density')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Bin Width Normalized"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('ALICE')  # mkdocs: hide
+        # Create histograms with different binning schemes
+        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
+        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
+        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
+        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
+
+        # Plot
+        kwargs = {'binwnorm': True}
+        fig, ax = plt.subplots()
+        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
+        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+
+        # Style
+        ax.set_xlabel('Observable')
+        ax.set_ylabel('Events / Bin Width')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+
+
+=== "DUNE"
+
+    === "Nominal"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('DUNE')  # mkdocs: hide
+        # Create histograms with different binning schemes
+        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
+        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
+        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
+        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
+
+        # Plot
+        kwargs = {}
+        fig, ax = plt.subplots()
+        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
+        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+
+        # Style
+        ax.set_xlabel('Observable')
+        ax.set_ylabel('Events')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Density"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('DUNE')  # mkdocs: hide
+        # Create histograms with different binning schemes
+        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
+        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
+        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
+        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
+
+        # Plot
+        kwargs = {'density': True}
+        fig, ax = plt.subplots()
+        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
+        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+
+        # Style
+        ax.set_xlabel('Observable')
+        ax.set_ylabel('Density')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Bin Width Normalized"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('DUNE')  # mkdocs: hide
+        # Create histograms with different binning schemes
+        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
+        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
+        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
+        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
+
+        # Plot
+        kwargs = {'binwnorm': True}
+        fig, ax = plt.subplots()
+        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
+        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+
+        # Style
+        ax.set_xlabel('Observable')
+        ax.set_ylabel('Events / Bin Width')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+
+
+=== "PLOTHIST"
+
+    === "Nominal"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('PLOTHIST')  # mkdocs: hide
+        # Create histograms with different binning schemes
+        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
+        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
+        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
+        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
+
+        # Plot
+        kwargs = {}
+        fig, ax = plt.subplots()
+        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
+        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+
+        # Style
+        ax.set_xlabel('Observable')
+        ax.set_ylabel('Events')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Density"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('PLOTHIST')  # mkdocs: hide
+        # Create histograms with different binning schemes
+        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
+        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
+        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
+        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
+
+        # Plot
+        kwargs = {'density': True}
+        fig, ax = plt.subplots()
+        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
+        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+
+        # Style
+        ax.set_xlabel('Observable')
+        ax.set_ylabel('Density')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Bin Width Normalized"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('PLOTHIST')  # mkdocs: hide
+        # Create histograms with different binning schemes
+        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
+        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
+        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
+        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
+
+        # Plot
+        kwargs = {'binwnorm': True}
+        fig, ax = plt.subplots()
+        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
+        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+
+        # Style
+        ax.set_xlabel('Observable')
+        ax.set_ylabel('Events / Bin Width')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
 
 ## 2D Histograms
 
 Use `hist2dplot()` for 2D histogram visualization:
+
+
+=== "Default"
+
+    ```python
+    # mkdocs: render
+        # mkdocs: align=left
+    import matplotlib.pyplot as plt
+    import mplhep as mh
+    import numpy as np
+    np.random.seed(42)
+
+
+    # Generate 2D data
+    x = np.random.normal(0, 1, 5000)
+    y = np.random.normal(0, 1, 5000)
+    H, xedges, yedges = np.histogram2d(x, y, bins=30)
+
+    fig, ax = plt.subplots()
+    mh.hist2dplot(H, xedges, yedges, ax=ax, cbar=True)
+    ax.set_xlabel('Varaible 1')
+    ax.set_ylabel('Variable 2')
+    ```
+
+
+
 
 === "CMS"
 
@@ -828,10 +3945,12 @@ Use `hist2dplot()` for 2D histogram visualization:
 
     fig, ax = plt.subplots()
     mh.hist2dplot(H, xedges, yedges, ax=ax, cbar=True)
-    mh.cms.label(data=False)
-    ax.set_xlabel('x')
-    ax.set_ylabel('y')
+    ax.set_xlabel('Varaible 1')
+    ax.set_ylabel('Variable 2')
     ```
+
+
+
 
 === "ATLAS"
 
@@ -851,11 +3970,12 @@ Use `hist2dplot()` for 2D histogram visualization:
 
     fig, ax = plt.subplots()
     mh.hist2dplot(H, xedges, yedges, ax=ax, cbar=True)
-    mh.atlas.label(data=False)
-    mh.mpl_magic(soft_fail=True)
-    ax.set_xlabel('x')
-    ax.set_ylabel('y')
+    ax.set_xlabel('Varaible 1')
+    ax.set_ylabel('Variable 2')
     ```
+
+
+
 
 === "LHCb"
 
@@ -875,10 +3995,12 @@ Use `hist2dplot()` for 2D histogram visualization:
 
     fig, ax = plt.subplots()
     mh.hist2dplot(H, xedges, yedges, ax=ax, cbar=True)
-    mh.lhcb.label(data=False)
-    ax.set_xlabel('x')
-    ax.set_ylabel('y')
+    ax.set_xlabel('Varaible 1')
+    ax.set_ylabel('Variable 2')
     ```
+
+
+
 
 === "ALICE"
 
@@ -898,11 +4020,12 @@ Use `hist2dplot()` for 2D histogram visualization:
 
     fig, ax = plt.subplots()
     mh.hist2dplot(H, xedges, yedges, ax=ax, cbar=True)
-    mh.alice.label(data=False)
-    mh.mpl_magic(soft_fail=True)
-    ax.set_xlabel('x')
-    ax.set_ylabel('y')
+    ax.set_xlabel('Varaible 1')
+    ax.set_ylabel('Variable 2')
     ```
+
+
+
 
 === "DUNE"
 
@@ -922,10 +4045,12 @@ Use `hist2dplot()` for 2D histogram visualization:
 
     fig, ax = plt.subplots()
     mh.hist2dplot(H, xedges, yedges, ax=ax, cbar=True)
-    mh.dune.label(data=False)
-    ax.set_xlabel('x')
-    ax.set_ylabel('y')
+    ax.set_xlabel('Varaible 1')
+    ax.set_ylabel('Variable 2')
     ```
+
+
+
 
 === "PLOTHIST"
 
@@ -945,16 +4070,54 @@ Use `hist2dplot()` for 2D histogram visualization:
 
     fig, ax = plt.subplots()
     mh.hist2dplot(H, xedges, yedges, ax=ax, cbar=True)
-    txt_obj = mh.add_text('PLOTHIST', loc='upper left')
-    ax.set_xlabel('x')
-    ax.set_ylabel('y')
+    ax.set_xlabel('Varaible 1')
+    ax.set_ylabel('Variable 2')
     ```
+
+
+
+# FIXME: This section is under development
 
 ## Data-Model Comparisons
 
 ### Using Comparison Functions
 
 mplhep provides dedicated comparison plotters in the `comp` module for creating plots with ratio, pull, or difference panels. Use `mh.comp.hists()` to compare two histograms:
+
+
+=== "Default"
+
+    ```python
+    # mkdocs: render
+        # mkdocs: align=left
+    import matplotlib.pyplot as plt
+    import mplhep as mh
+    import numpy as np
+    np.random.seed(42)
+
+
+    # Generate sample data and model
+    data_vals = np.random.normal(0, 1, 1000)
+    model_vals = np.random.normal(0, 1.05, 1000)
+    bins = np.linspace(-4, 4, 25)
+    data_hist = np.histogram(data_vals, bins=bins)
+    model_hist = np.histogram(model_vals, bins=bins)
+
+    # Create comparison plot with ratio panel
+    fig, ax_main, ax_comp = mh.comp.hists(
+        data_hist,
+        model_hist,
+        comparison='ratio',
+        xlabel='Observable [GeV]',
+        ylabel='Events',
+        h1_label='Data',
+        h2_label='Model'
+    )
+
+    ```
+
+
+
 
 === "CMS"
 
@@ -986,6 +4149,9 @@ mplhep provides dedicated comparison plotters in the `comp` module for creating 
     )
     mh.cms.label(data=True, ax=ax_main)
     ```
+
+
+
 
 === "ATLAS"
 
@@ -1019,6 +4185,9 @@ mplhep provides dedicated comparison plotters in the `comp` module for creating 
     mh.mpl_magic(soft_fail=True)
     ```
 
+
+
+
 === "LHCb"
 
     ```python
@@ -1049,6 +4218,9 @@ mplhep provides dedicated comparison plotters in the `comp` module for creating 
     )
     mh.lhcb.label(data=True, ax=ax_main)
     ```
+
+
+
 
 === "ALICE"
 
@@ -1082,6 +4254,9 @@ mplhep provides dedicated comparison plotters in the `comp` module for creating 
     mh.mpl_magic(soft_fail=True)
     ```
 
+
+
+
 === "DUNE"
 
     ```python
@@ -1112,6 +4287,9 @@ mplhep provides dedicated comparison plotters in the `comp` module for creating 
     )
     mh.dune.label(data=True, ax=ax_main)
     ```
+
+
+
 
 === "PLOTHIST"
 
@@ -1144,6 +4322,8 @@ mplhep provides dedicated comparison plotters in the `comp` module for creating 
     txt_obj = mh.add_text('PLOTHIST', loc='over left', ax=ax_main)
     ```
 
+
+
 ### Available Comparison Types
 
 The `comparison` parameter accepts:
@@ -1171,7 +4351,14 @@ data_counts = np.random.poisson(signal[0] + bkg1[0] + bkg2[0])
 data = (data_counts, bins)
 
 # Create comparison plot
+fig, (ax_main, ax_comp) = plt.subplots(
+    nrows=2,
+    figsize=(10, 10),
+    gridspec_kw={"height_ratios": [3, 1]},
+)
+fig.subplots_adjust(hspace=0)
 fig, ax_main, ax_comp = mh.comp.data_model(
+    fig = fig, ax_main=ax_main, ax_comparison=ax_comp,
     data_hist=data,
     stacked_components=[signal, bkg1, bkg2],
     stacked_labels=['Signal', 'Bkg 1', 'Bkg 2'],
@@ -1181,105 +4368,6 @@ fig, ax_main, ax_comp = mh.comp.data_model(
 )
 mh.cms.label(data=True, lumi=100, ax=ax_main)
 ```
-
-<!-- Interactive examples commented out due to y-label fitting issues in mkdocs rendering
-=== "CMS"
-
-    ```python
-    # mkdocs: render
-        # mkdocs: align=left
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
-    mh.style.use('CMS')
-
-    # Generate signal, backgrounds, and data
-    bins = np.linspace(-3, 3, 15)
-    signal = np.histogram(np.random.normal(-0.5, 0.5, 300), bins=bins)
-    bkg1 = np.histogram(np.random.normal(0, 1, 800), bins=bins)
-    bkg2 = np.histogram(np.random.exponential(0.5, 400) - 1.5, bins=bins)
-    # Data is sum with Poisson fluctuations
-    data_counts = np.random.poisson(signal[0] + bkg1[0] + bkg2[0])
-    data = (data_counts, bins)
-
-    # Create comparison plot
-    fig, ax_main, ax_comp = mh.comp.data_model(
-        data_hist=data,
-        stacked_components=[signal, bkg1, bkg2],
-        stacked_labels=['Signal', 'Bkg 1', 'Bkg 2'],
-        comparison='ratio',
-        xlabel='m [GeV]',
-        ylabel='Events'
-    )
-    mh.cms.label(data=True, lumi=100, ax=ax_main)
-    ```
-
-=== "ATLAS"
-
-    ```python
-    # mkdocs: render
-        # mkdocs: align=left
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
-    mh.style.use('ATLAS')
-
-    # Generate signal, backgrounds, and data
-    bins = np.linspace(-3, 3, 15)
-    signal = np.histogram(np.random.normal(-0.5, 0.5, 300), bins=bins)
-    bkg1 = np.histogram(np.random.normal(0, 1, 800), bins=bins)
-    bkg2 = np.histogram(np.random.exponential(0.5, 400) - 1.5, bins=bins)
-    # Data is sum with Poisson fluctuations
-    data_counts = np.random.poisson(signal[0] + bkg1[0] + bkg2[0])
-    data = (data_counts, bins)
-
-    # Create comparison plot
-    fig, ax_main, ax_comp = mh.comp.data_model(
-        data_hist=data,
-        stacked_components=[signal, bkg1, bkg2],
-        stacked_labels=['Signal', 'Bkg 1', 'Bkg 2'],
-        comparison='ratio',
-        xlabel='m [GeV]',
-        ylabel='Events'
-    )
-    mh.atlas.label(data=True, lumi=150, ax=ax_main)
-    mh.mpl_magic(soft_fail=True)
-    ```
-
-=== "LHCb"
-
-    ```python
-    # mkdocs: render
-        # mkdocs: align=left
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
-    mh.style.use('LHCb2')
-
-    # Generate signal, backgrounds, and data
-    bins = np.linspace(-3, 3, 15)
-    signal = np.histogram(np.random.normal(-0.5, 0.5, 300), bins=bins)
-    bkg1 = np.histogram(np.random.normal(0, 1, 800), bins=bins)
-    bkg2 = np.histogram(np.random.exponential(0.5, 400) - 1.5, bins=bins)
-    # Data is sum with Poisson fluctuations
-    data_counts = np.random.poisson(signal[0] + bkg1[0] + bkg2[0])
-    data = (data_counts, bins)
-
-    # Create comparison plot
-    fig, ax_main, ax_comp = mh.comp.data_model(
-        data_hist=data,
-        stacked_components=[signal, bkg1, bkg2],
-        stacked_labels=['Signal', 'Bkg 1', 'Bkg 2'],
-        comparison='ratio',
-        xlabel='m [GeV]',
-        ylabel='Events'
-    )
-    mh.lhcb.label(data=True, lumi=50, ax=ax_main)
-    ```
--->
 
 ## Styling and Customization
 
