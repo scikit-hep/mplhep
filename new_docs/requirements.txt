@@ -1,0 +1,3 @@
+docstring-inheritance
+griffe-inherited-docstrings
+markdown-exec

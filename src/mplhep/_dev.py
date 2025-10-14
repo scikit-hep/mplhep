@@ -282,7 +282,28 @@ class DevScript:
 
         return success
 
-    def cmd_clean(self) -> bool:
+    def cmd_precommit(self, extra_args: Optional[List[str]] = None) -> bool:
+        """Run pre-commit hooks on all files."""
+        self._print_header("Running Pre-commit Hooks")
+
+        # Check if pre-commit is available
+        if not self._check_tool_available("pre-commit", ["pre-commit", "--version"]):
+            return False
+
+        cmd = ["pre-commit", "run", "--all-files"]
+
+        # Add any extra arguments
+        if extra_args:
+            cmd.extend(extra_args)
+
+        success = self._run_command_with_confirmation(cmd)
+
+        if success:
+            self._print_success("Pre-commit hooks completed successfully!")
+        else:
+            self._print_error("Pre-commit hooks failed!")
+
+        return success
         """Clean up test artifacts and cache files."""
         self._print_header("Cleaning Test Artifacts")
 
@@ -324,35 +345,112 @@ class DevScript:
 
         return True
 
-    def cmd_precommit(self, extra_args: Optional[List[str]] = None) -> bool:
-        """Run pre-commit hooks on all files."""
-        # Check if pre-commit is available
-        if not self._check_tool_available("pre-commit", ["pre-commit", "--version"]):
+    def cmd_docs(
+        self,
+        action: str = "build",
+        port: int = 8000,
+        clean: bool = True,
+        extra_args: Optional[List[str]] = None,
+    ) -> bool:
+        """Build or serve documentation."""
+        # Check if mkdocs is available
+        if not self._check_tool_available("mkdocs", ["mkdocs", "--version"]):
             return False
 
-        # Check if .pre-commit-config.yaml exists
-        precommit_config = self.project_root / ".pre-commit-config.yaml"
-        if not precommit_config.exists():
-            self._print_warning("No .pre-commit-config.yaml found")
-            self._print_warning(
-                "Run 'pre-commit install' to set up hooks for this repository"
-            )
+        # Check if new_docs directory exists
+        docs_dir = self.project_root / "new_docs"
+        if not docs_dir.exists():
+            self._print_error("new_docs directory not found!")
             return False
 
-        # Run pre-commit on all files
-        cmd = ["pre-commit", "run", "--all-files"]
+        if action == "build":
+            return self._build_docs(clean, extra_args)
+        if action == "serve":
+            return self._serve_docs(port, extra_args)
+        self._print_error(f"Unknown docs action: {action}")
+        return False
 
-        # Add any extra arguments passed through from CLI
+    def _build_docs(self, clean: bool, extra_args: Optional[List[str]] = None) -> bool:
+        """Build documentation."""
+        self._print_header("Building Documentation")
+
+        cmd = ["mkdocs", "build"]
+        if clean:
+            cmd.append("--clean")
+
+        # Add any extra arguments
         if extra_args:
             cmd.extend(extra_args)
 
-        success = self._run_command_with_confirmation(cmd)
+        success = self._run_command(cmd, cwd=self.project_root / "new_docs")
 
         if success:
-            self._print_success("Pre-commit hooks completed successfully!")
+            self._print_success("Documentation built successfully!")
+            site_dir = self.project_root / "new_docs" / "site"
+            if site_dir.exists():
+                self._print_success(f"Built site available at: {site_dir}")
         else:
-            self._print_warning("Pre-commit hooks found issues (this is normal)")
-            self._print_warning("Review the output above and fix any issues")
+            self._print_error("Documentation build failed!")
+
+        return success
+
+    def _serve_docs(self, port: int, extra_args: Optional[List[str]] = None) -> bool:
+        """Serve documentation locally."""
+        self._print_header(f"Serving Documentation on port {port}")
+
+        cmd = ["mkdocs", "serve", "--dev-addr", f"127.0.0.1:{port}"]
+
+        # Add any extra arguments
+        if extra_args:
+            cmd.extend(extra_args)
+
+        self._print_success(
+            f"Documentation will be available at: http://127.0.0.1:{port}"
+        )
+        self._print_warning("Press Ctrl+C to stop the server")
+
+        # For serve, we don't use confirmation since it's a long-running process
+        return self._run_command(cmd, cwd=self.project_root / "new_docs")
+
+    def cmd_clean(self) -> bool:
+        """Clean up test artifacts and cache files."""
+        self._print_header("Cleaning Test Artifacts")
+
+        items_to_clean = self._find_files_to_clean()
+
+        if not items_to_clean:
+            self._print_success("Nothing to clean!")
+            return True
+
+        self._show_summary(
+            items_to_clean, f"Items to be removed ({len(items_to_clean)} total)"
+        )
+
+        if not self._confirm(
+            f"Remove these {len(items_to_clean)} items?", default=True
+        ):
+            self._print_warning("Clean operation cancelled")
+            return True
+
+        removed_count = 0
+        for item in items_to_clean:
+            try:
+                if item.is_dir():
+                    shutil.rmtree(item)
+                else:
+                    item.unlink()
+                removed_count += 1
+                if len(items_to_clean) <= 10:  # Show individual items for small lists
+                    self._print_success(
+                        f"Removed {item.relative_to(self.project_root)}"
+                    )
+            except OSError as e:
+                self._print_error(f"Failed to remove {item}: {e}")
+
+        if len(items_to_clean) > 10:
+            self._print_success(
+                f"Successfully removed {removed_count}/{len(items_to_clean)} items"
+            )
 
         return True
 
@@ -615,6 +713,7 @@ Commands:
   test      Run pytest with matplotlib comparison
   baseline  Generate baseline images for matplotlib tests
   benchmark Run performance benchmarks
+  docs      Build or serve documentation
   clean     Clean up test artifacts
   precommit Run pre-commit hooks on all files
   help      Show this help
@@ -633,6 +732,12 @@ Benchmark command options:
   --save NAME      Save benchmark results with custom name
   --with NAME      Compare with specific baseline
 
+Docs command options:
+  build            Build documentation (default action)
+  serve            Serve documentation locally
+  --port PORT      Port for serve command (default: 8000)
+  --no-clean       Skip --clean flag for build command
+
 Examples:
   ./dev test -n 4                      # Run tests with 4 jobs
   ./dev test -k "test_basic"           # Run only tests matching "test_basic"
@@ -640,6 +745,8 @@ Examples:
   ./dev benchmark run --save baseline  # Run benchmarks and save as 'baseline'
   ./dev benchmark compare --with baseline  # Compare with 'baseline'
   ./dev benchmark list                 # List available baselines
+  ./dev docs build                     # Build documentation
+  ./dev docs serve --port 8080         # Serve documentation on port 8080
   ./dev clean                          # Clean up test artifacts
         """
         print(help_text)
@@ -927,6 +1034,16 @@ Examples:
             ),
             (
                 make_menu_item(
+                    "📚 Build documentation", "cd new_docs && mkdocs build --clean"
+                ),
+                "docs_build",
+            ),
+            (
+                make_menu_item("🌐 Serve documentation", "cd new_docs && mkdocs serve"),
+                "docs_serve",
+            ),
+            (
+                make_menu_item(
                     "⚡ Run benchmarks", "python -m pytest --benchmark-only"
                 ),
                 "benchmark",
@@ -967,6 +1084,10 @@ Examples:
                     self.cmd_clean()
                 elif choice == "precommit":
                     self.cmd_precommit()
+                elif choice == "docs_build":
+                    self.cmd_docs("build", clean=True)
+                elif choice == "docs_serve":
+                    self.cmd_docs("serve", port=8000)
                 elif choice == "benchmark":
                     self._interactive_benchmark_menu()
                 elif choice == "help":
@@ -1080,6 +1201,24 @@ def main():
         "--with", dest="compare_with", type=str, help="Compare with specific baseline"
     )
 
+    # Docs command
+    docs_parser = subparsers.add_parser("docs", help="Build or serve documentation")
+    docs_parser.add_argument(
+        "action",
+        choices=["build", "serve"],
+        default="build",
+        nargs="?",
+        help="Documentation action (default: build)",
+    )
+    docs_parser.add_argument(
+        "--port", type=int, default=8000, help="Port for serve command (default: 8000)"
+    )
+    docs_parser.add_argument(
+        "--no-clean",
+        action="store_true",
+        help="Skip --clean flag for build command",
+    )
+
     # Other commands
     subparsers.add_parser(
         "baseline", help="Generate baseline images for matplotlib tests"
@@ -1150,6 +1289,9 @@ def main():
             baseline_name = getattr(args, "save", None)
             compare_with = getattr(args, "compare_with", None)
             success = dev.cmd_benchmark(args.action, baseline_name, compare_with)
+        elif args.command == "docs":
+            clean = not getattr(args, "no_clean", False)
+            success = dev.cmd_docs(args.action, args.port, clean, unknown_args)
         elif args.command == "clean":
             success = dev.cmd_clean()
         elif args.command == "precommit":
