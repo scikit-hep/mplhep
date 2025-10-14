@@ -16,6 +16,48 @@ pip install mplhep
 
 Here's a quick example showing the primary functionality
 
+=== "Default"
+
+    ```python
+    # mkdocs: render
+    # The mkdocs commands are auto hidden  # mkdocs: hide
+    import matplotlib.pyplot as plt
+    import mplhep as mh
+    import numpy as np
+    np.random.seed(42)
+    # Set the plotting style
+    mh.style.use()  # Style reset to default
+
+    # Create a plot
+    fig, ax = plt.subplots()
+    # Plot a pre-binned histogram
+    mh.histplot(*np.histogram(np.random.normal(0, 1, 1000)), ax=ax, label="Data")
+    # Add appropriate labels
+    txt_obj = mh.add_text("Default", loc='over left')
+    mh.append_text("matplotlib style", txt_obj, loc='right')
+    ```
+
+=== "PLOTHIST"
+
+    ```python
+    # mkdocs: render
+    import matplotlib.pyplot as plt
+    import mplhep as mh
+    import numpy as np
+    np.random.seed(42)
+    # Set the plotting style
+    mh.style.use("PLOTHIST")
+
+    # Create a plot
+    fig, ax = plt.subplots()
+    # Plot a pre-binned histogram
+    mh.histplot(*np.histogram(np.random.normal(0, 1, 1000)), ax=ax, label="Data")
+    # Add appropriate labels
+    txt_obj = mh.add_text("PLOTHIST", loc='over left')
+    mh.append_text("Demo", txt_obj, loc='right', fontsize='x-small')
+    ```
+
+
 === "CMS"
 
     ```python
@@ -35,7 +77,6 @@ Here's a quick example showing the primary functionality
     # Add appropriate labels
     mh.cms.label("Preliminary", data=False, lumi=100, com=15)  # ax can be implicit
     # mh.mpl_magic(soft_fail=True)  # Autofit label - not needed
-    print("This line will be hidden by the plugin")  # mkdocs: hide
     ```
 
 === "ATLAS"
@@ -75,7 +116,7 @@ Here's a quick example showing the primary functionality
     mh.histplot(*np.histogram(np.random.normal(0, 1, 1000)), ax=ax, label="Data")
     # Add appropriate labels
     mh.lhcb.label("Preliminary", data=False, lumi=100, com=15)  # ax can be implicit
-    # mh.mpl_magic(soft_fail=True)  # Autofit label - needed but not applied
+    mh.mpl_magic(soft_fail=True)  # Autofit label
     ```
 
 === "ALICE"
@@ -116,26 +157,6 @@ Here's a quick example showing the primary functionality
     # Add appropriate labels
     mh.dune.label("Preliminary", data=False, lumi=100, com=15)  # ax can be implicit
     # mh.mpl_magic(soft_fail=True)  # Autofit label - not needed
-    ```
-
-=== "PLOTHIST"
-
-    ```python
-    # mkdocs: render
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
-    # Set the plotting style
-    mh.style.use("PLOTHIST")
-
-    # Create a plot
-    fig, ax = plt.subplots()
-    # Plot a pre-binned histogram
-    mh.histplot(*np.histogram(np.random.normal(0, 1, 1000)), ax=ax, label="Data")
-    # Add appropriate labels
-    txt_obj = mh.add_text("PLOTHIST", loc='over left')
-    mh.append_text("Demo", txt_obj, loc='right', fontsize='x-small')
     ```
 
 This creates a simple histogram with HEP-style formatting. Check out the [User Guide](guide.md) and the [Gallery](gallery.md) below for more advanced examples!
