@@ -5,33 +5,37 @@ Comparison
 Plot the comparison between two 1D histograms.
 """
 
-from plothist_utils import get_dummy_data
-
-df = get_dummy_data()
-
-name = "variable_1"
-
-x_total = df[name][df["category"] == 2]
-x_sample = x_total[: int(len(x_total) * 0.75)]
-
-x_range = (min(x_total), max(x_total))
-
+# --8<-- [start:full_code]
+# --8<-- [start:imports]
 import hist
+import matplotlib.pyplot as plt
+import numpy as np
 from hist import Hist
 
-h_sample = Hist(hist.axis.Regular(50, x_range[0], x_range[1]))
-h_total = Hist(hist.axis.Regular(50, x_range[0], x_range[1]))
+import mplhep as mh
 
+np.random.seed(42)
+# --8<-- [end:imports]
+
+# --8<-- [start:setup]
+# Generate dummy data - sample is subset of total
+x_total = np.random.normal(0.4, 0.1, 10000)
+x_sample = x_total[:7500]  # 75% subset
+
+# Create and fill histograms
+h_sample = Hist(
+    hist.axis.Regular(50, 0, 1), storage=hist.storage.Weight()
+)  # Long interface
+h_total = hist.new.Regular(50, 0, 1).Weight()  # Shorthand interface
 h_sample.fill(x_sample)
 h_total.fill(x_total)
+# --8<-- [end:setup]
 
-###
-import matplotlib.pyplot as plt
-
-from mplhep import plot_comparison
-
+# --8<-- [start:plot_body]
+# Plot comparison using efficiency
 fig, ax = plt.subplots()
+mh.comp.ratio(h_sample, h_total, ax=ax, xlabel="Variable", comparison="efficiency")
 
-plot_comparison(h_sample, h_total, ax=ax, xlabel=name, comparison="efficiency")
-
+# --8<-- [end:plot_body]
+# --8<-- [end:full_code]
 fig.savefig("1d_comparison_only_efficiency.svg", bbox_inches="tight")

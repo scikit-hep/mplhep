@@ -5,63 +5,74 @@ Data/model comparisons, no model uncertainty
 All supported comparisons between data and model, without model uncertainty.
 """
 
-from plothist_utils import get_dummy_data
-
-df = get_dummy_data()
-
-import seaborn as sns
-
-# Define the histograms
-
-key = "variable_1"
-x_range = (-9, 12)
-category = "category"
-
-# Define masks
-signal_mask = df[category] == 7
-data_mask = df[category] == 8
-
-background_categories = [0, 1, 2]
-background_categories_labels = [f"c{i}" for i in background_categories]
-background_categories_colors = sns.color_palette(
-    "cubehelix", len(background_categories)
-)
-
-background_masks = [df[category] == p for p in background_categories]
-
-# Make histograms
+# --8<-- [start:full_code]
+# --8<-- [start:imports]
 import hist
-from hist import Hist
-
-axis = hist.axis.Regular(50, x_range[0], x_range[1])
-
-data_hist = Hist(axis, storage=hist.storage.Weight())
-signal_hist = Hist(axis, storage=hist.storage.Weight())
-background_hists = []
-
-data_hist.fill(df[key][data_mask])
-signal_hist.fill(df[key][signal_mask])
-
-for mask in background_masks:
-    h_bkg = Hist(axis, storage=hist.storage.Weight())
-    h_bkg.fill(df[key][mask])
-    background_hists.append(h_bkg)
-
-# Optional: scale to data
-background_scaling_factor = data_hist.sum().value / sum(background_hists).sum().value
-background_hists = [background_scaling_factor * h for h in background_hists]
-
-###
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
+from hist import Hist
 
-from mplhep import (
-    add_text,
-    plot_comparison,
-    plot_data_model_comparison,
-    set_fitting_ylabel_fontsize,
+import mplhep as mh
+
+# --8<-- [end:imports]
+
+# --8<-- [start:setup]
+# Set seed for reproducible demo
+np.random.seed(42)
+
+# Create demo histograms directly
+bins = np.linspace(-9, 12, 51)
+
+# Background components with different shapes
+bkg1_data = np.random.normal(0, 2.5, 4000)  # Broad background
+bkg2_data = np.random.normal(3, 1.2, 2000)  # Narrower peak
+bkg3_data = np.random.normal(-1, 1.8, 1500)  # Another component
+
+# Data = backgrounds + signal peak + some deficit
+data_data = np.concatenate(
+    [
+        np.random.normal(0, 2.5, 3500),  # Less background here
+        np.random.normal(3, 1.2, 1800),  # Similar background
+        np.random.normal(-1, 1.8, 1400),  # Similar background
+        np.random.normal(5, 0.8, 800),  # Clear signal peak
+        np.random.normal(-3, 0.5, 200),  # Some deficit here (under-predicted)
+    ]
 )
 
+# Create histograms
+data_hist = Hist(hist.axis.Regular(50, -8, 8), storage=hist.storage.Weight())
+data_hist.fill(data_data)
+
+background_hists = [
+    hist.new.Regular(50, -8, 8).Weight().fill(bkg1_data),
+    hist.new.Regular(50, -8, 8).Weight().fill(bkg2_data),
+    hist.new.Regular(50, -8, 8).Weight().fill(bkg3_data),
+]
+
+# Scale backgrounds to match data
+total_bkg = sum(background_hists).sum().value
+data_total = data_hist.sum().value
+scale_factor = data_total / total_bkg
+background_hists = [scale_factor * h for h in background_hists]
+
+# Labels and colors
+background_labels = ["Broad BG", "Peak BG", "Offset BG"]
+background_colors = sns.color_palette("cubehelix", 3)
+
+# Scale backgrounds to match data
+total_bkg = sum(background_hists).sum().value
+data_total = data_hist.sum().value
+scale_factor = data_total / total_bkg
+background_hists = [scale_factor * h for h in background_hists]
+
+# Labels and colors
+background_labels = ["Background 1", "Background 2", "Background 3"]
+background_colors = sns.color_palette("cubehelix", 3)
+# --8<-- [end:setup]
+
+# --8<-- [start:plot_body]
+# Create comparison plots
 fig, axes = plt.subplots(
     nrows=6,
     figsize=(6, 13),
@@ -73,11 +84,11 @@ for ax in axes[:-1]:
     ax.set_xlabel(" ")
 background_sum = sum(background_hists)
 
-plot_data_model_comparison(
+mh.plot_data_model_comparison(
     data_hist=data_hist,
     stacked_components=background_hists,
-    stacked_labels=background_categories_labels,
-    stacked_colors=background_categories_colors,
+    stacked_labels=background_labels,
+    stacked_colors=background_colors,
     xlabel="",
     ylabel="Entries",
     model_uncertainty=False,  # <--
@@ -87,13 +98,13 @@ plot_data_model_comparison(
     ax_comparison=axes[1],
 )
 
-add_text(
+mh.add_text(
     r"Multiple data-model comparisons, $\mathbf{without}$ model uncertainty",
     ax=axes[0],
     loc="over left",
     fontsize="small",
 )
-add_text(
+mh.add_text(
     r'  $\mathbf{→}$ comparison = "ratio"', ax=axes[1], loc="over left", fontsize=13
 )
 
@@ -108,7 +119,7 @@ for k_comp, comparison in enumerate(
         background_sum_copy.values(), np.zeros_like(background_sum_copy.values())
     ]
 
-    plot_comparison(
+    mh.plot_comparison(
         data_hist,
         background_sum_copy,
         ax=ax_comparison,
@@ -121,14 +132,16 @@ for k_comp, comparison in enumerate(
     if comparison == "pull":
         # Since the uncertainties of the model are neglected, the pull label is "(Data - Pred.)/sigma_Data"
         ax_comparison.set_ylabel(r"$\frac{Data-Pred.}{\sigma_{Data}}$")
-    add_text(
+    mh.add_text(
         rf'  $\mathbf{{→}}$ comparison = "{comparison}"',
         ax=ax_comparison,
         loc="over left",
         fontsize=13,
     )
-    set_fitting_ylabel_fontsize(ax_comparison)
+    mh.set_fitting_ylabel_fontsize(ax_comparison)
 
-axes[-1].set_xlabel(key)
+axes[-1].set_xlabel("Observable")
+# --8<-- [end:plot_body]
 
+# --8<-- [end:full_code]
 fig.savefig("model_all_comparisons_no_model_unc.svg", bbox_inches="tight")

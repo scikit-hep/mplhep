@@ -118,3 +118,6 @@ venv.bak/
 /docs/source/_generated/
 /tmp/
 /docs/source/_static/_generated/
+
+# Generated guide
+new_docs/docs/guide.md

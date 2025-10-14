@@ -1,3 +1,9 @@
+"""
+Labeling module.
+
+This module provides functions to create and manage HEP labels for plots.
+"""
+
 from __future__ import annotations
 
 import os
@@ -16,7 +22,7 @@ DEFAULT_PAD_PERCENTAGE = 5.0
 FONT_SIZE_SCALE_EXP = 1.3
 FONT_SIZE_SCALE_LUMI = 1.1
 FONT_SIZE_SCALE_SUPP = 1.3
-FONT_HEIGHT_CORRECTION_FACTOR = 20
+FONT_HEIGHT_CORRECTION_FACTOR = 10
 FONT_WIDTH_CORRECTION_FACTOR = 3
 BOTTOM_MARGIN_OFFSET = -0.1
 
@@ -420,6 +426,7 @@ def append_text(
     pad: str | float = "auto",
     ax: Axes | None = None,
     text_class: type[mtext.Text] = mtext.Text,
+    _debug_x_override: float | None = None,
     **kwargs: Any,
 ) -> mtext.Text:
     """
@@ -451,6 +458,11 @@ def append_text(
     """
     ax = ax if ax is not None else plt.gca()
     fontsize = _fontsize_to_points(kwargs.get("fontsize", rcParams["font.size"]))
+
+    # Ensure canvas is drawn to get correct text metrics (especially important with certain styles like LHCb2)
+    # Only draw if figure is stale to avoid unnecessary rendering
+    if ax.figure.stale:  # type: ignore[union-attr]
+        ax.figure.canvas.draw()  # type: ignore[union-attr]
 
     ax_width = ax.get_position().width * ax.figure.get_size_inches()[0]  # type: ignore[union-attr]
     ax_height = ax.get_position().height * ax.figure.get_size_inches()[1]  # type: ignore[union-attr]
@@ -494,11 +506,11 @@ def append_text(
         """Calculate Y position for right/left positioning."""
         _validate_alignment(va)
         if va == "bottom":
-            return ref_y + yoffset + text_height_corr
+            return ref_y + yoffset
         if va == "top":
             return ref_y + yoffset - text_height
         # baseline
-        return ref_y + text_height_corr
+        return ref_y
 
     if loc == "right":
         _x = ref_right + auto_spacing
@@ -507,7 +519,6 @@ def append_text(
     elif loc == "below":
         _x = ref_left
         _validate_alignment(va)
-
         # Calculate the actual bottom edge of the reference text
         if va == "bottom":
             ref_bottom = ref_y
@@ -515,7 +526,6 @@ def append_text(
             ref_bottom = ref_y + yoffset - text_height
         else:  # baseline
             ref_bottom = ref_y - yoffset
-
         _y = ref_bottom - yoffset - (text_height_corr if pad == "auto" else pad_offset)
         va, ha = "top", "left"
     elif loc == "above":
@@ -540,6 +550,8 @@ def append_text(
         valid_locs = ["right", "below", "above", "left"]
         msg = f"Invalid `loc={loc}`. Choose from {valid_locs}"
         raise ValueError(msg)
+    if _debug_x_override is not None:
+        _x = _debug_x_override
     txt_artist = text_class(_x, _y, s, va=va, ha=ha, transform=ax.transAxes, **kwargs)
     ax._add_text(txt_artist)  # type: ignore[attr-defined]
     return txt_artist

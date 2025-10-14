@@ -46,7 +46,7 @@ DUNE1 = {
     "axes.formatter.use_mathtext": True,
     "axes.unicode_minus": False,  # Use ASCII minus for better compatibility
     "axes.xmargin": 0.0,  # Small margin for better plot bounds
-    "axes.ymargin": 0.0,
+    # "axes.ymargin": 0.0,
     # Enhanced color cycle - DUNE logo colors first, then accessibility-optimized sequence
     "axes.prop_cycle": cycler(
         "color",

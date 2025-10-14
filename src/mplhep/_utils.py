@@ -32,6 +32,8 @@ from matplotlib.text import Text
 
 logger = logging.getLogger(__name__)
 
+_DEBUG_OVERLAP = False
+
 
 def _get_plottable_protocol_bins(
     axis: PlottableAxis,
@@ -1010,7 +1012,7 @@ def _hist_legend(ax=None, **kwargs):
     return ax
 
 
-def _overlap(ax, bboxes, get_vertices=False):
+def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
     """
     Find overlap of bboxes (in display coordinates) with drawn elements on axes.
 
@@ -1020,9 +1022,23 @@ def _overlap(ax, bboxes, get_vertices=False):
 
     Returns number of overlapping points/bboxes.
     If get_vertices, also return vertices in data coordinates.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        The axes to check
+    bboxes : Bbox or list of Bbox
+        Bounding boxes to check for overlap
+    get_vertices : bool, optional
+        If True, also return vertices in data coordinates
+    exclude_texts : list, optional
+        List of Text objects to exclude from overlap detection (to avoid self-overlap)
     """
     if not isinstance(bboxes, list):
         bboxes = [bboxes]
+
+    if exclude_texts is None:
+        exclude_texts = []
 
     lines_display = []
     bboxes_display = []
@@ -1033,7 +1049,16 @@ def _overlap(ax, bboxes, get_vertices=False):
             # Use original data to include points outside axes
             xdata = handle.get_xdata()
             ydata = handle.get_ydata()
-            data_points = np.column_stack((xdata, ydata))
+            if len(xdata) > 1:
+                # Interpolate between points to better detect overlap with lines
+                x_interp = []
+                y_interp = []
+                for i in range(len(xdata) - 1):
+                    x_interp.extend(np.linspace(xdata[i], xdata[i + 1], 10))
+                    y_interp.extend(np.linspace(ydata[i], ydata[i + 1], 10))
+                data_points = np.column_stack((x_interp, y_interp))
+            else:
+                data_points = np.column_stack((xdata, ydata))
             vertices_display = ax.transData.transform(data_points)
             lines_display.append(vertices_display)
 
@@ -1047,7 +1072,25 @@ def _overlap(ax, bboxes, get_vertices=False):
         elif hasattr(handle, "get_paths"):
             # For poly collections like fill_between, use paths
             for path in handle.get_paths():
-                vertices_display = ax.transData.transform(path.vertices)
+                if len(path.vertices) > 1:
+                    # Interpolate between points to better detect overlap
+                    x_interp = []
+                    y_interp = []
+                    for i in range(len(path.vertices) - 1):
+                        x_interp.extend(
+                            np.linspace(
+                                path.vertices[i][0], path.vertices[i + 1][0], 10
+                            )
+                        )
+                        y_interp.extend(
+                            np.linspace(
+                                path.vertices[i][1], path.vertices[i + 1][1], 10
+                            )
+                        )
+                    data_points = np.column_stack((x_interp, y_interp))
+                else:
+                    data_points = path.vertices
+                vertices_display = ax.transData.transform(data_points)
                 lines_display.append(vertices_display)
         elif hasattr(handle, "get_offsets"):
             # Fallback for other collections
@@ -1063,19 +1106,37 @@ def _overlap(ax, bboxes, get_vertices=False):
     # Collect bboxes from patches
     for handle in ax.patches:
         if isinstance(handle, Patch):
-            if hasattr(handle, "get_bbox"):
-                # Rectangle bbox in display coords
+            if hasattr(handle, "get_bbox") and isinstance(handle, Rectangle):
+                # Rectangle bbox in display coords (for bar plots)
                 bbox_patch = handle.get_bbox().transformed(handle.get_data_transform())
                 bboxes_display.append(bbox_patch)
             # Get vertices from patch path
             path = handle.get_path()
             if len(path.vertices) > 0:
-                vertices_display = ax.transData.transform(path.vertices)
+                if len(path.vertices) > 1:
+                    # Interpolate between points to better detect overlap with patch paths
+                    x_interp = []
+                    y_interp = []
+                    for i in range(len(path.vertices) - 1):
+                        x_interp.extend(
+                            np.linspace(
+                                path.vertices[i][0], path.vertices[i + 1][0], 10
+                            )
+                        )
+                        y_interp.extend(
+                            np.linspace(
+                                path.vertices[i][1], path.vertices[i + 1][1], 10
+                            )
+                        )
+                    data_points = np.column_stack((x_interp, y_interp))
+                else:
+                    data_points = path.vertices
+                vertices_display = ax.transData.transform(data_points)
                 lines_display.append(vertices_display)
 
-    # Collect bboxes from texts
+    # Collect bboxes from texts (excluding specified text objects to avoid self-overlap)
     for handle in ax.texts:
-        if isinstance(handle, Text):
+        if isinstance(handle, Text) and handle not in exclude_texts:
             bboxes_display.append(handle.get_window_extent())
 
     # Concatenate all vertices in display coordinates
@@ -1114,12 +1175,37 @@ def _overlap(ax, bboxes, get_vertices=False):
 
     logger.info(f"Overlap count: {overlap_count}")
 
+    if _DEBUG_OVERLAP:
+        # Plot vertices used in overlap detection
+        if len(all_vertices_data) > 0:
+            ax.scatter(
+                all_vertices_data[:, 0],
+                all_vertices_data[:, 1],
+                color="red",
+                s=20,
+                alpha=0.3,
+                label="overlap vertices",
+            )
+        # Plot annotation bboxes
+        for bbox in bboxes_data:
+            rect = mpl.patches.Rectangle(
+                (bbox.x0, bbox.y0),
+                bbox.width,
+                bbox.height,
+                linewidth=1,
+                edgecolor="blue",
+                facecolor="none",
+                alpha=0.3,
+                label="overlap bbox",
+            )
+            ax.add_patch(rect)
+
     if get_vertices:
         return overlap_count, all_vertices_data
     return overlap_count
 
 
-def _calculate_optimal_scaling(ax, bboxes):
+def _calculate_optimal_scaling(ax, bboxes, exclude_texts=None):
     """
     Calculate the optimal scaling factor for the y-axis to ensure the annotations fit without overlap.
 
@@ -1132,6 +1218,8 @@ def _calculate_optimal_scaling(ax, bboxes):
         The axes containing the plot and annotations
     bboxes : list of matplotlib.transforms.Bbox
         Annotation bounding boxes in display coordinates
+    exclude_texts : list, optional
+        List of Text objects to exclude from overlap detection
 
     Returns
     -------
@@ -1141,7 +1229,9 @@ def _calculate_optimal_scaling(ax, bboxes):
     if not isinstance(bboxes, list):
         bboxes = [bboxes]
 
-    overlap_count, vertices = _overlap(ax, bboxes, get_vertices=True)
+    overlap_count, vertices = _overlap(
+        ax, bboxes, get_vertices=True, exclude_texts=exclude_texts
+    )
 
     if overlap_count == 0:
         return 1.0
@@ -1187,8 +1277,8 @@ def _calculate_optimal_scaling(ax, bboxes):
         f"Annotation height: {annotation_height:.3f}, padding: {padding:.3f}, max_y: {max_y:.3f}"
     )
 
-    # To ensure sufficient space beyond the data, make the space above max_y at least annotation_height + 80% of axis range
-    required_space_above = annotation_height + 0.1 * current_axis_height + padding
+    # To ensure sufficient space beyond the data, make the space above max_y at least annotation_height + 5% of axis range
+    required_space_above = annotation_height + 0.05 * current_axis_height + padding
     required_ymax = max_y + required_space_above
 
     scaling = required_ymax / current_ymax
@@ -1220,17 +1310,22 @@ def _draw_leg_bbox(ax):
 def _draw_text_bbox(ax):
     """
     Draw text objects and fetch their bboxes
+
+    Returns
+    -------
+    tuple
+        (bboxes, text_objects) - List of bboxes and corresponding text objects
     """
     fig = ax.figure
     textboxes = [k for k in ax.get_children() if isinstance(k, (AnchoredText, Text))]
     logger.debug(f"_draw_text_bbox: Found {len(textboxes)} text objects")
     logger.debug(f"_draw_text_bbox: Found {textboxes}")
     if not textboxes:
-        return []
+        return [], []
 
     fig.canvas.draw()
     bboxes = []
     for box in textboxes:
         bboxes.append(box.get_tightbbox(fig.canvas.renderer))
     logger.debug(f"_draw_text_bbox: Returning {len(bboxes)} bboxes")
-    return bboxes
+    return bboxes, textboxes
