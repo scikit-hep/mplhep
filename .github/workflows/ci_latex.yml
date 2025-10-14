@@ -1,0 +1,87 @@
+# GitHub Actions workflow for testing LaTeX-dependent styles
+#
+# This workflow tests matplotlib styles that require LaTeX to be installed:
+# - CMSTex, ROOTTex (CMS experiment)
+# - DUNETex, DUNETex1 (DUNE experiment)
+# - ATLASTex (ATLAS experiment)
+# - LHCbTex1, LHCbTex2 (LHCb experiment)
+#
+# These tests are separated from the main CI workflow because:
+# 1. LaTeX installation adds ~500MB and several minutes to CI time
+# 2. LaTeX rendering can be environment-dependent
+# 3. Most PRs don't affect LaTeX-dependent features
+#
+# The workflow runs:
+# - On pull requests that modify style files or LaTeX tests
+# - Weekly (every Monday) to catch regressions
+# - Manually via workflow_dispatch
+
+name: CI LaTeX
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'src/mplhep/styles/**'
+      - 'tests/test_styles_latex.py'
+      - 'tests/test_dune.py'
+      - '.github/workflows/ci_latex.yml'
+  # Run weekly on Monday at 0:00 UTC
+  schedule:
+    - cron: '0 0 * * 1'
+
+jobs:
+
+  test-latex:
+    name: "LaTeX Tests • Python ${{ matrix.python-version }}"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.12']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup TeXLive
+        uses: xu-cheng/texlive-action@v3
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: 'latest'
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+          cache-dependency-glob: '**/pyproject.toml'
+
+      - name: Install core fonts
+        run: |
+          echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
+          sudo apt-get install ttf-mscorefonts-installer
+
+      - name: Install package
+        run: |
+          uv pip install -e '.[all]'
+          uv pip install pytest-github-actions-annotate-failures
+          uv pip install pytest-xdist
+          uv pip list
+
+      - name: Test LaTeX styles with pytest
+        run: |
+          python -m pytest tests/test_styles_latex.py -r sa --mpl --mpl-results-path=pytest_results_latex -n 4
+
+      - name: Test DUNE LaTeX styles with pytest
+        run: |
+          python -m pytest tests/test_dune.py::test_style_dunetex -r sa --mpl --mpl-results-path=pytest_results_dune_tex
+          python -m pytest tests/test_dune.py::test_style_dunetex1 -r sa --mpl --mpl-results-path=pytest_results_dune_tex
+          python -m pytest tests/test_dune.py::test_dune_style_string_aliases -r sa --mpl --mpl-results-path=pytest_results_dune_tex
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: pytest_results_latex-${{ matrix.python-version }}
+          retention-days: 7
+          path: |
+            pytest_results_latex
+            pytest_results_dune_tex

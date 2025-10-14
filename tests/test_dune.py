@@ -42,10 +42,8 @@ def test_dune_style_str_alias(fig_test, fig_ref):
     fig_test.subplots()
 
 
+@pytest.mark.latex
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
-@pytest.mark.skipif(
-    os.environ.get("GITHUB_ACTIONS") == "true", reason="Fails in GitHub Actions"
-)
 @pytest.mark.mpl_image_compare(style="default", remove_text=False)
 def test_style_dunetex():
     plt.rcParams.update(plt.rcParamsDefault)
@@ -58,10 +56,8 @@ def test_style_dunetex():
     return fig
 
 
+@pytest.mark.latex
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
-@pytest.mark.skipif(
-    os.environ.get("GITHUB_ACTIONS") == "true", reason="Fails in GitHub Actions"
-)
 @pytest.mark.mpl_image_compare(style="default", remove_text=False)
 def test_style_dunetex1():
     plt.rcParams.update(plt.rcParamsDefault)
@@ -84,18 +80,12 @@ def test_style_dunetex1():
         pytest.param(
             mh.style.DUNETex,
             "DUNETex",
-            marks=pytest.mark.skipif(
-                os.environ.get("GITHUB_ACTIONS") == "true",
-                reason="Fails in GitHub Actions",
-            ),
+            marks=pytest.mark.latex,
         ),
         pytest.param(
             mh.style.DUNETex1,
             "DUNETex1",
-            marks=pytest.mark.skipif(
-                os.environ.get("GITHUB_ACTIONS") == "true",
-                reason="Fails in GitHub Actions",
-            ),
+            marks=pytest.mark.latex,
         ),
     ],
     ids=["DUNE", "DUNE1", "DUNETex", "DUNETex1"],
