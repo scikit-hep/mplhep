@@ -83,6 +83,166 @@ def soft_update_kwargs(kwargs, mods, rc=True):
 
 ########################################
 # Histogram plotter
+def hist(
+    x,
+    bins=10,
+    *,
+    range=None,
+    density=False,
+    weights=None,
+    yerr: ArrayLike | bool | None = True,
+    histtype: str = "step",
+    label=None,
+    ax: mpl.axes.Axes | None = None,
+    **kwargs,
+):
+    """
+    Create histogram from unbinned data, matching `plt.hist` API but using `histplot`.
+
+    This function provides a convenient way to histogram raw data values while
+    benefiting from the extended features of `histplot`, such as automatic error
+    bar calculation, bin-width normalization, and HEP-style plotting options.
+
+    Parameters
+    ----------
+    x : array-like or list of array-like
+        Input values to histogram. Can be a single array or a list of arrays
+        for multiple histograms.
+    bins : int or sequence, default: 10
+        Number of bins or bin edges. If an integer, defines the number of
+        equal-width bins in the range. If a sequence, defines the bin edges.
+    range : tuple, optional
+        The lower and upper range of the bins as (min, max). If not provided,
+        range is (x.min(), x.max()). Values outside the range are ignored.
+    density : bool, default: False
+        If True, normalize histogram to form a probability density.
+    weights : array-like, optional
+        Array of weights, of the same shape as `x`. Each value in `x`
+        contributes its associated weight towards the bin count.
+    yerr : array-like or bool, default: True
+        Histogram uncertainties. If True (default), sqrt(N) errors or poissonian
+        interval when weights are specified. Can also be an array of errors.
+    histtype : {'step', 'fill', 'errorbar', 'band'}, default: "step"
+        Type of histogram to plot (see `histplot` for details).
+    label : str or list of str, optional
+        Label(s) for legend entry.
+    ax : matplotlib.axes.Axes, optional
+        Axes object to plot on. If None, uses current axes.
+    **kwargs
+        Additional keyword arguments passed to `histplot`.
+
+    Returns
+    -------
+    List[Hist1DArtists]
+        Artists created by histplot.
+
+    Examples
+    --------
+    >>> import mplhep as hep
+    >>> import numpy as np
+    >>> data = np.random.normal(100, 15, 1000)
+    >>> hep.hist(data, bins=50, range=(50, 150))
+
+    >>> # Multiple datasets
+    >>> data1 = np.random.normal(100, 15, 1000)
+    >>> data2 = np.random.normal(120, 15, 1000)
+    >>> hep.hist([data1, data2], bins=50, label=['Dataset 1', 'Dataset 2'])
+
+    See Also
+    --------
+    histplot : Plot pre-binned histograms
+    matplotlib.pyplot.hist : Matplotlib histogram function
+
+    """
+    # Store range parameter to avoid shadowing builtin
+    hist_range = range
+
+    # Handle multiple datasets
+    if isinstance(x, (list, tuple)) and not isinstance(x[0], (int, float, np.number)):
+        # Multiple datasets - histogram each one
+        datasets = x
+
+        # Process bins - if integer, we need to find a common range
+        if isinstance(bins, (int, np.integer)):
+            if hist_range is None:
+                # Find common range across all datasets
+                all_data = np.concatenate([np.asarray(d).ravel() for d in datasets])
+                hist_range = (np.min(all_data), np.max(all_data))
+            bin_edges = np.linspace(hist_range[0], hist_range[1], bins + 1)
+        else:
+            bin_edges = np.asarray(bins)
+
+        # Histogram each dataset
+        hist_values = []
+        hist_w2 = []
+        for dataset in datasets:
+            data_arr = np.asarray(dataset).ravel()
+            w = None if weights is None else np.asarray(weights).ravel()
+
+            h, _ = np.histogram(data_arr, bins=bin_edges, weights=w, density=False)
+            hist_values.append(h)
+
+            # Calculate w2 for error estimation if weights are provided
+            if w is not None:
+                h_w2, _ = np.histogram(
+                    data_arr, bins=bin_edges, weights=w**2, density=False
+                )
+                hist_w2.append(h_w2)
+
+        # Pass to histplot
+        w2_arg = hist_w2 if weights is not None and len(hist_w2) > 0 else None
+        # If w2 is provided, don't pass yerr (w2 will be used for error calculation)
+        # If yerr is explicitly an array, still pass it
+        yerr_arg = None if w2_arg is not None and isinstance(yerr, bool) else yerr
+        return histplot(
+            hist_values,
+            bin_edges,
+            yerr=yerr_arg,
+            w2=w2_arg,
+            density=density,
+            histtype=histtype,
+            label=label,
+            ax=ax,
+            **kwargs,
+        )
+    # Single dataset
+    x = np.asarray(x).ravel()
+    w = None if weights is None else np.asarray(weights).ravel()
+
+    # Create histogram
+    if isinstance(bins, (int, np.integer)):
+        if hist_range is None:
+            hist_range = (np.min(x), np.max(x))
+        bin_edges = np.linspace(hist_range[0], hist_range[1], bins + 1)
+    else:
+        bin_edges = np.asarray(bins)
+
+    h, _ = np.histogram(x, bins=bin_edges, weights=w, density=False)
+
+    # Calculate w2 for error estimation if weights are provided
+    w2_arg = None
+    if w is not None:
+        h_w2, _ = np.histogram(x, bins=bin_edges, weights=w**2, density=False)
+        w2_arg = h_w2
+
+    # If w2 is provided, don't pass yerr (w2 will be used for error calculation)
+    # If yerr is explicitly an array, still pass it
+    yerr_arg = None if w2_arg is not None and isinstance(yerr, bool) else yerr
+
+    # Pass to histplot
+    return histplot(
+        h,
+        bin_edges,
+        yerr=yerr_arg,
+        w2=w2_arg,
+        density=density,
+        histtype=histtype,
+        label=label,
+        ax=ax,
+        **kwargs,
+    )
+
+
 def histplot(
     H,  # Histogram object, tuple or array
     bins=None,  # Bins to be supplied when h is a value array or iterable of array
