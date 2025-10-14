@@ -4,6 +4,7 @@ Collection of functions to plot histograms
 
 from __future__ import annotations
 
+import contextlib
 import re
 
 import matplotlib.pyplot as plt
@@ -833,7 +834,8 @@ def plot_data_model_comparison(
         **comparison_kwargs,
     )
 
-    ylabel_fontsize = set_fitting_ylabel_fontsize(ax_main)
+    with contextlib.suppress(Exception):
+        ylabel_fontsize = set_fitting_ylabel_fontsize(ax_main)
     ax_comparison.get_yaxis().get_label().set_size(ylabel_fontsize)
 
     fig.align_ylabels()

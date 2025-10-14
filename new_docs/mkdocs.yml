@@ -115,6 +115,7 @@ plugins:
   - search
   - minify
   - git-revision-date-localized
+  # - markdown-exec
   - mkdocs_matplotlib:
       align: left       # Options: left, center, right (default: center)
       image_width: 50%   # Default width for rendered images (default: 100%)
@@ -144,6 +145,12 @@ plugins:
   - git-committers:
       repository: scikit-hep/mplhep
       branch: main
+
+hooks:
+  - docs_hooks.py
+
+exclude_docs: |
+  guide_template.md
 
 nav:
   - Home: index.md
