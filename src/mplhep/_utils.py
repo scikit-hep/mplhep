@@ -1063,19 +1063,10 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
     # Collect vertices from lines (Line2D)
     for handle in ax.lines:
         if isinstance(handle, Line2D):
-            # Use original data to include points outside axes
+            # Use original data
             xdata = handle.get_xdata()
             ydata = handle.get_ydata()
-            if len(xdata) > 1:
-                # Interpolate between points to better detect overlap with lines
-                x_interp = []
-                y_interp = []
-                for i in range(len(xdata) - 1):
-                    x_interp.extend(np.linspace(xdata[i], xdata[i + 1], 10))
-                    y_interp.extend(np.linspace(ydata[i], ydata[i + 1], 10))
-                data_points = np.column_stack((x_interp, y_interp))
-            else:
-                data_points = np.column_stack((xdata, ydata))
+            data_points = np.column_stack((xdata, ydata))
             vertices_display = ax.transData.transform(data_points)
             lines_display.append(vertices_display)
 
@@ -1089,25 +1080,7 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
         elif hasattr(handle, "get_paths"):
             # For poly collections like fill_between, use paths
             for path in handle.get_paths():
-                if len(path.vertices) > 1:
-                    # Interpolate between points to better detect overlap
-                    x_interp = []
-                    y_interp = []
-                    for i in range(len(path.vertices) - 1):
-                        x_interp.extend(
-                            np.linspace(
-                                path.vertices[i][0], path.vertices[i + 1][0], 10
-                            )
-                        )
-                        y_interp.extend(
-                            np.linspace(
-                                path.vertices[i][1], path.vertices[i + 1][1], 10
-                            )
-                        )
-                    data_points = np.column_stack((x_interp, y_interp))
-                else:
-                    data_points = path.vertices
-                vertices_display = ax.transData.transform(data_points)
+                vertices_display = ax.transData.transform(path.vertices)
                 lines_display.append(vertices_display)
         elif hasattr(handle, "get_offsets"):
             # Fallback for other collections
@@ -1116,9 +1089,10 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
             lines_display.append(vertices_display)
 
         # Also collect bboxes from collections if available
-        if hasattr(handle, "get_datalim"):
-            datalim_display = handle.get_datalim(ax.transData)
-            bboxes_display.append(datalim_display)
+        # Note: datalim bboxes are too broad and cause false positives for overlap detection
+        # if hasattr(handle, "get_datalim"):
+        #     datalim_display = handle.get_datalim(ax.transData)
+        #     bboxes_display.append(datalim_display)
 
     # Collect bboxes from patches
     for handle in ax.patches:
@@ -1130,25 +1104,7 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
             # Get vertices from patch path
             path = handle.get_path()
             if len(path.vertices) > 0:
-                if len(path.vertices) > 1:
-                    # Interpolate between points to better detect overlap with patch paths
-                    x_interp = []
-                    y_interp = []
-                    for i in range(len(path.vertices) - 1):
-                        x_interp.extend(
-                            np.linspace(
-                                path.vertices[i][0], path.vertices[i + 1][0], 10
-                            )
-                        )
-                        y_interp.extend(
-                            np.linspace(
-                                path.vertices[i][1], path.vertices[i + 1][1], 10
-                            )
-                        )
-                    data_points = np.column_stack((x_interp, y_interp))
-                else:
-                    data_points = path.vertices
-                vertices_display = ax.transData.transform(data_points)
+                vertices_display = ax.transData.transform(path.vertices)
                 lines_display.append(vertices_display)
 
     # Collect bboxes from texts (excluding specified text objects to avoid self-overlap)
