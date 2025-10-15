@@ -46,6 +46,7 @@ jobs:
         run: |
           uv pip install -e ".[all]"
           uv pip install markdown-exec griffe-inherited-docstrings docstring-inheritance
+          uv pip install git+https://github.com/andrzejnovak/mkdocs-matplotlib.git
           uv pip list
 
       - name: Build documentation
