@@ -1107,6 +1107,20 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
                 vertices_display = ax.transData.transform(path.vertices)
                 lines_display.append(vertices_display)
 
+                # For step/line paths, also sample intermediate points along edges
+                # This ensures we detect overlap with horizontal/vertical segments
+                if len(path.vertices) > 1:
+                    for i in range(len(path.vertices) - 1):
+                        v1 = path.vertices[i]
+                        v2 = path.vertices[i + 1]
+                        # Sample 5 intermediate points along each edge
+                        t = np.linspace(0, 1, 7)[
+                            1:-1
+                        ]  # Exclude endpoints (already in vertices)
+                        interpolated = v1 + (v2 - v1) * t[:, np.newaxis]
+                        interpolated_display = ax.transData.transform(interpolated)
+                        lines_display.append(interpolated_display)
+
     # Collect bboxes from texts (excluding specified text objects to avoid self-overlap)
     for handle in ax.texts:
         if isinstance(handle, Text) and handle not in exclude_texts:
@@ -1145,6 +1159,19 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
         overlap_count += bbox.count_contains(
             all_vertices_display
         ) + bbox.count_overlaps(bboxes_display)
+
+    # Also check if data vertices are above the text bbox (occluding it)
+    # This catches cases where the histogram bars cover the text
+    for bbox in bboxes:
+        if len(all_vertices_display) > 0:
+            # Check if any vertices are in the same x-range but above the bbox
+            in_x_range = (all_vertices_display[:, 0] >= bbox.x0) & (
+                all_vertices_display[:, 0] <= bbox.x1
+            )
+            above_bbox = all_vertices_display[:, 1] > bbox.y1
+            occluding = in_x_range & above_bbox
+            if occluding.any():
+                overlap_count += occluding.sum()
 
     logger.info(f"Overlap count: {overlap_count}")
 
