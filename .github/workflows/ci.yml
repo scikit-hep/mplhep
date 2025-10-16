@@ -52,7 +52,7 @@ jobs:
         run: uv pip install -e .
 
       - name: Test import to check for dependencies
-        run: uv python -c "import mplhep; from mplhep import *"
+        run: python -c "import mplhep; from mplhep import *"
 
       - name: Install package for testing
         run: |
