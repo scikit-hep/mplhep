@@ -48,7 +48,13 @@ jobs:
           echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
           sudo apt-get install ttf-mscorefonts-installer
 
-      - name: Install package
+      - name: Install package for user  # check that this installs all dependencies properly
+        run: uv pip install -e .
+
+      - name: Test import to check for dependencies
+        run: python -c "import mplhep; from mplhep import *"
+
+      - name: Install package for testing
         run: |
           uv pip install -e ".[all]"
           uv pip install pytest-github-actions-annotate-failures
