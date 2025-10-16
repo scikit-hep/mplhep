@@ -3,12 +3,10 @@ from __future__ import annotations
 import sys
 from typing import Any, Callable, TypeVar
 
-from typing_extensions import ParamSpec
-
 if sys.version_info >= (3, 10):
-    from typing import TypeAlias
+    from typing import TypeAlias, ParamSpec
 else:
-    from typing_extensions import TypeAlias
+    from typing_extensions import TypeAlias, ParamSpec
 
 T = TypeVar("T")
 P = ParamSpec("P")
