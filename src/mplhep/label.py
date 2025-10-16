@@ -640,8 +640,9 @@ def exp_text(
     _weight_exp, _weight_suff, _weight_lumi, _weight_supp = fontweight
 
     # Special cases
+    _fmt = ax.get_yaxis().get_major_formatter()
     if (
-        loc in [0, 3] and ax.get_yaxis().get_major_formatter().get_useOffset()  # type: ignore[attr-defined]
+        loc in [0, 3] and hasattr(_fmt, "get_useOffset") and _fmt.get_useOffset()  # type: ignore[attr-defined]
     ):  # Requires figure.draw call, fetch only when needed
         ax.figure.draw(ax.figure.canvas.get_renderer())  # type: ignore[attr-defined]
         _sci_box = _pixel_to_axis(
