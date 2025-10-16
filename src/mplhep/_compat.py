@@ -4,9 +4,9 @@ import sys
 from typing import Any, Callable, TypeVar
 
 if sys.version_info >= (3, 10):
-    from typing import TypeAlias, ParamSpec
+    from typing import ParamSpec, TypeAlias
 else:
-    from typing_extensions import TypeAlias, ParamSpec
+    from typing_extensions import ParamSpec, TypeAlias
 
 T = TypeVar("T")
 P = ParamSpec("P")
