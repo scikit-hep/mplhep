@@ -70,6 +70,7 @@ CMSTex = {
             r"\usepackage[LGR,T1]{fontenc}",
             r"\usepackage{tgheros}",
             r"\renewcommand{\familydefault}{\sfdefault}",
+            r"\renewcommand{\rmdefault}{\sfdefault}",
             r"\usepackage{amsmath}",
             r"\usepackage[symbolgreek,symbolmax]{mathastext}",
             r"\usepackage{siunitx}",
