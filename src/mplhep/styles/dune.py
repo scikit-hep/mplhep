@@ -130,7 +130,19 @@ DUNE1 = {k: v for k, v in DUNE1.items() if k in mpl.rcParams}
 DUNETex1 = {
     **DUNE1,
     "text.usetex": True,
-    "text.latex.preamble": r"\usepackage{siunitx}\sisetup{detect-all}\usepackage{tgheros}\renewcommand{\familydefault}{\sfdefault}\usepackage{sansmath}\sansmath\usepackage{amsmath}\usepackage{physics}",
+    "text.latex.preamble": "\n".join(
+        [
+            r"\usepackage[LGR,T1]{fontenc}",
+            r"\usepackage{tgheros}",
+            r"\renewcommand{\familydefault}{\sfdefault}",
+            r"\usepackage{amsmath}",
+            r"\usepackage[symbolgreek,symbolmax]{mathastext}",
+            r"\usepackage{physics}",
+            r"\usepackage{siunitx}",
+            r"\setlength{\parindent}{0pt}",
+            r"\def\mathdefault{}",
+        ]
+    ),
 }
 
 # moving targets
