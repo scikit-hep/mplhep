@@ -286,7 +286,7 @@ def mpl_magic(
     ylow: float | None = None,
     otol=1,
     soft_fail=False,
-    N=10,
+    N=2,
 ):
     """
     Consolidate all ex-post style adjustments:
