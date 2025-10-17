@@ -104,8 +104,8 @@ LHCbTex1 = {
     "text.latex.preamble": "\n".join(
         [
             r"\usepackage[T1]{fontenc}",
-            r"\usepackage{mathptmx}",
             r"\usepackage{amsmath}",
+            r"\usepackage{mathptmx}",
             r"\setlength{\parindent}{0pt}",
         ]
     ),
