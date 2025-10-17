@@ -1155,10 +1155,16 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
 
     # Calculate overlap in display coordinates
     overlap_count = 0
+    overlapping_vertices_data = []  # Track all vertices that contribute to overlap in data coordinates
     for bbox in bboxes:
-        overlap_count += bbox.count_contains(
-            all_vertices_display
-        ) + bbox.count_overlaps(bboxes_display)
+        contained = bbox.count_contains(all_vertices_display)
+        if contained > 0:
+            # Find which vertices are contained
+            contained_mask = np.array(
+                [bbox.contains(x, y) for x, y in all_vertices_display]
+            )
+            overlapping_vertices_data.extend(all_vertices_data[contained_mask])
+        overlap_count += contained + bbox.count_overlaps(bboxes_display)
 
     # Also check if data vertices are above the text bbox (occluding it)
     # This catches cases where the histogram bars cover the text
@@ -1172,10 +1178,26 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
             occluding = in_x_range & above_bbox
             if occluding.any():
                 overlap_count += occluding.sum()
+                # Collect occluding vertices in data coordinates
+                overlapping_vertices_data.extend(all_vertices_data[occluding])
 
     logger.info(f"Overlap count: {overlap_count}")
+    if overlapping_vertices_data:
+        logger.warning(
+            f"Total overlapping vertices: {len(overlapping_vertices_data)} in data coordinates: {overlapping_vertices_data}"
+        )
+    else:
+        logger.warning("No overlapping vertices found")
 
     if _DEBUG_OVERLAP:
+        # Remove any existing debug markers
+        for artist in ax.patches + ax.collections + ax.lines:
+            if hasattr(artist, "get_label") and artist.get_label() in [
+                "overlap bbox",
+                "overlapping vertices",
+            ]:
+                artist.remove()
+
         # Plot vertices used in overlap detection
         if len(all_vertices_data) > 0:
             ax.scatter(
@@ -1199,6 +1221,20 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
                 label="overlap bbox",
             )
             ax.add_patch(rect)
+        # Plot occluding vertices as fat blue pluses
+        if overlapping_vertices_data:
+            overlapping_array = np.array(overlapping_vertices_data)
+            ax.scatter(
+                overlapping_array[:, 0],
+                overlapping_array[:, 1],
+                color="blue",
+                s=100,
+                alpha=0.9,
+                marker="+",
+                linewidth=3,
+                label="overlapping vertices",
+                zorder=10,  # Plot on top
+            )
 
     if get_vertices:
         return overlap_count, all_vertices_data
