@@ -65,9 +65,18 @@ CMS = {k: v for k, v in CMS.items() if k in mpl.rcParams}
 CMSTex = {
     **CMS,
     "text.usetex": True,
-    "text.latex.preamble": r"\usepackage{siunitx}\sisetup{detect-all}"
-    r"\usepackage{helvet}\usepackage{sansmath}"
-    r"\sansmath",
+    "text.latex.preamble": "\n".join(
+        [
+            r"\usepackage[LGR,T1]{fontenc}",
+            r"\usepackage{tgheros}",
+            r"\renewcommand{\familydefault}{\sfdefault}",
+            r"\usepackage{amsmath}",
+            r"\usepackage[symbolgreek,symbolmax]{mathastext}",
+            r"\usepackage{siunitx}",
+            r"\setlength{\parindent}{0pt}",
+            r"\def\mathdefault{}",
+        ]
+    ),
 }
 
 ROOT = CMS  # Leave as default
