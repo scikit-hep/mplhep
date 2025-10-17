@@ -101,7 +101,14 @@ LHCbTex1 = {
     # (overrides default font)
     "text.usetex": True,
     # Use the LaTeX version of Times New Roman
-    "text.latex.preamble": r"\usepackage{mathptmx}",
+    "text.latex.preamble": "\n".join(
+        [
+            r"\usepackage[T1]{fontenc}",
+            r"\usepackage{mathptmx}",
+            r"\usepackage{amsmath}",
+            r"\setlength{\parindent}{0pt}",
+        ]
+    ),
     "pgf.rcfonts": False,
 }
 
@@ -218,7 +225,14 @@ LHCbTex2 = {
     # (overrides default font)
     "text.usetex": True,
     # Use the LaTeX version of Times New Roman
-    "text.latex.preamble": r"\usepackage{txfonts}",
+    "text.latex.preamble": "\n".join(
+        [
+            r"\usepackage[T1]{fontenc}",
+            r"\usepackage{amsmath}",
+            r"\usepackage{txfonts}",
+            r"\setlength{\parindent}{0pt}",
+        ]
+    ),
     "pgf.rcfonts": False,
 }
 
