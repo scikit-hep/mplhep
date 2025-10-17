@@ -68,13 +68,13 @@ jobs:
 
       - name: Test LaTeX styles with pytest
         run: |
-          python -m pytest tests/test_styles_latex.py -r sa --mpl --mpl-results-path=pytest_results_latex -n 4
+          python -m pytest tests/test_styles_latex.py -m latex -r sa --mpl --mpl-results-path=pytest_results_latex -n 4
 
       - name: Test DUNE LaTeX styles with pytest
         run: |
-          python -m pytest tests/test_dune.py::test_style_dunetex -r sa --mpl --mpl-results-path=pytest_results_dune_tex
-          python -m pytest tests/test_dune.py::test_style_dunetex1 -r sa --mpl --mpl-results-path=pytest_results_dune_tex
-          python -m pytest tests/test_dune.py::test_dune_style_string_aliases -r sa --mpl --mpl-results-path=pytest_results_dune_tex
+          python -m pytest tests/test_dune.py::test_style_dunetex -m latex -r sa --mpl --mpl-results-path=pytest_results_dune_tex
+          python -m pytest tests/test_dune.py::test_style_dunetex1 -m latex -r sa --mpl --mpl-results-path=pytest_results_dune_tex
+          python -m pytest tests/test_dune.py::test_dune_style_string_aliases -m latex -r sa --mpl --mpl-results-path=pytest_results_dune_tex
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v4
