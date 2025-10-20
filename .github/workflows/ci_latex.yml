@@ -43,9 +43,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup TeXLive
-        uses: xu-cheng/texlive-action@v3
-
       - name: Setup uv
         uses: astral-sh/setup-uv@v5
         with:
@@ -59,6 +56,11 @@ jobs:
           echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
           sudo apt-get install ttf-mscorefonts-installer
 
+      - name: Install LaTeX packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y texlive-latex-extra texlive-fonts-recommended texlive-science tex-gyre dvipng cm-super
+
       - name: Install package
         run: |
           uv pip install -e '.[all]'
@@ -66,15 +68,20 @@ jobs:
           uv pip install pytest-xdist
           uv pip list
 
+      - name: Verify LaTeX installation
+        run: |
+          which latex
+          latex --version
+
       - name: Test LaTeX styles with pytest
         run: |
-          python -m pytest tests/test_styles_latex.py -r sa --mpl --mpl-results-path=pytest_results_latex -n 4
+          python -m pytest tests/test_styles_latex.py -m latex -r sa --mpl --mpl-results-path=pytest_results_latex -n 4
 
       - name: Test DUNE LaTeX styles with pytest
         run: |
-          python -m pytest tests/test_dune.py::test_style_dunetex -r sa --mpl --mpl-results-path=pytest_results_dune_tex
-          python -m pytest tests/test_dune.py::test_style_dunetex1 -r sa --mpl --mpl-results-path=pytest_results_dune_tex
-          python -m pytest tests/test_dune.py::test_dune_style_string_aliases -r sa --mpl --mpl-results-path=pytest_results_dune_tex
+          python -m pytest tests/test_dune.py::test_style_dunetex -m latex -r sa --mpl --mpl-results-path=pytest_results_dune_tex
+          python -m pytest tests/test_dune.py::test_style_dunetex1 -m latex -r sa --mpl --mpl-results-path=pytest_results_dune_tex
+          python -m pytest tests/test_dune.py::test_dune_style_string_aliases -m latex -r sa --mpl --mpl-results-path=pytest_results_dune_tex
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v4

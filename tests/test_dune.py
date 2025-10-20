@@ -52,7 +52,6 @@ def test_style_dunetex():
     fig, ax = plt.subplots()
     mh.dune.label(text="Preliminary")
 
-    plt.rcParams.update(plt.rcParamsDefault)
     return fig
 
 
@@ -66,7 +65,6 @@ def test_style_dunetex1():
     fig, ax = plt.subplots()
     mh.dune.label(text="Preliminary")
 
-    plt.rcParams.update(plt.rcParamsDefault)
     return fig
 
 

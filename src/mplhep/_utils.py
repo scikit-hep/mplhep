@@ -1228,6 +1228,20 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
                 label="overlap bbox",
             )
             ax.add_patch(rect)
+        # Plot occluding vertices as fat blue pluses
+        if overlapping_vertices_data:
+            overlapping_array = np.array(overlapping_vertices_data)
+            ax.scatter(
+                overlapping_array[:, 0],
+                overlapping_array[:, 1],
+                color="blue",
+                s=100,
+                alpha=0.9,
+                marker="+",
+                linewidth=3,
+                label="overlapping vertices",
+                zorder=10,  # Plot on top
+            )
 
         # Plot overlapping vertices with emphasis
         if overlapping_vertices_data:

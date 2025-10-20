@@ -408,8 +408,25 @@ def add_text(
         msg = f"y should be numeric, got {type(y).__name__}"
         raise TypeError(msg)
 
+    # When using LaTeX, wrap text in appropriate commands based on fontweight and fontstyle
+    _text = text
+    if rcParams.get("text.usetex", False) and text:
+        fontweight = kwargs.get("fontweight", "normal")
+        fontstyle = kwargs.get("fontstyle", "normal")
+
+        # Apply both bold and italic if needed (order matters: textbf outside textit)
+        is_bold = fontweight in ("bold", 700, "heavy")
+        is_italic = fontstyle in ("italic", "oblique")
+
+        if is_bold and is_italic:
+            _text = rf"\textbf{{\textit{{{_text}}}}}"
+        elif is_bold:
+            _text = rf"\textbf{{{_text}}}"
+        elif is_italic:
+            _text = rf"\textit{{{_text}}}"
+
     t = text_class(
-        float(x), float(y), text, fontsize=_font_size, transform=transform, **kwargs
+        float(x), float(y), _text, fontsize=_font_size, transform=transform, **kwargs
     )
     ax._add_text(t)  # type: ignore[attr-defined]
 
@@ -552,7 +569,25 @@ def append_text(
         raise ValueError(msg)
     if _debug_x_override is not None:
         _x = _debug_x_override
-    txt_artist = text_class(_x, _y, s, va=va, ha=ha, transform=ax.transAxes, **kwargs)
+
+    # When using LaTeX, wrap text in appropriate commands based on fontweight and fontstyle
+    _s = s
+    if rcParams.get("text.usetex", False) and s:
+        fontweight = kwargs.get("fontweight", "normal")
+        fontstyle = kwargs.get("fontstyle", "normal")
+
+        # Apply both bold and italic if needed (order matters: textbf outside textit)
+        is_bold = fontweight in ("bold", 700, "heavy")
+        is_italic = fontstyle in ("italic", "oblique")
+
+        if is_bold and is_italic:
+            _s = rf"\textbf{{\textit{{{_s}}}}}"
+        elif is_bold:
+            _s = rf"\textbf{{{_s}}}"
+        elif is_italic:
+            _s = rf"\textit{{{_s}}}"
+
+    txt_artist = text_class(_x, _y, _s, va=va, ha=ha, transform=ax.transAxes, **kwargs)
     ax._add_text(txt_artist)  # type: ignore[attr-defined]
     return txt_artist
 
