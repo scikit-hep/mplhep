@@ -1029,6 +1029,12 @@ def _hist_legend(ax=None, **kwargs):
     return ax
 
 
+def _is_debug_marker(artist):
+    """Check if an artist is a debug marker that should be excluded from overlap detection."""
+    DEBUG_LABELS = {"overlap vertices", "overlapping vertices", "overlap bbox"}
+    return hasattr(artist, "get_label") and artist.get_label() in DEBUG_LABELS
+
+
 def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
     """
     Find overlap of bboxes (in display coordinates) with drawn elements on axes.
@@ -1057,45 +1063,45 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
     if exclude_texts is None:
         exclude_texts = []
 
+    # Ensure canvas is drawn before collecting vertices
+    fig = ax.figure
+    if fig is not None:
+        fig.canvas.draw()
+
     lines_display = []
     bboxes_display = []
 
     # Collect vertices from lines (Line2D)
     for handle in ax.lines:
-        if isinstance(handle, Line2D):
-            # Use original data
-            xdata = handle.get_xdata()
-            ydata = handle.get_ydata()
+        if isinstance(handle, Line2D) and not _is_debug_marker(handle):
+            xdata, ydata = handle.get_xdata(), handle.get_ydata()
             data_points = np.column_stack((xdata, ydata))
             vertices_display = ax.transData.transform(data_points)
             lines_display.append(vertices_display)
 
-    # Collect vertices from collections (e.g., scatter plots)
+    # Collect vertices from collections (e.g., scatter plots, fill_between)
     for handle in ax.collections:
+        if _is_debug_marker(handle):
+            continue
+
         if isinstance(handle, plt.matplotlib.collections.PathCollection):
-            # For scatter plots, use offsets as data points
-            offsets = handle.get_offsets()
-            vertices_display = ax.transData.transform(offsets)
+            # Scatter plots: use offsets as data points
+            vertices_display = ax.transData.transform(handle.get_offsets())
             lines_display.append(vertices_display)
         elif hasattr(handle, "get_paths"):
-            # For poly collections like fill_between, use paths
+            # Poly collections like fill_between: use path vertices
             for path in handle.get_paths():
                 vertices_display = ax.transData.transform(path.vertices)
                 lines_display.append(vertices_display)
         elif hasattr(handle, "get_offsets"):
             # Fallback for other collections
-            offsets = handle.get_offsets()
-            vertices_display = ax.transData.transform(offsets)
+            vertices_display = ax.transData.transform(handle.get_offsets())
             lines_display.append(vertices_display)
-
-        # Also collect bboxes from collections if available
-        # Note: datalim bboxes are too broad and cause false positives for overlap detection
-        # if hasattr(handle, "get_datalim"):
-        #     datalim_display = handle.get_datalim(ax.transData)
-        #     bboxes_display.append(datalim_display)
 
     # Collect bboxes from patches
     for handle in ax.patches:
+        if _is_debug_marker(handle):
+            continue
         if isinstance(handle, Patch):
             if hasattr(handle, "get_bbox") and isinstance(handle, Rectangle):
                 # Rectangle bbox in display coords (for bar plots)
@@ -1190,15 +1196,15 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
         logger.warning("No overlapping vertices found")
 
     if _DEBUG_OVERLAP:
-        # Remove any existing debug markers
+        # Save current axis limits to prevent debug markers from affecting them
+        current_xlim, current_ylim = ax.get_xlim(), ax.get_ylim()
+
+        # Remove existing debug markers
         for artist in ax.patches + ax.collections + ax.lines:
-            if hasattr(artist, "get_label") and artist.get_label() in [
-                "overlap bbox",
-                "overlapping vertices",
-            ]:
+            if _is_debug_marker(artist):
                 artist.remove()
 
-        # Plot vertices used in overlap detection
+        # Plot all vertices used in overlap detection
         if len(all_vertices_data) > 0:
             ax.scatter(
                 all_vertices_data[:, 0],
@@ -1208,7 +1214,8 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
                 alpha=0.3,
                 label="overlap vertices",
             )
-        # Plot annotation bboxes
+
+        # Plot annotation bboxes as rectangles
         for bbox in bboxes_data:
             rect = mpl.patches.Rectangle(
                 (bbox.x0, bbox.y0),
@@ -1236,6 +1243,25 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
                 zorder=10,  # Plot on top
             )
 
+        # Plot overlapping vertices with emphasis
+        if overlapping_vertices_data:
+            overlapping_array = np.array(overlapping_vertices_data)
+            ax.scatter(
+                overlapping_array[:, 0],
+                overlapping_array[:, 1],
+                color="blue",
+                s=100,
+                alpha=0.9,
+                marker="+",
+                linewidth=3,
+                label="overlapping vertices",
+                zorder=10,
+            )
+
+        # Restore original axis limits (don't let debug markers affect scaling)
+        ax.set_xlim(current_xlim)
+        ax.set_ylim(current_ylim)
+
     if get_vertices:
         return overlap_count, all_vertices_data
     return overlap_count
@@ -1243,10 +1269,11 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
 
 def _calculate_optimal_scaling(ax, bboxes, exclude_texts=None):
     """
-    Calculate the optimal scaling factor for the y-axis to ensure the annotations fit without overlap.
+    Calculate the optimal y-axis scaling factor to eliminate annotation overlaps.
 
-    Accounts for the annotations' positioning padding and ensures sufficient space above the highest data point.
-    Only scales if there is overlap.
+    Uses display-based margins (inches) to ensure consistent visual spacing across
+    different figure sizes and data ranges. Caps extreme scaling at 2x to prevent
+    axis distortion in edge cases.
 
     Parameters
     ----------
@@ -1255,70 +1282,94 @@ def _calculate_optimal_scaling(ax, bboxes, exclude_texts=None):
     bboxes : list of matplotlib.transforms.Bbox
         Annotation bounding boxes in display coordinates
     exclude_texts : list, optional
-        List of Text objects to exclude from overlap detection
+        Text objects to exclude from overlap detection
 
     Returns
     -------
     float
-        Scaling factor for y-axis (1.0 if no scaling needed)
+        Scaling factor for y-axis (1.0 if no scaling needed, max 2.0)
     """
     if not isinstance(bboxes, list):
         bboxes = [bboxes]
 
+    # Check for overlaps
     overlap_count, vertices = _overlap(
         ax, bboxes, get_vertices=True, exclude_texts=exclude_texts
     )
-
     if overlap_count == 0:
         return 1.0
 
-    # Find the bbox with the highest y1 for scaling
+    # Convert bboxes to data coordinates and filter degenerate ones
     bboxes_data = [bbox.transformed(ax.transData.inverted()) for bbox in bboxes]
-    # Filter out degenerate bboxes
     bboxes_data = [b for b in bboxes_data if b.y1 > b.y0]
-    if bboxes_data:
-        bbox_data = max(bboxes_data, key=lambda b: b.y1)
-        annotation_height = bbox_data.y1 - bbox_data.y0
-    else:
+    if not bboxes_data:
         return 1.0
 
+    # Get annotation properties
+    tallest_bbox = max(bboxes_data, key=lambda b: b.y1)
+    annotation_height = tallest_bbox.y1 - tallest_bbox.y0
+    lowest_bbox_y0 = min(b.y0 for b in bboxes_data)
+
+    # Get axis properties
     current_ylim = ax.get_ylim()
-    current_ymax = current_ylim[1]
-    current_axis_height = current_ymax - current_ylim[0]
-
-    logger.debug(f"Current ylim: {current_ylim}")
-
-    max_y = current_ylim[0] if len(vertices) == 0 else vertices[:, 1].max()
-
-    # Also check patches for max y (e.g., histogram bars)
-    for handle in ax.patches:
-        if isinstance(handle, Rectangle):
-            bbox_patch = handle.get_bbox()
-            max_y = max(max_y, bbox_patch.y1)
-
-    # Also check collections for data limits (e.g., fill_between)
-    for handle in ax.collections:
-        if hasattr(handle, "get_datalim"):
-            datalim_data = handle.get_datalim(ax.transData)
-            max_y = max(max_y, datalim_data.y1)
-
-    # Fraction of axis height taken by annotation
+    current_axis_height = current_ylim[1] - current_ylim[0]
     annotation_fraction = annotation_height / current_axis_height
-    logger.debug(f"Annotation fraction of axis height: {annotation_fraction:.3f}")
 
-    # Estimate the padding: the distance from axis top to annotation top
-    padding = current_ymax - bbox_data.y1
+    # Find maximum y-coordinate of data (including patches and collections)
+    max_y = vertices[:, 1].max() if len(vertices) > 0 else current_ylim[0]
+
+    # Check patches (e.g., histogram bars) - skip debug markers
+    for handle in ax.patches:
+        if isinstance(handle, Rectangle) and not _is_debug_marker(handle):
+            max_y = max(max_y, handle.get_bbox().y1)
+
+    # Check collections (e.g., fill_between) - skip debug markers
+    for handle in ax.collections:
+        if hasattr(handle, "get_datalim") and not _is_debug_marker(handle):
+            max_y = max(max_y, handle.get_datalim(ax.transData).y1)
 
     logger.debug(
-        f"Annotation height: {annotation_height:.3f}, padding: {padding:.3f}, max_y: {max_y:.3f}"
+        f"Current ylim: {current_ylim}, annotation_fraction: {annotation_fraction:.3f}, "
+        f"max_y: {max_y:.3f}, lowest_bbox_y0: {lowest_bbox_y0:.3f}"
     )
 
-    # To ensure sufficient space beyond the data, make the space above max_y at least annotation_height + 5% of axis range
-    required_space_above = annotation_height + 0.05 * current_axis_height + padding
-    required_ymax = max_y + required_space_above
+    # Calculate margin in display units (inches) based on annotation size
+    fig = ax.figure
+    if fig is None:
+        # Fallback: use data-coordinate margin
+        margin_data = (
+            0.025 if annotation_fraction <= 0.15 else 0.05
+        ) * current_axis_height
+    else:
+        fig.canvas.draw()
+        axes_height_inches = ax.get_position().height * fig.get_figheight()
+        margin_inches = (
+            0.025 if annotation_fraction <= 0.15 else 0.05
+        ) * axes_height_inches
+        margin_data = margin_inches * (current_axis_height / axes_height_inches)
+        logger.debug(
+            f"margin: {margin_inches:.3f} inches = {margin_data:.3f} data units"
+        )
 
-    scaling = required_ymax / current_ymax
-    return max(1.0, scaling)
+    # Calculate required scaling
+    # After scaling by s: bbox.y0_new = bbox.y0 * s
+    # We need: bbox.y0_new >= max_y + margin_data
+    # Therefore: s >= (max_y + margin_data) / bbox.y0
+
+    if lowest_bbox_y0 <= 0:
+        required_scaling = 1.01  # Edge case: bbox at or below zero
+    elif lowest_bbox_y0 > max_y + margin_data:
+        required_scaling = 1.0  # Already clear
+    else:
+        required_scaling = (max_y + margin_data) / lowest_bbox_y0
+        # Cap at 2x to prevent extreme distortion (e.g., very short figures)
+        if required_scaling > 2.0:
+            required_scaling = 2.0
+            logger.debug("Capping scaling at 2.0x to prevent extreme distortion")
+
+    scaling = max(1.0, required_scaling)
+    logger.debug(f"Required scaling: {scaling:.3f}")
+    return scaling
 
 
 def _draw_leg_bbox(ax):
