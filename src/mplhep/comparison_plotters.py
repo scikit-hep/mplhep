@@ -217,8 +217,9 @@ def plot_comparison(
             edges=h2_plottable.axes[0].edges,
             variances=lower_uncertainties**2,
             kind=h2_plottable.kind,
-            w2method=h2_plottable.method,
+            w2method="sqrt",
         )
+        histplot_kwargs.setdefault("w2method", "sqrt")
     else:
         comparison_plottable = EnhancedPlottableHistogram(
             comparison_values,
@@ -226,6 +227,9 @@ def plot_comparison(
             yerr=[lower_uncertainties, upper_uncertainties],
             kind=h2_plottable.kind,
             w2method=h2_plottable.method,
+        )
+        histplot_kwargs.setdefault(
+            "yerr", [comparison_plottable.yerr_lo, comparison_plottable.yerr_hi]
         )
 
     comparison_plottable.errors()
@@ -237,7 +241,6 @@ def plot_comparison(
     else:
         histplot_kwargs.setdefault("color", "black")
         histplot_kwargs.setdefault("histtype", "errorbar")
-        histplot_kwargs.setdefault("yerr", comparison_plottable.yerr)
         histplot(comparison_plottable, ax=ax, **histplot_kwargs)
 
     if comparison in ["ratio", "split_ratio", "relative_difference"]:
