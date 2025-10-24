@@ -4,6 +4,7 @@ src/mplhep/_version.py
 result_images/
 pytest_results/
 test/
+pytest_results/
 .nox/
 .vscode/
 new_docs/site/
