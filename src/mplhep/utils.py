@@ -566,11 +566,25 @@ def subplots(
         Array of Axes objects representing the subplots.
     """
     if gridspec_kw is None and nrows > 1:
-        gridspec_kw = {"height_ratios": [4*(1+0.25*(nrows-2)), *(1 for _ in range(nrows-1))]}
+        gridspec_kw = {
+            "height_ratios": [
+                4 * (1 + 0.25 * (nrows - 2)),
+                *(1 for _ in range(nrows - 1)),
+            ]
+        }
     if figsize is None:
-        figsize = (plt.rcParams["figure.figsize"][0], plt.rcParams["figure.figsize"][1] * (1 + 0.25 * (nrows - 1)))
+        figsize = (
+            plt.rcParams["figure.figsize"][0],
+            plt.rcParams["figure.figsize"][1] * (1 + 0.25 * (nrows - 1)),
+        )
 
-    fig, axes = plt.subplots(nrows=nrows, figsize=figsize, gridspec_kw=gridspec_kw)
+    fig, axes = plt.subplots(
+        nrows=nrows,
+        figsize=figsize,
+        gridspec_kw=gridspec_kw,
+        *args,  # NOQA: B026
+        **kwargs,  # type: ignore[call-overload]
+    )
     if nrows > 1:
         fig.subplots_adjust(hspace=hspace)
 
