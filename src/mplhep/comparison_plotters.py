@@ -110,8 +110,11 @@ def plot_two_hist_comparison(
     _check_counting_histogram(h2_plottable)
 
     if fig is None and ax_main is None and ax_comparison is None:
+        figsize = plt.rcParams["figure.figsize"]
         fig, (ax_main, ax_comparison) = plt.subplots(
-            nrows=2, figsize=(6, 5), gridspec_kw={"height_ratios": [4, 1]}
+            nrows=2,
+            figsize=(figsize[0], figsize[1] * 1.25),
+            gridspec_kw={"height_ratios": [4, 1]},
         )
         fig.subplots_adjust(hspace=0.15)
         ax_main.xaxis.set_ticklabels([])
@@ -749,8 +752,11 @@ def plot_data_model_comparison(
 
     if fig is None and ax_main is None and ax_comparison is None:
         if plot_only is None:
+            figsize = plt.rcParams["figure.figsize"]
             fig, (ax_main, ax_comparison) = plt.subplots(
-                nrows=2, figsize=(6, 5), gridspec_kw={"height_ratios": [4, 1]}
+                nrows=2,
+                figsize=(figsize[0], figsize[1] * 1.25),
+                gridspec_kw={"height_ratios": [4, 1]},
             )
             fig.subplots_adjust(hspace=0.15)
             ax_main.xaxis.set_ticklabels([])
