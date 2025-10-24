@@ -498,3 +498,28 @@ def sort_legend(ax, order=None):
     if isinstance(order, OrderedDict):
         ordered_label_list = [order[k] for k in ordered_label_list]
     return ordered_label_values, ordered_label_list
+
+
+def _get_model_type(components):
+    """
+    Check that all components of a model are either all histograms or all functions
+    and return the type of the model components.
+
+    Parameters
+    ----------
+    components : list
+        The list of model components.
+
+    Returns
+    -------
+    str
+        The type of the model components ("histograms" or "functions").
+
+    Raises
+    ------
+    ValueError
+        If the model components are not all histograms or all functions.
+    """
+    if all(callable(x) for x in components):
+        return "functions"
+    return "histograms"

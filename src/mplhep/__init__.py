@@ -42,12 +42,10 @@ from .comparison_plotters import (
     comparison,
     data_model,
     hists,
-    model,
 )
 
 plot_comparison = comparison
 plot_data_model_comparison = data_model
-plot_model = model
 plot_two_hist_comparison = hists
 from .label import add_text, append_text, save_variations, savelabels
 from .plot import (
@@ -55,7 +53,10 @@ from .plot import (
     hist,
     hist2dplot,
     histplot,
+    model,
 )
+
+plot_model = model
 
 plot_hist = histplot
 from .styles import set_style
