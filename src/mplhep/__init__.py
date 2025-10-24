@@ -72,6 +72,7 @@ from .utils import (
     sort_legend,
     yscale_anchored_text,
     yscale_legend,
+    subplots,
 )
 
 # Configs
@@ -148,4 +149,5 @@ __all__ = [
     "style",
     "yscale_anchored_text",
     "yscale_legend",
+    "subplots",
 ]

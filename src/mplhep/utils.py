@@ -533,3 +533,49 @@ def _get_model_type(components):
     if all(callable(x) for x in components):
         return "functions"
     return "histograms"
+
+
+def subplots(
+    figsize: tuple[float, float] | None = None,
+    nrows: int = 1,
+    gridspec_kw: dict | None = None,
+    hspace: float = 0.15,
+    *args,
+    **kwargs,
+) -> tuple[plt.Figure, np.ndarray]:
+    """
+    Wrapper around plt.subplots to create a figure with multiple subplots
+
+    Parameters
+    ----------
+    figsize : tuple[float, float], optional
+        Figure size in inches.
+    nrows : int, optional
+        Number of rows in the subplot grid. Default is 2.
+    gridspec_kw : dict | None, optional
+        Additional keyword arguments for the GridSpec. Default is None.
+        If None is provided, this is set to {"height_ratios": [4, 1]}.
+    hspace : float, optional
+        Height spacing between subplots. Default is 0.15.
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        The created figure.
+    axes : np.ndarray
+        Array of Axes objects representing the subplots.
+    """
+    if gridspec_kw is None and nrows > 1:
+        gridspec_kw = {"height_ratios": [4*(1+0.25*(nrows-2)), *(1 for _ in range(nrows-1))]}
+    if figsize is None:
+        figsize = (plt.rcParams["figure.figsize"][0], plt.rcParams["figure.figsize"][1] * (1 + 0.25 * (nrows - 1)))
+
+    fig, axes = plt.subplots(nrows=nrows, figsize=figsize, gridspec_kw=gridspec_kw)
+    if nrows > 1:
+        fig.subplots_adjust(hspace=hspace)
+
+        for ax in axes[:-1]:
+            _ = ax.xaxis.set_ticklabels([])
+            ax.set_xlabel(" ")
+
+    return fig, axes

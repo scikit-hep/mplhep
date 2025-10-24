@@ -28,6 +28,7 @@ from .plot import (
 from .utils import (
     _get_model_type,
     set_fitting_ylabel_fontsize,
+    subplots,
 )
 
 
@@ -111,15 +112,7 @@ def hists(
     _check_counting_histogram(h2_plottable)
 
     if fig is None and ax_main is None and ax_comparison is None:
-        figsize = plt.rcParams["figure.figsize"]
-        fig, (ax_main, ax_comparison) = plt.subplots(
-            nrows=2,
-            figsize=(figsize[0], figsize[1] * 1.25),
-            gridspec_kw={"height_ratios": [4, 1]},
-        )
-        fig.subplots_adjust(hspace=0.15)
-        ax_main.xaxis.set_ticklabels([])
-        ax_main.set_xlabel(" ")
+        fig, (ax_main, ax_comparison) = subplots(nrows=2)
     elif fig is None or ax_main is None or ax_comparison is None:
         msg = "Need to provide fig, ax_main and ax_comparison (or none of them)."
         raise ValueError(msg)
@@ -496,15 +489,7 @@ def data_model(
 
     if fig is None and ax_main is None and ax_comparison is None:
         if plot_only is None:
-            figsize = plt.rcParams["figure.figsize"]
-            fig, (ax_main, ax_comparison) = plt.subplots(
-                nrows=2,
-                figsize=(figsize[0], figsize[1] * 1.25),
-                gridspec_kw={"height_ratios": [4, 1]},
-            )
-            fig.subplots_adjust(hspace=0.15)
-            ax_main.xaxis.set_ticklabels([])
-            ax_main.set_xlabel(" ")
+            fig, (ax_main, ax_comparison) = subplots(nrows=2)
         elif plot_only == "ax_main":
             _, ax_comparison = plt.subplots()
             fig, ax_main = plt.subplots()
