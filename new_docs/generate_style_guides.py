@@ -12,7 +12,7 @@ from typing import Dict, List
 
 # Style configurations
 STYLES = {
-    "matplotlib": {
+    "Default": {
         "STYLE_NAME": "Default",
         "STYLE_CODE": "",
         "STYLE_USE_CODE": "",

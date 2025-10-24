@@ -109,6 +109,81 @@ Please see our [Homepage](index.md) for a quick demo and for experiment labeling
 
 
 
+=== "plothist"
+
+    === "Array-Like"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
+        fig, ax = plt.subplots()
+        mh.histplot([1, 2, 3, 6, 3, 5, 2, 1], ax=ax)
+        ```
+
+    === "`numpy.histogram`"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
+        data = np.random.normal(0, 1, 1000)
+        fig, ax = plt.subplots()
+        mh.histplot(*np.histogram(data, bins=40), ax=ax)
+        ```
+
+    === "`hist.Hist`"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
+        data = np.random.normal(0, 1, 1000)
+        h_obj = hist.new.Reg(40, -4, 4).Weight().fill(data)
+        fig, ax = plt.subplots()
+        mh.histplot(h_obj, ax=ax)
+        # Note that errorbars are now automatically plotted because hist.Hist inputs objects has .variances() available
+        ```
+
+
+    === "`uproot.TH1`"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
+        from skhep_testdata import data_path  # mkdocs: hide
+        uproot_file_name = data_path("uproot-hepdata-example.root")  # mkdocs: hide
+        import uproot
+
+        file = uproot.open(uproot_file_name)
+        h_root = file['hpx']
+        fig, ax = plt.subplots()
+        mh.histplot(h_root, ax=ax)
+        ```
+
+
+
+
 === "CMS"
 
     === "Array-Like"
@@ -471,81 +546,6 @@ Please see our [Homepage](index.md) for a quick demo and for experiment labeling
         import numpy as np  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
         mh.style.use('DUNE')  # mkdocs: hide
-        from skhep_testdata import data_path  # mkdocs: hide
-        uproot_file_name = data_path("uproot-hepdata-example.root")  # mkdocs: hide
-        import uproot
-
-        file = uproot.open(uproot_file_name)
-        h_root = file['hpx']
-        fig, ax = plt.subplots()
-        mh.histplot(h_root, ax=ax)
-        ```
-
-
-
-
-=== "plothist"
-
-    === "Array-Like"
-
-        ```python
-        # mkdocs: render
-        # mkdocs: align=left
-        import matplotlib.pyplot as plt  # mkdocs: hide
-        import mplhep as mh  # mkdocs: hide
-        import numpy as np  # mkdocs: hide
-        import hist  # mkdocs: hide
-        np.random.seed(42)  # mkdocs: hide
-        mh.style.use('plothist')  # mkdocs: hide
-        fig, ax = plt.subplots()
-        mh.histplot([1, 2, 3, 6, 3, 5, 2, 1], ax=ax)
-        ```
-
-    === "`numpy.histogram`"
-
-        ```python
-        # mkdocs: render
-        # mkdocs: align=left
-        import matplotlib.pyplot as plt  # mkdocs: hide
-        import mplhep as mh  # mkdocs: hide
-        import numpy as np  # mkdocs: hide
-        import hist  # mkdocs: hide
-        np.random.seed(42)  # mkdocs: hide
-        mh.style.use('plothist')  # mkdocs: hide
-        data = np.random.normal(0, 1, 1000)
-        fig, ax = plt.subplots()
-        mh.histplot(*np.histogram(data, bins=40), ax=ax)
-        ```
-
-    === "`hist.Hist`"
-
-        ```python
-        # mkdocs: render
-        # mkdocs: align=left
-        import matplotlib.pyplot as plt  # mkdocs: hide
-        import mplhep as mh  # mkdocs: hide
-        import numpy as np  # mkdocs: hide
-        import hist  # mkdocs: hide
-        np.random.seed(42)  # mkdocs: hide
-        mh.style.use('plothist')  # mkdocs: hide
-        data = np.random.normal(0, 1, 1000)
-        h_obj = hist.new.Reg(40, -4, 4).Weight().fill(data)
-        fig, ax = plt.subplots()
-        mh.histplot(h_obj, ax=ax)
-        # Note that errorbars are now automatically plotted because hist.Hist inputs objects has .variances() available
-        ```
-
-
-    === "`uproot.TH1`"
-
-        ```python
-        # mkdocs: render
-        # mkdocs: align=left
-        import matplotlib.pyplot as plt  # mkdocs: hide
-        import mplhep as mh  # mkdocs: hide
-        import numpy as np  # mkdocs: hide
-        np.random.seed(42)  # mkdocs: hide
-        mh.style.use('plothist')  # mkdocs: hide
         from skhep_testdata import data_path  # mkdocs: hide
         uproot_file_name = data_path("uproot-hepdata-example.root")  # mkdocs: hide
         import uproot
@@ -668,6 +668,110 @@ Control the appearance with the `histtype` parameter. Select an experiment style
 
 
 
+=== "plothist"
+
+    === "Step"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='step', label='Step histogram', ax=ax)
+        ```
+
+    === "Fill"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='fill', alpha=0.5, label='Filled histogram', ax=ax)
+        ```
+
+    === "Errorbar"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', label='Data', ax=ax)
+        ```
+
+    === "Band"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='band', alpha=0.5, label='Band histogram', ax=ax)
+        # Can be used to visualize uncertainties
+        ```
+
+    === "Bar"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='bar', label='Bar histogram', ax=ax)
+        # For more `mpl.hist`-like plots
+        ```
+
+    === "Barstep"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='barstep', label='Barstep histogram', ax=ax)
+        # For more `mpl.hist`-like plots
+        ```
+
+
+
+
 === "CMS"
 
     === "Step"
@@ -1179,110 +1283,6 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
         mh.style.use('DUNE')  # mkdocs: hide
-        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
-        fig, ax = plt.subplots()
-        mh.histplot(h, histtype='barstep', label='Barstep histogram', ax=ax)
-        # For more `mpl.hist`-like plots
-        ```
-
-
-
-
-=== "plothist"
-
-    === "Step"
-
-        ```python
-        # mkdocs: render
-        # mkdocs: align=left
-        import matplotlib.pyplot as plt  # mkdocs: hide
-        import mplhep as mh  # mkdocs: hide
-        import numpy as np  # mkdocs: hide
-        import hist  # mkdocs: hide
-        np.random.seed(42)  # mkdocs: hide
-        mh.style.use('plothist')  # mkdocs: hide
-        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
-        fig, ax = plt.subplots()
-        mh.histplot(h, histtype='step', label='Step histogram', ax=ax)
-        ```
-
-    === "Fill"
-
-        ```python
-        # mkdocs: render
-        # mkdocs: align=left
-        import matplotlib.pyplot as plt  # mkdocs: hide
-        import mplhep as mh  # mkdocs: hide
-        import numpy as np  # mkdocs: hide
-        import hist  # mkdocs: hide
-        np.random.seed(42)  # mkdocs: hide
-        mh.style.use('plothist')  # mkdocs: hide
-        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
-        fig, ax = plt.subplots()
-        mh.histplot(h, histtype='fill', alpha=0.5, label='Filled histogram', ax=ax)
-        ```
-
-    === "Errorbar"
-
-        ```python
-        # mkdocs: render
-        # mkdocs: align=left
-        import matplotlib.pyplot as plt  # mkdocs: hide
-        import mplhep as mh  # mkdocs: hide
-        import numpy as np  # mkdocs: hide
-        import hist  # mkdocs: hide
-        np.random.seed(42)  # mkdocs: hide
-        mh.style.use('plothist')  # mkdocs: hide
-        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
-        fig, ax = plt.subplots()
-        mh.histplot(h, histtype='errorbar', label='Data', ax=ax)
-        ```
-
-    === "Band"
-
-        ```python
-        # mkdocs: render
-        # mkdocs: align=left
-        import matplotlib.pyplot as plt  # mkdocs: hide
-        import mplhep as mh  # mkdocs: hide
-        import numpy as np  # mkdocs: hide
-        import hist  # mkdocs: hide
-        np.random.seed(42)  # mkdocs: hide
-        mh.style.use('plothist')  # mkdocs: hide
-        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
-        fig, ax = plt.subplots()
-        mh.histplot(h, histtype='band', alpha=0.5, label='Band histogram', ax=ax)
-        # Can be used to visualize uncertainties
-        ```
-
-    === "Bar"
-
-        ```python
-        # mkdocs: render
-        # mkdocs: align=left
-        import matplotlib.pyplot as plt  # mkdocs: hide
-        import mplhep as mh  # mkdocs: hide
-        import numpy as np  # mkdocs: hide
-        import hist  # mkdocs: hide
-        np.random.seed(42)  # mkdocs: hide
-        mh.style.use('plothist')  # mkdocs: hide
-        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
-        fig, ax = plt.subplots()
-        mh.histplot(h, histtype='bar', label='Bar histogram', ax=ax)
-        # For more `mpl.hist`-like plots
-        ```
-
-    === "Barstep"
-
-        ```python
-        # mkdocs: render
-        # mkdocs: align=left
-        import matplotlib.pyplot as plt  # mkdocs: hide
-        import mplhep as mh  # mkdocs: hide
-        import numpy as np  # mkdocs: hide
-        import hist  # mkdocs: hide
-        np.random.seed(42)  # mkdocs: hide
-        mh.style.use('plothist')  # mkdocs: hide
         h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
         mh.histplot(h, histtype='barstep', label='Barstep histogram', ax=ax)
@@ -1457,6 +1457,188 @@ Plot multiple histograms on the same axes with different stacking and sorting op
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
           # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            sort='l_r',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+
+
+=== "plothist"
+
+    === "Overlay (buggy lol)"
+        FXIME: Keeping this here temporarily
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            stack=True,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        txt_obj = mh.add_text('plothist', loc='over left')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Overlay"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+    === "Stacked"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Sorted (by yield)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            sort='yield',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Sorted (by label)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='fill',
+            stack=True,
+            sort='label',
+            alpha=0.7,
+            label=['Background 1', 'Signal', 'Background 2'],
+            ax=ax
+        )
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Sorted (by label - reversed)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
         # Create histograms and fill them
         h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
         h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
@@ -2391,188 +2573,6 @@ Plot multiple histograms on the same axes with different stacking and sorting op
 
 
 
-=== "plothist"
-
-    === "Overlay (buggy lol)"
-        FXIME: Keeping this here temporarily
-
-        ```python
-        # mkdocs: render
-        # mkdocs: align=left
-        import matplotlib.pyplot as plt  # mkdocs: hide
-        import mplhep as mh  # mkdocs: hide
-        import numpy as np  # mkdocs: hide
-        import hist  # mkdocs: hide
-        np.random.seed(42)  # mkdocs: hide
-        mh.style.use('plothist')  # mkdocs: hide
-        # Create histograms and fill them
-        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
-        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
-        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
-
-        fig, ax = plt.subplots()
-        mh.histplot(
-            [h1, h2, h3],
-            stack=True,
-            label=['Background 1', 'Signal', 'Background 2'],
-            ax=ax
-        )
-        txt_obj = mh.add_text('plothist', loc='over left')
-        ax.legend(loc='upper right')
-        mh.yscale_legend(soft_fail=True)
-        ```
-
-    === "Overlay"
-
-        ```python
-        # mkdocs: render
-        # mkdocs: align=left
-        import matplotlib.pyplot as plt  # mkdocs: hide
-        import mplhep as mh  # mkdocs: hide
-        import numpy as np  # mkdocs: hide
-        import hist  # mkdocs: hide
-        np.random.seed(42)  # mkdocs: hide
-        mh.style.use('plothist')  # mkdocs: hide
-        # Create histograms and fill them
-        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
-        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
-        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
-
-        fig, ax = plt.subplots()
-        mh.histplot(
-            [h1, h2, h3],
-            histtype='fill',
-            alpha=0.7,
-            label=['Background 1', 'Signal', 'Background 2'],
-            ax=ax
-        )
-        ax.legend(loc='upper right')
-        mh.yscale_legend(soft_fail=True)
-        ```
-
-
-    === "Stacked"
-
-        ```python
-        # mkdocs: render
-        # mkdocs: align=left
-        import matplotlib.pyplot as plt  # mkdocs: hide
-        import mplhep as mh  # mkdocs: hide
-        import numpy as np  # mkdocs: hide
-        import hist  # mkdocs: hide
-        np.random.seed(42)  # mkdocs: hide
-        mh.style.use('plothist')  # mkdocs: hide
-        # Create histograms and fill them
-        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
-        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
-        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
-
-        fig, ax = plt.subplots()
-        mh.histplot(
-            [h1, h2, h3],
-            histtype='fill',
-            stack=True,
-            alpha=0.7,
-            label=['Background 1', 'Signal', 'Background 2'],
-            ax=ax
-        )
-        ax.legend(loc='upper right')
-        mh.yscale_legend(soft_fail=True)
-        ```
-
-    === "Sorted (by yield)"
-
-        ```python
-        # mkdocs: render
-        # mkdocs: align=left
-        import matplotlib.pyplot as plt  # mkdocs: hide
-        import mplhep as mh  # mkdocs: hide
-        import numpy as np  # mkdocs: hide
-        import hist  # mkdocs: hide
-        np.random.seed(42)  # mkdocs: hide
-        mh.style.use('plothist')  # mkdocs: hide
-        # Create histograms and fill them
-        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
-        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
-        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
-
-        fig, ax = plt.subplots()
-        mh.histplot(
-            [h1, h2, h3],
-            histtype='fill',
-            stack=True,
-            sort='yield',
-            alpha=0.7,
-            label=['Background 1', 'Signal', 'Background 2'],
-            ax=ax
-        )
-        ax.legend(loc='upper right')
-        mh.yscale_legend(soft_fail=True)
-        ```
-
-    === "Sorted (by label)"
-
-        ```python
-        # mkdocs: render
-        # mkdocs: align=left
-        import matplotlib.pyplot as plt  # mkdocs: hide
-        import mplhep as mh  # mkdocs: hide
-        import numpy as np  # mkdocs: hide
-        import hist  # mkdocs: hide
-        np.random.seed(42)  # mkdocs: hide
-        mh.style.use('plothist')  # mkdocs: hide
-        # Create histograms and fill them
-        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
-        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
-        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
-
-        fig, ax = plt.subplots()
-        mh.histplot(
-            [h1, h2, h3],
-            histtype='fill',
-            stack=True,
-            sort='label',
-            alpha=0.7,
-            label=['Background 1', 'Signal', 'Background 2'],
-            ax=ax
-        )
-        ax.legend(loc='upper right')
-        mh.yscale_legend(soft_fail=True)
-        ```
-
-    === "Sorted (by label - reversed)"
-
-        ```python
-        # mkdocs: render
-        # mkdocs: align=left
-        import matplotlib.pyplot as plt  # mkdocs: hide
-        import mplhep as mh  # mkdocs: hide
-        import numpy as np  # mkdocs: hide
-        import hist  # mkdocs: hide
-        np.random.seed(42)  # mkdocs: hide
-        mh.style.use('plothist')  # mkdocs: hide
-        # Create histograms and fill them
-        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
-        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
-        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
-
-        fig, ax = plt.subplots()
-        mh.histplot(
-            [h1, h2, h3],
-            histtype='fill',
-            stack=True,
-            sort='l_r',
-            alpha=0.7,
-            label=['Background 1', 'Signal', 'Background 2'],
-            ax=ax
-        )
-        ax.legend(loc='upper right')
-        mh.yscale_legend(soft_fail=True)
-        ```
-
-
-
-
 ### Error Bars
 
 Control error bar display with `yerr` and `w2method` parameters:
@@ -2652,6 +2652,99 @@ Control error bar display with `yerr` and `w2method` parameters:
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
           # mkdocs: hide
+        # Weighted histogram with custom error calculation
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
+
+        # Custom error function: error = sqrt(sum(weights^2)) / 2
+        def custom_w2_method(weights, variances):
+            import numpy as np  # mkdocs: hide
+            up = weights - np.ones_like(weights) * 0.2 * np.mean(weights)
+            down = weights + np.ones_like(weights) * 0.2 * np.mean(weights)
+            return up, down
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', w2method=custom_w2_method, label='Weighted data (custom error method)', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+
+
+=== "plothist"
+
+    === "Automatic (Poisson)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
+        # Simple histogram with Weight storage for automatic errors
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.poisson(5, 20))
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', yerr=True, label='Data with Poisson errors', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Set explicitly"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
+        # Simple histogram with custom error bars
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
+        custom_errors = np.minimum(np.sqrt(h.values()), np.random.uniform(0, 20, 20))
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', yerr=custom_errors, label='Data with custom errors', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Set yerr calculation method (`'sqrt'`/`'poisson'`)"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
+        # Weighted histogram - errors from sqrt of sum of weights squared
+        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
+
+        fig, ax = plt.subplots()
+        mh.histplot(h, histtype='errorbar', w2method='sqrt', label='Weighted data (sqrt method)', ax=ax)
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Set yerr calculation function - full control"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
         # Weighted histogram with custom error calculation
         h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
 
@@ -3117,99 +3210,6 @@ Control error bar display with `yerr` and `w2method` parameters:
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
         mh.style.use('DUNE')  # mkdocs: hide
-        # Weighted histogram with custom error calculation
-        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
-
-        # Custom error function: error = sqrt(sum(weights^2)) / 2
-        def custom_w2_method(weights, variances):
-            import numpy as np  # mkdocs: hide
-            up = weights - np.ones_like(weights) * 0.2 * np.mean(weights)
-            down = weights + np.ones_like(weights) * 0.2 * np.mean(weights)
-            return up, down
-
-        fig, ax = plt.subplots()
-        mh.histplot(h, histtype='errorbar', w2method=custom_w2_method, label='Weighted data (custom error method)', ax=ax)
-        ax.legend(loc='upper right')
-        mh.yscale_legend(soft_fail=True)
-        ```
-
-
-
-
-=== "plothist"
-
-    === "Automatic (Poisson)"
-
-        ```python
-        # mkdocs: render
-        # mkdocs: align=left
-        import matplotlib.pyplot as plt  # mkdocs: hide
-        import mplhep as mh  # mkdocs: hide
-        import numpy as np  # mkdocs: hide
-        import hist  # mkdocs: hide
-        np.random.seed(42)  # mkdocs: hide
-        mh.style.use('plothist')  # mkdocs: hide
-        # Simple histogram with Weight storage for automatic errors
-        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.poisson(5, 20))
-
-        fig, ax = plt.subplots()
-        mh.histplot(h, histtype='errorbar', yerr=True, label='Data with Poisson errors', ax=ax)
-        ax.legend(loc='upper right')
-        mh.yscale_legend(soft_fail=True)
-        ```
-
-    === "Set explicitly"
-
-        ```python
-        # mkdocs: render
-        # mkdocs: align=left
-        import matplotlib.pyplot as plt  # mkdocs: hide
-        import mplhep as mh  # mkdocs: hide
-        import numpy as np  # mkdocs: hide
-        import hist  # mkdocs: hide
-        np.random.seed(42)  # mkdocs: hide
-        mh.style.use('plothist')  # mkdocs: hide
-        # Simple histogram with custom error bars
-        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
-        custom_errors = np.minimum(np.sqrt(h.values()), np.random.uniform(0, 20, 20))
-
-        fig, ax = plt.subplots()
-        mh.histplot(h, histtype='errorbar', yerr=custom_errors, label='Data with custom errors', ax=ax)
-        ax.legend(loc='upper right')
-        mh.yscale_legend(soft_fail=True)
-        ```
-
-    === "Set yerr calculation method (`'sqrt'`/`'poisson'`)"
-
-        ```python
-        # mkdocs: render
-        # mkdocs: align=left
-        import matplotlib.pyplot as plt  # mkdocs: hide
-        import mplhep as mh  # mkdocs: hide
-        import numpy as np  # mkdocs: hide
-        import hist  # mkdocs: hide
-        np.random.seed(42)  # mkdocs: hide
-        mh.style.use('plothist')  # mkdocs: hide
-        # Weighted histogram - errors from sqrt of sum of weights squared
-        h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
-
-        fig, ax = plt.subplots()
-        mh.histplot(h, histtype='errorbar', w2method='sqrt', label='Weighted data (sqrt method)', ax=ax)
-        ax.legend(loc='upper right')
-        mh.yscale_legend(soft_fail=True)
-        ```
-
-    === "Set yerr calculation function - full control"
-
-        ```python
-        # mkdocs: render
-        # mkdocs: align=left
-        import matplotlib.pyplot as plt  # mkdocs: hide
-        import mplhep as mh  # mkdocs: hide
-        import numpy as np  # mkdocs: hide
-        import hist  # mkdocs: hide
-        np.random.seed(42)  # mkdocs: hide
-        mh.style.use('plothist')  # mkdocs: hide
         # Weighted histogram with custom error calculation
         h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
 
@@ -3328,6 +3328,101 @@ Control histogram normalization with `density` and `binwnorm` parameters:
 
 
 
+=== "plothist"
+
+    === "Nominal"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
+        # Create histograms with different binning schemes
+        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
+        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
+        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
+        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
+
+        # Plot
+        kwargs = {}
+        fig, ax = plt.subplots()
+        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
+        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+
+        # Style
+        ax.set_xlabel('Observable')
+        ax.set_ylabel('Events')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Density"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
+        # Create histograms with different binning schemes
+        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
+        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
+        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
+        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
+
+        # Plot
+        kwargs = {'density': True}
+        fig, ax = plt.subplots()
+        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
+        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+
+        # Style
+        ax.set_xlabel('Observable')
+        ax.set_ylabel('Density')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+    === "Bin Width Normalized"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
+        # Create histograms with different binning schemes
+        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
+        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
+        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
+        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
+
+        # Plot
+        kwargs = {'binwnorm': True}
+        fig, ax = plt.subplots()
+        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
+        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+
+        # Style
+        ax.set_xlabel('Observable')
+        ax.set_ylabel('Events / Bin Width')
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
+
+
+
 === "CMS"
 
     === "Nominal"
@@ -3781,101 +3876,6 @@ Control histogram normalization with `density` and `binwnorm` parameters:
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
         mh.style.use('DUNE')  # mkdocs: hide
-        # Create histograms with different binning schemes
-        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
-        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
-        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
-        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
-
-        # Plot
-        kwargs = {'binwnorm': True}
-        fig, ax = plt.subplots()
-        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
-        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
-
-        # Style
-        ax.set_xlabel('Observable')
-        ax.set_ylabel('Events / Bin Width')
-        ax.legend(loc='upper right')
-        mh.yscale_legend(soft_fail=True)
-        ```
-
-
-
-
-=== "plothist"
-
-    === "Nominal"
-
-        ```python
-        # mkdocs: render
-        # mkdocs: align=left
-        import matplotlib.pyplot as plt  # mkdocs: hide
-        import mplhep as mh  # mkdocs: hide
-        import numpy as np  # mkdocs: hide
-        import hist  # mkdocs: hide
-        np.random.seed(42)  # mkdocs: hide
-        mh.style.use('plothist')  # mkdocs: hide
-        # Create histograms with different binning schemes
-        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
-        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
-        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
-        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
-
-        # Plot
-        kwargs = {}
-        fig, ax = plt.subplots()
-        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
-        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
-
-        # Style
-        ax.set_xlabel('Observable')
-        ax.set_ylabel('Events')
-        ax.legend(loc='upper right')
-        mh.yscale_legend(soft_fail=True)
-        ```
-
-    === "Density"
-
-        ```python
-        # mkdocs: render
-        # mkdocs: align=left
-        import matplotlib.pyplot as plt  # mkdocs: hide
-        import mplhep as mh  # mkdocs: hide
-        import numpy as np  # mkdocs: hide
-        import hist  # mkdocs: hide
-        np.random.seed(42)  # mkdocs: hide
-        mh.style.use('plothist')  # mkdocs: hide
-        # Create histograms with different binning schemes
-        bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
-        bins2 = np.linspace(-4, 4, 40)  #  Regular binning
-        h1 = hist.new.Var(bins1).Weight().fill(np.random.normal(0, 1, 2000))
-        h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
-
-        # Plot
-        kwargs = {'density': True}
-        fig, ax = plt.subplots()
-        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
-        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
-
-        # Style
-        ax.set_xlabel('Observable')
-        ax.set_ylabel('Density')
-        ax.legend(loc='upper right')
-        mh.yscale_legend(soft_fail=True)
-        ```
-
-    === "Bin Width Normalized"
-
-        ```python
-        # mkdocs: render
-        # mkdocs: align=left
-        import matplotlib.pyplot as plt  # mkdocs: hide
-        import mplhep as mh  # mkdocs: hide
-        import numpy as np  # mkdocs: hide
-        import hist  # mkdocs: hide
-        np.random.seed(42)  # mkdocs: hide
-        mh.style.use('plothist')  # mkdocs: hide
         # Create histograms with different binning schemes
         bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
         bins2 = np.linspace(-4, 4, 40)  #  Regular binning
@@ -3927,6 +3927,31 @@ Use `hist2dplot()` for 2D histogram visualization:
 
 
 
+=== "plothist"
+
+    ```python
+    # mkdocs: render
+        # mkdocs: align=left
+    import matplotlib.pyplot as plt
+    import mplhep as mh
+    import numpy as np
+    np.random.seed(42)
+    mh.style.use('plothist')
+
+    # Generate 2D data
+    x = np.random.normal(0, 1, 5000)
+    y = np.random.normal(0, 1, 5000)
+    H, xedges, yedges = np.histogram2d(x, y, bins=30)
+
+    fig, ax = plt.subplots()
+    mh.hist2dplot(H, xedges, yedges, ax=ax, cbar=True)
+    ax.set_xlabel('Varaible 1')
+    ax.set_ylabel('Variable 2')
+    ```
+
+
+
+
 === "CMS"
 
     ```python
@@ -4051,290 +4076,1599 @@ Use `hist2dplot()` for 2D histogram visualization:
 
 
 
+## Comparisons
 
-=== "plothist"
+mplhep provides dedicated comparison plotters in the `comp` module for creating plots with different comparison panels. The following functions are available:
 
-    ```python
-    # mkdocs: render
-        # mkdocs: align=left
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
-    mh.style.use('plothist')
+- `comp.hists()`: compare two histograms, plot the main plot and a comparison panel.
+- `comp.data_model()`: compare a model made of histograms or functions to data, plot the main plot and a comparison panel.
+- `comp.comparison()`: to only plot the comparison panel given two histograms.
+- `comp.get_comparison()`: to get the `[values, lower_uncertainties, upper_uncertainties]` for a given comparison type.
 
-    # Generate 2D data
-    x = np.random.normal(0, 1, 5000)
-    y = np.random.normal(0, 1, 5000)
-    H, xedges, yedges = np.histogram2d(x, y, bins=30)
+### Comparing two histograms
 
-    fig, ax = plt.subplots()
-    mh.hist2dplot(H, xedges, yedges, ax=ax, cbar=True)
-    ax.set_xlabel('Varaible 1')
-    ax.set_ylabel('Variable 2')
-    ```
+To compare two histograms, use `mh.comp.hists()`:
 
+The `comparison` parameter accepts:
 
+- `'ratio'`: $\frac{\text{h1}}{\text{h2}}$
+- `'pull'`: $\frac{\text{h1} - \text{h2}}{\sqrt{\sigma_{\text{h1}}^2 + \sigma_{\text{h2}}^2}}$
+- `'difference'`: $\text{h1} - \text{h2}$
+- `'relative_difference'`: $\frac{\text{h1} - \text{h2}}{\text{h2}}$
+- `'asymmetry'`: $\frac{\text{h1} - \text{h2}}{\text{h1} + \text{h2}}$
+- `'efficiency'`: $\frac{\text{h1}}{\text{h2}}$ (with uncertainties from [eq.19 here](https://arxiv.org/pdf/physics/0701199v1))
+- `'split_ratio'`: same as ratio, but the uncertainties of `h1` and `h2` are shown separately in the comparison panel (used extensively in data/model comparisons, see next section)
 
-# FIXME: This section is under development
-
-## Data-Model Comparisons
-
-### Using Comparison Functions
-
-mplhep provides dedicated comparison plotters in the `comp` module for creating plots with ratio, pull, or difference panels. Use `mh.comp.hists()` to compare two histograms:
 
 
 === "Default"
 
-    ```python
-    # mkdocs: render
-        # mkdocs: align=left
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
+    === "Ratio"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
 
 
-    # Generate sample data and model
-    data_vals = np.random.normal(0, 1, 1000)
-    model_vals = np.random.normal(0, 1.05, 1000)
-    bins = np.linspace(-4, 4, 25)
-    data_hist = np.histogram(data_vals, bins=bins)
-    model_hist = np.histogram(model_vals, bins=bins)
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
 
-    # Create comparison plot with ratio panel
-    fig, ax_main, ax_comp = mh.comp.hists(
-        data_hist,
-        model_hist,
-        comparison='ratio',
-        xlabel='Observable [GeV]',
-        ylabel='Events',
-        h1_label='Data',
-        h2_label='Model'
-    )
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='ratio',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
 
-    ```
+        ```
 
+    === "Split ratio"
 
-
-
-=== "CMS"
-
-    ```python
-    # mkdocs: render
-        # mkdocs: align=left
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
-    mh.style.use('CMS')
-
-    # Generate sample data and model
-    data_vals = np.random.normal(0, 1, 1000)
-    model_vals = np.random.normal(0, 1.05, 1000)
-    bins = np.linspace(-4, 4, 25)
-    data_hist = np.histogram(data_vals, bins=bins)
-    model_hist = np.histogram(model_vals, bins=bins)
-
-    # Create comparison plot with ratio panel
-    fig, ax_main, ax_comp = mh.comp.hists(
-        data_hist,
-        model_hist,
-        comparison='ratio',
-        xlabel='Observable [GeV]',
-        ylabel='Events',
-        h1_label='Data',
-        h2_label='Model'
-    )
-    mh.cms.label(data=True, ax=ax_main)
-    ```
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
 
 
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='split_ratio',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+
+        ```
+
+    === "Pull"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
 
 
-=== "ATLAS"
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
 
-    ```python
-    # mkdocs: render
-        # mkdocs: align=left
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
-    mh.style.use('ATLAS')
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='pull',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
 
-    # Generate sample data and model
-    data_vals = np.random.normal(0, 1, 1000)
-    model_vals = np.random.normal(0, 1.05, 1000)
-    bins = np.linspace(-4, 4, 25)
-    data_hist = np.histogram(data_vals, bins=bins)
-    model_hist = np.histogram(model_vals, bins=bins)
+        ```
 
-    # Create comparison plot with ratio panel
-    fig, ax_main, ax_comp = mh.comp.hists(
-        data_hist,
-        model_hist,
-        comparison='ratio',
-        xlabel='Observable [GeV]',
-        ylabel='Events',
-        h1_label='Data',
-        h2_label='Model'
-    )
-    mh.atlas.label(data=True, ax=ax_main)
-    mh.mpl_magic(soft_fail=True)
-    ```
+    === "Difference"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
 
 
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='difference',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+
+        ```
+
+    === "Relative difference"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
 
 
-=== "LHCb"
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
 
-    ```python
-    # mkdocs: render
-        # mkdocs: align=left
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
-    mh.style.use('LHCb2')
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='relative_difference',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
 
-    # Generate sample data and model
-    data_vals = np.random.normal(0, 1, 1000)
-    model_vals = np.random.normal(0, 1.05, 1000)
-    bins = np.linspace(-4, 4, 25)
-    data_hist = np.histogram(data_vals, bins=bins)
-    model_hist = np.histogram(model_vals, bins=bins)
+        ```
 
-    # Create comparison plot with ratio panel
-    fig, ax_main, ax_comp = mh.comp.hists(
-        data_hist,
-        model_hist,
-        comparison='ratio',
-        xlabel='Observable [GeV]',
-        ylabel='Events',
-        h1_label='Data',
-        h2_label='Model'
-    )
-    mh.lhcb.label(data=True, ax=ax_main)
-    ```
+    === "Asymmetry"
 
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
 
 
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
 
-=== "ALICE"
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='asymmetry',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
 
-    ```python
-    # mkdocs: render
-        # mkdocs: align=left
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
-    mh.style.use('ALICE')
+        ```
 
-    # Generate sample data and model
-    data_vals = np.random.normal(0, 1, 1000)
-    model_vals = np.random.normal(0, 1.05, 1000)
-    bins = np.linspace(-4, 4, 25)
-    data_hist = np.histogram(data_vals, bins=bins)
-    model_hist = np.histogram(model_vals, bins=bins)
+    === "Efficiency"
 
-    # Create comparison plot with ratio panel
-    fig, ax_main, ax_comp = mh.comp.hists(
-        data_hist,
-        model_hist,
-        comparison='ratio',
-        xlabel='Observable [GeV]',
-        ylabel='Events',
-        h1_label='Data',
-        h2_label='Model'
-    )
-    mh.alice.label(data=True, ax=ax_main)
-    mh.mpl_magic(soft_fail=True)
-    ```
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
 
 
+        # Generate sample data and model
+        x2 = np.random.normal(0, 1, 1000)
+        x1 = np.random.choice(x2, size=500, replace=False)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1) # h1 needs to be a subset of h2
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
 
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='efficiency',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
 
-=== "DUNE"
-
-    ```python
-    # mkdocs: render
-        # mkdocs: align=left
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
-    mh.style.use('DUNE')
-
-    # Generate sample data and model
-    data_vals = np.random.normal(0, 1, 1000)
-    model_vals = np.random.normal(0, 1.05, 1000)
-    bins = np.linspace(-4, 4, 25)
-    data_hist = np.histogram(data_vals, bins=bins)
-    model_hist = np.histogram(model_vals, bins=bins)
-
-    # Create comparison plot with ratio panel
-    fig, ax_main, ax_comp = mh.comp.hists(
-        data_hist,
-        model_hist,
-        comparison='ratio',
-        xlabel='Observable [GeV]',
-        ylabel='Events',
-        h1_label='Data',
-        h2_label='Model'
-    )
-    mh.dune.label(data=True, ax=ax_main)
-    ```
+        ```
 
 
 
 
 === "plothist"
 
-    ```python
-    # mkdocs: render
-        # mkdocs: align=left
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
-    mh.style.use('plothist')
+    === "Ratio"
 
-    # Generate sample data and model
-    data_vals = np.random.normal(0, 1, 1000)
-    model_vals = np.random.normal(0, 1.05, 1000)
-    bins = np.linspace(-4, 4, 25)
-    data_hist = np.histogram(data_vals, bins=bins)
-    model_hist = np.histogram(model_vals, bins=bins)
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('plothist')
 
-    # Create comparison plot with ratio panel
-    fig, ax_main, ax_comp = mh.comp.hists(
-        data_hist,
-        model_hist,
-        comparison='ratio',
-        xlabel='Observable [GeV]',
-        ylabel='Events',
-        h1_label='Data',
-        h2_label='Model'
-    )
-    txt_obj = mh.add_text('plothist', loc='over left', ax=ax_main)
-    ```
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='ratio',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        txt_obj = mh.add_text('plothist', loc='over left', ax=ax_main)
+        ```
+
+    === "Split ratio"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('plothist')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='split_ratio',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        txt_obj = mh.add_text('plothist', loc='over left', ax=ax_main)
+        ```
+
+    === "Pull"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('plothist')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='pull',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        txt_obj = mh.add_text('plothist', loc='over left', ax=ax_main)
+        ```
+
+    === "Difference"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('plothist')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='difference',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        txt_obj = mh.add_text('plothist', loc='over left', ax=ax_main)
+        ```
+
+    === "Relative difference"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('plothist')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='relative_difference',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        txt_obj = mh.add_text('plothist', loc='over left', ax=ax_main)
+        ```
+
+    === "Asymmetry"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('plothist')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='asymmetry',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        txt_obj = mh.add_text('plothist', loc='over left', ax=ax_main)
+        ```
+
+    === "Efficiency"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('plothist')
+
+        # Generate sample data and model
+        x2 = np.random.normal(0, 1, 1000)
+        x1 = np.random.choice(x2, size=500, replace=False)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1) # h1 needs to be a subset of h2
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='efficiency',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        txt_obj = mh.add_text('plothist', loc='over left', ax=ax_main)
+        ```
 
 
 
-### Available Comparison Types
 
-The `comparison` parameter accepts:
+=== "CMS"
 
-- `'ratio'` - Data/Model ratio
-- `'pull'` - (Data - Model) / uncertainty
-- `'difference'` - Data - Model
-- `'relative_difference'` - (Data - Model) / Model
-- `'asymmetry'` - (Data - Model) / (Data + Model)
-- `'efficiency'` - Data / Model as efficiency plot
-- `'split_ratio'` - Separate upper/lower ratio panels
+    === "Ratio"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('CMS')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='ratio',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.cms.label(data=True, ax=ax_main)
+        ```
+
+    === "Split ratio"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('CMS')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='split_ratio',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.cms.label(data=True, ax=ax_main)
+        ```
+
+    === "Pull"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('CMS')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='pull',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.cms.label(data=True, ax=ax_main)
+        ```
+
+    === "Difference"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('CMS')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='difference',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.cms.label(data=True, ax=ax_main)
+        ```
+
+    === "Relative difference"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('CMS')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='relative_difference',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.cms.label(data=True, ax=ax_main)
+        ```
+
+    === "Asymmetry"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('CMS')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='asymmetry',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.cms.label(data=True, ax=ax_main)
+        ```
+
+    === "Efficiency"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('CMS')
+
+        # Generate sample data and model
+        x2 = np.random.normal(0, 1, 1000)
+        x1 = np.random.choice(x2, size=500, replace=False)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1) # h1 needs to be a subset of h2
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='efficiency',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.cms.label(data=True, ax=ax_main)
+        ```
+
+
+
+
+=== "ATLAS"
+
+    === "Ratio"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('ATLAS')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='ratio',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.atlas.label(data=True, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+    === "Split ratio"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('ATLAS')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='split_ratio',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.atlas.label(data=True, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+    === "Pull"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('ATLAS')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='pull',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.atlas.label(data=True, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+    === "Difference"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('ATLAS')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='difference',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.atlas.label(data=True, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+    === "Relative difference"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('ATLAS')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='relative_difference',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.atlas.label(data=True, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+    === "Asymmetry"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('ATLAS')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='asymmetry',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.atlas.label(data=True, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+    === "Efficiency"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('ATLAS')
+
+        # Generate sample data and model
+        x2 = np.random.normal(0, 1, 1000)
+        x1 = np.random.choice(x2, size=500, replace=False)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1) # h1 needs to be a subset of h2
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='efficiency',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.atlas.label(data=True, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+
+
+
+=== "LHCb"
+
+    === "Ratio"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('LHCb2')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='ratio',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.lhcb.label(data=True, ax=ax_main)
+        ```
+
+    === "Split ratio"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('LHCb2')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='split_ratio',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.lhcb.label(data=True, ax=ax_main)
+        ```
+
+    === "Pull"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('LHCb2')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='pull',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.lhcb.label(data=True, ax=ax_main)
+        ```
+
+    === "Difference"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('LHCb2')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='difference',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.lhcb.label(data=True, ax=ax_main)
+        ```
+
+    === "Relative difference"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('LHCb2')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='relative_difference',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.lhcb.label(data=True, ax=ax_main)
+        ```
+
+    === "Asymmetry"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('LHCb2')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='asymmetry',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.lhcb.label(data=True, ax=ax_main)
+        ```
+
+    === "Efficiency"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('LHCb2')
+
+        # Generate sample data and model
+        x2 = np.random.normal(0, 1, 1000)
+        x1 = np.random.choice(x2, size=500, replace=False)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1) # h1 needs to be a subset of h2
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='efficiency',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.lhcb.label(data=True, ax=ax_main)
+        ```
+
+
+
+
+=== "ALICE"
+
+    === "Ratio"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('ALICE')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='ratio',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.alice.label(data=True, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+    === "Split ratio"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('ALICE')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='split_ratio',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.alice.label(data=True, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+    === "Pull"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('ALICE')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='pull',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.alice.label(data=True, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+    === "Difference"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('ALICE')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='difference',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.alice.label(data=True, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+    === "Relative difference"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('ALICE')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='relative_difference',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.alice.label(data=True, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+    === "Asymmetry"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('ALICE')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='asymmetry',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.alice.label(data=True, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+    === "Efficiency"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('ALICE')
+
+        # Generate sample data and model
+        x2 = np.random.normal(0, 1, 1000)
+        x1 = np.random.choice(x2, size=500, replace=False)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1) # h1 needs to be a subset of h2
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='efficiency',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.alice.label(data=True, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+
+
+
+=== "DUNE"
+
+    === "Ratio"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('DUNE')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='ratio',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.dune.label(data=True, ax=ax_main)
+        ```
+
+    === "Split ratio"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('DUNE')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='split_ratio',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.dune.label(data=True, ax=ax_main)
+        ```
+
+    === "Pull"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('DUNE')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='pull',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.dune.label(data=True, ax=ax_main)
+        ```
+
+    === "Difference"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('DUNE')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='difference',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.dune.label(data=True, ax=ax_main)
+        ```
+
+    === "Relative difference"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('DUNE')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='relative_difference',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.dune.label(data=True, ax=ax_main)
+        ```
+
+    === "Asymmetry"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('DUNE')
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='asymmetry',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.dune.label(data=True, ax=ax_main)
+        ```
+
+    === "Efficiency"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        mh.style.use('DUNE')
+
+        # Generate sample data and model
+        x2 = np.random.normal(0, 1, 1000)
+        x1 = np.random.choice(x2, size=500, replace=False)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1) # h1 needs to be a subset of h2
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='efficiency',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        mh.dune.label(data=True, ax=ax_main)
+        ```
+
+
+
+
 
 ### Data-Model with Stacked Backgrounds
 
