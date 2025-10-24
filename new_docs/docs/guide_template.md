@@ -630,59 +630,253 @@ Use `hist2dplot()` for 2D histogram visualization:
 
 {{TABS_END}}
 
-# FIXME: This section is under development
+## Comparisons
 
-## Data-Model Comparisons
+mplhep provides dedicated comparison plotters in the `comp` module for creating plots with different comparison panels. The following functions are available:
 
-### Using Comparison Functions
+- `comp.hists()`: compare two histograms, plot the main plot and a comparison panel.
+- `comp.data_model()`: compare a model made of histograms or functions to data, plot the main plot and a comparison panel.
+- `comp.comparison()`: to only plot the comparison panel given two histograms.
+- `comp.get_comparison()`: to get the `[values, lower_uncertainties, upper_uncertainties]` for a given comparison type.
 
-mplhep provides dedicated comparison plotters in the `comp` module for creating plots with ratio, pull, or difference panels. Use `mh.comp.hists()` to compare two histograms:
+### Comparing two histograms
+
+To compare two histograms, use `mh.comp.hists()`:
+
+The `comparison` parameter accepts:
+
+- `'ratio'`: $\frac{\text{h1}}{\text{h2}}$
+- `'pull'`: $\frac{\text{h1} - \text{h2}}{\sqrt{\sigma_{\text{h1}}^2 + \sigma_{\text{h2}}^2}}$
+- `'difference'`: $\text{h1} - \text{h2}$
+- `'relative_difference'`: $\frac{\text{h1} - \text{h2}}{\text{h2}}$
+- `'asymmetry'`: $\frac{\text{h1} - \text{h2}}{\text{h1} + \text{h2}}$
+- `'efficiency'`: $\frac{\text{h1}}{\text{h2}}$ (with uncertainties from [eq.19 here](https://arxiv.org/pdf/physics/0701199v1))
+- `'split_ratio'`: same as ratio, but the uncertainties of `h1` and `h2` are shown separately in the comparison panel (used extensively in data/model comparisons, see next section)
+
 
 {{TABS_START}}
 {{TAB_HEADER}}
 
-    ```python
-    # mkdocs: render
-        # mkdocs: align=left
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
-    {{STYLE_USE_CODE}}
+    === "Ratio"
 
-    # Generate sample data and model
-    data_vals = np.random.normal(0, 1, 1000)
-    model_vals = np.random.normal(0, 1.05, 1000)
-    bins = np.linspace(-4, 4, 25)
-    data_hist = np.histogram(data_vals, bins=bins)
-    model_hist = np.histogram(model_vals, bins=bins)
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        {{STYLE_USE_CODE}}
 
-    # Create comparison plot with ratio panel
-    fig, ax_main, ax_comp = mh.comp.hists(
-        data_hist,
-        model_hist,
-        comparison='ratio',
-        xlabel='Observable [GeV]',
-        ylabel='Events',
-        h1_label='Data',
-        h2_label='Model'
-    )
-    {{LABEL_CODE_AX}}{{MAGIC_CODE_INLINE}}
-    ```
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='ratio',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        {{LABEL_CODE_AX}}{{MAGIC_CODE_INLINE_NESTED}}
+        ```
+
+    === "Split ratio"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        {{STYLE_USE_CODE}}
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='split_ratio',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        {{LABEL_CODE_AX}}{{MAGIC_CODE_INLINE_NESTED}}
+        ```
+
+    === "Pull"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        {{STYLE_USE_CODE}}
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='pull',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        {{LABEL_CODE_AX}}{{MAGIC_CODE_INLINE_NESTED}}
+        ```
+
+    === "Difference"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        {{STYLE_USE_CODE}}
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='difference',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        {{LABEL_CODE_AX}}{{MAGIC_CODE_INLINE_NESTED}}
+        ```
+
+    === "Relative difference"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        {{STYLE_USE_CODE}}
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='relative_difference',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        {{LABEL_CODE_AX}}{{MAGIC_CODE_INLINE_NESTED}}
+        ```
+
+    === "Asymmetry"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        {{STYLE_USE_CODE}}
+
+        # Generate sample data and model
+        x1 = np.random.normal(0, 1, 1000)
+        x2 = np.random.normal(0, 1.05, 1000)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='asymmetry',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        {{LABEL_CODE_AX}}{{MAGIC_CODE_INLINE_NESTED}}
+        ```
+
+    === "Efficiency"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import mplhep as mh
+        import numpy as np
+        import hist
+        np.random.seed(42)
+        {{STYLE_USE_CODE}}
+
+        # Generate sample data and model
+        x2 = np.random.normal(0, 1, 1000)
+        x1 = np.random.choice(x2, size=500, replace=False)
+        h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1) # h1 needs to be a subset of h2
+        h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.hists(
+            h1,
+            h2,
+            comparison='efficiency',
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            h1_label='h1',
+            h2_label='h2'
+        )
+        {{LABEL_CODE_AX}}{{MAGIC_CODE_INLINE_NESTED}}
+        ```
 
 {{TABS_END}}
 
-### Available Comparison Types
 
-The `comparison` parameter accepts:
-
-- `'ratio'` - Data/Model ratio
-- `'pull'` - (Data - Model) / uncertainty
-- `'difference'` - Data - Model
-- `'relative_difference'` - (Data - Model) / Model
-- `'asymmetry'` - (Data - Model) / (Data + Model)
-- `'efficiency'` - Data / Model as efficiency plot
-- `'split_ratio'` - Separate upper/lower ratio panels
 
 ### Data-Model with Stacked Backgrounds
 
