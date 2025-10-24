@@ -5696,7 +5696,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -5729,7 +5729,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -5855,7 +5855,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -5888,7 +5888,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -6014,7 +6014,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -6047,7 +6047,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -6173,7 +6173,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -6207,7 +6207,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -6336,7 +6336,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -6369,7 +6369,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -6495,7 +6495,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -6529,7 +6529,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -6658,7 +6658,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -6691,7 +6691,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -6821,7 +6821,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -6855,7 +6855,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -6890,7 +6890,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -6928,7 +6928,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -6967,7 +6967,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -7001,7 +7001,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -7036,7 +7036,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -7074,7 +7074,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -7113,7 +7113,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -7147,7 +7147,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -7182,7 +7182,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -7220,7 +7220,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -7259,7 +7259,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -7294,7 +7294,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -7330,7 +7330,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -7369,7 +7369,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -7409,7 +7409,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -7443,7 +7443,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -7478,7 +7478,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -7516,7 +7516,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -7555,7 +7555,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -7590,7 +7590,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -7626,7 +7626,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -7665,7 +7665,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -7705,7 +7705,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -7739,7 +7739,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -7774,7 +7774,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -7812,7 +7812,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         x3 = np.random.exponential(0.5, 900) - 1.5
         data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
         h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
-        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_bkg2 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
         h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
         h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
 
@@ -7827,6 +7827,600 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         )
         mh.dune.label(data=True, lumi=100, ax=ax_main)
         ```
+
+
+
+### Additional examples
+
+The functions are very flexible, here is some additional examples showcasing more options and use cases. For more details, see the [API Reference](api.md) and the [Gallery](gallery.md).
+
+
+=== "Default"
+
+    ```python
+    # mkdocs: render
+        # mkdocs: align=left
+    import numpy as np
+    import hist
+    import mplhep as mh
+    np.random.seed(42)
+
+
+    # Generate training and testing histograms for two classes
+    x1_train = np.random.normal(0, 0.3, 2000)
+    x1_test = np.random.normal(0, 0.3, 1000)
+    x2_train = np.random.normal(1, 0.3, 2000)
+    x2_test = np.random.normal(1, 0.3, 1000)
+    h1_train = hist.new.Regular(30, 0, 1).Weight().fill(x1_train)
+    h2_train = hist.new.Regular(30, 0, 1).Weight().fill(x2_train)
+    h1_test = hist.new.Regular(30, 0, 1).Weight().fill(x1_test)
+    h2_test = hist.new.Regular(30, 0, 1).Weight().fill(x2_test)
+
+    # Since we have the histogram objects, we can normalize them directly
+    h1_train /= h1_train.sum().value
+    h2_train /= h2_train.sum().value
+    h1_test /= h1_test.sum().value
+    h2_test /= h2_test.sum().value
+
+    # Using the wrapper around subplots
+    fig, axes = mh.subplots(nrows=3)
+
+    colors = ["C0", "C1"]
+    labels = ["Bkg", "Signal"]
+
+    # Plotting on the main axis
+    for k_hist, h in enumerate([h1_train, h2_train, h1_test, h2_test]):
+        color = colors[k_hist % 2]
+        label = labels[k_hist % 2]
+        yerr = False if k_hist < 2 else True # To make the plot less busy
+
+        mh.histplot(
+            h,
+            color=color,
+            label=label + (" $_{Train}$" if k_hist <2 else " $_{Test}$"),
+            ax=axes[0],
+            yerr=yerr,
+            histtype="step" if k_hist < 2 else "errorbar",
+        )
+
+    # Plotting comparisons on the other axes
+    mh.comp.comparison(
+        h1_train,
+        h1_test,
+        ax=axes[1],
+        comparison="ratio",
+        h1_label="Train",
+        h2_label="Test",
+        color=colors[0],
+    )
+
+    mh.comp.comparison(
+        h2_train,
+        h2_test,
+        ax=axes[2],
+        comparison="pull",
+        h1_label="Train",
+        h2_label="Test",
+        color=colors[1],
+    )
+
+    axes[0].set_ylabel("Normalized Entries")
+    axes[0].legend()
+    axes[1].set_ylabel("Ratio")
+    axes[2].set_ylabel("Pull")
+    axes[-1].set_xlabel("Feature")
+
+    fig.align_ylabels() # Align y labels
+    ax_main = axes[0]  # mkdocs: hide
+
+
+    ```
+
+
+
+
+=== "plothist"
+
+    ```python
+    # mkdocs: render
+        # mkdocs: align=left
+    import numpy as np
+    import hist
+    import mplhep as mh
+    np.random.seed(42)
+    mh.style.use('plothist')
+
+    # Generate training and testing histograms for two classes
+    x1_train = np.random.normal(0, 0.3, 2000)
+    x1_test = np.random.normal(0, 0.3, 1000)
+    x2_train = np.random.normal(1, 0.3, 2000)
+    x2_test = np.random.normal(1, 0.3, 1000)
+    h1_train = hist.new.Regular(30, 0, 1).Weight().fill(x1_train)
+    h2_train = hist.new.Regular(30, 0, 1).Weight().fill(x2_train)
+    h1_test = hist.new.Regular(30, 0, 1).Weight().fill(x1_test)
+    h2_test = hist.new.Regular(30, 0, 1).Weight().fill(x2_test)
+
+    # Since we have the histogram objects, we can normalize them directly
+    h1_train /= h1_train.sum().value
+    h2_train /= h2_train.sum().value
+    h1_test /= h1_test.sum().value
+    h2_test /= h2_test.sum().value
+
+    # Using the wrapper around subplots
+    fig, axes = mh.subplots(nrows=3)
+
+    colors = ["C0", "C1"]
+    labels = ["Bkg", "Signal"]
+
+    # Plotting on the main axis
+    for k_hist, h in enumerate([h1_train, h2_train, h1_test, h2_test]):
+        color = colors[k_hist % 2]
+        label = labels[k_hist % 2]
+        yerr = False if k_hist < 2 else True # To make the plot less busy
+
+        mh.histplot(
+            h,
+            color=color,
+            label=label + (" $_{Train}$" if k_hist <2 else " $_{Test}$"),
+            ax=axes[0],
+            yerr=yerr,
+            histtype="step" if k_hist < 2 else "errorbar",
+        )
+
+    # Plotting comparisons on the other axes
+    mh.comp.comparison(
+        h1_train,
+        h1_test,
+        ax=axes[1],
+        comparison="ratio",
+        h1_label="Train",
+        h2_label="Test",
+        color=colors[0],
+    )
+
+    mh.comp.comparison(
+        h2_train,
+        h2_test,
+        ax=axes[2],
+        comparison="pull",
+        h1_label="Train",
+        h2_label="Test",
+        color=colors[1],
+    )
+
+    axes[0].set_ylabel("Normalized Entries")
+    axes[0].legend()
+    axes[1].set_ylabel("Ratio")
+    axes[2].set_ylabel("Pull")
+    axes[-1].set_xlabel("Feature")
+
+    fig.align_ylabels() # Align y labels
+    ax_main = axes[0]  # mkdocs: hide
+
+    txt_obj = mh.add_text('plothist', loc='over left', ax=ax_main)
+    ```
+
+
+
+
+=== "CMS"
+
+    ```python
+    # mkdocs: render
+        # mkdocs: align=left
+    import numpy as np
+    import hist
+    import mplhep as mh
+    np.random.seed(42)
+    mh.style.use('CMS')
+
+    # Generate training and testing histograms for two classes
+    x1_train = np.random.normal(0, 0.3, 2000)
+    x1_test = np.random.normal(0, 0.3, 1000)
+    x2_train = np.random.normal(1, 0.3, 2000)
+    x2_test = np.random.normal(1, 0.3, 1000)
+    h1_train = hist.new.Regular(30, 0, 1).Weight().fill(x1_train)
+    h2_train = hist.new.Regular(30, 0, 1).Weight().fill(x2_train)
+    h1_test = hist.new.Regular(30, 0, 1).Weight().fill(x1_test)
+    h2_test = hist.new.Regular(30, 0, 1).Weight().fill(x2_test)
+
+    # Since we have the histogram objects, we can normalize them directly
+    h1_train /= h1_train.sum().value
+    h2_train /= h2_train.sum().value
+    h1_test /= h1_test.sum().value
+    h2_test /= h2_test.sum().value
+
+    # Using the wrapper around subplots
+    fig, axes = mh.subplots(nrows=3)
+
+    colors = ["C0", "C1"]
+    labels = ["Bkg", "Signal"]
+
+    # Plotting on the main axis
+    for k_hist, h in enumerate([h1_train, h2_train, h1_test, h2_test]):
+        color = colors[k_hist % 2]
+        label = labels[k_hist % 2]
+        yerr = False if k_hist < 2 else True # To make the plot less busy
+
+        mh.histplot(
+            h,
+            color=color,
+            label=label + (" $_{Train}$" if k_hist <2 else " $_{Test}$"),
+            ax=axes[0],
+            yerr=yerr,
+            histtype="step" if k_hist < 2 else "errorbar",
+        )
+
+    # Plotting comparisons on the other axes
+    mh.comp.comparison(
+        h1_train,
+        h1_test,
+        ax=axes[1],
+        comparison="ratio",
+        h1_label="Train",
+        h2_label="Test",
+        color=colors[0],
+    )
+
+    mh.comp.comparison(
+        h2_train,
+        h2_test,
+        ax=axes[2],
+        comparison="pull",
+        h1_label="Train",
+        h2_label="Test",
+        color=colors[1],
+    )
+
+    axes[0].set_ylabel("Normalized Entries")
+    axes[0].legend()
+    axes[1].set_ylabel("Ratio")
+    axes[2].set_ylabel("Pull")
+    axes[-1].set_xlabel("Feature")
+
+    fig.align_ylabels() # Align y labels
+    ax_main = axes[0]  # mkdocs: hide
+
+    mh.cms.label(data=True, ax=ax_main)
+    ```
+
+
+
+
+=== "ATLAS"
+
+    ```python
+    # mkdocs: render
+        # mkdocs: align=left
+    import numpy as np
+    import hist
+    import mplhep as mh
+    np.random.seed(42)
+    mh.style.use('ATLAS')
+
+    # Generate training and testing histograms for two classes
+    x1_train = np.random.normal(0, 0.3, 2000)
+    x1_test = np.random.normal(0, 0.3, 1000)
+    x2_train = np.random.normal(1, 0.3, 2000)
+    x2_test = np.random.normal(1, 0.3, 1000)
+    h1_train = hist.new.Regular(30, 0, 1).Weight().fill(x1_train)
+    h2_train = hist.new.Regular(30, 0, 1).Weight().fill(x2_train)
+    h1_test = hist.new.Regular(30, 0, 1).Weight().fill(x1_test)
+    h2_test = hist.new.Regular(30, 0, 1).Weight().fill(x2_test)
+
+    # Since we have the histogram objects, we can normalize them directly
+    h1_train /= h1_train.sum().value
+    h2_train /= h2_train.sum().value
+    h1_test /= h1_test.sum().value
+    h2_test /= h2_test.sum().value
+
+    # Using the wrapper around subplots
+    fig, axes = mh.subplots(nrows=3)
+
+    colors = ["C0", "C1"]
+    labels = ["Bkg", "Signal"]
+
+    # Plotting on the main axis
+    for k_hist, h in enumerate([h1_train, h2_train, h1_test, h2_test]):
+        color = colors[k_hist % 2]
+        label = labels[k_hist % 2]
+        yerr = False if k_hist < 2 else True # To make the plot less busy
+
+        mh.histplot(
+            h,
+            color=color,
+            label=label + (" $_{Train}$" if k_hist <2 else " $_{Test}$"),
+            ax=axes[0],
+            yerr=yerr,
+            histtype="step" if k_hist < 2 else "errorbar",
+        )
+
+    # Plotting comparisons on the other axes
+    mh.comp.comparison(
+        h1_train,
+        h1_test,
+        ax=axes[1],
+        comparison="ratio",
+        h1_label="Train",
+        h2_label="Test",
+        color=colors[0],
+    )
+
+    mh.comp.comparison(
+        h2_train,
+        h2_test,
+        ax=axes[2],
+        comparison="pull",
+        h1_label="Train",
+        h2_label="Test",
+        color=colors[1],
+    )
+
+    axes[0].set_ylabel("Normalized Entries")
+    axes[0].legend()
+    axes[1].set_ylabel("Ratio")
+    axes[2].set_ylabel("Pull")
+    axes[-1].set_xlabel("Feature")
+
+    fig.align_ylabels() # Align y labels
+    ax_main = axes[0]  # mkdocs: hide
+
+    mh.atlas.label(data=True, ax=ax_main)
+    mh.mpl_magic(soft_fail=True)
+    ```
+
+
+
+
+=== "LHCb"
+
+    ```python
+    # mkdocs: render
+        # mkdocs: align=left
+    import numpy as np
+    import hist
+    import mplhep as mh
+    np.random.seed(42)
+    mh.style.use('LHCb2')
+
+    # Generate training and testing histograms for two classes
+    x1_train = np.random.normal(0, 0.3, 2000)
+    x1_test = np.random.normal(0, 0.3, 1000)
+    x2_train = np.random.normal(1, 0.3, 2000)
+    x2_test = np.random.normal(1, 0.3, 1000)
+    h1_train = hist.new.Regular(30, 0, 1).Weight().fill(x1_train)
+    h2_train = hist.new.Regular(30, 0, 1).Weight().fill(x2_train)
+    h1_test = hist.new.Regular(30, 0, 1).Weight().fill(x1_test)
+    h2_test = hist.new.Regular(30, 0, 1).Weight().fill(x2_test)
+
+    # Since we have the histogram objects, we can normalize them directly
+    h1_train /= h1_train.sum().value
+    h2_train /= h2_train.sum().value
+    h1_test /= h1_test.sum().value
+    h2_test /= h2_test.sum().value
+
+    # Using the wrapper around subplots
+    fig, axes = mh.subplots(nrows=3)
+
+    colors = ["C0", "C1"]
+    labels = ["Bkg", "Signal"]
+
+    # Plotting on the main axis
+    for k_hist, h in enumerate([h1_train, h2_train, h1_test, h2_test]):
+        color = colors[k_hist % 2]
+        label = labels[k_hist % 2]
+        yerr = False if k_hist < 2 else True # To make the plot less busy
+
+        mh.histplot(
+            h,
+            color=color,
+            label=label + (" $_{Train}$" if k_hist <2 else " $_{Test}$"),
+            ax=axes[0],
+            yerr=yerr,
+            histtype="step" if k_hist < 2 else "errorbar",
+        )
+
+    # Plotting comparisons on the other axes
+    mh.comp.comparison(
+        h1_train,
+        h1_test,
+        ax=axes[1],
+        comparison="ratio",
+        h1_label="Train",
+        h2_label="Test",
+        color=colors[0],
+    )
+
+    mh.comp.comparison(
+        h2_train,
+        h2_test,
+        ax=axes[2],
+        comparison="pull",
+        h1_label="Train",
+        h2_label="Test",
+        color=colors[1],
+    )
+
+    axes[0].set_ylabel("Normalized Entries")
+    axes[0].legend()
+    axes[1].set_ylabel("Ratio")
+    axes[2].set_ylabel("Pull")
+    axes[-1].set_xlabel("Feature")
+
+    fig.align_ylabels() # Align y labels
+    ax_main = axes[0]  # mkdocs: hide
+
+    mh.lhcb.label(data=True, ax=ax_main)
+    ```
+
+
+
+
+=== "ALICE"
+
+    ```python
+    # mkdocs: render
+        # mkdocs: align=left
+    import numpy as np
+    import hist
+    import mplhep as mh
+    np.random.seed(42)
+    mh.style.use('ALICE')
+
+    # Generate training and testing histograms for two classes
+    x1_train = np.random.normal(0, 0.3, 2000)
+    x1_test = np.random.normal(0, 0.3, 1000)
+    x2_train = np.random.normal(1, 0.3, 2000)
+    x2_test = np.random.normal(1, 0.3, 1000)
+    h1_train = hist.new.Regular(30, 0, 1).Weight().fill(x1_train)
+    h2_train = hist.new.Regular(30, 0, 1).Weight().fill(x2_train)
+    h1_test = hist.new.Regular(30, 0, 1).Weight().fill(x1_test)
+    h2_test = hist.new.Regular(30, 0, 1).Weight().fill(x2_test)
+
+    # Since we have the histogram objects, we can normalize them directly
+    h1_train /= h1_train.sum().value
+    h2_train /= h2_train.sum().value
+    h1_test /= h1_test.sum().value
+    h2_test /= h2_test.sum().value
+
+    # Using the wrapper around subplots
+    fig, axes = mh.subplots(nrows=3)
+
+    colors = ["C0", "C1"]
+    labels = ["Bkg", "Signal"]
+
+    # Plotting on the main axis
+    for k_hist, h in enumerate([h1_train, h2_train, h1_test, h2_test]):
+        color = colors[k_hist % 2]
+        label = labels[k_hist % 2]
+        yerr = False if k_hist < 2 else True # To make the plot less busy
+
+        mh.histplot(
+            h,
+            color=color,
+            label=label + (" $_{Train}$" if k_hist <2 else " $_{Test}$"),
+            ax=axes[0],
+            yerr=yerr,
+            histtype="step" if k_hist < 2 else "errorbar",
+        )
+
+    # Plotting comparisons on the other axes
+    mh.comp.comparison(
+        h1_train,
+        h1_test,
+        ax=axes[1],
+        comparison="ratio",
+        h1_label="Train",
+        h2_label="Test",
+        color=colors[0],
+    )
+
+    mh.comp.comparison(
+        h2_train,
+        h2_test,
+        ax=axes[2],
+        comparison="pull",
+        h1_label="Train",
+        h2_label="Test",
+        color=colors[1],
+    )
+
+    axes[0].set_ylabel("Normalized Entries")
+    axes[0].legend()
+    axes[1].set_ylabel("Ratio")
+    axes[2].set_ylabel("Pull")
+    axes[-1].set_xlabel("Feature")
+
+    fig.align_ylabels() # Align y labels
+    ax_main = axes[0]  # mkdocs: hide
+
+    mh.alice.label(data=True, ax=ax_main)
+    mh.mpl_magic(soft_fail=True)
+    ```
+
+
+
+
+=== "DUNE"
+
+    ```python
+    # mkdocs: render
+        # mkdocs: align=left
+    import numpy as np
+    import hist
+    import mplhep as mh
+    np.random.seed(42)
+    mh.style.use('DUNE')
+
+    # Generate training and testing histograms for two classes
+    x1_train = np.random.normal(0, 0.3, 2000)
+    x1_test = np.random.normal(0, 0.3, 1000)
+    x2_train = np.random.normal(1, 0.3, 2000)
+    x2_test = np.random.normal(1, 0.3, 1000)
+    h1_train = hist.new.Regular(30, 0, 1).Weight().fill(x1_train)
+    h2_train = hist.new.Regular(30, 0, 1).Weight().fill(x2_train)
+    h1_test = hist.new.Regular(30, 0, 1).Weight().fill(x1_test)
+    h2_test = hist.new.Regular(30, 0, 1).Weight().fill(x2_test)
+
+    # Since we have the histogram objects, we can normalize them directly
+    h1_train /= h1_train.sum().value
+    h2_train /= h2_train.sum().value
+    h1_test /= h1_test.sum().value
+    h2_test /= h2_test.sum().value
+
+    # Using the wrapper around subplots
+    fig, axes = mh.subplots(nrows=3)
+
+    colors = ["C0", "C1"]
+    labels = ["Bkg", "Signal"]
+
+    # Plotting on the main axis
+    for k_hist, h in enumerate([h1_train, h2_train, h1_test, h2_test]):
+        color = colors[k_hist % 2]
+        label = labels[k_hist % 2]
+        yerr = False if k_hist < 2 else True # To make the plot less busy
+
+        mh.histplot(
+            h,
+            color=color,
+            label=label + (" $_{Train}$" if k_hist <2 else " $_{Test}$"),
+            ax=axes[0],
+            yerr=yerr,
+            histtype="step" if k_hist < 2 else "errorbar",
+        )
+
+    # Plotting comparisons on the other axes
+    mh.comp.comparison(
+        h1_train,
+        h1_test,
+        ax=axes[1],
+        comparison="ratio",
+        h1_label="Train",
+        h2_label="Test",
+        color=colors[0],
+    )
+
+    mh.comp.comparison(
+        h2_train,
+        h2_test,
+        ax=axes[2],
+        comparison="pull",
+        h1_label="Train",
+        h2_label="Test",
+        color=colors[1],
+    )
+
+    axes[0].set_ylabel("Normalized Entries")
+    axes[0].legend()
+    axes[1].set_ylabel("Ratio")
+    axes[2].set_ylabel("Pull")
+    axes[-1].set_xlabel("Feature")
+
+    fig.align_ylabels() # Align y labels
+    ax_main = axes[0]  # mkdocs: hide
+
+    mh.dune.label(data=True, ax=ax_main)
+    ```
 
 
 
