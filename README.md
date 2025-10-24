@@ -25,13 +25,13 @@ needed in HEP as well as style them in way that's compatible with current
 collaboration requirements (ROOT-like plots for CMS, ATLAS, LHCb, ALICE).
 
 
-# Installation
+## Installation
 
 ```bash
 pip install mplhep
 ```
 
-# Getting Started
+## Documentation and Getting Started
 A tutorial given at PyHEP 2020 is available as a binder [here](https://github.com/andrzejnovak/2020-07-17-pyhep2020-mplhep)
 or you can watch the recording [here](https://www.youtube.com/watch?v=gUziXqCGe0o).
 
@@ -77,9 +77,9 @@ https://github.com/firamath/firamath
 --->
 
 
-# Notes
+## Notes
 
-## Citation
+### Citation
 
 If you've found this library helpful and are able to, please consider citing it. You can find us on [Zenodo](doi.org/10.5281/zenodo.3766157) as a permalink to the latest version. 
 
@@ -101,7 +101,7 @@ APA:
 Novak, A., Schreiner, H., Feickert, M., Eschle, J., Fillinger, T., & Praz, C. (2020). mplhep [Computer software]. https://doi.org/10.5281/zenodo.3766157
 ```
 
-## Use in publications
+### Use in publications
 
 Updating list of citations and use cases of `mplhep` in publications:
 
