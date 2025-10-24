@@ -430,7 +430,7 @@ def data_model(
     plot_only : str, optional
         If "ax_main" or "ax_comparison", only the main or comparison axis is plotted on the figure. Both axes are plotted if None is specified, which is the default. This can only be used when fig, ax_main and ax_comparison are not provided by the user.
     **comparison_kwargs : optional
-        Arguments to be passed to comparison(), including the choice of the comparison function and the treatment of the uncertainties (see documentation of comparison() for details). If they are not provided explicitly, the following arguments are passed by default: h1_label="Data", h2_label="Pred.", comparison="split_ratio".
+        Arguments to be passed to comparison(), including the choice of the comparison function and the treatment of the uncertainties (see documentation of comparison() for details). If they are not provided explicitly, the following arguments are passed by default: h1_label="Data", h2_label="MC", comparison="split_ratio".
 
     Returns
     -------
@@ -475,7 +475,7 @@ def data_model(
     model_sum_kwargs = model_sum_kwargs.copy()
 
     comparison_kwargs.setdefault("h1_label", data_label)
-    comparison_kwargs.setdefault("h2_label", "Pred.")
+    comparison_kwargs.setdefault("h2_label", "MC")
     comparison_kwargs.setdefault("comparison", "split_ratio")
 
     model_components = stacked_components + unstacked_components
