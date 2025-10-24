@@ -5,6 +5,7 @@ result_images/
 test/
 .nox/
 .vscode/
+new_docs/site/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -484,7 +484,7 @@ Please see our [Homepage](index.md) for a quick demo and for experiment labeling
 
 
 
-=== "PLOTHIST"
+=== "plothist"
 
     === "Array-Like"
 
@@ -496,7 +496,7 @@ Please see our [Homepage](index.md) for a quick demo and for experiment labeling
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
-        mh.style.use('PLOTHIST')  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
         fig, ax = plt.subplots()
         mh.histplot([1, 2, 3, 6, 3, 5, 2, 1], ax=ax)
         ```
@@ -511,7 +511,7 @@ Please see our [Homepage](index.md) for a quick demo and for experiment labeling
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
-        mh.style.use('PLOTHIST')  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
         data = np.random.normal(0, 1, 1000)
         fig, ax = plt.subplots()
         mh.histplot(*np.histogram(data, bins=40), ax=ax)
@@ -527,7 +527,7 @@ Please see our [Homepage](index.md) for a quick demo and for experiment labeling
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
-        mh.style.use('PLOTHIST')  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
         data = np.random.normal(0, 1, 1000)
         h_obj = hist.new.Reg(40, -4, 4).Weight().fill(data)
         fig, ax = plt.subplots()
@@ -545,7 +545,7 @@ Please see our [Homepage](index.md) for a quick demo and for experiment labeling
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
-        mh.style.use('PLOTHIST')  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
         from skhep_testdata import data_path  # mkdocs: hide
         uproot_file_name = data_path("uproot-hepdata-example.root")  # mkdocs: hide
         import uproot
@@ -1188,7 +1188,7 @@ Control the appearance with the `histtype` parameter. Select an experiment style
 
 
 
-=== "PLOTHIST"
+=== "plothist"
 
     === "Step"
 
@@ -1200,7 +1200,7 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
-        mh.style.use('PLOTHIST')  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
         h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
         mh.histplot(h, histtype='step', label='Step histogram', ax=ax)
@@ -1216,7 +1216,7 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
-        mh.style.use('PLOTHIST')  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
         h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
         mh.histplot(h, histtype='fill', alpha=0.5, label='Filled histogram', ax=ax)
@@ -1232,7 +1232,7 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
-        mh.style.use('PLOTHIST')  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
         h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
         mh.histplot(h, histtype='errorbar', label='Data', ax=ax)
@@ -1248,7 +1248,7 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
-        mh.style.use('PLOTHIST')  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
         h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
         mh.histplot(h, histtype='band', alpha=0.5, label='Band histogram', ax=ax)
@@ -1265,7 +1265,7 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
-        mh.style.use('PLOTHIST')  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
         h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
         mh.histplot(h, histtype='bar', label='Bar histogram', ax=ax)
@@ -1282,7 +1282,7 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
-        mh.style.use('PLOTHIST')  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
         h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
         mh.histplot(h, histtype='barstep', label='Barstep histogram', ax=ax)
@@ -2391,7 +2391,7 @@ Plot multiple histograms on the same axes with different stacking and sorting op
 
 
 
-=== "PLOTHIST"
+=== "plothist"
 
     === "Overlay (buggy lol)"
         FXIME: Keeping this here temporarily
@@ -2404,7 +2404,7 @@ Plot multiple histograms on the same axes with different stacking and sorting op
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
-        mh.style.use('PLOTHIST')  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
         # Create histograms and fill them
         h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
         h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
@@ -2417,7 +2417,7 @@ Plot multiple histograms on the same axes with different stacking and sorting op
             label=['Background 1', 'Signal', 'Background 2'],
             ax=ax
         )
-        txt_obj = mh.add_text('PLOTHIST', loc='over left')
+        txt_obj = mh.add_text('plothist', loc='over left')
         ax.legend(loc='upper right')
         mh.yscale_legend(soft_fail=True)
         ```
@@ -2432,7 +2432,7 @@ Plot multiple histograms on the same axes with different stacking and sorting op
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
-        mh.style.use('PLOTHIST')  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
         # Create histograms and fill them
         h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
         h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
@@ -2461,7 +2461,7 @@ Plot multiple histograms on the same axes with different stacking and sorting op
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
-        mh.style.use('PLOTHIST')  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
         # Create histograms and fill them
         h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
         h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
@@ -2490,7 +2490,7 @@ Plot multiple histograms on the same axes with different stacking and sorting op
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
-        mh.style.use('PLOTHIST')  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
         # Create histograms and fill them
         h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
         h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
@@ -2520,7 +2520,7 @@ Plot multiple histograms on the same axes with different stacking and sorting op
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
-        mh.style.use('PLOTHIST')  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
         # Create histograms and fill them
         h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
         h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
@@ -2550,7 +2550,7 @@ Plot multiple histograms on the same axes with different stacking and sorting op
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
-        mh.style.use('PLOTHIST')  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
         # Create histograms and fill them
         h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
         h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
@@ -3136,7 +3136,7 @@ Control error bar display with `yerr` and `w2method` parameters:
 
 
 
-=== "PLOTHIST"
+=== "plothist"
 
     === "Automatic (Poisson)"
 
@@ -3148,7 +3148,7 @@ Control error bar display with `yerr` and `w2method` parameters:
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
-        mh.style.use('PLOTHIST')  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
         # Simple histogram with Weight storage for automatic errors
         h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.poisson(5, 20))
 
@@ -3168,7 +3168,7 @@ Control error bar display with `yerr` and `w2method` parameters:
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
-        mh.style.use('PLOTHIST')  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
         # Simple histogram with custom error bars
         h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
         custom_errors = np.minimum(np.sqrt(h.values()), np.random.uniform(0, 20, 20))
@@ -3189,7 +3189,7 @@ Control error bar display with `yerr` and `w2method` parameters:
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
-        mh.style.use('PLOTHIST')  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
         # Weighted histogram - errors from sqrt of sum of weights squared
         h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
 
@@ -3209,7 +3209,7 @@ Control error bar display with `yerr` and `w2method` parameters:
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
-        mh.style.use('PLOTHIST')  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
         # Weighted histogram with custom error calculation
         h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
 
@@ -3803,7 +3803,7 @@ Control histogram normalization with `density` and `binwnorm` parameters:
 
 
 
-=== "PLOTHIST"
+=== "plothist"
 
     === "Nominal"
 
@@ -3815,7 +3815,7 @@ Control histogram normalization with `density` and `binwnorm` parameters:
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
-        mh.style.use('PLOTHIST')  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
         # Create histograms with different binning schemes
         bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
         bins2 = np.linspace(-4, 4, 40)  #  Regular binning
@@ -3845,7 +3845,7 @@ Control histogram normalization with `density` and `binwnorm` parameters:
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
-        mh.style.use('PLOTHIST')  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
         # Create histograms with different binning schemes
         bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
         bins2 = np.linspace(-4, 4, 40)  #  Regular binning
@@ -3875,7 +3875,7 @@ Control histogram normalization with `density` and `binwnorm` parameters:
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
         np.random.seed(42)  # mkdocs: hide
-        mh.style.use('PLOTHIST')  # mkdocs: hide
+        mh.style.use('plothist')  # mkdocs: hide
         # Create histograms with different binning schemes
         bins1 = np.r_[np.linspace(-4, 0, 30)[:-1], np.linspace(0, 4, 10)]  # Variable binning
         bins2 = np.linspace(-4, 4, 40)  #  Regular binning
@@ -4052,7 +4052,7 @@ Use `hist2dplot()` for 2D histogram visualization:
 
 
 
-=== "PLOTHIST"
+=== "plothist"
 
     ```python
     # mkdocs: render
@@ -4061,7 +4061,7 @@ Use `hist2dplot()` for 2D histogram visualization:
     import mplhep as mh
     import numpy as np
     np.random.seed(42)
-    mh.style.use('PLOTHIST')
+    mh.style.use('plothist')
 
     # Generate 2D data
     x = np.random.normal(0, 1, 5000)
@@ -4291,7 +4291,7 @@ mplhep provides dedicated comparison plotters in the `comp` module for creating 
 
 
 
-=== "PLOTHIST"
+=== "plothist"
 
     ```python
     # mkdocs: render
@@ -4300,7 +4300,7 @@ mplhep provides dedicated comparison plotters in the `comp` module for creating 
     import mplhep as mh
     import numpy as np
     np.random.seed(42)
-    mh.style.use('PLOTHIST')
+    mh.style.use('plothist')
 
     # Generate sample data and model
     data_vals = np.random.normal(0, 1, 1000)
@@ -4319,7 +4319,7 @@ mplhep provides dedicated comparison plotters in the `comp` module for creating 
         h1_label='Data',
         h2_label='Model'
     )
-    txt_obj = mh.add_text('PLOTHIST', loc='over left', ax=ax_main)
+    txt_obj = mh.add_text('plothist', loc='over left', ax=ax_main)
     ```
 
 

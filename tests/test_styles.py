@@ -95,7 +95,7 @@ def test_style_dune1():
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @pytest.mark.mpl_image_compare(style="default", remove_text=False)
 def test_style_plothist():
-    plt.style.use(mh.style.PLOTHIST)
+    plt.style.use(mh.style.plothist)
     fig, ax = plt.subplots()
     return fig
 

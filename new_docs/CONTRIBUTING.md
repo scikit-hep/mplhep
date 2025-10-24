@@ -9,7 +9,7 @@ Instead of manually maintaining separate guide files for each experiment style o
 1. **Template File**: `docs/guide_template.md` contains the guide content with tab placeholders ({{TABS_START}}/{{TABS_END}})
 2. **Generation Script**: `generate_style_guides.py` expands tabs with style-specific code for each experiment
 3. **MkDocs Hook**: `docs_hooks.py` automatically runs the script before each build
-4. **Generated File**: Single `docs/guide.md` with tabs for CMS, ATLAS, LHCb, ALICE, DUNE, and PLOTHIST
+4. **Generated File**: Single `docs/guide.md` with tabs for CMS, ATLAS, LHCb, ALICE, DUNE, and plothist
 
 ## Files
 
@@ -41,7 +41,7 @@ The template uses special markers to denote tabbed sections:
 {{TABS_END}}
 ```
 
-This generates tabs for all 6 styles (CMS, ATLAS, LHCb, ALICE, DUNE, PLOTHIST).
+This generates tabs for all 6 styles (CMS, ATLAS, LHCb, ALICE, DUNE, plothist).
 
 ### Placeholders
 

@@ -16,7 +16,7 @@ import mplhep
 mpl_image_compare_kwargs = {
     "baseline_dir": "baseline",
     "savefig_kwargs": {"bbox_inches": "tight"},
-    "style": mplhep.style.PLOTHIST,
+    "style": mplhep.style.plothist,
     "deterministic": True,
 }
 

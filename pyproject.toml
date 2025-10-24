@@ -88,6 +88,12 @@ metadata.allow-direct-references = true
 dev = [
     "mplhep[test]",
 ]
+docs = [
+    "mplhep[docs]",
+]
+all = [
+    "mplhep[dev,test,docs]",
+]
 
 [tool.uv]
 environments = [
