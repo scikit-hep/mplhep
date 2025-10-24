@@ -373,7 +373,7 @@ def data_model(
     unstacked_kwargs_list=None,
     model_sum_kwargs=None,
     model_uncertainty=True,
-    model_uncertainty_label="Model stat. unc.",
+    model_uncertainty_label="MC stat. unc.",
     data_w2method="poisson",
     fig=None,
     ax_main=None,
@@ -418,7 +418,7 @@ def data_model(
     model_uncertainty : bool, optional
         If False, set the model uncertainties to zeros. Default is True.
     model_uncertainty_label : str, optional
-        The label for the model uncertainties. Default is "Model stat. unc.".
+        The label for the model uncertainties. Default is "MC stat. unc.".
     data_w2method : str, optional
         What kind of bin uncertainty to use for data_hist: "sqrt" for the Poisson standard deviation derived from the variance stored in the histogram object, "poisson" for asymmetrical uncertainties based on a Poisson confidence interval. Default is "poisson".
     fig : matplotlib.figure.Figure or None, optional

@@ -484,7 +484,7 @@ def histplot(
         plottables = plottables[::-1]
         _chunked_kwargs = _chunked_kwargs[::-1]
         _labels = _labels[::-1]
-        if "color" not in kwargs:
+        if "color" not in kwargs or kwargs.get("color") is None:
             # Inverse default color cycle
             _colors = []
             for _ in range(len(plottables)):
@@ -1276,7 +1276,7 @@ def model(
     model_sum_kwargs=None,
     function_range=None,
     model_uncertainty=True,
-    model_uncertainty_label="Model stat. unc.",
+    model_uncertainty_label="MC stat. unc.",
     fig=None,
     ax=None,
 ):
@@ -1315,7 +1315,7 @@ def model(
     model_uncertainty : bool, optional
         If False, set the model uncertainties to zeros. Default is True.
     model_uncertainty_label : str, optional
-        The label for the model uncertainties. Default is "Model stat. unc.".
+        The label for the model uncertainties. Default is "MC stat. unc.".
     fig : matplotlib.figure.Figure or None, optional
         The Figure object to use for the plot. Create a new one if none is provided.
     ax : matplotlib.axes.Axes or None, optional
@@ -1451,13 +1451,18 @@ def model(
             len(unstacked_components) > 1 or len(stacked_components) > 0
         ):
             if model_type == "histograms":
+                model_sum_kwargs.setdefault("yerr", False)
+            if model_type == "histograms":
                 histplot(
                     sum(components),
                     ax=ax,
                     histtype="step",
                     **model_sum_kwargs,
                 )
-                if model_uncertainty:
+                if (
+                    model_uncertainty
+                    and model_sum_kwargs.get("yerr", False) is not True
+                ):
                     histplot(
                         sum(components),
                         ax=ax,
