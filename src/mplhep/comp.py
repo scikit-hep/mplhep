@@ -6,25 +6,29 @@ data vs. model comparisons, and more.
 """
 
 from .comparison_plotters import (
-    plot_comparison as ratio,
+    comparison,
+    data_model,
+    hists,
+    model,
 )
-from .comparison_plotters import (
-    plot_data_model_comparison as data_model,
-)
-from .comparison_plotters import (
-    plot_model as model,
-)
-from .comparison_plotters import (
-    plot_two_hist_comparison as hists,
-)
+
+# Alias functions for plothist consistency
+plot_comparison = comparison
+plot_data_model_comparison = data_model
+plot_model = model
+plot_two_hist_comparison = hists
 
 # Alias the module name itself for discoverability
 compare = __import__(__name__)
 
 __all__ = [
     "hists",
-    "ratio",
+    "plot_two_hist_comparison",
+    "comparison",
+    "plot_comparison",
     "data_model",
+    "plot_data_model_comparison",
     "model",
+    "plot_model",
     "compare",
 ]

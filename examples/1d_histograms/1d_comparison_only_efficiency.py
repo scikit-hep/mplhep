@@ -34,7 +34,7 @@ h_total.fill(x_total)
 # --8<-- [start:plot_body]
 # Plot comparison using efficiency
 fig, ax = plt.subplots()
-mh.comp.ratio(h_sample, h_total, ax=ax, xlabel="Variable", comparison="efficiency")
+mh.comp.comparison(h_sample, h_total, ax=ax, xlabel="Variable", comparison="efficiency")
 
 # --8<-- [end:plot_body]
 # --8<-- [end:full_code]

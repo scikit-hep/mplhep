@@ -62,9 +62,9 @@ signal_hist *= signal_scaling_factor
 
 # --8<-- [start:plot_body]
 ###
-from mplhep import add_text, plot_model
+from mplhep import add_text, model
 
-fig, ax = plot_model(
+fig, ax = model(
     stacked_components=background_hists,
     stacked_labels=background_categories_labels,
     stacked_colors=background_categories_colors,

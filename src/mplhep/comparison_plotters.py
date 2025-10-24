@@ -50,7 +50,7 @@ def _get_math_text(text):
     return text
 
 
-def plot_two_hist_comparison(
+def hists(
     h1,
     h2,
     xlabel=None,
@@ -86,7 +86,7 @@ def plot_two_hist_comparison(
     ax_comparison : matplotlib.axes.Axes or None, optional
         The axes for the comparison plot. If fig, ax_main and ax_comparison are None, a new axes will be created. Default is None.
     **comparison_kwargs : optional
-        Arguments to be passed to plot_comparison(), including the choice of the comparison function and the treatment of the uncertainties (see documentation of plot_comparison() for details).
+        Arguments to be passed to comparison(), including the choice of the comparison function and the treatment of the uncertainties (see documentation of comparison() for details).
 
     Returns
     -------
@@ -99,7 +99,7 @@ def plot_two_hist_comparison(
 
     See Also
     --------
-    plot_comparison : Plot the comparison between two histograms.
+    comparison : Plot the comparison between two histograms.
 
     """
     h1_plottable = make_plottable_histogram(h1)
@@ -132,7 +132,7 @@ def plot_two_hist_comparison(
     ax_main.legend()
     _ = ax_main.xaxis.set_ticklabels([])
 
-    plot_comparison(
+    comparison(
         h1_plottable,
         h2_plottable,
         ax_comparison,
@@ -147,7 +147,7 @@ def plot_two_hist_comparison(
     return fig, ax_main, ax_comparison
 
 
-def plot_comparison(
+def comparison(
     h1,
     h2,
     ax,
@@ -197,7 +197,7 @@ def plot_comparison(
 
     See Also
     --------
-    plot_two_hist_comparison : Compare two histograms and plot the comparison.
+    hists : Compare two histograms and plot the comparison.
 
     """
     h1_plottable = make_plottable_histogram(h1)
@@ -346,7 +346,7 @@ def _get_model_type(components):
     return "histograms"
 
 
-def plot_model(
+def model(
     stacked_components=None,
     stacked_labels=None,
     stacked_colors=None,
@@ -614,7 +614,7 @@ def _make_hist_from_function(func, ref_hist):
     )
 
 
-def plot_data_model_comparison(
+def data_model(
     data_hist,
     stacked_components=None,
     stacked_labels=None,
@@ -686,7 +686,7 @@ def plot_data_model_comparison(
     plot_only : str, optional
         If "ax_main" or "ax_comparison", only the main or comparison axis is plotted on the figure. Both axes are plotted if None is specified, which is the default. This can only be used when fig, ax_main and ax_comparison are not provided by the user.
     **comparison_kwargs : optional
-        Arguments to be passed to plot_comparison(), including the choice of the comparison function and the treatment of the uncertainties (see documentation of plot_comparison() for details). If they are not provided explicitly, the following arguments are passed by default: h1_label="Data", h2_label="Pred.", comparison="split_ratio".
+        Arguments to be passed to comparison(), including the choice of the comparison function and the treatment of the uncertainties (see documentation of comparison() for details). If they are not provided explicitly, the following arguments are passed by default: h1_label="Data", h2_label="Pred.", comparison="split_ratio".
 
     Returns
     -------
@@ -699,7 +699,7 @@ def plot_data_model_comparison(
 
     See Also
     --------
-    plot_comparison : Plot the comparison between two histograms.
+    comparison : Plot the comparison between two histograms.
 
     """
     if model_sum_kwargs is None:
@@ -774,7 +774,7 @@ def plot_data_model_comparison(
         msg = "Cannot provide fig, ax_main or ax_comparison with plot_only."
         raise ValueError(msg)
 
-    plot_model(
+    model(
         stacked_components=stacked_components,
         stacked_labels=stacked_labels,
         stacked_colors=stacked_colors,
@@ -831,7 +831,7 @@ def plot_data_model_comparison(
 
     ax_main.legend()
 
-    plot_comparison(
+    comparison(
         data_hist_plottable,
         model_hist,
         ax=ax_comparison,
