@@ -3920,7 +3920,7 @@ Use `hist2dplot()` for 2D histogram visualization:
 
     fig, ax = plt.subplots()
     mh.hist2dplot(H, xedges, yedges, ax=ax, cbar=True)
-    ax.set_xlabel('Varaible 1')
+    ax.set_xlabel('Variable 1')
     ax.set_ylabel('Variable 2')
     ```
 
@@ -3945,7 +3945,7 @@ Use `hist2dplot()` for 2D histogram visualization:
 
     fig, ax = plt.subplots()
     mh.hist2dplot(H, xedges, yedges, ax=ax, cbar=True)
-    ax.set_xlabel('Varaible 1')
+    ax.set_xlabel('Variable 1')
     ax.set_ylabel('Variable 2')
     ```
 
@@ -3970,7 +3970,7 @@ Use `hist2dplot()` for 2D histogram visualization:
 
     fig, ax = plt.subplots()
     mh.hist2dplot(H, xedges, yedges, ax=ax, cbar=True)
-    ax.set_xlabel('Varaible 1')
+    ax.set_xlabel('Variable 1')
     ax.set_ylabel('Variable 2')
     ```
 
@@ -3995,7 +3995,7 @@ Use `hist2dplot()` for 2D histogram visualization:
 
     fig, ax = plt.subplots()
     mh.hist2dplot(H, xedges, yedges, ax=ax, cbar=True)
-    ax.set_xlabel('Varaible 1')
+    ax.set_xlabel('Variable 1')
     ax.set_ylabel('Variable 2')
     ```
 
@@ -4020,7 +4020,7 @@ Use `hist2dplot()` for 2D histogram visualization:
 
     fig, ax = plt.subplots()
     mh.hist2dplot(H, xedges, yedges, ax=ax, cbar=True)
-    ax.set_xlabel('Varaible 1')
+    ax.set_xlabel('Variable 1')
     ax.set_ylabel('Variable 2')
     ```
 
@@ -4045,7 +4045,7 @@ Use `hist2dplot()` for 2D histogram visualization:
 
     fig, ax = plt.subplots()
     mh.hist2dplot(H, xedges, yedges, ax=ax, cbar=True)
-    ax.set_xlabel('Varaible 1')
+    ax.set_xlabel('Variable 1')
     ax.set_ylabel('Variable 2')
     ```
 
@@ -4070,7 +4070,7 @@ Use `hist2dplot()` for 2D histogram visualization:
 
     fig, ax = plt.subplots()
     mh.hist2dplot(H, xedges, yedges, ax=ax, cbar=True)
-    ax.set_xlabel('Varaible 1')
+    ax.set_xlabel('Variable 1')
     ax.set_ylabel('Variable 2')
     ```
 
@@ -4085,7 +4085,7 @@ mplhep provides dedicated comparison plotters in the `comp` module for creating 
 - `comp.comparison()`: to only plot the comparison panel given two histograms.
 - `comp.get_comparison()`: to get the `[values, lower_uncertainties, upper_uncertainties]` for a given comparison type.
 
-### Comparing two histograms
+### Two histograms
 
 To compare two histograms, use `mh.comp.hists()`:
 
@@ -5670,38 +5670,2165 @@ The `comparison` parameter accepts:
 
 
 
-### Data-Model with Stacked Backgrounds
+### Data-MC
 
-For complex data-model comparisons with multiple background components, use `mh.comp.data_model()`:
+To compare data to a model made of multiple components (e.g. signal, backgrounds...), use `mh.comp.data_model()`. The function is very flexible, it can accept any number of stacked and/or unstacked components, either as histograms or functions. It will then compare the sum of the components to the data, with the comparison of your choice. The default comparison is the `split_ratio` between the model and the data. It can take any comparison method available in `mh.comp.hists()`.
 
-```python
-# Generate signal, backgrounds, and data
-bins = np.linspace(-3, 3, 15)
-signal = np.histogram(np.random.normal(-0.5, 0.5, 300), bins=bins)
-bkg1 = np.histogram(np.random.normal(0, 1, 800), bins=bins)
-bkg2 = np.histogram(np.random.exponential(0.5, 400) - 1.5, bins=bins)
-# Data is sum with Poisson fluctuations
-data_counts = np.random.poisson(signal[0] + bkg1[0] + bkg2[0])
-data = (data_counts, bins)
 
-# Create comparison plot
-fig, (ax_main, ax_comp) = plt.subplots(
-    nrows=2,
-    figsize=(10, 10),
-    gridspec_kw={"height_ratios": [3, 1]},
-)
-fig.subplots_adjust(hspace=0)
-fig, ax_main, ax_comp = mh.comp.data_model(
-    fig = fig, ax_main=ax_main, ax_comparison=ax_comp,
-    data_hist=data,
-    stacked_components=[signal, bkg1, bkg2],
-    stacked_labels=['Signal', 'Bkg 1', 'Bkg 2'],
-    comparison='ratio',
-    xlabel='m [GeV]',
-    ylabel='Events'
-)
-mh.cms.label(data=True, lumi=100, ax=ax_main)
-```
+
+=== "Default"
+
+    === "Stacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+
+        ```
+
+    === "Mixed stacked and unstacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # The function will automatically sum the stacked and unstacked components
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1],
+            stacked_labels=['Bkg2', 'Bkg1'],
+            stacked_colors=['grey', 'lightblue'],
+            unstacked_components=[h_signal],
+            unstacked_labels=['Signal'],
+            unstacked_colors=['red'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+
+        ```
+
+    === "Functions, stacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        import scipy
+        np.random.seed(42)
+
+
+        # Define component functions
+        def f_signal(x):
+            return 200 * scipy.stats.norm.pdf(x, loc=0.5, scale=3)
+        def f_bkg1(x):
+            return 500 * scipy.stats.norm.pdf(x, loc=-1.5, scale=4)
+        def f_bkg2(x):
+            return 500 * scipy.stats.norm.pdf(x, loc=-1., scale=1.8)
+
+        # For mkdocs # mkdocs: hide
+        f_signal = lambda x: 200 * (1 / (3 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x - 0.5) / 3)**2))  # mkdocs: hide
+        f_bkg1   = lambda x: 500 * (1 / (4 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.5) / 4)**2))  # mkdocs: hide
+        f_bkg2   = lambda x: 500 * (1 / (1.8 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.0) / 1.8)**2))  # mkdocs: hide
+        # mkdocs: hide
+        # Generate data histogram
+        x_data = np.concatenate([np.random.normal(-1.5, 4, 1500), np.random.normal(-1., 1.8, 2000)])
+        data_hist = hist.new.Regular(50, -8, 8).Weight().fill(x_data)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=data_hist,
+            stacked_components=[f_bkg2, f_bkg1, f_signal],
+            stacked_labels=['Bkg 2', 'Bkg 1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+
+        ```
+
+    === "Functions, mixed stacked and unstacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        from scipy.stats import norm
+        np.random.seed(42)
+
+
+        # Define component functions
+        def f_signal(x):
+            return 200 * norm.pdf(x, loc=0.5, scale=3)
+        def f_bkg1(x):
+            return 500 * norm.pdf(x, loc=-1.5, scale=4)
+        def f_bkg2(x):
+            return 500 * norm.pdf(x, loc=-1., scale=1.8)
+
+        # For mkdocs  # mkdocs: hide
+        f_signal = lambda x: 200 * (1 / (3 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x - 0.5) / 3)**2))  # mkdocs: hide
+        f_bkg1   = lambda x: 500 * (1 / (4 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.5) / 4)**2))  # mkdocs: hide
+        f_bkg2   = lambda x: 500 * (1 / (1.8 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.0) / 1.8)**2))  # mkdocs: hide
+        # mkdocs: hide
+        # Generate data histogram
+        x_data = np.concatenate([np.random.normal(-1.5, 4, 1500), np.random.normal(-1., 1.8, 2000)])
+        data_hist = hist.new.Regular(50, -8, 8).Weight().fill(x_data)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=data_hist,
+            stacked_components=[f_bkg2, f_bkg1,],
+            stacked_labels=['Bkg 2', 'Bkg 1'],
+            unstacked_components=[f_signal],
+            unstacked_labels=['Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+
+        ```
+
+
+
+
+=== "plothist"
+
+    === "Stacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('plothist')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        txt_obj = mh.add_text('plothist', loc='over left', ax=ax_main)
+        ```
+
+    === "Mixed stacked and unstacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('plothist')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # The function will automatically sum the stacked and unstacked components
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1],
+            stacked_labels=['Bkg2', 'Bkg1'],
+            stacked_colors=['grey', 'lightblue'],
+            unstacked_components=[h_signal],
+            unstacked_labels=['Signal'],
+            unstacked_colors=['red'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        txt_obj = mh.add_text('plothist', loc='over left', ax=ax_main)
+        ```
+
+    === "Functions, stacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        import scipy
+        np.random.seed(42)
+        mh.style.use('plothist')
+
+        # Define component functions
+        def f_signal(x):
+            return 200 * scipy.stats.norm.pdf(x, loc=0.5, scale=3)
+        def f_bkg1(x):
+            return 500 * scipy.stats.norm.pdf(x, loc=-1.5, scale=4)
+        def f_bkg2(x):
+            return 500 * scipy.stats.norm.pdf(x, loc=-1., scale=1.8)
+
+        # For mkdocs # mkdocs: hide
+        f_signal = lambda x: 200 * (1 / (3 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x - 0.5) / 3)**2))  # mkdocs: hide
+        f_bkg1   = lambda x: 500 * (1 / (4 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.5) / 4)**2))  # mkdocs: hide
+        f_bkg2   = lambda x: 500 * (1 / (1.8 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.0) / 1.8)**2))  # mkdocs: hide
+        # mkdocs: hide
+        # Generate data histogram
+        x_data = np.concatenate([np.random.normal(-1.5, 4, 1500), np.random.normal(-1., 1.8, 2000)])
+        data_hist = hist.new.Regular(50, -8, 8).Weight().fill(x_data)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=data_hist,
+            stacked_components=[f_bkg2, f_bkg1, f_signal],
+            stacked_labels=['Bkg 2', 'Bkg 1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        txt_obj = mh.add_text('plothist', loc='over left', ax=ax_main)
+        ```
+
+    === "Functions, mixed stacked and unstacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        from scipy.stats import norm
+        np.random.seed(42)
+        mh.style.use('plothist')
+
+        # Define component functions
+        def f_signal(x):
+            return 200 * norm.pdf(x, loc=0.5, scale=3)
+        def f_bkg1(x):
+            return 500 * norm.pdf(x, loc=-1.5, scale=4)
+        def f_bkg2(x):
+            return 500 * norm.pdf(x, loc=-1., scale=1.8)
+
+        # For mkdocs  # mkdocs: hide
+        f_signal = lambda x: 200 * (1 / (3 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x - 0.5) / 3)**2))  # mkdocs: hide
+        f_bkg1   = lambda x: 500 * (1 / (4 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.5) / 4)**2))  # mkdocs: hide
+        f_bkg2   = lambda x: 500 * (1 / (1.8 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.0) / 1.8)**2))  # mkdocs: hide
+        # mkdocs: hide
+        # Generate data histogram
+        x_data = np.concatenate([np.random.normal(-1.5, 4, 1500), np.random.normal(-1., 1.8, 2000)])
+        data_hist = hist.new.Regular(50, -8, 8).Weight().fill(x_data)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=data_hist,
+            stacked_components=[f_bkg2, f_bkg1,],
+            stacked_labels=['Bkg 2', 'Bkg 1'],
+            unstacked_components=[f_signal],
+            unstacked_labels=['Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        txt_obj = mh.add_text('plothist', loc='over left', ax=ax_main)
+        ```
+
+
+
+
+=== "CMS"
+
+    === "Stacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('CMS')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        mh.cms.label(data=True, lumi=100, ax=ax_main)
+        ```
+
+    === "Mixed stacked and unstacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('CMS')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # The function will automatically sum the stacked and unstacked components
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1],
+            stacked_labels=['Bkg2', 'Bkg1'],
+            stacked_colors=['grey', 'lightblue'],
+            unstacked_components=[h_signal],
+            unstacked_labels=['Signal'],
+            unstacked_colors=['red'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        mh.cms.label(data=True, lumi=100, ax=ax_main)
+        ```
+
+    === "Functions, stacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        import scipy
+        np.random.seed(42)
+        mh.style.use('CMS')
+
+        # Define component functions
+        def f_signal(x):
+            return 200 * scipy.stats.norm.pdf(x, loc=0.5, scale=3)
+        def f_bkg1(x):
+            return 500 * scipy.stats.norm.pdf(x, loc=-1.5, scale=4)
+        def f_bkg2(x):
+            return 500 * scipy.stats.norm.pdf(x, loc=-1., scale=1.8)
+
+        # For mkdocs # mkdocs: hide
+        f_signal = lambda x: 200 * (1 / (3 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x - 0.5) / 3)**2))  # mkdocs: hide
+        f_bkg1   = lambda x: 500 * (1 / (4 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.5) / 4)**2))  # mkdocs: hide
+        f_bkg2   = lambda x: 500 * (1 / (1.8 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.0) / 1.8)**2))  # mkdocs: hide
+        # mkdocs: hide
+        # Generate data histogram
+        x_data = np.concatenate([np.random.normal(-1.5, 4, 1500), np.random.normal(-1., 1.8, 2000)])
+        data_hist = hist.new.Regular(50, -8, 8).Weight().fill(x_data)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=data_hist,
+            stacked_components=[f_bkg2, f_bkg1, f_signal],
+            stacked_labels=['Bkg 2', 'Bkg 1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        mh.cms.label(data=True, lumi=100, ax=ax_main)
+        ```
+
+    === "Functions, mixed stacked and unstacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        from scipy.stats import norm
+        np.random.seed(42)
+        mh.style.use('CMS')
+
+        # Define component functions
+        def f_signal(x):
+            return 200 * norm.pdf(x, loc=0.5, scale=3)
+        def f_bkg1(x):
+            return 500 * norm.pdf(x, loc=-1.5, scale=4)
+        def f_bkg2(x):
+            return 500 * norm.pdf(x, loc=-1., scale=1.8)
+
+        # For mkdocs  # mkdocs: hide
+        f_signal = lambda x: 200 * (1 / (3 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x - 0.5) / 3)**2))  # mkdocs: hide
+        f_bkg1   = lambda x: 500 * (1 / (4 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.5) / 4)**2))  # mkdocs: hide
+        f_bkg2   = lambda x: 500 * (1 / (1.8 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.0) / 1.8)**2))  # mkdocs: hide
+        # mkdocs: hide
+        # Generate data histogram
+        x_data = np.concatenate([np.random.normal(-1.5, 4, 1500), np.random.normal(-1., 1.8, 2000)])
+        data_hist = hist.new.Regular(50, -8, 8).Weight().fill(x_data)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=data_hist,
+            stacked_components=[f_bkg2, f_bkg1,],
+            stacked_labels=['Bkg 2', 'Bkg 1'],
+            unstacked_components=[f_signal],
+            unstacked_labels=['Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        mh.cms.label(data=True, lumi=100, ax=ax_main)
+        ```
+
+
+
+
+=== "ATLAS"
+
+    === "Stacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('ATLAS')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        mh.atlas.label(data=True, lumi=150, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+    === "Mixed stacked and unstacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('ATLAS')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # The function will automatically sum the stacked and unstacked components
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1],
+            stacked_labels=['Bkg2', 'Bkg1'],
+            stacked_colors=['grey', 'lightblue'],
+            unstacked_components=[h_signal],
+            unstacked_labels=['Signal'],
+            unstacked_colors=['red'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        mh.atlas.label(data=True, lumi=150, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+    === "Functions, stacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        import scipy
+        np.random.seed(42)
+        mh.style.use('ATLAS')
+
+        # Define component functions
+        def f_signal(x):
+            return 200 * scipy.stats.norm.pdf(x, loc=0.5, scale=3)
+        def f_bkg1(x):
+            return 500 * scipy.stats.norm.pdf(x, loc=-1.5, scale=4)
+        def f_bkg2(x):
+            return 500 * scipy.stats.norm.pdf(x, loc=-1., scale=1.8)
+
+        # For mkdocs # mkdocs: hide
+        f_signal = lambda x: 200 * (1 / (3 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x - 0.5) / 3)**2))  # mkdocs: hide
+        f_bkg1   = lambda x: 500 * (1 / (4 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.5) / 4)**2))  # mkdocs: hide
+        f_bkg2   = lambda x: 500 * (1 / (1.8 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.0) / 1.8)**2))  # mkdocs: hide
+        # mkdocs: hide
+        # Generate data histogram
+        x_data = np.concatenate([np.random.normal(-1.5, 4, 1500), np.random.normal(-1., 1.8, 2000)])
+        data_hist = hist.new.Regular(50, -8, 8).Weight().fill(x_data)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=data_hist,
+            stacked_components=[f_bkg2, f_bkg1, f_signal],
+            stacked_labels=['Bkg 2', 'Bkg 1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        mh.atlas.label(data=True, lumi=150, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+    === "Functions, mixed stacked and unstacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        from scipy.stats import norm
+        np.random.seed(42)
+        mh.style.use('ATLAS')
+
+        # Define component functions
+        def f_signal(x):
+            return 200 * norm.pdf(x, loc=0.5, scale=3)
+        def f_bkg1(x):
+            return 500 * norm.pdf(x, loc=-1.5, scale=4)
+        def f_bkg2(x):
+            return 500 * norm.pdf(x, loc=-1., scale=1.8)
+
+        # For mkdocs  # mkdocs: hide
+        f_signal = lambda x: 200 * (1 / (3 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x - 0.5) / 3)**2))  # mkdocs: hide
+        f_bkg1   = lambda x: 500 * (1 / (4 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.5) / 4)**2))  # mkdocs: hide
+        f_bkg2   = lambda x: 500 * (1 / (1.8 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.0) / 1.8)**2))  # mkdocs: hide
+        # mkdocs: hide
+        # Generate data histogram
+        x_data = np.concatenate([np.random.normal(-1.5, 4, 1500), np.random.normal(-1., 1.8, 2000)])
+        data_hist = hist.new.Regular(50, -8, 8).Weight().fill(x_data)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=data_hist,
+            stacked_components=[f_bkg2, f_bkg1,],
+            stacked_labels=['Bkg 2', 'Bkg 1'],
+            unstacked_components=[f_signal],
+            unstacked_labels=['Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        mh.atlas.label(data=True, lumi=150, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+
+
+
+=== "LHCb"
+
+    === "Stacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('LHCb2')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        mh.lhcb.label(data=True, lumi=50, ax=ax_main)
+        ```
+
+    === "Mixed stacked and unstacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('LHCb2')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # The function will automatically sum the stacked and unstacked components
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1],
+            stacked_labels=['Bkg2', 'Bkg1'],
+            stacked_colors=['grey', 'lightblue'],
+            unstacked_components=[h_signal],
+            unstacked_labels=['Signal'],
+            unstacked_colors=['red'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        mh.lhcb.label(data=True, lumi=50, ax=ax_main)
+        ```
+
+    === "Functions, stacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        import scipy
+        np.random.seed(42)
+        mh.style.use('LHCb2')
+
+        # Define component functions
+        def f_signal(x):
+            return 200 * scipy.stats.norm.pdf(x, loc=0.5, scale=3)
+        def f_bkg1(x):
+            return 500 * scipy.stats.norm.pdf(x, loc=-1.5, scale=4)
+        def f_bkg2(x):
+            return 500 * scipy.stats.norm.pdf(x, loc=-1., scale=1.8)
+
+        # For mkdocs # mkdocs: hide
+        f_signal = lambda x: 200 * (1 / (3 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x - 0.5) / 3)**2))  # mkdocs: hide
+        f_bkg1   = lambda x: 500 * (1 / (4 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.5) / 4)**2))  # mkdocs: hide
+        f_bkg2   = lambda x: 500 * (1 / (1.8 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.0) / 1.8)**2))  # mkdocs: hide
+        # mkdocs: hide
+        # Generate data histogram
+        x_data = np.concatenate([np.random.normal(-1.5, 4, 1500), np.random.normal(-1., 1.8, 2000)])
+        data_hist = hist.new.Regular(50, -8, 8).Weight().fill(x_data)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=data_hist,
+            stacked_components=[f_bkg2, f_bkg1, f_signal],
+            stacked_labels=['Bkg 2', 'Bkg 1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        mh.lhcb.label(data=True, lumi=50, ax=ax_main)
+        ```
+
+    === "Functions, mixed stacked and unstacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        from scipy.stats import norm
+        np.random.seed(42)
+        mh.style.use('LHCb2')
+
+        # Define component functions
+        def f_signal(x):
+            return 200 * norm.pdf(x, loc=0.5, scale=3)
+        def f_bkg1(x):
+            return 500 * norm.pdf(x, loc=-1.5, scale=4)
+        def f_bkg2(x):
+            return 500 * norm.pdf(x, loc=-1., scale=1.8)
+
+        # For mkdocs  # mkdocs: hide
+        f_signal = lambda x: 200 * (1 / (3 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x - 0.5) / 3)**2))  # mkdocs: hide
+        f_bkg1   = lambda x: 500 * (1 / (4 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.5) / 4)**2))  # mkdocs: hide
+        f_bkg2   = lambda x: 500 * (1 / (1.8 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.0) / 1.8)**2))  # mkdocs: hide
+        # mkdocs: hide
+        # Generate data histogram
+        x_data = np.concatenate([np.random.normal(-1.5, 4, 1500), np.random.normal(-1., 1.8, 2000)])
+        data_hist = hist.new.Regular(50, -8, 8).Weight().fill(x_data)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=data_hist,
+            stacked_components=[f_bkg2, f_bkg1,],
+            stacked_labels=['Bkg 2', 'Bkg 1'],
+            unstacked_components=[f_signal],
+            unstacked_labels=['Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        mh.lhcb.label(data=True, lumi=50, ax=ax_main)
+        ```
+
+
+
+
+=== "ALICE"
+
+    === "Stacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('ALICE')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        mh.alice.label(data=True, lumi=100, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+    === "Mixed stacked and unstacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('ALICE')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # The function will automatically sum the stacked and unstacked components
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1],
+            stacked_labels=['Bkg2', 'Bkg1'],
+            stacked_colors=['grey', 'lightblue'],
+            unstacked_components=[h_signal],
+            unstacked_labels=['Signal'],
+            unstacked_colors=['red'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        mh.alice.label(data=True, lumi=100, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+    === "Functions, stacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        import scipy
+        np.random.seed(42)
+        mh.style.use('ALICE')
+
+        # Define component functions
+        def f_signal(x):
+            return 200 * scipy.stats.norm.pdf(x, loc=0.5, scale=3)
+        def f_bkg1(x):
+            return 500 * scipy.stats.norm.pdf(x, loc=-1.5, scale=4)
+        def f_bkg2(x):
+            return 500 * scipy.stats.norm.pdf(x, loc=-1., scale=1.8)
+
+        # For mkdocs # mkdocs: hide
+        f_signal = lambda x: 200 * (1 / (3 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x - 0.5) / 3)**2))  # mkdocs: hide
+        f_bkg1   = lambda x: 500 * (1 / (4 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.5) / 4)**2))  # mkdocs: hide
+        f_bkg2   = lambda x: 500 * (1 / (1.8 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.0) / 1.8)**2))  # mkdocs: hide
+        # mkdocs: hide
+        # Generate data histogram
+        x_data = np.concatenate([np.random.normal(-1.5, 4, 1500), np.random.normal(-1., 1.8, 2000)])
+        data_hist = hist.new.Regular(50, -8, 8).Weight().fill(x_data)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=data_hist,
+            stacked_components=[f_bkg2, f_bkg1, f_signal],
+            stacked_labels=['Bkg 2', 'Bkg 1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        mh.alice.label(data=True, lumi=100, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+    === "Functions, mixed stacked and unstacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        from scipy.stats import norm
+        np.random.seed(42)
+        mh.style.use('ALICE')
+
+        # Define component functions
+        def f_signal(x):
+            return 200 * norm.pdf(x, loc=0.5, scale=3)
+        def f_bkg1(x):
+            return 500 * norm.pdf(x, loc=-1.5, scale=4)
+        def f_bkg2(x):
+            return 500 * norm.pdf(x, loc=-1., scale=1.8)
+
+        # For mkdocs  # mkdocs: hide
+        f_signal = lambda x: 200 * (1 / (3 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x - 0.5) / 3)**2))  # mkdocs: hide
+        f_bkg1   = lambda x: 500 * (1 / (4 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.5) / 4)**2))  # mkdocs: hide
+        f_bkg2   = lambda x: 500 * (1 / (1.8 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.0) / 1.8)**2))  # mkdocs: hide
+        # mkdocs: hide
+        # Generate data histogram
+        x_data = np.concatenate([np.random.normal(-1.5, 4, 1500), np.random.normal(-1., 1.8, 2000)])
+        data_hist = hist.new.Regular(50, -8, 8).Weight().fill(x_data)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=data_hist,
+            stacked_components=[f_bkg2, f_bkg1,],
+            stacked_labels=['Bkg 2', 'Bkg 1'],
+            unstacked_components=[f_signal],
+            unstacked_labels=['Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        mh.alice.label(data=True, lumi=100, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+
+
+
+=== "DUNE"
+
+    === "Stacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('DUNE')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        mh.dune.label(data=True, lumi=100, ax=ax_main)
+        ```
+
+    === "Mixed stacked and unstacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('DUNE')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # The function will automatically sum the stacked and unstacked components
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1],
+            stacked_labels=['Bkg2', 'Bkg1'],
+            stacked_colors=['grey', 'lightblue'],
+            unstacked_components=[h_signal],
+            unstacked_labels=['Signal'],
+            unstacked_colors=['red'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        mh.dune.label(data=True, lumi=100, ax=ax_main)
+        ```
+
+    === "Functions, stacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        import scipy
+        np.random.seed(42)
+        mh.style.use('DUNE')
+
+        # Define component functions
+        def f_signal(x):
+            return 200 * scipy.stats.norm.pdf(x, loc=0.5, scale=3)
+        def f_bkg1(x):
+            return 500 * scipy.stats.norm.pdf(x, loc=-1.5, scale=4)
+        def f_bkg2(x):
+            return 500 * scipy.stats.norm.pdf(x, loc=-1., scale=1.8)
+
+        # For mkdocs # mkdocs: hide
+        f_signal = lambda x: 200 * (1 / (3 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x - 0.5) / 3)**2))  # mkdocs: hide
+        f_bkg1   = lambda x: 500 * (1 / (4 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.5) / 4)**2))  # mkdocs: hide
+        f_bkg2   = lambda x: 500 * (1 / (1.8 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.0) / 1.8)**2))  # mkdocs: hide
+        # mkdocs: hide
+        # Generate data histogram
+        x_data = np.concatenate([np.random.normal(-1.5, 4, 1500), np.random.normal(-1., 1.8, 2000)])
+        data_hist = hist.new.Regular(50, -8, 8).Weight().fill(x_data)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=data_hist,
+            stacked_components=[f_bkg2, f_bkg1, f_signal],
+            stacked_labels=['Bkg 2', 'Bkg 1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        mh.dune.label(data=True, lumi=100, ax=ax_main)
+        ```
+
+    === "Functions, mixed stacked and unstacked"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        from scipy.stats import norm
+        np.random.seed(42)
+        mh.style.use('DUNE')
+
+        # Define component functions
+        def f_signal(x):
+            return 200 * norm.pdf(x, loc=0.5, scale=3)
+        def f_bkg1(x):
+            return 500 * norm.pdf(x, loc=-1.5, scale=4)
+        def f_bkg2(x):
+            return 500 * norm.pdf(x, loc=-1., scale=1.8)
+
+        # For mkdocs  # mkdocs: hide
+        f_signal = lambda x: 200 * (1 / (3 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x - 0.5) / 3)**2))  # mkdocs: hide
+        f_bkg1   = lambda x: 500 * (1 / (4 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.5) / 4)**2))  # mkdocs: hide
+        f_bkg2   = lambda x: 500 * (1 / (1.8 * (2 * 3.14)**0.5)) * (2.71828 ** (-0.5 * ((x + 1.0) / 1.8)**2))  # mkdocs: hide
+        # mkdocs: hide
+        # Generate data histogram
+        x_data = np.concatenate([np.random.normal(-1.5, 4, 1500), np.random.normal(-1., 1.8, 2000)])
+        data_hist = hist.new.Regular(50, -8, 8).Weight().fill(x_data)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=data_hist,
+            stacked_components=[f_bkg2, f_bkg1,],
+            stacked_labels=['Bkg 2', 'Bkg 1'],
+            unstacked_components=[f_signal],
+            unstacked_labels=['Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        mh.dune.label(data=True, lumi=100, ax=ax_main)
+        ```
+
+
+
+### Showcasing more options
+
+`mh.comp.hists()` is very flexible and can be customized further. For more examples and details, see the [API Reference](api.md#mplhep.comp.hists) and the [Gallery](gallery.md). Here is a selection of additional examples showcasing some of the available options.
+
+
+=== "Default"
+
+    === "Different comparison"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            comparison='pull'  # Accept any comparison from mh.comp.comparison()
+        )
+
+        ```
+
+    === "Remove MC uncertainties"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            model_uncertainty=False,  # Set the model uncertainty to zero
+            comparison='pull', # The pull formula is updated automatically
+        )
+
+        ```
+
+    === "Model kwargs"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1],
+            stacked_labels=['Bkg2', 'Bkg1'],
+            stacked_colors=['grey', 'lightblue'],
+            unstacked_components=[h_signal],
+            unstacked_labels=['Signal'],
+            unstacked_colors=['red'],
+            model_sum_kwargs={"show": True, "label": "Total Model", "color": "violet"}, # Just like stacked_components_kwargs and unstacked_components_kwargs, you can pass kwargs for the model sum line
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+
+        ```
+
+    === "Plot only 1 ax"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comparison = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            plot_only='ax_main'  # Only plot the comparison axis (works with 'ax_comparison' as well).
+        )
+
+        ```
+
+
+
+
+=== "plothist"
+
+    === "Different comparison"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('plothist')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            comparison='pull'  # Accept any comparison from mh.comp.comparison()
+        )
+        txt_obj = mh.add_text('plothist', loc='over left', ax=ax_main)
+        ```
+
+    === "Remove MC uncertainties"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('plothist')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            model_uncertainty=False,  # Set the model uncertainty to zero
+            comparison='pull', # The pull formula is updated automatically
+        )
+        txt_obj = mh.add_text('plothist', loc='over left', ax=ax_main)
+        ```
+
+    === "Model kwargs"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('plothist')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1],
+            stacked_labels=['Bkg2', 'Bkg1'],
+            stacked_colors=['grey', 'lightblue'],
+            unstacked_components=[h_signal],
+            unstacked_labels=['Signal'],
+            unstacked_colors=['red'],
+            model_sum_kwargs={"show": True, "label": "Total Model", "color": "violet"}, # Just like stacked_components_kwargs and unstacked_components_kwargs, you can pass kwargs for the model sum line
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        txt_obj = mh.add_text('plothist', loc='over left', ax=ax_main)
+        ```
+
+    === "Plot only 1 ax"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('plothist')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comparison = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            plot_only='ax_main'  # Only plot the comparison axis (works with 'ax_comparison' as well).
+        )
+        txt_obj = mh.add_text('plothist', loc='over left', ax=ax_main)
+        ```
+
+
+
+
+=== "CMS"
+
+    === "Different comparison"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('CMS')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            comparison='pull'  # Accept any comparison from mh.comp.comparison()
+        )
+        mh.cms.label(data=True, lumi=100, ax=ax_main)
+        ```
+
+    === "Remove MC uncertainties"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('CMS')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            model_uncertainty=False,  # Set the model uncertainty to zero
+            comparison='pull', # The pull formula is updated automatically
+        )
+        mh.cms.label(data=True, lumi=100, ax=ax_main)
+        ```
+
+    === "Model kwargs"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('CMS')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1],
+            stacked_labels=['Bkg2', 'Bkg1'],
+            stacked_colors=['grey', 'lightblue'],
+            unstacked_components=[h_signal],
+            unstacked_labels=['Signal'],
+            unstacked_colors=['red'],
+            model_sum_kwargs={"show": True, "label": "Total Model", "color": "violet"}, # Just like stacked_components_kwargs and unstacked_components_kwargs, you can pass kwargs for the model sum line
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        mh.cms.label(data=True, lumi=100, ax=ax_main)
+        ```
+
+    === "Plot only 1 ax"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('CMS')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comparison = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            plot_only='ax_main'  # Only plot the comparison axis (works with 'ax_comparison' as well).
+        )
+        mh.cms.label(data=True, lumi=100, ax=ax_main)
+        ```
+
+
+
+
+=== "ATLAS"
+
+    === "Different comparison"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('ATLAS')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            comparison='pull'  # Accept any comparison from mh.comp.comparison()
+        )
+        mh.atlas.label(data=True, lumi=150, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+    === "Remove MC uncertainties"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('ATLAS')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            model_uncertainty=False,  # Set the model uncertainty to zero
+            comparison='pull', # The pull formula is updated automatically
+        )
+        mh.atlas.label(data=True, lumi=150, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+    === "Model kwargs"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('ATLAS')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1],
+            stacked_labels=['Bkg2', 'Bkg1'],
+            stacked_colors=['grey', 'lightblue'],
+            unstacked_components=[h_signal],
+            unstacked_labels=['Signal'],
+            unstacked_colors=['red'],
+            model_sum_kwargs={"show": True, "label": "Total Model", "color": "violet"}, # Just like stacked_components_kwargs and unstacked_components_kwargs, you can pass kwargs for the model sum line
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        mh.atlas.label(data=True, lumi=150, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+    === "Plot only 1 ax"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('ATLAS')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comparison = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            plot_only='ax_main'  # Only plot the comparison axis (works with 'ax_comparison' as well).
+        )
+        mh.atlas.label(data=True, lumi=150, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+
+
+
+=== "LHCb"
+
+    === "Different comparison"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('LHCb2')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            comparison='pull'  # Accept any comparison from mh.comp.comparison()
+        )
+        mh.lhcb.label(data=True, lumi=50, ax=ax_main)
+        ```
+
+    === "Remove MC uncertainties"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('LHCb2')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            model_uncertainty=False,  # Set the model uncertainty to zero
+            comparison='pull', # The pull formula is updated automatically
+        )
+        mh.lhcb.label(data=True, lumi=50, ax=ax_main)
+        ```
+
+    === "Model kwargs"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('LHCb2')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1],
+            stacked_labels=['Bkg2', 'Bkg1'],
+            stacked_colors=['grey', 'lightblue'],
+            unstacked_components=[h_signal],
+            unstacked_labels=['Signal'],
+            unstacked_colors=['red'],
+            model_sum_kwargs={"show": True, "label": "Total Model", "color": "violet"}, # Just like stacked_components_kwargs and unstacked_components_kwargs, you can pass kwargs for the model sum line
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        mh.lhcb.label(data=True, lumi=50, ax=ax_main)
+        ```
+
+    === "Plot only 1 ax"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('LHCb2')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comparison = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            plot_only='ax_main'  # Only plot the comparison axis (works with 'ax_comparison' as well).
+        )
+        mh.lhcb.label(data=True, lumi=50, ax=ax_main)
+        ```
+
+
+
+
+=== "ALICE"
+
+    === "Different comparison"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('ALICE')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            comparison='pull'  # Accept any comparison from mh.comp.comparison()
+        )
+        mh.alice.label(data=True, lumi=100, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+    === "Remove MC uncertainties"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('ALICE')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            model_uncertainty=False,  # Set the model uncertainty to zero
+            comparison='pull', # The pull formula is updated automatically
+        )
+        mh.alice.label(data=True, lumi=100, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+    === "Model kwargs"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('ALICE')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1],
+            stacked_labels=['Bkg2', 'Bkg1'],
+            stacked_colors=['grey', 'lightblue'],
+            unstacked_components=[h_signal],
+            unstacked_labels=['Signal'],
+            unstacked_colors=['red'],
+            model_sum_kwargs={"show": True, "label": "Total Model", "color": "violet"}, # Just like stacked_components_kwargs and unstacked_components_kwargs, you can pass kwargs for the model sum line
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        mh.alice.label(data=True, lumi=100, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+    === "Plot only 1 ax"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('ALICE')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comparison = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            plot_only='ax_main'  # Only plot the comparison axis (works with 'ax_comparison' as well).
+        )
+        mh.alice.label(data=True, lumi=100, ax=ax_main)
+        mh.mpl_magic(soft_fail=True)
+        ```
+
+
+
+
+=== "DUNE"
+
+    === "Different comparison"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('DUNE')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            comparison='pull'  # Accept any comparison from mh.comp.comparison()
+        )
+        mh.dune.label(data=True, lumi=100, ax=ax_main)
+        ```
+
+    === "Remove MC uncertainties"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('DUNE')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            model_uncertainty=False,  # Set the model uncertainty to zero
+            comparison='pull', # The pull formula is updated automatically
+        )
+        mh.dune.label(data=True, lumi=100, ax=ax_main)
+        ```
+
+    === "Model kwargs"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('DUNE')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comp = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1],
+            stacked_labels=['Bkg2', 'Bkg1'],
+            stacked_colors=['grey', 'lightblue'],
+            unstacked_components=[h_signal],
+            unstacked_labels=['Signal'],
+            unstacked_colors=['red'],
+            model_sum_kwargs={"show": True, "label": "Total Model", "color": "violet"}, # Just like stacked_components_kwargs and unstacked_components_kwargs, you can pass kwargs for the model sum line
+            xlabel='Observable [GeV]',
+            ylabel='Events'
+        )
+        mh.dune.label(data=True, lumi=100, ax=ax_main)
+        ```
+
+    === "Plot only 1 ax"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import hist
+        import mplhep as mh
+        np.random.seed(42)
+        mh.style.use('DUNE')
+
+        # Generate signal, backgrounds, and data
+        x1 = np.random.normal(0, 1, 1400)
+        x2 = np.random.normal(1, 0.5, 1000)
+        x3 = np.random.exponential(0.5, 900) - 1.5
+        data_x = np.random.choice([*x1, *x2, *x3], size=3500, replace=True)
+        h_bkg1 = hist.new.Reg(25, -3, 5).Weight().fill(x1)
+        h_bkg2 = h1 = hist.new.Reg(25, -3, 5).Weight().fill(x2)
+        h_signal = hist.new.Reg(25, -3, 5).Weight().fill(x3)
+        h_data = hist.new.Reg(25, -3, 5).Weight().fill(data_x)
+
+        # Create comparison plot
+        fig, ax_main, ax_comparison = mh.comp.data_model(
+            data_hist=h_data,
+            stacked_components=[h_bkg2, h_bkg1, h_signal],
+            stacked_labels=['Bkg2', 'Bkg1', 'Signal'],
+            xlabel='Observable [GeV]',
+            ylabel='Events',
+            plot_only='ax_main'  # Only plot the comparison axis (works with 'ax_comparison' as well).
+        )
+        mh.dune.label(data=True, lumi=100, ax=ax_main)
+        ```
+
+
 
 ## Styling and Customization
 

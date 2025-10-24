@@ -506,11 +506,11 @@ def data_model(
             ax_main.xaxis.set_ticklabels([])
             ax_main.set_xlabel(" ")
         elif plot_only == "ax_main":
-            fig, ax_main = plt.subplots()
             _, ax_comparison = plt.subplots()
+            fig, ax_main = plt.subplots()
         elif plot_only == "ax_comparison":
-            fig, ax_comparison = plt.subplots()
             _, ax_main = plt.subplots()
+            fig, ax_comparison = plt.subplots()
         else:
             msg = "plot_only must be 'ax_main', 'ax_comparison' or None."
             raise ValueError(msg)
