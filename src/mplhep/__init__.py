@@ -70,9 +70,9 @@ from .utils import (
     set_fitting_ylabel_fontsize,
     set_ylow,
     sort_legend,
+    subplots,
     yscale_anchored_text,
     yscale_legend,
-    subplots,
 )
 
 # Configs
