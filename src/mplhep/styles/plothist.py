@@ -1,6 +1,6 @@
 from cycler import cycler
 
-PLOTHIST = {
+plothist = {
     # General Settings
     "figure.figsize": (6, 4),
     "figure.facecolor": "white",

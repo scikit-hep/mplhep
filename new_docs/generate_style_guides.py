@@ -25,15 +25,15 @@ STYLES = {
         "MAGIC_CODE_INLINE": "",
         "MAGIC_CODE_INLINE_NESTED": "",
     },
-    "PLOTHIST": {
-        "STYLE_NAME": "PLOTHIST",
-        "STYLE_CODE": "PLOTHIST",
-        "STYLE_USE_CODE": "mh.style.use('PLOTHIST')",
-        "LABEL_CODE": "txt_obj = mh.add_text('PLOTHIST', loc='over left')\n    mh.append_text('Demo', txt_obj, loc='right', fontsize='x-small')",
-        "LABEL_CODE_NODATA": "txt_obj = mh.add_text('PLOTHIST', loc='over left')",
-        "LABEL_CODE_DATA": "txt_obj = mh.add_text('PLOTHIST', loc='over left')",
-        "LABEL_CODE_AX": "txt_obj = mh.add_text('PLOTHIST', loc='over left', ax=ax_main)",
-        "LABEL_CODE_LUMI": "txt_obj = mh.add_text('PLOTHIST', loc='over left', ax=ax_main)",
+    "plothist": {
+        "STYLE_NAME": "plothist",
+        "STYLE_CODE": "plothist",
+        "STYLE_USE_CODE": "mh.style.use('plothist')",
+        "LABEL_CODE": "txt_obj = mh.add_text('plothist', loc='over left')\n    mh.append_text('style', txt_obj, loc='right', fontsize='small')",
+        "LABEL_CODE_NODATA": "txt_obj = mh.add_text('plothist', loc='over left')",
+        "LABEL_CODE_DATA": "txt_obj = mh.add_text('plothist', loc='over left')",
+        "LABEL_CODE_AX": "txt_obj = mh.add_text('plothist', loc='over left', ax=ax_main)",
+        "LABEL_CODE_LUMI": "txt_obj = mh.add_text('plothist', loc='over left', ax=ax_main)",
         "MAGIC_CODE": "",
         "MAGIC_CODE_INLINE": "",
         "MAGIC_CODE_INLINE_NESTED": "",
@@ -106,7 +106,7 @@ STYLES = {
 }
 
 # Order of styles in tabs
-STYLE_ORDER = ["Default", "PLOTHIST", "CMS", "ATLAS", "LHCb", "ALICE", "DUNE"]
+STYLE_ORDER = ["Default", "plothist", "CMS", "ATLAS", "LHCb", "ALICE", "DUNE"]
 
 
 def replace_placeholders(content: str, replacements: Dict[str, str]) -> str:

@@ -37,7 +37,7 @@ Here's a quick example showing the primary functionality
     mh.append_text("matplotlib style", txt_obj, loc='right')
     ```
 
-=== "PLOTHIST"
+=== "plothist"
 
     ```python
     # mkdocs: render
@@ -46,15 +46,15 @@ Here's a quick example showing the primary functionality
     import numpy as np
     np.random.seed(42)
     # Set the plotting style
-    mh.style.use("PLOTHIST")
+    mh.style.use("plothist")
 
     # Create a plot
     fig, ax = plt.subplots()
     # Plot a pre-binned histogram
     mh.histplot(*np.histogram(np.random.normal(0, 1, 1000)), ax=ax, label="Data")
     # Add appropriate labels
-    txt_obj = mh.add_text("PLOTHIST", loc='over left')
-    mh.append_text("Demo", txt_obj, loc='right', fontsize='x-small')
+    txt_obj = mh.add_text("plothist", loc='over left')
+    mh.append_text("style", txt_obj, loc='right', fontsize='small')
     ```
 
 
