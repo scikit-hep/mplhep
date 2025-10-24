@@ -65,8 +65,8 @@ import matplotlib.pyplot as plt
 
 from mplhep import (
     add_text,
-    plot_comparison,
-    plot_data_model_comparison,
+    comparison,
+    data_model,
 )
 
 fig, axes = plt.subplots(
@@ -80,7 +80,7 @@ for ax in axes[:-1]:
     ax.set_xlabel(" ")
 background_sum = sum(background_hists)
 
-plot_data_model_comparison(
+data_model(
     data_hist=data_hist,
     stacked_components=background_hists,
     stacked_labels=background_categories_labels,
@@ -103,23 +103,23 @@ add_text(
     r'  $\mathbf{→}$ comparison = "ratio"', ax=axes[1], loc="over left", fontsize=13
 )
 
-for k_comp, comparison in enumerate(
+for k_comp, comp in enumerate(
     ["split_ratio", "pull", "relative_difference", "difference"], start=2
 ):
     ax_comparison = axes[k_comp]
 
-    plot_comparison(
+    comparison(
         data_hist,
         background_sum,
         ax=ax_comparison,
-        comparison=comparison,
+        comparison=comp,
         xlabel="",
         h1_label="Data",
         h2_label="Pred.",
         h1_w2method="poisson",
     )
     add_text(
-        rf'  $\mathbf{{→}}$ comparison = "{comparison}"',
+        rf'  $\mathbf{{→}}$ comparison = "{comp}"',
         ax=ax_comparison,
         fontsize=13,
         loc="over left",

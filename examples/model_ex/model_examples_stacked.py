@@ -62,9 +62,9 @@ signal_hist *= signal_scaling_factor
 
 # --8<-- [start:plot_body]
 ###
-from mplhep import histplot, plot_data_model_comparison
+from mplhep import data_model, histplot
 
-fig, ax_main, ax_comparison = plot_data_model_comparison(
+fig, ax_main, ax_comparison = data_model(
     data_hist=data_hist,
     stacked_components=background_hists,
     stacked_labels=background_categories_labels,

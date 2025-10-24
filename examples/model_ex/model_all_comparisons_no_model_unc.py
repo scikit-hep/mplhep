@@ -84,7 +84,7 @@ for ax in axes[:-1]:
     ax.set_xlabel(" ")
 background_sum = sum(background_hists)
 
-mh.plot_data_model_comparison(
+mh.data_model(
     data_hist=data_hist,
     stacked_components=background_hists,
     stacked_labels=background_labels,
@@ -108,7 +108,7 @@ mh.add_text(
     r'  $\mathbf{→}$ comparison = "ratio"', ax=axes[1], loc="over left", fontsize=13
 )
 
-for k_comp, comparison in enumerate(
+for k_comp, comp in enumerate(
     ["split_ratio", "pull", "relative_difference", "difference"], start=2
 ):
     ax_comparison = axes[k_comp]
@@ -119,21 +119,21 @@ for k_comp, comparison in enumerate(
         background_sum_copy.values(), np.zeros_like(background_sum_copy.values())
     ]
 
-    mh.plot_comparison(
+    mh.comparison(
         data_hist,
         background_sum_copy,
         ax=ax_comparison,
-        comparison=comparison,
+        comparison=comp,
         xlabel="",
         h1_label="Data",
         h2_label="Pred.",
         h1_w2method="poisson",
     )
-    if comparison == "pull":
+    if comp == "pull":
         # Since the uncertainties of the model are neglected, the pull label is "(Data - Pred.)/sigma_Data"
         ax_comparison.set_ylabel(r"$\frac{Data-Pred.}{\sigma_{Data}}$")
     mh.add_text(
-        rf'  $\mathbf{{→}}$ comparison = "{comparison}"',
+        rf'  $\mathbf{{→}}$ comparison = "{comp}"',
         ax=ax_comparison,
         loc="over left",
         fontsize=13,

@@ -39,11 +39,16 @@ from .comparison_functions import (
     get_ratio,
 )
 from .comparison_plotters import (
-    plot_comparison,
-    plot_data_model_comparison,
-    plot_model,
-    plot_two_hist_comparison,
+    comparison,
+    data_model,
+    hists,
+    model,
 )
+
+plot_comparison = comparison
+plot_data_model_comparison = data_model
+plot_model = model
+plot_two_hist_comparison = hists
 from .label import add_text, append_text, save_variations, savelabels
 from .plot import (
     funcplot,
@@ -51,6 +56,8 @@ from .plot import (
     hist2dplot,
     histplot,
 )
+
+plot_hist = histplot
 from .styles import set_style
 from .utils import (
     append_axes,
@@ -121,8 +128,13 @@ __all__ = [
     "merge_legend_handles_labels",
     "mpl_magic",
     "plot",
+    "comparison",
+    "data_model",
+    "model",
+    "hists",
     "plot_comparison",
     "plot_data_model_comparison",
+    "plot_hist",
     "plot_model",
     "plot_two_hist_comparison",
     "rescale_to_axessize",

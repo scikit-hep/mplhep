@@ -37,9 +37,9 @@ def f_background2(x):
 
 # --8<-- [start:plot_body]
 ###
-from mplhep import add_text, plot_model
+from mplhep import add_text, model
 
-fig, ax = plot_model(
+fig, ax = model(
     stacked_components=[f_background1, f_background2],
     stacked_labels=background_categories_labels[:2],
     unstacked_components=[f_signal],
