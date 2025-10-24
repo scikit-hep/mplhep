@@ -115,7 +115,7 @@ for k_comp, comp in enumerate(
         comparison=comp,
         xlabel="",
         h1_label="Data",
-        h2_label="Pred.",
+        h2_label="MC",
         h1_w2method="poisson",
     )
     add_text(

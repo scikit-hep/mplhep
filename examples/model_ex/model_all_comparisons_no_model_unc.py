@@ -126,12 +126,12 @@ for k_comp, comp in enumerate(
         comparison=comp,
         xlabel="",
         h1_label="Data",
-        h2_label="Pred.",
+        h2_label="MC",
         h1_w2method="poisson",
     )
     if comp == "pull":
-        # Since the uncertainties of the model are neglected, the pull label is "(Data - Pred.)/sigma_Data"
-        ax_comparison.set_ylabel(r"$\frac{Data-Pred.}{\sigma_{Data}}$")
+        # Since the uncertainties of the model are neglected, the pull label is "(Data - MC)/sigma_Data"
+        ax_comparison.set_ylabel(r"$\frac{Data-MC}{\sigma_{Data}}$")
     mh.add_text(
         rf'  $\mathbf{{→}}$ comparison = "{comp}"',
         ax=ax_comparison,
