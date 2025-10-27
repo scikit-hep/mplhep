@@ -81,7 +81,7 @@ https://github.com/firamath/firamath
 
 ### Citation
 
-If you've found this library helpful and are able to, please consider citing it. You can find us on [Zenodo](doi.org/10.5281/zenodo.3766157) as a permalink to the latest version. 
+If you've found this library helpful and are able to, please consider citing it. You can find us on [Zenodo](doi.org/10.5281/zenodo.3766157) as a permalink to the latest version.
 
 BiBTeX:
 ```
