@@ -1189,11 +1189,11 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
 
     logger.info(f"Overlap count: {overlap_count}")
     if overlapping_vertices_data:
-        logger.warning(
+        logger.debug(
             f"Total overlapping vertices: {len(overlapping_vertices_data)} in data coordinates: {overlapping_vertices_data}"
         )
     else:
-        logger.warning("No overlapping vertices found")
+        logger.debug("No overlapping vertices found")
 
     if _DEBUG_OVERLAP:
         # Save current axis limits to prevent debug markers from affecting them
