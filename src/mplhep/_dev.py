@@ -350,6 +350,7 @@ class DevScript:
         action: str = "build",
         port: int = 8000,
         clean: bool = True,
+        fast: bool = False,
         extra_args: Optional[List[str]] = None,
     ) -> bool:
         """Build or serve documentation."""
@@ -364,17 +365,28 @@ class DevScript:
             return False
 
         if action == "build":
-            return self._build_docs(clean, extra_args)
+            return self._build_docs(clean, fast, extra_args)
         if action == "serve":
-            return self._serve_docs(port, extra_args)
+            return self._serve_docs(port, fast, extra_args)
         self._print_error(f"Unknown docs action: {action}")
         return False
 
-    def _build_docs(self, clean: bool, extra_args: Optional[List[str]] = None) -> bool:
+    def _build_docs(
+        self, clean: bool, fast: bool, extra_args: Optional[List[str]] = None
+    ) -> bool:
         """Build documentation."""
-        self._print_header("Building Documentation")
+        if fast:
+            self._print_header("Building Documentation (FAST MODE - no figures)")
+            self._print_warning("⚡ Figure rendering disabled for faster builds")
+        else:
+            self._print_header("Building Documentation")
 
         cmd = ["mkdocs", "build"]
+
+        # Use fast config if requested
+        if fast:
+            cmd.extend(["-f", "mkdocs_norender.yml"])
+
         if clean:
             cmd.append("--clean")
 
@@ -385,7 +397,11 @@ class DevScript:
         success = self._run_command(cmd, cwd=self.project_root / "new_docs")
 
         if success:
-            self._print_success("Documentation built successfully!")
+            if fast:
+                self._print_success("Fast documentation build completed!")
+                self._print_warning("Note: Figures were not rendered")
+            else:
+                self._print_success("Documentation built successfully!")
             site_dir = self.project_root / "new_docs" / "site"
             if site_dir.exists():
                 self._print_success(f"Built site available at: {site_dir}")
@@ -394,11 +410,23 @@ class DevScript:
 
         return success
 
-    def _serve_docs(self, port: int, extra_args: Optional[List[str]] = None) -> bool:
+    def _serve_docs(
+        self, port: int, fast: bool, extra_args: Optional[List[str]] = None
+    ) -> bool:
         """Serve documentation locally."""
-        self._print_header(f"Serving Documentation on port {port}")
+        if fast:
+            self._print_header(
+                f"Serving Documentation on port {port} (FAST MODE - no figures)"
+            )
+            self._print_warning("⚡ Figure rendering disabled for faster builds")
+        else:
+            self._print_header(f"Serving Documentation on port {port}")
 
         cmd = ["mkdocs", "serve", "--dev-addr", f"127.0.0.1:{port}"]
+
+        # Use fast config if requested
+        if fast:
+            cmd.extend(["-f", "mkdocs_norender.yml"])
 
         # Add any extra arguments
         if extra_args:
@@ -407,6 +435,10 @@ class DevScript:
         self._print_success(
             f"Documentation will be available at: http://127.0.0.1:{port}"
         )
+        if fast:
+            self._print_warning(
+                "⚡ Fast mode: Builds ~50x faster but figures not rendered"
+            )
         self._print_warning("Press Ctrl+C to stop the server")
 
         # For serve, we don't use confirmation since it's a long-running process
@@ -737,6 +769,7 @@ Docs command options:
   serve            Serve documentation locally
   --port PORT      Port for serve command (default: 8000)
   --no-clean       Skip --clean flag for build command
+  --fast           Fast mode: disable figure rendering (~50x faster builds)
 
 Examples:
   ./dev test -n 4                      # Run tests with 4 jobs
@@ -745,7 +778,9 @@ Examples:
   ./dev benchmark run --save baseline  # Run benchmarks and save as 'baseline'
   ./dev benchmark compare --with baseline  # Compare with 'baseline'
   ./dev benchmark list                 # List available baselines
-  ./dev docs build                     # Build documentation
+  ./dev docs build                     # Build documentation (full with figures)
+  ./dev docs build --fast              # Fast build without figures (~3s vs ~160s)
+  ./dev docs serve --fast              # Serve with fast rebuilds on changes
   ./dev docs serve --port 8080         # Serve documentation on port 8080
   ./dev clean                          # Clean up test artifacts
         """
@@ -1039,8 +1074,22 @@ Examples:
                 "docs_build",
             ),
             (
+                make_menu_item(
+                    "⚡ Build documentation (fast)",
+                    "cd new_docs && mkdocs build -f mkdocs_norender.yml",
+                ),
+                "docs_build_fast",
+            ),
+            (
                 make_menu_item("🌐 Serve documentation", "cd new_docs && mkdocs serve"),
                 "docs_serve",
+            ),
+            (
+                make_menu_item(
+                    "⚡ Serve documentation (fast)",
+                    "cd new_docs && mkdocs serve -f mkdocs_norender.yml",
+                ),
+                "docs_serve_fast",
             ),
             (
                 make_menu_item(
@@ -1085,9 +1134,13 @@ Examples:
                 elif choice == "precommit":
                     self.cmd_precommit()
                 elif choice == "docs_build":
-                    self.cmd_docs("build", clean=True)
+                    self.cmd_docs("build", clean=True, fast=False)
+                elif choice == "docs_build_fast":
+                    self.cmd_docs("build", clean=True, fast=True)
                 elif choice == "docs_serve":
-                    self.cmd_docs("serve", port=8000)
+                    self.cmd_docs("serve", port=8000, fast=False)
+                elif choice == "docs_serve_fast":
+                    self.cmd_docs("serve", port=8000, fast=True)
                 elif choice == "benchmark":
                     self._interactive_benchmark_menu()
                 elif choice == "help":
@@ -1218,6 +1271,11 @@ def main():
         action="store_true",
         help="Skip --clean flag for build command",
     )
+    docs_parser.add_argument(
+        "--fast",
+        action="store_true",
+        help="Fast mode: disable figure rendering for ~50x faster builds",
+    )
 
     # Other commands
     subparsers.add_parser(
@@ -1291,7 +1349,8 @@ def main():
             success = dev.cmd_benchmark(args.action, baseline_name, compare_with)
         elif args.command == "docs":
             clean = not getattr(args, "no_clean", False)
-            success = dev.cmd_docs(args.action, args.port, clean, unknown_args)
+            fast = getattr(args, "fast", False)
+            success = dev.cmd_docs(args.action, args.port, clean, fast, unknown_args)
         elif args.command == "clean":
             success = dev.cmd_clean()
         elif args.command == "precommit":
