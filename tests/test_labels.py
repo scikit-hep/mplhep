@@ -12,12 +12,14 @@ from __future__ import annotations
 import os
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pytest
 
 # Set environment before importing mplhep
 os.environ["RUNNING_PYTEST"] = "true"
 
 import mplhep as mh
+from mplhep.label import exp_label, exp_text
 
 plt.switch_backend("Agg")
 
@@ -237,4 +239,60 @@ def test_append_text_multiline():
 
     _setup_test_plot(ax)
     ax.set_title("Test append_text with multiline text")
+    return fig
+
+
+@pytest.mark.mpl_image_compare(style="default")
+def test_exp_text_scilocator_adjust():
+    """Test scilocator_adjust parameter with scientific notation on y-axis."""
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+
+    # Create plots with scientific notation on y-axis
+    x = np.linspace(0, 10, 100)
+    y = np.sin(x) * 1e6 + 5e6
+
+    ax1.plot(x, y)
+    exp_text(exp="TEST", text="Simulation", loc=0, ax=ax1, scilocator_adjust=True)
+    mh.add_text("scilocator_adjust=True", loc="lower right", ax=ax1, fontsize=10)
+
+    ax2.plot(x, y)
+    exp_text(exp="TEST", text="Simulation", loc=0, ax=ax2, scilocator_adjust=False)
+    mh.add_text("scilocator_adjust=False", loc="lower right", ax=ax2, fontsize=10)
+
+    return fig
+
+
+@pytest.mark.mpl_image_compare(style="default")
+def test_exp_label_scilocator_adjust():
+    """Test scilocator_adjust parameter in exp_label with scientific notation on y-axis."""
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+
+    # Create plots with scientific notation on y-axis
+    x = np.linspace(0, 10, 100)
+    y = np.sin(x) * 1e6 + 5e6
+
+    ax1.plot(x, y)
+    exp_label(
+        exp="TEST",
+        data=False,
+        lumi=138,
+        year=2018,
+        loc=0,
+        ax=ax1,
+        scilocator_adjust=True,
+    )
+    mh.add_text("scilocator_adjust=True", loc="lower right", ax=ax1, fontsize=10)
+
+    ax2.plot(x, y)
+    exp_label(
+        exp="TEST",
+        data=False,
+        lumi=138,
+        year=2018,
+        loc=0,
+        ax=ax2,
+        scilocator_adjust=False,
+    )
+    mh.add_text("scilocator_adjust=False", loc="lower right", ax=ax2, fontsize=10)
+
     return fig

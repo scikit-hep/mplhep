@@ -605,6 +605,7 @@ def exp_text(
     ) = None,
     fontweight: tuple[str, str, str, str] = ("bold", "normal", "normal", "normal"),
     fontstyle: tuple[str, str, str, str] = ("normal", "italic", "normal", "normal"),
+    scilocator_adjust: bool = True,
     **kwargs: Any,
 ) -> tuple[mtext.Text, mtext.Text | None, mtext.Text | None, mtext.Text | None]:
     """Add typical LHC experiment primary label to the axes.
@@ -641,6 +642,10 @@ def exp_text(
         Tuple of fontweights for (exp, text, lumi, supp), by default ("bold", "normal", "normal", "normal").
     fontstyle : tuple[str, str, str, str], optional
         Tuple of fontstyles for (exp, text, lumi, supp), by default ("normal", "italic", "normal", "normal").
+    scilocator_adjust : bool, optional
+        Whether to automatically adjust label position to accommodate scientific notation offset
+        that appears on axes (e.g., "x10³" on y-axis). Only applies to loc positions 0 and 3
+        (above axes), by default True.
     **kwargs
         Additional keyword arguments passed to text functions.
 
@@ -674,16 +679,21 @@ def exp_text(
     _italic_exp, _italic_suff, _italic_lumi, _italic_supp = fontstyle
     _weight_exp, _weight_suff, _weight_lumi, _weight_supp = fontweight
 
-    # Special cases
-    _fmt = ax.get_yaxis().get_major_formatter()
-    if (
-        loc in [0, 3] and hasattr(_fmt, "get_useOffset") and _fmt.get_useOffset()  # type: ignore[attr-defined]
-    ):  # Requires figure.draw call, fetch only when needed
-        ax.figure.draw(ax.figure.canvas.get_renderer())  # type: ignore[attr-defined]
-        _sci_box = _pixel_to_axis(
-            ax.get_yaxis().offsetText.get_window_extent(ax.figure.canvas.get_renderer())  # type: ignore[attr-defined]
-        )
-        _sci_offset = max(0, _sci_box.width * 1.1)
+    # Special cases - detect scientific notation offset only if enabled
+    if scilocator_adjust and loc in [0, 3]:
+        _fmt = ax.get_yaxis().get_major_formatter()
+        if hasattr(_fmt, "get_useOffset") and _fmt.get_useOffset():  # type: ignore[attr-defined]
+            # Requires figure.draw call, fetch only when needed
+            ax.figure.draw(ax.figure.canvas.get_renderer())  # type: ignore[attr-defined,union-attr]
+            _sci_box = _pixel_to_axis(
+                ax.get_yaxis().offsetText.get_window_extent(
+                    ax.figure.canvas.get_renderer()  # type: ignore[attr-defined,union-attr]
+                )  # type: ignore[attr-defined]
+            )
+            # Use abs() to handle cases where extent coordinates may be reversed
+            _sci_offset = max(0, abs(_sci_box.width) * 1.1)
+        else:
+            _sci_offset = 0
     else:
         _sci_offset = 0
 
@@ -815,6 +825,7 @@ def exp_label(
     fontstyle: tuple[str, str, str, str] = ("normal", "italic", "normal", "normal"),
     label: str | None = None,  # Deprecated
     pub: Any = None,  # Deprecated  # noqa: ARG001
+    scilocator_adjust: bool = True,
     ax: Axes | None = None,
     **kwargs: Any,
 ) -> tuple[mtext.Text, mtext.Text | None, mtext.Text | None, mtext.Text | None]:
@@ -868,6 +879,10 @@ def exp_label(
     fontstyle : tuple[str, str, str, str], optional
         Font styles for (exp, text, lumi, supp) elements,
         by default ("normal", "italic", "normal", "normal").
+    scilocator_adjust : bool, optional
+        Whether to automatically adjust label position to accommodate scientific notation offset
+        that appears on axes (e.g., "x10³" on y-axis). Only applies to loc positions 0 and 3
+        (above axes), by default True.
     ax : matplotlib.axes.Axes | None, optional
         Axes object to add labels to. If None, uses current axes.
     **kwargs : Any
@@ -914,6 +929,7 @@ def exp_label(
         fontsize=fontsize,
         fontweight=fontweight,
         fontstyle=fontstyle,
+        scilocator_adjust=scilocator_adjust,
         **kwargs,
     )
 
