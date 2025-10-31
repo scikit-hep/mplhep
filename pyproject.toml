@@ -51,11 +51,11 @@ docs = [
     "mkdocs-git-revision-date-localized-plugin",
     "mkdocs-git-committers-plugin-2",
     "mkdocstrings[python]>=0.20",
+    "griffe_inherited_docstrings",
 ]
 test = [
     "boost_histogram",
     "hist",
-    "plothist_utils",
     "pytest-mock",
     "pytest-mpl",
     "pytest-xdist",

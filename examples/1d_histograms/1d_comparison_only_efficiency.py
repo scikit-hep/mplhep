@@ -10,7 +10,6 @@ Plot the comparison between two 1D histograms.
 import hist
 import matplotlib.pyplot as plt
 import numpy as np
-from hist import Hist
 
 import mplhep as mh
 
@@ -23,16 +22,11 @@ x_total = np.random.normal(0.4, 0.1, 10000)
 x_sample = x_total[:7500]  # 75% subset
 
 # Create and fill histograms
-h_sample = Hist(
-    hist.axis.Regular(50, 0, 1), storage=hist.storage.Weight()
-)  # Long interface
-h_total = hist.new.Regular(50, 0, 1).Weight()  # Shorthand interface
-h_sample.fill(x_sample)
-h_total.fill(x_total)
+h_sample = hist.new.Regular(50, 0, 1).Weight().fill(x_sample)
+h_total = hist.new.Regular(50, 0, 1).Weight().fill(x_total)
 # --8<-- [end:setup]
 
 # --8<-- [start:plot_body]
-# Plot comparison using efficiency
 fig, ax = plt.subplots()
 mh.comp.comparison(h_sample, h_total, ax=ax, xlabel="Variable", comparison="efficiency")
 
