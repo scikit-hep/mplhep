@@ -39,12 +39,15 @@ Official styles for ATLAS, CMS, LHCb, ALICE, and DUNE experiments
 - [Setting experiment labels](guide_styling.md#setting-experiment-labels)
 - [Configuring experiment labels](guide_styling.md#configuring-experiment-labels)
 
-### [**Advanced Features**](guide_advanced.md)
-Experiment-specific label formatters, UHI integration, and best practices
+### [**To go further**](guide_advanced.md)
+Utility functions, experiment-specific label formatters, UHI integration, and best practices
 
-- [Generic Text](guide_advanced.md#generic-text)
+- [Text placement](guide_advanced.md#generic-text)
+- [Working with UHI Histograms](guide_advanced.md#working-with-uhi-histograms)
+- [Best practices](guide_advanced.md#best-practices)
 
 ## More Info
 
-- **Gallery**: See practical examples in the [Gallery](gallery.md)
-- **API Reference**: Full API documentation is available in the [API section](api.md)
+- **[API Reference](api.md)** - Detailed documentation of all functions and parameters
+- **[Gallery](gallery.md)** - Visual examples of all plot types
+- **[Contributing](contributing.md)** - Information on development and testing
