@@ -549,12 +549,13 @@ def subplots(
     Parameters
     ----------
     figsize : tuple[float, float], optional
-        Figure size in inches.
+        Figure size in inches. Default will adjust height based on number of rows.
     nrows : int, optional
-        Number of rows in the subplot grid. Default is 2.
+        Number of rows in the subplot grid. Default is 1.
     gridspec_kw : dict | None, optional
         Additional keyword arguments for the GridSpec. Default is None.
-        If None is provided, this is set to {"height_ratios": [4, 1]}.
+        If None is provided and nrows > 1, height_ratios will be set to
+        give more space to the top subplot.
     hspace : float, optional
         Height spacing between subplots. Default is 0.15.
 

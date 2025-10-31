@@ -328,12 +328,12 @@ def _make_hist_from_function(func, ref_hist):
     ----------
     func : function
         1D function. The function should support vectorization (i.e. accept a numpy array as input).
-    ref_hist : boost_histogram.Histogram
+    ref_hist : EnhancedPlottableHistogram
         The reference 1D histogram to use for the binning.
 
     Returns
     -------
-    hist : boost_histogram.Histogram
+    hist : EnhancedPlottableHistogram
         The histogram filled with the function.
 
     Raises
