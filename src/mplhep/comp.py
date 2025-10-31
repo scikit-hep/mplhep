@@ -16,6 +16,15 @@ plot_comparison = comparison
 plot_data_model_comparison = data_model
 plot_two_hist_comparison = hists
 
+from .comparison_functions import (
+    get_asymmetry,
+    get_comparison,
+    get_difference,
+    get_efficiency,
+    get_pull,
+    get_ratio,
+)
+
 # Alias the module name itself for discoverability
 compare = __import__(__name__)
 
@@ -27,4 +36,10 @@ __all__ = [
     "data_model",
     "plot_data_model_comparison",
     "compare",
+    "get_ratio",
+    "get_difference",
+    "get_efficiency",
+    "get_pull",
+    "get_comparison",
+    "get_asymmetry",
 ]

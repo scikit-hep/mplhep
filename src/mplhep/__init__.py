@@ -30,23 +30,7 @@ from ._utils import (
     _make_plottable_histogram as make_plottable_histogram,
 )
 from ._version import version as __version__  # noqa: F401
-from .comparison_functions import (
-    get_asymmetry,
-    get_comparison,
-    get_difference,
-    get_efficiency,
-    get_pull,
-    get_ratio,
-)
-from .comparison_plotters import (
-    comparison,
-    data_model,
-    hists,
-)
 
-plot_comparison = comparison
-plot_data_model_comparison = data_model
-plot_two_hist_comparison = hists
 from .label import add_text, append_text, save_variations, savelabels
 from .plot import (
     funcplot,
