@@ -84,7 +84,7 @@ for ax in axes[:-1]:
     ax.set_xlabel(" ")
 background_sum = sum(background_hists)
 
-mh.data_model(
+mh.comp.data_model(
     data_hist=data_hist,
     stacked_components=background_hists,
     stacked_labels=background_labels,
@@ -119,7 +119,7 @@ for k_comp, comp in enumerate(
         background_sum_copy.values(), np.zeros_like(background_sum_copy.values())
     ]
 
-    mh.comparison(
+    mh.comp.comparison(
         data_hist,
         background_sum_copy,
         ax=ax_comparison,

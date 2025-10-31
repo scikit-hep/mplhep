@@ -8,6 +8,11 @@ pytest_results/
 .nox/
 .vscode/
 new_docs/site/
+uv.lock
+new_docs/docs/guide_advanced.md
+new_docs/docs/guide_comparisons.md
+new_docs/docs/guide_styling.md
+new_docs/docs/guide_basic_plotting.md
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -121,6 +126,3 @@ venv.bak/
 /docs/source/_generated/
 /tmp/
 /docs/source/_static/_generated/
-
-# Generated guide
-new_docs/docs/guide.md

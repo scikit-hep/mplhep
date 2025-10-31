@@ -13,6 +13,7 @@ search:
         - histplot
         - hist2dplot
         - funcplot
+        - hist
         - add_text
         - append_text
       show_root_heading: true
@@ -25,7 +26,9 @@ search:
       members:
         - histplot
         - hist2dplot
+        - model
         - funcplot
+        - hist
       show_root_heading: true
       show_source: false
 
@@ -42,6 +45,13 @@ search:
       filters:
         - "mplhep._compat.filter_deprecated"
     heading_level: 2
+    options:
+      show_root_heading: true
+      show_source: false
+
+## Utilities
+
+::: mplhep.utils
     options:
       show_root_heading: true
       show_source: false
@@ -98,14 +108,5 @@ search:
       members:
         - label
         - text
-      show_root_heading: true
-      show_source: false
-
-
-
-## Utilities
-
-::: mplhep.utils
-    options:
       show_root_heading: true
       show_source: false

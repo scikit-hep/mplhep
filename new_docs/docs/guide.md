@@ -25,13 +25,12 @@ Functions for 1D and 2D pre-binned histograms with support for the [Unified Hist
 - [2D Histograms](guide_basic_plotting.md#2d-histograms)
 
 ### [**Comparison Plotting**](guide_comparisons.md)
-High-level functions for data-model comparisons with ratio, pull, and difference panels
+High-level functions for data-model comparisons.
 
-- [Comparisons](guide_comparisons.md#comparisons)
-    - [Two histograms](guide_comparisons.md#two-histograms)
-    - [Data-MC](guide_comparisons.md#data-mc)
+- [Compare two histograms](guide_comparisons.md#two-histograms)
+- [Data-MC comparison](guide_comparisons.md#data-mc)
     - [Showcasing more options](guide_comparisons.md#showcasing-more-options)
-    - [Additional examples](guide_comparisons.md#additional-examples)
+- [Additional examples](guide_comparisons.md#additional-examples)
 
 ### [**Styling**](guide_styling.md)
 Official styles for ATLAS, CMS, LHCb, ALICE, and DUNE experiments
@@ -40,12 +39,15 @@ Official styles for ATLAS, CMS, LHCb, ALICE, and DUNE experiments
 - [Setting experiment labels](guide_styling.md#setting-experiment-labels)
 - [Configuring experiment labels](guide_styling.md#configuring-experiment-labels)
 
-### [**Advanced Features**](guide_advanced.md)
-Experiment-specific label formatters, UHI integration, and best practices
+### [**To go further**](guide_advanced.md)
+Utility functions, experiment-specific label formatters, UHI integration, and best practices
 
-- [Generic Text](guide_advanced.md#generic-text)
+- [Text placement](guide_advanced.md#generic-text)
+- [Working with UHI Histograms](guide_advanced.md#working-with-uhi-histograms)
+- [Best practices](guide_advanced.md#best-practices)
 
 ## More Info
 
-- **Gallery**: See practical examples in the [Gallery](gallery.md)
-- **API Reference**: Full API documentation is available in the [API section](api.md)
+- **[API Reference](api.md)** - Detailed documentation of all functions and parameters
+- **[Gallery](gallery.md)** - Visual examples of all plot types
+- **[Contributing](contributing.md)** - Information on development and testing
