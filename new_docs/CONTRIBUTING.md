@@ -6,17 +6,16 @@ This directory contains an automated system for generating a single `guide.md` f
 
 Instead of manually maintaining separate guide files for each experiment style or manually maintaining one file with all the tabs, we use a template-based approach:
 
-1. **Template File**: `docs/guide_template.md` contains the guide content with tab placeholders ({{TABS_START}}/{{TABS_END}})
+1. **Template Files**: `docs/*_template.md` contains the contents with tab placeholders ({{TABS_START}}/{{TABS_END}})
 2. **Generation Script**: `generate_style_guides.py` expands tabs with style-specific code for each experiment
 3. **MkDocs Hook**: `docs_hooks.py` automatically runs the script before each build
-4. **Generated File**: Single `docs/guide.md` with tabs for CMS, ATLAS, LHCb, ALICE, DUNE, and plothist
+4. **Generated Files**: Single `docs/*.md` without the `_template`, with tabs for CMS, ATLAS, LHCb, ALICE, DUNE, and plothist
 
 ## Files
 
-- `docs/guide_template.md` - Single source template with `{{TABS_START}}/{{TABS_END}}` markers
+- `docs/*_template.md` - Templates with `{{TABS_START}}/{{TABS_END}}` markers
 - `generate_style_guides.py` - Script to generate guide.md with experiment tabs
 - `docs_hooks.py` - MkDocs hook that runs the generation script automatically
-- `docs/guide.md` - Generated guide with tabs for all styles
 
 ## How It Works
 
@@ -78,14 +77,14 @@ mkdocs serve   # Guide is generated on startup
 
 ## Making Changes
 
-### To update the guide:
+### To update the templates:
 
-1. Edit `docs/guide_template.md` (NOT `docs/guide.md`)
+1. Edit `docs/*_template.md`
 2. For content that should be the same across all styles, edit it directly
 3. For content that varies by style, use `{{TABS_START}}` ... `{{TABS_END}}` markers
 4. Test generation: `python generate_style_guides.py`
 5. Build docs: `mkdocs build` or `mkdocs serve`
-6. The `docs/guide.md` file will be regenerated automatically
+6. `docs/*.md` without the `_template` files will be regenerated automatically
 
 ### To add a new style:
 
@@ -165,7 +164,7 @@ This generates:
 
 ### Guide not updating
 
-Make sure you're editing `docs/guide_template.md`, not `docs/guide.md`.
+Make sure you're editing `docs/*_template.md`.
 
 ### Build errors
 
