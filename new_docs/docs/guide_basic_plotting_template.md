@@ -597,12 +597,11 @@ Use `hist2dplot()` for 2D histogram visualization:
     ```python
     # mkdocs: render
         # mkdocs: align=left
-    import matplotlib.pyplot as plt
-    import mplhep as mh
-    import numpy as np
-    np.random.seed(42)
-    {{STYLE_USE_CODE}}
-
+    import matplotlib.pyplot as plt  # mkdocs: hide
+    import mplhep as mh  # mkdocs: hide
+    import numpy as np  # mkdocs: hide
+    np.random.seed(42)  # mkdocs: hide
+    {{STYLE_USE_CODE}}  # mkdocs: hide
     # Generate 2D data
     x = np.random.normal(0, 1, 5000)
     y = np.random.normal(0, 1, 5000)

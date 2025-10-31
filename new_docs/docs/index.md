@@ -12,7 +12,7 @@ Install mplhep using pip:
 pip install mplhep
 ```
 
-## Simple Example
+### Simple Example
 
 Here's a quick example showing the primary functionality
 
@@ -196,9 +196,16 @@ print(svg)  # markdown-exec: hide
 
 ## [User Guide](guide.md)
 
+Step-by-step instructions on how to use mplhep for your HEP plotting needs, explaining key features and functionalities.
+
+
 ## [Gallery](gallery.md)
+
+A collection of example plots created using mplhep, showcasing various plot types.
 
 - [1D Histogram Comparisons](gallery.md#1d-histogram-comparisons)
 - [Model Comparisons](gallery.md#model-comparisons)
 
 ## [API](api.md)
+
+Comprehensive reference documentation for all functions, classes, and modules in mplhep.

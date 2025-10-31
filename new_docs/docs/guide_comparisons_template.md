@@ -1,6 +1,12 @@
-# Comparison Plotting
+# Comparing histograms
 
-This section covers mplhep's comparison and compound plotting tools.
+mplhep provides dedicated comparison plotters in the `comp` module for creating plots with different comparison panels. The following functions are available:
+
+- `comp.hists()`: compare two histograms, plot the main plot and a comparison panel.
+- `comp.data_model()`: compare a model made of histograms or functions to data, plot the main plot and a comparison panel.
+- `comp.comparison()`: to only plot the comparison panel given two histograms.
+- `comp.get_comparison()`: to get the `[values, lower_uncertainties, upper_uncertainties]` for a given comparison type.
+
 
 ??? tip "Prerequisites"
     Throughout this guide the following codeblock is assumed.
@@ -13,16 +19,7 @@ This section covers mplhep's comparison and compound plotting tools.
     # mh.style.use('<as appropriate>')
     ```
 
-## Comparisons
-
-mplhep provides dedicated comparison plotters in the `comp` module for creating plots with different comparison panels. The following functions are available:
-
-- `comp.hists()`: compare two histograms, plot the main plot and a comparison panel.
-- `comp.data_model()`: compare a model made of histograms or functions to data, plot the main plot and a comparison panel.
-- `comp.comparison()`: to only plot the comparison panel given two histograms.
-- `comp.get_comparison()`: to get the `[values, lower_uncertainties, upper_uncertainties]` for a given comparison type.
-
-### Two histograms
+### Comparing two histograms
 
 To compare two histograms, use `mh.comp.hists()`:
 
@@ -45,13 +42,12 @@ The `comparison` parameter accepts:
         ```python
         # mkdocs: render
             # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import mplhep as mh
-        import numpy as np
-        import hist
-        np.random.seed(42)
-        {{STYLE_USE_CODE}}
-
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
         # Generate sample data and model
         x1 = np.random.normal(0, 1, 1000)
         x2 = np.random.normal(0, 1.05, 1000)
@@ -76,13 +72,12 @@ The `comparison` parameter accepts:
         ```python
         # mkdocs: render
             # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import mplhep as mh
-        import numpy as np
-        import hist
-        np.random.seed(42)
-        {{STYLE_USE_CODE}}
-
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
         # Generate sample data and model
         x1 = np.random.normal(0, 1, 1000)
         x2 = np.random.normal(0, 1.05, 1000)
@@ -107,13 +102,12 @@ The `comparison` parameter accepts:
         ```python
         # mkdocs: render
             # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import mplhep as mh
-        import numpy as np
-        import hist
-        np.random.seed(42)
-        {{STYLE_USE_CODE}}
-
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
         # Generate sample data and model
         x1 = np.random.normal(0, 1, 1000)
         x2 = np.random.normal(0, 1.05, 1000)
@@ -138,13 +132,12 @@ The `comparison` parameter accepts:
         ```python
         # mkdocs: render
             # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import mplhep as mh
-        import numpy as np
-        import hist
-        np.random.seed(42)
-        {{STYLE_USE_CODE}}
-
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
         # Generate sample data and model
         x1 = np.random.normal(0, 1, 1000)
         x2 = np.random.normal(0, 1.05, 1000)
@@ -169,13 +162,12 @@ The `comparison` parameter accepts:
         ```python
         # mkdocs: render
             # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import mplhep as mh
-        import numpy as np
-        import hist
-        np.random.seed(42)
-        {{STYLE_USE_CODE}}
-
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
         # Generate sample data and model
         x1 = np.random.normal(0, 1, 1000)
         x2 = np.random.normal(0, 1.05, 1000)
@@ -200,13 +192,12 @@ The `comparison` parameter accepts:
         ```python
         # mkdocs: render
             # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import mplhep as mh
-        import numpy as np
-        import hist
-        np.random.seed(42)
-        {{STYLE_USE_CODE}}
-
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
         # Generate sample data and model
         x1 = np.random.normal(0, 1, 1000)
         x2 = np.random.normal(0, 1.05, 1000)
@@ -231,13 +222,12 @@ The `comparison` parameter accepts:
         ```python
         # mkdocs: render
             # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import mplhep as mh
-        import numpy as np
-        import hist
-        np.random.seed(42)
-        {{STYLE_USE_CODE}}
-
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
         # Generate sample data and model
         x2 = np.random.normal(0, 1, 1000)
         x1 = np.random.choice(x2, size=500, replace=False)
@@ -274,13 +264,12 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         ```python
         # mkdocs: render
             # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import numpy as np
-        import hist
-        import mplhep as mh
-        np.random.seed(42)
-        {{STYLE_USE_CODE}}
-
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
         # Generate signal, backgrounds, and data
         x1 = np.random.normal(0, 1, 1400)
         x2 = np.random.normal(1, 0.5, 1000)
@@ -307,13 +296,12 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         ```python
         # mkdocs: render
             # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import numpy as np
-        import hist
-        import mplhep as mh
-        np.random.seed(42)
-        {{STYLE_USE_CODE}}
-
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
         # Generate signal, backgrounds, and data
         x1 = np.random.normal(0, 1, 1400)
         x2 = np.random.normal(1, 0.5, 1000)
@@ -344,14 +332,13 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         ```python
         # mkdocs: render
             # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import numpy as np
-        import hist
-        import mplhep as mh
-        import scipy
-        np.random.seed(42)
-        {{STYLE_USE_CODE}}
-
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import scipy  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
         # Define component functions
         def f_signal(x):
             return 200 * scipy.stats.norm.pdf(x, loc=0.5, scale=3)
@@ -385,14 +372,13 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         ```python
         # mkdocs: render
             # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import numpy as np
-        import hist
-        import mplhep as mh
-        from scipy.stats import norm
-        np.random.seed(42)
-        {{STYLE_USE_CODE}}
-
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        from scipy.stats import norm  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
         # Define component functions
         def f_signal(x):
             return 200 * norm.pdf(x, loc=0.5, scale=3)
@@ -437,13 +423,12 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         ```python
         # mkdocs: render
             # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import numpy as np
-        import hist
-        import mplhep as mh
-        np.random.seed(42)
-        {{STYLE_USE_CODE}}
-
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
         # Generate signal, backgrounds, and data
         x1 = np.random.normal(0, 1, 1400)
         x2 = np.random.normal(1, 0.5, 1000)
@@ -471,13 +456,12 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         ```python
         # mkdocs: render
             # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import numpy as np
-        import hist
-        import mplhep as mh
-        np.random.seed(42)
-        {{STYLE_USE_CODE}}
-
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
         # Generate signal, backgrounds, and data
         x1 = np.random.normal(0, 1, 1400)
         x2 = np.random.normal(1, 0.5, 1000)
@@ -506,13 +490,12 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         ```python
         # mkdocs: render
             # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import numpy as np
-        import hist
-        import mplhep as mh
-        np.random.seed(42)
-        {{STYLE_USE_CODE}}
-
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
         # Generate signal, backgrounds, and data
         x1 = np.random.normal(0, 1, 1400)
         x2 = np.random.normal(1, 0.5, 1000)
@@ -544,13 +527,12 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
         ```python
         # mkdocs: render
             # mkdocs: align=left
-        import matplotlib.pyplot as plt
-        import numpy as np
-        import hist
-        import mplhep as mh
-        np.random.seed(42)
-        {{STYLE_USE_CODE}}
-
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
         # Generate signal, backgrounds, and data
         x1 = np.random.normal(0, 1, 1400)
         x2 = np.random.normal(1, 0.5, 1000)
@@ -585,12 +567,11 @@ The functions are very flexible, here is some additional examples showcasing mor
     ```python
     # mkdocs: render
         # mkdocs: align=left
-    import numpy as np
-    import hist
-    import mplhep as mh
-    np.random.seed(42)
-    {{STYLE_USE_CODE}}
-
+    import numpy as np  # mkdocs: hide
+    import hist  # mkdocs: hide
+    import mplhep as mh  # mkdocs: hide
+    np.random.seed(42)  # mkdocs: hide
+    {{STYLE_USE_CODE}}  # mkdocs: hide
     # Generate training and testing histograms for two classes
     x1_train = np.random.normal(0, 0.3, 2000)
     x1_test = np.random.normal(0, 0.3, 1000)
@@ -648,6 +629,9 @@ The functions are very flexible, here is some additional examples showcasing mor
         h2_label="Test",
         color=colors[1],
     )
+
+    for ax in axes:
+        ax.set_xlim(0, 1)
 
     axes[0].set_ylabel("Normalized Entries")
     axes[0].legend()

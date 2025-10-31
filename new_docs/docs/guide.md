@@ -25,13 +25,12 @@ Functions for 1D and 2D pre-binned histograms with support for the [Unified Hist
 - [2D Histograms](guide_basic_plotting.md#2d-histograms)
 
 ### [**Comparison Plotting**](guide_comparisons.md)
-High-level functions for data-model comparisons with ratio, pull, and difference panels
+High-level functions for data-model comparisons.
 
-- [Comparisons](guide_comparisons.md#comparisons)
-    - [Two histograms](guide_comparisons.md#two-histograms)
-    - [Data-MC](guide_comparisons.md#data-mc)
+- [Compare two histograms](guide_comparisons.md#two-histograms)
+- [Data-MC comparison](guide_comparisons.md#data-mc)
     - [Showcasing more options](guide_comparisons.md#showcasing-more-options)
-    - [Additional examples](guide_comparisons.md#additional-examples)
+- [Additional examples](guide_comparisons.md#additional-examples)
 
 ### [**Styling**](guide_styling.md)
 Official styles for ATLAS, CMS, LHCb, ALICE, and DUNE experiments
