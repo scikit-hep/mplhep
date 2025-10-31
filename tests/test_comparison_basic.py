@@ -4,7 +4,7 @@ import boost_histogram as bh
 import numpy as np
 import pytest
 
-from mplhep.comp import get_comparison
+from mplhep import comp
 
 
 @pytest.fixture
@@ -58,14 +58,14 @@ def test_difference_simple_values(setup_bh_histograms, setup_np_histograms):
     """
     h1, h2 = setup_bh_histograms(h1_fill=[1] * 100, h2_fill=[1] * 50)
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h1, h2, comparison="difference"
     )
     assert pytest.approx(values) == np.array([50.0])
     assert pytest.approx(high_uncertainty) == np.array([12.24744871391589])
     assert pytest.approx(low_uncertainty) == high_uncertainty
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h1, h2, h1_w2method="poisson", comparison="difference"
     )
     assert pytest.approx(values) == np.array([50.0])
@@ -75,7 +75,7 @@ def test_difference_simple_values(setup_bh_histograms, setup_np_histograms):
     # No variances
     h1, h2 = setup_np_histograms(h1_fill=[1] * 100, h2_fill=[1] * 50)
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h1, h2, comparison="difference"
     )
     assert pytest.approx(values) == np.array([50.0])
@@ -85,7 +85,7 @@ def test_difference_simple_values(setup_bh_histograms, setup_np_histograms):
     # Variances and no variances
     h1, _ = setup_bh_histograms(h1_fill=[1] * 100)
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h1, h2, comparison="difference"
     )
     assert pytest.approx(values) == np.array([50.0])
@@ -102,14 +102,14 @@ def test_ratio_simple_values(setup_bh_histograms, setup_np_histograms):
     """
     h1, h2 = setup_bh_histograms(h1_fill=[1] * 10, h2_fill=[1] * 100)
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h1, h2, comparison="ratio"
     )
     assert pytest.approx(values) == np.array([0.1])
     assert pytest.approx(high_uncertainty) == np.array([0.03316625])
     assert pytest.approx(low_uncertainty) == high_uncertainty
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h1, h2, h1_w2method="poisson", comparison="ratio"
     )
     assert pytest.approx(values) == np.array([0.1])
@@ -119,7 +119,7 @@ def test_ratio_simple_values(setup_bh_histograms, setup_np_histograms):
     # No variances
     h1, h2 = setup_np_histograms(h1_fill=[1] * 10, h2_fill=[1] * 100)
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h1, h2, comparison="ratio"
     )
     assert pytest.approx(values) == np.array([0.1])
@@ -129,7 +129,7 @@ def test_ratio_simple_values(setup_bh_histograms, setup_np_histograms):
     # Variances and no variances
     h1, _ = setup_bh_histograms(h1_fill=[1] * 10)
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h1, h2, comparison="ratio"
     )
     assert pytest.approx(values) == np.array([0.1])
@@ -146,14 +146,14 @@ def test_split_ratio_simple_values(setup_bh_histograms, setup_np_histograms):
     """
     h1, h2 = setup_bh_histograms(h1_fill=[1] * 10, h2_fill=[1] * 100)
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h1, h2, comparison="split_ratio"
     )
     assert pytest.approx(values) == np.array([0.1])
     assert pytest.approx(high_uncertainty) == np.array([0.0316227766016838])
     assert pytest.approx(low_uncertainty) == high_uncertainty
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h1, h2, h1_w2method="poisson", comparison="split_ratio"
     )
     assert pytest.approx(values) == np.array([0.1])
@@ -163,14 +163,14 @@ def test_split_ratio_simple_values(setup_bh_histograms, setup_np_histograms):
     # No variances
     h1, h2 = setup_np_histograms(h1_fill=[1] * 10, h2_fill=[1] * 100)
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h1, h2, comparison="split_ratio"
     )
     assert pytest.approx(values) == np.array([0.1])
     assert pytest.approx(high_uncertainty) == np.array([0])
     assert pytest.approx(low_uncertainty) == np.array([0])
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h1, h2, h1_w2method="poisson", comparison="split_ratio"
     )
     assert pytest.approx(values) == np.array([0.1])
@@ -180,14 +180,14 @@ def test_split_ratio_simple_values(setup_bh_histograms, setup_np_histograms):
     # Variances and no variances
     h1, _ = setup_bh_histograms(h1_fill=[1] * 10)
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h1, h2, comparison="split_ratio"
     )
     assert pytest.approx(values) == np.array([0.1])
     assert pytest.approx(high_uncertainty) == np.array([0])
     assert pytest.approx(low_uncertainty) == np.array([0])
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h1, h2, h1_w2method="poisson", comparison="split_ratio"
     )
     assert pytest.approx(values) == np.array([0.1])
@@ -204,14 +204,14 @@ def test_pull_simple_values(setup_bh_histograms, setup_np_histograms):
     """
     h1, h2 = setup_bh_histograms(h1_fill=[1] * 50, h2_fill=[1] * 100)
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h1, h2, comparison="pull"
     )
     assert pytest.approx(values) == np.array([-4.08248290463863])
     assert pytest.approx(high_uncertainty) == np.array([1.0])
     assert pytest.approx(low_uncertainty) == high_uncertainty
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h1, h2, comparison="pull", h1_w2method="poisson"
     )
     assert pytest.approx(values) == np.array([-3.8818568847803108])
@@ -226,7 +226,7 @@ def test_pull_simple_values(setup_bh_histograms, setup_np_histograms):
         ValueError,
         match=r"Both histograms must have variances defined to compute the pull.",
     ):
-        get_comparison(h1, h2, comparison="pull")
+        comp.get_comparison(h1, h2, comparison="pull")
 
     # Variances and no variances
     h1, _ = setup_bh_histograms(h1_fill=[1] * 50)
@@ -235,7 +235,7 @@ def test_pull_simple_values(setup_bh_histograms, setup_np_histograms):
         ValueError,
         match=r"Both histograms must have variances defined to compute the pull.",
     ):
-        get_comparison(h1, h2, comparison="pull")
+        comp.get_comparison(h1, h2, comparison="pull")
 
 
 # --- Asymmetry ---
@@ -247,7 +247,7 @@ def test_asymmetry_simple_values(setup_bh_histograms, setup_np_histograms):
     """
     h1, h2 = setup_bh_histograms(h1_fill=[1] * 100, h2_fill=[1] * 50)
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h1, h2, comparison="asymmetry"
     )
     assert pytest.approx(values) == np.array([0.3333333333333333])
@@ -257,7 +257,7 @@ def test_asymmetry_simple_values(setup_bh_histograms, setup_np_histograms):
     # No variances
     h1, h2 = setup_np_histograms(h1_fill=[1] * 100, h2_fill=[1] * 50)
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h1, h2, comparison="asymmetry"
     )
     assert pytest.approx(values) == np.array([0.3333333333333333])
@@ -267,7 +267,7 @@ def test_asymmetry_simple_values(setup_bh_histograms, setup_np_histograms):
     # Variances and no variances
     h1, _ = setup_bh_histograms(h1_fill=[1] * 100)
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h1, h2, comparison="asymmetry"
     )
     assert pytest.approx(values) == np.array([0.3333333333333333])
@@ -303,7 +303,7 @@ def test_efficiency_subsample():
             "The ratio of two correlated histograms (efficiency) can only be computed if the bin contents of h1 are a subsample of the bin contents of h2."
         ),
     ):
-        get_comparison(h1, h2, comparison="efficiency")
+        comp.get_comparison(h1, h2, comparison="efficiency")
 
 
 def test_efficiency_no_variances(setup_np_histograms):
@@ -316,7 +316,7 @@ def test_efficiency_no_variances(setup_np_histograms):
         RuntimeError,
         match=r"Variances are not set, cannot determine if histogram is unweighted.",
     ):
-        get_comparison(h1, h2, comparison="efficiency")
+        comp.get_comparison(h1, h2, comparison="efficiency")
 
 
 def simple_efficiency_uncertainty(total, sample):
@@ -345,7 +345,7 @@ def test_efficiency_simple_values():
     )
     h2.fill([1] * n2)
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h2, h1, comparison="efficiency"
     )
     assert pytest.approx(values) == np.array([0.1])
@@ -374,7 +374,7 @@ def test_efficiency_simple_values():
     )
     h2.fill([1] * n2)
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h2, h1, comparison="efficiency"
     )
 

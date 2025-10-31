@@ -51,9 +51,9 @@ def f_background2(x):
 
 # --8<-- [start:plot_body]
 ###
-from mplhep.comp import data_model
+from mplhep import comp
 
-fig, ax_main, ax_comparison = data_model(
+fig, ax_main, ax_comparison = comp.data_model(
     data_hist=data_hist,
     stacked_components=[f_background1, f_background2],
     stacked_labels=["c0", "c1"],

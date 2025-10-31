@@ -59,9 +59,9 @@ background_hists = [background_scaling_factor * h for h in background_hists]
 
 # --8<-- [start:plot_body]
 ###
-from mplhep.comp import data_model
+from mplhep import comp
 
-fig, ax_main, ax_comparison = data_model(
+fig, ax_main, ax_comparison = comp.data_model(
     data_hist=data_hist,
     stacked_components=background_hists,
     stacked_labels=background_categories_labels,

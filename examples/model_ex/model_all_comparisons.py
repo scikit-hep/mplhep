@@ -63,8 +63,7 @@ background_hists = [background_scaling_factor * h for h in background_hists]
 ###
 import matplotlib.pyplot as plt
 
-from mplhep import add_text
-from mplhep.comp import comparison, data_model
+from mplhep import comp
 
 fig, axes = plt.subplots(
     nrows=6,
@@ -77,7 +76,7 @@ for ax in axes[:-1]:
     ax.set_xlabel(" ")
 background_sum = sum(background_hists)
 
-data_model(
+comp.data_model(
     data_hist=data_hist,
     stacked_components=background_hists,
     stacked_labels=background_categories_labels,
@@ -90,33 +89,33 @@ data_model(
     ax_comparison=axes[1],
 )
 
-add_text(
+mh.add_text(
     r"Multiple data-model comparisons, $\mathbf{with}$ model uncertainty",
     ax=axes[0],
     loc="over left",
     fontsize="small",
 )
-add_text(
+mh.add_text(
     r'  $\mathbf{→}$ comparison = "ratio"', ax=axes[1], loc="over left", fontsize=13
 )
 
-for k_comp, comp in enumerate(
+for k_comp, comparison in enumerate(
     ["split_ratio", "pull", "relative_difference", "difference"], start=2
 ):
     ax_comparison = axes[k_comp]
 
-    comparison(
+    comp.comparison(
         data_hist,
         background_sum,
         ax=ax_comparison,
-        comparison=comp,
+        comparison=comparison,
         xlabel="",
         h1_label="Data",
         h2_label="MC",
         h1_w2method="poisson",
     )
-    add_text(
-        rf'  $\mathbf{{→}}$ comparison = "{comp}"',
+    mh.add_text(
+        rf'  $\mathbf{{→}}$ comparison = "{comparison}"',
         ax=ax_comparison,
         fontsize=13,
         loc="over left",

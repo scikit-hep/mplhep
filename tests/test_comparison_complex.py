@@ -2,7 +2,7 @@ import boost_histogram as bh
 import numpy as np
 import pytest
 
-from mplhep.comp import get_comparison
+from mplhep import comp
 
 
 @pytest.fixture
@@ -30,7 +30,7 @@ def test_difference_complex_values(setup_histograms):
     """
     h1, h2 = setup_histograms
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h2, h1, comparison="difference"
     )
 
@@ -53,7 +53,7 @@ def test_difference_complex_values(setup_histograms):
     )
     assert pytest.approx(high_uncertainty) == low_uncertainty
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h2, h1, comparison="difference", h1_w2method="poisson"
     )
 
@@ -96,7 +96,7 @@ def test_ratio_complex_values(setup_histograms):
     """
     h1, h2 = setup_histograms
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h2, h1, comparison="ratio"
     )
 
@@ -130,7 +130,7 @@ def test_ratio_complex_values(setup_histograms):
     )
     assert pytest.approx(high_uncertainty) == low_uncertainty
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h2, h1, comparison="ratio", h1_w2method="poisson"
     )
 
@@ -184,7 +184,7 @@ def test_split_ratio_complex_values(setup_histograms):
     """
     h1, h2 = setup_histograms
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h2, h1, comparison="split_ratio"
     )
 
@@ -218,7 +218,7 @@ def test_split_ratio_complex_values(setup_histograms):
     )
     assert pytest.approx(high_uncertainty) == low_uncertainty
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h2, h1, comparison="split_ratio", h1_w2method="poisson"
     )
 
@@ -272,7 +272,7 @@ def test_pull_complex_values(setup_histograms):
     """
     h1, h2 = setup_histograms
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h2, h1, comparison="pull"
     )
 
@@ -293,7 +293,7 @@ def test_pull_complex_values(setup_histograms):
     assert pytest.approx(high_uncertainty) == np.array([1.0] * 10)
     assert pytest.approx(high_uncertainty) == low_uncertainty
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h2, h1, comparison="pull", h1_w2method="poisson"
     )
 
@@ -321,7 +321,7 @@ def test_asymmetry_complex_values(setup_histograms):
     """
     h1, h2 = setup_histograms
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h2, h1, comparison="asymmetry"
     )
 
@@ -374,7 +374,7 @@ def test_efficiency_complex_values():
     )
     h2.fill(x2)
 
-    values, high_uncertainty, low_uncertainty = get_comparison(
+    values, high_uncertainty, low_uncertainty = comp.get_comparison(
         h2, h1, comparison="efficiency"
     )
 
