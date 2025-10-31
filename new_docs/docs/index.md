@@ -203,9 +203,6 @@ Step-by-step instructions on how to use mplhep for your HEP plotting needs, expl
 
 A collection of example plots created using mplhep, showcasing various plot types.
 
-- [1D Histogram Comparisons](gallery.md#1d-histogram-comparisons)
-- [Model Comparisons](gallery.md#model-comparisons)
-
 ## [API](api.md)
 
 Comprehensive reference documentation for all functions, classes, and modules in mplhep.

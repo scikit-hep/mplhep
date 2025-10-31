@@ -16,7 +16,7 @@ This section covers the core plotting functionality of mplhep for plotting 1D an
 
 ## 1D Histogram Plotting
 
-`mh.histplot()` works with multiple histogram formats through the UHI protocol:
+[`mh.histplot()`][mplhep.histplot] works with multiple histogram formats through the UHI protocol:
 
 ### Supported Input Formats
 
@@ -589,7 +589,7 @@ Control histogram normalization with `density` and `binwnorm` parameters:
 
 ## 2D Histograms
 
-Use `hist2dplot()` for 2D histogram visualization:
+Use [`mh.hist2dplot()`][mplhep.hist2dplot] for 2D histogram visualization:
 
 {{TABS_START}}
 {{TAB_HEADER}}

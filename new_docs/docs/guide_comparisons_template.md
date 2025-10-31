@@ -1,12 +1,11 @@
 # Comparing histograms
 
-mplhep provides dedicated comparison plotters in the `comp` module for creating plots with different comparison panels. The following functions are available:
+mplhep provides dedicated comparison plotters in the `mh.comp` module for creating plots with different comparison panels. The following functions are available:
 
-- `comp.hists()`: compare two histograms, plot the main plot and a comparison panel.
-- `comp.data_model()`: compare a model made of histograms or functions to data, plot the main plot and a comparison panel.
-- `comp.comparison()`: to only plot the comparison panel given two histograms.
-- `comp.get_comparison()`: to get the `[values, lower_uncertainties, upper_uncertainties]` for a given comparison type.
-
+- [`mh.comp.hists()`][mplhep.comp.hists]: compare two histograms, plot the main plot and a comparison panel.
+- [`mh.comp.data_model()`][mplhep.comp.data_model]: compare a model made of histograms or functions to data, plot the main plot and a comparison panel.
+- [`mh.comp.comparison()`][mplhep.comp.comparison]: to only plot the comparison panel given two histograms.
+- [`mh.comp.get_comparison()`][mplhep.comp.get_comparison]: to get the `[values, lower_uncertainties, upper_uncertainties]` for a given comparison type.
 
 ??? tip "Prerequisites"
     Throughout this guide the following codeblock is assumed.
@@ -21,17 +20,17 @@ mplhep provides dedicated comparison plotters in the `comp` module for creating 
 
 ### Comparing two histograms
 
-To compare two histograms, use `mh.comp.hists()`:
+To compare two histograms, use [`mh.comp.hists()`][mplhep.comp.hists]. This function takes two histograms as input and creates a figure with a main plot showing both histograms and a comparison panel below it.
 
 The `comparison` parameter accepts:
 
-- `'ratio'`: $\frac{\text{h1}}{\text{h2}}$
-- `'pull'`: $\frac{\text{h1} - \text{h2}}{\sqrt{\sigma_{\text{h1}}^2 + \sigma_{\text{h2}}^2}}$
-- `'difference'`: $\text{h1} - \text{h2}$
-- `'relative_difference'`: $\frac{\text{h1} - \text{h2}}{\text{h2}}$
-- `'asymmetry'`: $\frac{\text{h1} - \text{h2}}{\text{h1} + \text{h2}}$
-- `'efficiency'`: $\frac{\text{h1}}{\text{h2}}$ (with uncertainties from [eq.19 here](https://arxiv.org/pdf/physics/0701199v1))
-- `'split_ratio'`: same as ratio, but the uncertainties of `h1` and `h2` are shown separately in the comparison panel (used extensively in data/model comparisons, see next section)
+- `ratio`: $\frac{\text{h1}}{\text{h2}}$
+- `pull`: $\frac{\text{h1} - \text{h2}}{\sqrt{\sigma_{\text{h1}}^2 + \sigma_{\text{h2}}^2}}$
+- `difference`: $\text{h1} - \text{h2}$
+- `relative_difference`: $\frac{\text{h1} - \text{h2}}{\text{h2}}$
+- `asymmetry`: $\frac{\text{h1} - \text{h2}}{\text{h1} + \text{h2}}$
+- `efficiency`: $\frac{\text{h1}}{\text{h2}}$ (with uncertainties from [eq.19 here](https://arxiv.org/pdf/physics/0701199v1))
+- `split_ratio`: same as ratio, but the uncertainties of `h1` and `h2` are shown separately in the comparison panel (used extensively in data/model comparisons, see [below](#data-mc))
 
 
 {{TABS_START}}
@@ -253,7 +252,7 @@ The `comparison` parameter accepts:
 
 ### Data-MC
 
-To compare data to a model made of multiple components (e.g. signal, backgrounds...), use `mh.comp.data_model()`. The function is very flexible, it can accept any number of stacked and/or unstacked components, either as histograms or functions. It will then compare the sum of the components to the data, with the comparison of your choice. The default comparison is the `split_ratio` between the model and the data. It can take any comparison method available in `mh.comp.hists()`.
+To compare data to a model made of multiple components (e.g. signal, backgrounds...), use [`mh.comp.data_model()`][mplhep.comp.data_model]. The function is very flexible, it can accept any number of stacked and/or unstacked components, either as histograms or functions. It will then compare the sum of the components to the data, with the comparison of your choice. The default comparison is the `split_ratio` between the model and the data. It can take any comparison method available in [`mh.comp.hists()`][mplhep.comp.hists].
 
 
 {{TABS_START}}
@@ -413,7 +412,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
 
 ### Showcasing more options
 
-`mh.comp.hists()` is very flexible and can be customized further. For more examples and details, see the [API Reference](api.md#mplhep.comp.hists) and the [Gallery](gallery.md). Here is a selection of additional examples showcasing some of the available options.
+[`mh.comp.data_model()`][mplhep.comp.data_model] is very flexible and can be customized further. For more examples and details, see the [API Reference](api.md#mplhep.comp.data_model) and the [Gallery](gallery.md). Here is a selection of additional examples showcasing some of the available options.
 
 {{TABS_START}}
 {{TAB_HEADER}}

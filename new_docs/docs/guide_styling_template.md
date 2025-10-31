@@ -15,7 +15,7 @@ This section covers additional information about styling.
 
 ### Setting experiment styles
 
-Styles are applied globally using `mh.style.use()`, which is just a thin wrapper on `plt.style.use()`, with some extra goodies:
+Styles are applied globally using [`mh.style.use()`][mplhep.style.use], which is just a thin wrapper on `plt.style.use()`, with some extra goodies:
 
 {{TABS_START}}
 {{TAB_HEADER}}
@@ -38,7 +38,7 @@ Styles are applied globally using `mh.style.use()`, which is just a thin wrapper
 
     === "Style as a dict"
 
-        Styles are simple dictinaries that configure `mpl.rcParams`.
+        Styles are simple dictionaries that configure `mpl.rcParams`.
 
         ```python
         # mkdocs: render
@@ -83,7 +83,7 @@ Styles are applied globally using `mh.style.use()`, which is just a thin wrapper
 
 
 !!! warning
-    Due to matplotlib limitations, `with plt.style.context()` does not work reliably with mplhep styles, especially for fonts. Use `mh.style.use()` globally instead.
+    Due to matplotlib limitations, `with plt.style.context()` does not work reliably with mplhep styles, especially for fonts. Use [`mh.style.use()`][mplhep.style.use] globally instead.
 
 
 ### Setting experiment labels

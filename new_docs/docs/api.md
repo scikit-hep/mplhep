@@ -13,6 +13,7 @@ search:
         - histplot
         - hist2dplot
         - funcplot
+        - hist
         - add_text
         - append_text
       show_root_heading: true
