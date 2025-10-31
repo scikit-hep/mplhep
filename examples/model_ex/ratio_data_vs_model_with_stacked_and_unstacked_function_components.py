@@ -51,7 +51,7 @@ def f_background2(x):
 
 # --8<-- [start:plot_body]
 ###
-from mplhep import data_model
+from mplhep.comp import data_model
 
 fig, ax_main, ax_comparison = data_model(
     data_hist=data_hist,

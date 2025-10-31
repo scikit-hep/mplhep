@@ -30,7 +30,6 @@ from ._utils import (
     _make_plottable_histogram as make_plottable_histogram,
 )
 from ._version import version as __version__  # noqa: F401
-
 from .label import add_text, append_text, save_variations, savelabels
 from .plot import (
     funcplot,
@@ -96,13 +95,7 @@ __all__ = [
     "comp",
     "dune",
     "funcplot",
-    "get_asymmetry",
-    "get_comparison",
-    "get_difference",
-    "get_efficiency",
     "get_plottables",
-    "get_pull",
-    "get_ratio",
     "hist",
     "hist2dplot",
     # Log plot functions
@@ -114,15 +107,9 @@ __all__ = [
     "merge_legend_handles_labels",
     "mpl_magic",
     "plot",
-    "comparison",
-    "data_model",
     "model",
-    "hists",
-    "plot_comparison",
-    "plot_data_model_comparison",
     "plot_hist",
     "plot_model",
-    "plot_two_hist_comparison",
     "rescale_to_axessize",
     "save_variations",
     "savelabels",

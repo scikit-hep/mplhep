@@ -4,7 +4,7 @@ import boost_histogram as bh
 import numpy as np
 import pytest
 
-from mplhep import get_comparison
+from mplhep.comp import get_comparison
 
 
 @pytest.fixture

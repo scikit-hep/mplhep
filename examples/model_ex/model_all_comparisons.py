@@ -63,11 +63,8 @@ background_hists = [background_scaling_factor * h for h in background_hists]
 ###
 import matplotlib.pyplot as plt
 
-from mplhep import (
-    add_text,
-    comparison,
-    data_model,
-)
+from mplhep import add_text
+from mplhep.comp import comparison, data_model
 
 fig, axes = plt.subplots(
     nrows=6,
