@@ -7,80 +7,58 @@ All supported comparisons between data and model.
 
 # --8<-- [start:full_code]
 # --8<-- [start:imports]
-from plothist_utils import get_dummy_data
-
-df = get_dummy_data()
-
+import hist
+import matplotlib.pyplot as plt
+import numpy as np
 import seaborn as sns
 
 import mplhep as mh
 
+np.random.seed(42)
 # --8<-- [end:imports]
 
 # --8<-- [start:setup]
-# Define the histograms
-
-key = "variable_1"
-x_range = (-9, 12)
-category = "category"
-
-# Define masks
-signal_mask = df[category] == 7
-data_mask = df[category] == 8
-
-background_categories = [0, 1, 2]
-background_categories_labels = [f"c{i}" for i in background_categories]
-background_categories_colors = sns.color_palette(
-    "cubehelix", len(background_categories)
+# Create data histogram with mixed components
+data_hist = hist.new.Regular(50, -8, 8).Weight()
+data_hist.fill(
+    np.concatenate(
+        [
+            np.random.normal(0, 2, 3000),
+            np.random.normal(-3, 0.8, 1500),
+            np.random.normal(-2, 1.5, 1200),
+            np.random.normal(0, 0.5, 300),
+        ]
+    )
 )
 
-background_masks = [df[category] == p for p in background_categories]
+# Create background component histograms
+background_hists = [
+    hist.new.Regular(50, -8, 8).Weight().fill(np.random.normal(0, 2, 3500)),
+    hist.new.Regular(50, -8, 8).Weight().fill(np.random.normal(-3, 0.8, 1800)),
+    hist.new.Regular(50, -8, 8).Weight().fill(np.random.normal(-2, 1.5, 1400)),
+]
 
-# Make histograms
-import hist
-from hist import Hist
-
-axis = hist.axis.Regular(50, x_range[0], x_range[1])
-
-data_hist = Hist(axis, storage=hist.storage.Weight())
-signal_hist = Hist(axis, storage=hist.storage.Weight())
-background_hists = []
-
-data_hist.fill(df[key][data_mask])
-signal_hist.fill(df[key][signal_mask])
-
-for mask in background_masks:
-    h_bkg = Hist(axis, storage=hist.storage.Weight())
-    h_bkg.fill(df[key][mask])
-    background_hists.append(h_bkg)
-
-# Optional: scale to data
-background_scaling_factor = data_hist.sum().value / sum(background_hists).sum().value
-background_hists = [background_scaling_factor * h for h in background_hists]
+# Scale backgrounds to match data
+scale = data_hist.sum().value / sum(background_hists).sum().value
+background_hists = [scale * h for h in background_hists]
 # --8<-- [end:setup]
 
 # --8<-- [start:plot_body]
-###
-import matplotlib.pyplot as plt
-
-from mplhep import comp
-
 fig, axes = plt.subplots(
-    nrows=6,
-    figsize=(6, 13),
-    gridspec_kw={"height_ratios": [3, 1, 1, 1, 1, 1]},
+    nrows=6, figsize=(6, 13), gridspec_kw={"height_ratios": [3, 1, 1, 1, 1, 1]}
 )
 fig.subplots_adjust(hspace=0.3)
+
+# Hide x-axis labels for all but the bottom plot
 for ax in axes[:-1]:
     ax.xaxis.set_ticklabels([])
     ax.set_xlabel(" ")
-background_sum = sum(background_hists)
 
-comp.data_model(
+mh.comp.data_model(
     data_hist=data_hist,
     stacked_components=background_hists,
-    stacked_labels=background_categories_labels,
-    stacked_colors=background_categories_colors,
+    stacked_labels=["c0", "c1", "c2"],
+    stacked_colors=sns.color_palette("cubehelix", 3),
     xlabel="",
     ylabel="Entries",
     comparison="ratio",
@@ -99,28 +77,27 @@ mh.add_text(
     r'  $\mathbf{→}$ comparison = "ratio"', ax=axes[1], loc="over left", fontsize=13
 )
 
-for k_comp, comparison in enumerate(
+# Add remaining comparison types
+for k, comp in enumerate(
     ["split_ratio", "pull", "relative_difference", "difference"], start=2
 ):
-    ax_comparison = axes[k_comp]
-
-    comp.comparison(
+    mh.comp.comparison(
         data_hist,
-        background_sum,
-        ax=ax_comparison,
-        comparison=comparison,
+        sum(background_hists),
+        ax=axes[k],
+        comparison=comp,
         xlabel="",
         h1_label="Data",
         h2_label="MC",
         h1_w2method="poisson",
     )
     mh.add_text(
-        rf'  $\mathbf{{→}}$ comparison = "{comparison}"',
-        ax=ax_comparison,
+        rf'  $\mathbf{{→}}$ comparison = "{comp}"',
+        ax=axes[k],
         fontsize=13,
         loc="over left",
     )
-    mh.set_fitting_ylabel_fontsize(ax_comparison)
+    mh.set_fitting_ylabel_fontsize(axes[k])
 
 axes[-1].set_xlabel("Observable")
 # --8<-- [end:plot_body]

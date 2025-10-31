@@ -11,7 +11,6 @@ import hist
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-from hist import Hist
 
 import mplhep as mh
 
@@ -35,14 +34,13 @@ data_data = np.concatenate(
         np.random.normal(0, 2.5, 3500),  # Less background here
         np.random.normal(3, 1.2, 1800),  # Similar background
         np.random.normal(-1, 1.8, 1400),  # Similar background
-        np.random.normal(5, 0.8, 800),  # Clear signal peak
+        np.random.normal(0, 0.8, 500),  # Clear signal peak
         np.random.normal(-3, 0.5, 200),  # Some deficit here (under-predicted)
     ]
 )
 
 # Create histograms
-data_hist = Hist(hist.axis.Regular(50, -8, 8), storage=hist.storage.Weight())
-data_hist.fill(data_data)
+data_hist = hist.new.Regular(50, -8, 8).Weight().fill(data_data)
 
 background_hists = [
     hist.new.Regular(50, -8, 8).Weight().fill(bkg1_data),
