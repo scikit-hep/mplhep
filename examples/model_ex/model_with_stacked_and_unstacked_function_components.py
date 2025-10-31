@@ -7,22 +7,17 @@ Plot a model with stacked and unstacked functional components.
 
 # --8<-- [start:full_code]
 # --8<-- [start:imports]
-key = "variable_1"
-range = (-9, 12)
-
-background_categories = [0, 1, 2]
-background_categories_labels = [f"c{i}" for i in background_categories]
-
-
-# Define some random functions that will be used as model components with functions
 from scipy.stats import norm
+
+import mplhep as mh
 
 # --8<-- [end:imports]
 
 
 # --8<-- [start:setup]
+# Define model function components
 def f_signal(x):
-    return 1000 * norm.pdf(x, loc=0.5, scale=3)
+    return 600 * norm.pdf(x, loc=0.2, scale=3)
 
 
 def f_background1(x):
@@ -30,28 +25,25 @@ def f_background1(x):
 
 
 def f_background2(x):
-    return 3000 * norm.pdf(x, loc=-1.8, scale=1.8)
+    return 3000 * norm.pdf(x, loc=-3.2, scale=1.2)
 
 
 # --8<-- [end:setup]
 
 # --8<-- [start:plot_body]
-###
-from mplhep import add_text, model
-
-fig, ax = model(
+fig, ax = mh.model(
     stacked_components=[f_background1, f_background2],
-    stacked_labels=background_categories_labels[:2],
+    stacked_labels=["c0", "c1"],
     unstacked_components=[f_signal],
     unstacked_labels=["Signal"],
     unstacked_colors=["black"],
-    xlabel=key,
-    ylabel=f"f({key})",
+    xlabel="Observable",
+    ylabel="f(Observable)",
     model_sum_kwargs={"show": True, "label": "Model", "color": "navy"},
-    function_range=range,
+    function_range=(-9, 12),
 )
 
-add_text("Model made of functions", ax=ax, loc="over left", fontsize="small")
+mh.add_text("Model made of functions", ax=ax, loc="over left", fontsize="small")
 # --8<-- [end:plot_body]
 
 # --8<-- [end:full_code]
