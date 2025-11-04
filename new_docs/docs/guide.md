@@ -27,8 +27,8 @@ Functions for 1D and 2D pre-binned histograms with support for the [Unified Hist
 ### [**Comparison Plotting**](guide_comparisons.md)
 High-level functions for data-model comparisons.
 
-- [Compare two histograms](guide_comparisons.md#two-histograms)
-- [Data-MC comparison](guide_comparisons.md#data-mc)
+- [Compare two histograms](guide_comparisons.md#comparing-two-histograms)
+- [Data-MC comparison](guide_comparisons.md#data-mc-comparison)
     - [Showcasing more options](guide_comparisons.md#showcasing-more-options)
 - [Additional examples](guide_comparisons.md#additional-examples)
 
@@ -42,7 +42,7 @@ Official styles for ATLAS, CMS, LHCb, ALICE, and DUNE experiments
 ### [**To go further**](guide_advanced.md)
 Utility functions, experiment-specific label formatters, UHI integration, and best practices
 
-- [Text placement](guide_advanced.md#generic-text)
+- [Text placement](guide_advanced.md#text-placement)
 - [Working with UHI Histograms](guide_advanced.md#working-with-uhi-histograms)
 - [Best practices](guide_advanced.md#best-practices)
 
