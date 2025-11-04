@@ -59,6 +59,7 @@ def hists(
     ylabel=None,
     h1_label="h1",
     h2_label="h2",
+    flow="hint",
     fig=None,
     ax_main=None,
     ax_comparison=None,
@@ -81,6 +82,8 @@ def hists(
         The label for the first histogram. Default is "h1".
     h2_label : str, optional
         The label for the second histogram. Default is "h2".
+    flow : str, optional
+        Whether to plot under/overflow bins. Options are "hint" (default, show hint markers), "show" (display overflow bins), "sum" (add overflow to edge bins), or "none" (no overflow display).
     fig : matplotlib.figure.Figure or None, optional
         The figure to use for the plot. If fig, ax_main and ax_comparison are None, a new figure will be created. Default is None.
     ax_main : matplotlib.axes.Axes or None, optional
@@ -119,8 +122,8 @@ def hists(
 
     xlim = (h1_plottable.edges_1d()[0], h1_plottable.edges_1d()[-1])
 
-    histplot(h1_plottable, ax=ax_main, label=h1_label, histtype="step")
-    histplot(h2_plottable, ax=ax_main, label=h2_label, histtype="step")
+    histplot(h1_plottable, ax=ax_main, label=h1_label, histtype="step", flow=flow)
+    histplot(h2_plottable, ax=ax_main, label=h2_label, histtype="step", flow=flow)
     ax_main.set_xlim(xlim)
     ax_main.set_ylabel(ylabel)
     ax_main.legend()
@@ -133,6 +136,7 @@ def hists(
         xlabel=xlabel,
         h1_label=h1_label,
         h2_label=h2_label,
+        flow=flow,
         **comparison_kwargs,
     )
 
@@ -152,6 +156,7 @@ def comparison(
     comparison_ylabel=None,
     comparison_ylim=None,
     h1_w2method="sqrt",
+    flow="hint",
     **histplot_kwargs,
 ):
     """
@@ -181,6 +186,8 @@ def comparison(
     h1_w2method : str, optional
         What kind of bin uncertainty to use for h1: "sqrt" for the Poisson standard deviation derived from the variance stored in the histogram object, "poisson" for asymmetrical uncertainties based on a Poisson confidence interval. Default is "sqrt".
         Asymmetrical uncertainties are not supported for the asymmetry and efficiency comparisons.
+    flow : str, optional
+        Whether to plot under/overflow bins. Options are "hint" (default, show hint markers), "show" (display overflow bins), "sum" (add overflow to edge bins), or "none" (no overflow display).
     **histplot_kwargs : optional
         Arguments to be passed to histplot(), called in case the comparison is "pull", or plot_error_hist(), called for every other comparison case. In the former case, the default arguments are histtype="stepfilled" and color="darkgrey". In the later case, the default argument is color="black".
 
@@ -234,11 +241,11 @@ def comparison(
     if comparison == "pull":
         histplot_kwargs.setdefault("histtype", "fill")
         histplot_kwargs.setdefault("color", "darkgrey")
-        histplot(comparison_plottable, ax=ax, **histplot_kwargs)
+        histplot(comparison_plottable, ax=ax, flow=flow, **histplot_kwargs)
     else:
         histplot_kwargs.setdefault("color", "black")
         histplot_kwargs.setdefault("histtype", "errorbar")
-        histplot(comparison_plottable, ax=ax, **histplot_kwargs)
+        histplot(comparison_plottable, ax=ax, flow=flow, **histplot_kwargs)
 
     if comparison in ["ratio", "split_ratio", "relative_difference"]:
         if comparison_ylim is None:
@@ -371,6 +378,7 @@ def data_model(
     model_uncertainty=True,
     model_uncertainty_label="MC stat. unc.",
     data_w2method="poisson",
+    flow="hint",
     fig=None,
     ax_main=None,
     ax_comparison=None,
@@ -417,6 +425,8 @@ def data_model(
         The label for the model uncertainties. Default is "MC stat. unc.".
     data_w2method : str, optional
         What kind of bin uncertainty to use for data_hist: "sqrt" for the Poisson standard deviation derived from the variance stored in the histogram object, "poisson" for asymmetrical uncertainties based on a Poisson confidence interval. Default is "poisson".
+    flow : str, optional
+        Whether to plot under/overflow bins. Options are "hint" (default, show hint markers), "show" (display overflow bins), "sum" (add overflow to edge bins), or "none" (no overflow display).
     fig : matplotlib.figure.Figure or None, optional
         The figure to use for the plot. If fig, ax_main and ax_comparison are None, a new figure will be created. Default is None.
     ax_main : matplotlib.axes.Axes or None, optional
@@ -523,6 +533,7 @@ def data_model(
         ],
         model_uncertainty=model_uncertainty,
         model_uncertainty_label=model_uncertainty_label,
+        flow=flow,
         fig=fig,
         ax=ax_main,
     )
@@ -534,6 +545,7 @@ def data_model(
         color="black",
         label=data_label,
         histtype="errorbar",
+        flow=flow,
     )
 
     if plot_only == "ax_main":
@@ -569,6 +581,7 @@ def data_model(
         ax=ax_comparison,
         xlabel=xlabel,
         w2method=data_w2method,
+        flow=flow,
         **comparison_kwargs,
     )
 

@@ -1277,6 +1277,7 @@ def model(
     function_range=None,
     model_uncertainty=True,
     model_uncertainty_label="MC stat. unc.",
+    flow="hint",
     fig=None,
     ax=None,
 ):
@@ -1316,6 +1317,8 @@ def model(
         If False, set the model uncertainties to zeros. Default is True.
     model_uncertainty_label : str, optional
         The label for the model uncertainties. Default is "MC stat. unc.".
+    flow : str, optional
+        Whether to plot under/overflow bins. Options are "hint" (default, show hint markers), "show" (display overflow bins), "sum" (add overflow to edge bins), or "none" (no overflow display).
     fig : matplotlib.figure.Figure or None, optional
         The Figure object to use for the plot. Create a new one if none is provided.
     ax : matplotlib.axes.Axes or None, optional
@@ -1392,6 +1395,7 @@ def model(
                 stack=True,
                 color=stacked_colors,
                 label=stacked_labels,
+                flow=flow,
                 **stacked_kwargs,
             )
             if model_uncertainty and len(unstacked_components) == 0:
@@ -1400,6 +1404,7 @@ def model(
                     ax=ax,
                     label=model_uncertainty_label,
                     histtype="band",
+                    flow=flow,
                 )
         else:
             funcplot(
@@ -1434,6 +1439,7 @@ def model(
                     stack=False,
                     color=color,
                     label=label,
+                    flow=flow,
                     **unstacked_kwargs,
                 )
             else:
@@ -1457,6 +1463,7 @@ def model(
                     sum(components),
                     ax=ax,
                     histtype="step",
+                    flow=flow,
                     **model_sum_kwargs,
                 )
                 if (
@@ -1468,6 +1475,7 @@ def model(
                         ax=ax,
                         label=model_uncertainty_label,
                         histtype="band",
+                        flow=flow,
                     )
             else:
 
@@ -1487,7 +1495,11 @@ def model(
             and model_type == "histograms"
         ):
             histplot(
-                sum(components), ax=ax, label=model_uncertainty_label, histtype="band"
+                sum(components),
+                ax=ax,
+                label=model_uncertainty_label,
+                histtype="band",
+                flow=flow,
             )
 
     ax.set_xlim(xlim)
