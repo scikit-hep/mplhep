@@ -20,17 +20,19 @@ mplhep provides dedicated comparison plotters in the `mh.comp` module for creati
 
 ### Comparing two histograms
 
+#### Available methods
+
 To compare two histograms, use [`mh.comp.hists()`][mplhep.comp.hists]. This function takes two histograms as input and creates a figure with a main plot showing both histograms and a comparison panel below it.
 
 The `comparison` parameter accepts:
 
 - `ratio`: $\frac{\text{h1}}{\text{h2}}$
+- `split_ratio`: same as ratio, but the uncertainties of `h1` and `h2` are shown separately in the comparison panel (used extensively in data/model comparisons, see [below](#data-mc))
 - `pull`: $\frac{\text{h1} - \text{h2}}{\sqrt{\sigma_{\text{h1}}^2 + \sigma_{\text{h2}}^2}}$
 - `difference`: $\text{h1} - \text{h2}$
 - `relative_difference`: $\frac{\text{h1} - \text{h2}}{\text{h2}}$
 - `asymmetry`: $\frac{\text{h1} - \text{h2}}{\text{h1} + \text{h2}}$
 - `efficiency`: $\frac{\text{h1}}{\text{h2}}$ (with uncertainties from [eq.19 here](https://arxiv.org/pdf/physics/0701199v1))
-- `split_ratio`: same as ratio, but the uncertainties of `h1` and `h2` are shown separately in the comparison panel (used extensively in data/model comparisons, see [below](#data-mc))
 
 
 {{TABS_START}}
@@ -249,8 +251,58 @@ The `comparison` parameter accepts:
 {{TABS_END}}
 
 
+#### Only plot the comparison panel
 
-### Data-MC
+To only plot the comparison panel given two histograms, use [`mh.comp.comparison()`][mplhep.comp.comparison]. This function takes two histograms as input and creates a figure with only the comparison panel.
+
+
+{{TABS_START}}
+{{TAB_HEADER}}
+
+    ```python
+    # mkdocs: render
+        # mkdocs: align=left
+    import matplotlib.pyplot as plt  # mkdocs: hide
+    import mplhep as mh  # mkdocs: hide
+    import numpy as np  # mkdocs: hide
+    import hist  # mkdocs: hide
+    np.random.seed(42)  # mkdocs: hide
+    {{STYLE_USE_CODE}}  # mkdocs: hide
+    # Generate sample data and model
+    x1 = np.random.normal(0, 1, 1000)
+    x2 = np.random.normal(0, 1.05, 1000)
+    h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+    h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+    # Create comparison panel only
+    fig, ax = plt.subplots()
+
+    mh.comp.comparison(
+        h1,
+        h2,
+        comparison='ratio',
+        xlabel='Observable [GeV]',
+        h1_label='h1',
+        h2_label='h2',
+        ax=ax
+    )
+    {{LABEL_CODE_LUMI_OPEN}}{{MAGIC_CODE_INLINE}}
+    ```
+
+{{TABS_END}}
+
+To get the `[values, lower_uncertainties, upper_uncertainties]` for a given comparison type without plotting, use [`mh.comp.get_comparison()`][mplhep.comp.get_comparison]:
+
+```python
+values, lower_uncertainties, upper_uncertainties = mh.comp.get_comparison(
+    h1,
+    h2,
+    comparison='ratio'
+)
+```
+
+
+### Data-MC comparison
 
 To compare data to a model made of multiple components (e.g. signal, backgrounds...), use [`mh.comp.data_model()`][mplhep.comp.data_model]. The function is very flexible, it can accept any number of stacked and/or unstacked components, either as histograms or functions. It will then compare the sum of the components to the data, with the comparison of your choice. The default comparison is the `split_ratio` between the model and the data. It can take any comparison method available in [`mh.comp.hists()`][mplhep.comp.hists].
 
@@ -410,7 +462,7 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
 
 {{TABS_END}}
 
-### Showcasing more options
+#### Showcasing more options
 
 [`mh.comp.data_model()`][mplhep.comp.data_model] is very flexible and can be customized further. For more examples and details, see the [API Reference](api.md#mplhep.comp.data_model) and the [Gallery](gallery.md). Here is a selection of additional examples showcasing some of the available options.
 

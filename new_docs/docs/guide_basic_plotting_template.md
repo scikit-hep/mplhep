@@ -182,7 +182,7 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
         mh.histplot(h, histtype='bar', label='Bar histogram', ax=ax)
-        # For more `mpl.hist`-like plots
+        # If only one histogram is provided, it will be treated as "fill" histtype, if multiple data are given the bars are arranged side by side (see next section)
         ```
 
     === "Barstep"
@@ -199,7 +199,7 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
         mh.histplot(h, histtype='barstep', label='Barstep histogram', ax=ax)
-        # For more `mpl.hist`-like plots
+        # If one histogram is provided, it will be treated as "step" histtype. If multiple data are given the bars are arranged side by side (see next section)
         ```
 
 {{TABS_END}}
@@ -207,12 +207,14 @@ Control the appearance with the `histtype` parameter. Select an experiment style
 
 ### Multiple Histograms
 
-Plot multiple histograms on the same axes with different stacking and sorting options:
+#### Stack
+
+[`mh.histplot()`][mplhep.histplot] supports plotting multiple histograms in one call. They can be stacked using the `stack=True` parameter:
 
 {{TABS_START}}
 {{TAB_HEADER}}
 
-    === "Overlay"
+    === "Unstacked fill"
 
         ```python
         # mkdocs: render
@@ -225,43 +227,15 @@ Plot multiple histograms on the same axes with different stacking and sorting op
         {{STYLE_USE_CODE}}  # mkdocs: hide
         # Create histograms and fill them
         h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
-        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
-        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
-
-        fig, ax = plt.subplots()
-        mh.histplot(
-            [h1, h2, h3],
-            stack=True,
-            label=['Background 1', 'Signal', 'Background 2'],
-            ax=ax
-        )
-        {{LABEL_CODE_NODATA}}{{MAGIC_CODE_INLINE_NESTED}}
-        ax.legend(loc='upper right')
-        mh.yscale_legend(soft_fail=True)
-        ```
-
-    === "Fill"
-
-        ```python
-        # mkdocs: render
-        # mkdocs: align=left
-        import matplotlib.pyplot as plt  # mkdocs: hide
-        import mplhep as mh  # mkdocs: hide
-        import numpy as np  # mkdocs: hide
-        import hist  # mkdocs: hide
-        np.random.seed(42)  # mkdocs: hide
-        {{STYLE_USE_CODE}}  # mkdocs: hide
-        # Create histograms and fill them
-        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
-        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
-        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
 
         fig, ax = plt.subplots()
         mh.histplot(
             [h1, h2, h3],
             histtype='fill',
             alpha=0.7,
-            label=['Background 1', 'Signal', 'Background 2'],
+            label=['Background 1', 'Background 2', 'Signal'],
             ax=ax
         )
         ax.legend(loc='upper right')
@@ -269,7 +243,7 @@ Plot multiple histograms on the same axes with different stacking and sorting op
         ```
 
 
-    === "Stacked"
+    === "Stacked fill"
 
         ```python
         # mkdocs: render
@@ -282,16 +256,15 @@ Plot multiple histograms on the same axes with different stacking and sorting op
         {{STYLE_USE_CODE}}  # mkdocs: hide
         # Create histograms and fill them
         h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
-        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
-        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
 
         fig, ax = plt.subplots()
         mh.histplot(
             [h1, h2, h3],
             histtype='fill',
             stack=True,
-            alpha=0.7,
-            label=['Background 1', 'Signal', 'Background 2'],
+            label=['Background 1', 'Background 2', 'Signal'],
             ax=ax
         )
         ax.legend(loc='upper right')
@@ -311,8 +284,8 @@ Plot multiple histograms on the same axes with different stacking and sorting op
         {{STYLE_USE_CODE}}  # mkdocs: hide
         # Create histograms and fill them
         h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
-        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
-        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
 
         fig, ax = plt.subplots()
         mh.histplot(
@@ -320,8 +293,7 @@ Plot multiple histograms on the same axes with different stacking and sorting op
             histtype='fill',
             stack=True,
             sort='yield',
-            alpha=0.7,
-            label=['Background 1', 'Signal', 'Background 2'],
+            label=['Background 1', 'Background 2', 'Signal'],
             ax=ax
         )
         ax.legend(loc='upper right')
@@ -341,8 +313,8 @@ Plot multiple histograms on the same axes with different stacking and sorting op
         {{STYLE_USE_CODE}}  # mkdocs: hide
         # Create histograms and fill them
         h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
-        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
-        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
 
         fig, ax = plt.subplots()
         mh.histplot(
@@ -350,8 +322,7 @@ Plot multiple histograms on the same axes with different stacking and sorting op
             histtype='fill',
             stack=True,
             sort='label',
-            alpha=0.7,
-            label=['Background 1', 'Signal', 'Background 2'],
+            label=['Background 1', 'Background 2', 'Signal'],
             ax=ax
         )
         ax.legend(loc='upper right')
@@ -371,8 +342,8 @@ Plot multiple histograms on the same axes with different stacking and sorting op
         {{STYLE_USE_CODE}}  # mkdocs: hide
         # Create histograms and fill them
         h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
-        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
-        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
 
         fig, ax = plt.subplots()
         mh.histplot(
@@ -380,16 +351,115 @@ Plot multiple histograms on the same axes with different stacking and sorting op
             histtype='fill',
             stack=True,
             sort='l_r',
-            alpha=0.7,
-            label=['Background 1', 'Signal', 'Background 2'],
+            label=['Background 1', 'Background 2', 'Signal'],
             ax=ax
         )
         ax.legend(loc='upper right')
         mh.yscale_legend(soft_fail=True)
         ```
 
+    === "With errorbars"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(-1, 0.8, 800))
+        h2 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(2, 0.6, 600))
+        h3 = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0.5, 1.2, 1200))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            stack=True,
+            label=['Background 1', 'Background 2', 'Signal'],
+            ax=ax
+        )
+        {{LABEL_CODE_NODATA}}{{MAGIC_CODE_INLINE_NESTED}}
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        ```
+
 {{TABS_END}}
 
+#### Side by Side
+
+When plotting multiple histograms, the `histtype` can be set to `'bar'` or `'barstep'` to create side-by-side bar plots, just like `matplotlib`:
+
+{{TABS_START}}
+{{TAB_HEADER}}
+
+    === "Bar"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(6, 0, 6).Weight().fill(np.random.poisson(0.5, 200))
+        h2 = hist.new.Reg(6, 0, 6).Weight().fill(np.random.poisson(1.0, 300))
+        h3 = hist.new.Reg(6, 0, 6).Weight().fill(np.random.poisson(1.2, 500))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='bar',
+            label=['$h_1$', '$h_2$', '$h_3$'],
+            ax=ax
+        )
+        {{LABEL_CODE_NODATA}}{{MAGIC_CODE_INLINE_NESTED}}
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        # Optional: move the x-ticks to the bin centers
+        ax.set_xticks(h1.axes[0].centers)
+        ax.set_xticklabels([x+0.5 for x in h1.axes[0].centers])
+        ax.minorticks_off()
+        ```
+
+    === "Barstep"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
+        # Create histograms and fill them
+        h1 = hist.new.Reg(6, 0, 6).Weight().fill(np.random.poisson(0.5, 200))
+        h2 = hist.new.Reg(6, 0, 6).Weight().fill(np.random.poisson(1.0, 300))
+        h3 = hist.new.Reg(6, 0, 6).Weight().fill(np.random.poisson(1.2, 500))
+
+        fig, ax = plt.subplots()
+        mh.histplot(
+            [h1, h2, h3],
+            histtype='barstep',
+            label=['$h_1$', '$h_2$', '$h_3$'],
+            ax=ax
+        )
+        {{LABEL_CODE_NODATA}}{{MAGIC_CODE_INLINE_NESTED}}
+        ax.legend(loc='upper right')
+        mh.yscale_legend(soft_fail=True)
+        # Optional: move the x-ticks to the bin centers
+        ax.set_xticks(h1.axes[0].centers)
+        ax.set_xticklabels([x+0.5 for x in h1.axes[0].centers])
+        ax.minorticks_off()
+        ```
+
+{{TABS_END}}
 
 ### Error Bars
 
