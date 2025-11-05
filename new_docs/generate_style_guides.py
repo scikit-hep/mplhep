@@ -282,6 +282,7 @@ def main():
         "guide_comparisons_template.md": "guide_comparisons.md",
         "guide_styling_template.md": "guide_styling.md",
         "guide_advanced_template.md": "guide_advanced.md",
+        "guide_utilities_template.md": "guide_utilities.md",
     }
 
     # Process each template

@@ -14,7 +14,7 @@ Welcome to the mplhep user guide! This documentation is organized into focused s
     ```
 
 ### [**Histogram Plotting**](guide_basic_plotting.md)
-Functions for 1D and 2D pre-binned histograms with support for the [Unified Histogram Interface (UHI)](https://uhi.readthedocs.io/)
+Functions for 1D and 2D pre-binned histograms with support for the [Unified Histogram Interface (UHI)](https://uhi.readthedocs.io/).
 
 - [1D Histogram Plotting](guide_basic_plotting.md#1d-histogram-plotting)
     - [Supported Input Formats](guide_basic_plotting.md#supported-input-formats)
@@ -33,16 +33,26 @@ High-level functions for data-model comparisons.
 - [Additional examples](guide_comparisons.md#additional-examples)
 
 ### [**Styling**](guide_styling.md)
-Official styles for ATLAS, CMS, LHCb, ALICE, and DUNE experiments
+Official styles for ATLAS, CMS, LHCb, ALICE, and DUNE experiments.
 
 - [Setting experiment styles](guide_styling.md#setting-experiment-styles)
 - [Setting experiment labels](guide_styling.md#setting-experiment-labels)
 - [Configuring experiment labels](guide_styling.md#configuring-experiment-labels)
 
-### [**To go further**](guide_advanced.md)
-Utility functions, experiment-specific label formatters, UHI integration, and best practices
+### [**Utilities**](guide_utilities.md)
+Utility functions and experiment-specific label formatters.
 
 - [Text placement](guide_advanced.md#text-placement)
+- [Subplot creation](guide_utilities.md#subplot-creation)
+- [Save variations](guide_utilities.md#save-variations)
+- [Fit y-label](guide_utilities.md#fit-y-label)
+- [mpl_magic](guide_utilities.md#mpl_magic)
+- [Axes manipulation](guide_utilities.md#axes-manipulation)
+- [plt.hist wrapper](guide_utilities.md#hist-wrapper)
+
+### [**To go further**](guide_advanced.md)
+UHI integration and best practices.
+
 - [Working with UHI Histograms](guide_advanced.md#working-with-uhi-histograms)
 - [Best practices](guide_advanced.md#best-practices)
 

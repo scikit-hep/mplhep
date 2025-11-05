@@ -148,15 +148,15 @@ def hist(
 
     Examples
     --------
-    >>> import mplhep as hep
+    >>> import mplhep as mh
     >>> import numpy as np
     >>> data = np.random.normal(100, 15, 1000)
-    >>> hep.hist(data, bins=50, range=(50, 150))
+    >>> mh.hist(data, bins=50, range=(50, 150))
 
     >>> # Multiple datasets
     >>> data1 = np.random.normal(100, 15, 1000)
     >>> data2 = np.random.normal(120, 15, 1000)
-    >>> hep.hist([data1, data2], bins=50, label=['Dataset 1', 'Dataset 2'])
+    >>> mh.hist([data1, data2], bins=50, label=['Dataset 1', 'Dataset 2'])
 
     See Also
     --------

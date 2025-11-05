@@ -103,7 +103,7 @@ def yscale_legend(
     ax: mpl.axes.Axes | None = None,
     otol: float = 0,
     soft_fail: bool = False,
-    N: int = 3,
+    N: int = 10,
 ) -> mpl.axes.Axes:
     """
     Automatically scale y-axis up to fit in legend().

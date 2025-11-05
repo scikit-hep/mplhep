@@ -1,5 +1,5 @@
 """
-Tests for issue #511: Add mplhep.hist() function to match plt.hist() API.
+Tests for issue #511: Add mplmh.hist() function to match plt.hist() API.
 
 https://github.com/scikit-hep/mplhep/issues/511
 """
@@ -16,7 +16,7 @@ import pytest
 
 plt.switch_backend("Agg")
 
-import mplhep as hep
+import mplhep as mh
 
 
 def test_hist_basic():
@@ -25,7 +25,7 @@ def test_hist_basic():
     data = np.random.normal(100, 15, 1000)
 
     fig, ax = plt.subplots()
-    artists = hep.hist(data, bins=50, range=(50, 150), ax=ax)
+    artists = mh.hist(data, bins=50, range=(50, 150), ax=ax)
 
     assert len(artists) == 1
     assert ax.get_xlabel() == ""
@@ -39,7 +39,7 @@ def test_hist_multiple_datasets():
     data2 = np.random.normal(120, 15, 500)
 
     fig, ax = plt.subplots()
-    artists = hep.hist(
+    artists = mh.hist(
         [data1, data2],
         bins=50,
         range=(50, 150),
@@ -58,7 +58,7 @@ def test_hist_with_weights():
     weights = np.random.uniform(0.5, 1.5, 1000)
 
     fig, ax = plt.subplots()
-    artists = hep.hist(data, bins=50, weights=weights, ax=ax)
+    artists = mh.hist(data, bins=50, weights=weights, ax=ax)
 
     assert len(artists) == 1
     plt.close(fig)
@@ -70,7 +70,7 @@ def test_hist_density():
     data = np.random.normal(100, 15, 1000)
 
     fig, ax = plt.subplots()
-    artists = hep.hist(data, bins=50, density=True, ax=ax)
+    artists = mh.hist(data, bins=50, density=True, ax=ax)
 
     assert len(artists) == 1
     plt.close(fig)
@@ -83,7 +83,7 @@ def test_hist_histtype():
 
     for histtype in ["step", "fill", "errorbar"]:
         fig, ax = plt.subplots()
-        artists = hep.hist(data, bins=50, histtype=histtype, ax=ax)
+        artists = mh.hist(data, bins=50, histtype=histtype, ax=ax)
         assert len(artists) == 1
         plt.close(fig)
 
@@ -94,7 +94,7 @@ def test_hist_with_yerr_false():
     data = np.random.normal(100, 15, 1000)
 
     fig, ax = plt.subplots()
-    artists = hep.hist(data, bins=50, yerr=False, ax=ax)
+    artists = mh.hist(data, bins=50, yerr=False, ax=ax)
 
     assert len(artists) == 1
     plt.close(fig)
@@ -107,7 +107,7 @@ def test_hist_with_custom_bins():
     bins = [50, 70, 90, 100, 110, 130, 150]
 
     fig, ax = plt.subplots()
-    artists = hep.hist(data, bins=bins, ax=ax)
+    artists = mh.hist(data, bins=bins, ax=ax)
 
     assert len(artists) == 1
     plt.close(fig)
@@ -120,12 +120,12 @@ def test_hist_api_compatibility():
 
     # Using the new hist function
     fig1, ax1 = plt.subplots()
-    hep.hist(data, bins=50, range=(50, 150), ax=ax1)
+    mh.hist(data, bins=50, range=(50, 150), ax=ax1)
 
     # Using manual workflow
     fig2, ax2 = plt.subplots()
     h, bins = np.histogram(data, bins=50, range=(50, 150))
-    hep.histplot(h, bins, ax=ax2)
+    mh.histplot(h, bins, ax=ax2)
 
     # Both should produce similar plots
     # (we're not checking exact equality due to potential floating point differences)
@@ -142,7 +142,7 @@ def test_hist_visual_single():
     data = np.random.normal(100, 15, 1000)
 
     fig, ax = plt.subplots(figsize=(8, 6))
-    hep.hist(data, bins=50, range=(50, 150), label="Test Data", ax=ax)
+    mh.hist(data, bins=50, range=(50, 150), label="Test Data", ax=ax)
     ax.set_xlabel("Value")
     ax.set_ylabel("Counts")
     ax.legend()
@@ -158,7 +158,7 @@ def test_hist_visual_multiple():
     data2 = np.random.normal(120, 12, 1000)
 
     fig, ax = plt.subplots(figsize=(8, 6))
-    hep.hist(
+    mh.hist(
         [data1, data2],
         bins=50,
         range=(50, 150),
@@ -179,7 +179,7 @@ def test_hist_visual_fill():
     data = np.random.normal(100, 15, 1000)
 
     fig, ax = plt.subplots(figsize=(8, 6))
-    hep.hist(data, bins=50, range=(50, 150), histtype="fill", alpha=0.5, ax=ax)
+    mh.hist(data, bins=50, range=(50, 150), histtype="fill", alpha=0.5, ax=ax)
     ax.set_xlabel("Value")
     ax.set_ylabel("Counts")
 

@@ -13,6 +13,7 @@ new_docs/docs/guide_advanced.md
 new_docs/docs/guide_comparisons.md
 new_docs/docs/guide_styling.md
 new_docs/docs/guide_basic_plotting.md
+new_docs/docs/guide_utilities.md
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

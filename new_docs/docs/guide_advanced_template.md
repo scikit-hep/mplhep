@@ -1,4 +1,4 @@
-# Advanced Features
+# To go further
 
 This section covers advanced mplhep features and utilities..
 
@@ -12,18 +12,6 @@ This section covers advanced mplhep features and utilities..
     import mplhep as mh
     # mh.style.use('<as appropriate>')
     ```
-
-## Text placement
-
-For custom text placement:
-
-```python
-# Add text at specific location
-txt = mh.add_text('Custom Text', loc='upper right')
-
-# Append additional text
-mh.append_text('Additional info', txt, loc='below')
-```
 
 ## Working with UHI Histograms
 
