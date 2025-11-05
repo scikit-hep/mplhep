@@ -44,15 +44,7 @@ background_hists = [scale * h for h in background_hists]
 # --8<-- [end:setup]
 
 # --8<-- [start:plot_body]
-fig, axes = plt.subplots(
-    nrows=6, figsize=(6, 13), gridspec_kw={"height_ratios": [3, 1, 1, 1, 1, 1]}
-)
-fig.subplots_adjust(hspace=0.3)
-
-# Hide x-axis labels for all but the bottom plot
-for ax in axes[:-1]:
-    ax.xaxis.set_ticklabels([])
-    ax.set_xlabel(" ")
+fig, axes = mh.subplots(nrows=6, hspace=0.3)
 
 mh.comp.data_model(
     data_hist=data_hist,
