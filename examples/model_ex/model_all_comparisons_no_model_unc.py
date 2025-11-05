@@ -8,7 +8,6 @@ All supported comparisons between data and model, without model uncertainty.
 # --8<-- [start:full_code]
 # --8<-- [start:imports]
 import hist
-import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
