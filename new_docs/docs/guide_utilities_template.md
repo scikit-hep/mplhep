@@ -162,7 +162,7 @@ ax_new = mh.append_axes(ax, position='top', size=2, pad=0.3)
 
 ## plt.hist wrapper
 
-[mh.hist][mplhep.hist] is a drop in replacement that of [mh.histplot][mplhep.histplot] that runs `np.histogram` before plotting. This function provides a convenient way to histogram raw data values while benefiting from the extended features of [mh.histplot][mplhep.histplot], such as automatic error bar calculation, bin-width normalization, and HEP-style plotting options.
+[mh.hist][mplhep.hist] is a drop-in replacement for [mh.histplot][mplhep.histplot] which runs the `np.histogram` function before plotting. It provides a convenient way to create a histogram of raw data values and benefits from the extended features of [mh.histplot][mplhep.histplot], such as automatic error bar calculation, bin-width normalization and HEP-style plotting options.
 
 !!! warning
     [mh.hist][mplhep.hist] does not return a histogram object compatible with the Unified Histogram Interface (UHI), thus cannot be used directly with other mplhep histogram plotting functions.
