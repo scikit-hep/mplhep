@@ -15,7 +15,79 @@ This section covers advanced mplhep features and utilities.
 
 ## Text placement
 
-For custom text placement:
+### Add text
+
+[mh.add_text][mplhep.add_text] will add text to a specified location on the axis. It has flexible positioning options, that are accessible via the `loc` argument, or the `x` and `y` arguments.
+
+{{TABS_START}}
+{{TAB_HEADER}}
+
+    === "loc argument"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
+        fig, ax = plt.subplots()
+
+        locs = [
+            "upper left", # or "top left"
+            "upper right", # or "top right"
+            "lower left", # or "bottom left"
+            "lower right", # or "bottom right"
+            "over left",
+            "over right",
+            "under left",
+            "under right",
+        ]
+
+        for loc in locs:
+            mh.add_text(
+                f'Text with\nloc="{loc}"',
+                loc=loc,
+                ax=ax,
+            )
+        ```
+
+    === "x and y arguments"
+
+        ```python
+        # mkdocs: render
+            # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
+        fig, ax = plt.subplots()
+
+        positions = [
+            ("right_in", "top_in"),
+            ("left_in", "top_in"),
+            ("left_in", "bottom_in"),
+            ("right_in", "bottom_in"),
+            ("right", "top_out"),
+            ("left", "top_out"),
+            ("right_out", "top_in"),
+            ("right_out", "bottom_in"),
+            ("right", "bottom_out"),
+            ("left", "bottom_out"),
+        ]
+
+        for x, y in positions:
+            mh.add_text(
+                f'Text with\nx="{x}"\ny="{y}"',
+                x=x,
+                y=y,
+                ax=ax,
+            )
+        ```
+
+{{TABS_END}}
+
+### Append text
+
+[mh.append_text][mplhep.append_text] appends additional text relative to an existing text object created with [mh.add_text][mplhep.add_text]. The new text can be positioned above, below, left, or right of the existing text.
 
 ```python
 # Add text at specific location
@@ -90,7 +162,7 @@ ax_new = mh.append_axes(ax, position='top', size=2, pad=0.3)
 
 ## plt.hist wrapper
 
-[mh.hist][mplhep.hist] is a wrapper around `plt.hist` that uses mplhep API. This function provides a convenient way to histogram raw data values while benefiting from the extended features of `histplot`, such as automatic error bar calculation, bin-width normalization, and HEP-style plotting options.
+[mh.hist][mplhep.hist] is a drop in replacement that of [mh.histplot][mplhep.histplot] that runs `np.histogram` before plotting. This function provides a convenient way to histogram raw data values while benefiting from the extended features of [mh.histplot][mplhep.histplot], such as automatic error bar calculation, bin-width normalization, and HEP-style plotting options.
 
 !!! warning
     [mh.hist][mplhep.hist] does not return a histogram object compatible with the Unified Histogram Interface (UHI), thus cannot be used directly with other mplhep histogram plotting functions.
