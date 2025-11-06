@@ -8,7 +8,6 @@ All supported comparisons between data and model, without model uncertainty.
 # --8<-- [start:full_code]
 # --8<-- [start:imports]
 import hist
-import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
@@ -71,15 +70,8 @@ background_colors = sns.color_palette("cubehelix", 3)
 
 # --8<-- [start:plot_body]
 # Create comparison plots
-fig, axes = plt.subplots(
-    nrows=6,
-    figsize=(6, 13),
-    gridspec_kw={"height_ratios": [3, 1, 1, 1, 1, 1]},
-)
-fig.subplots_adjust(hspace=0.3)
-for ax in axes[:-1]:
-    ax.xaxis.set_ticklabels([])
-    ax.set_xlabel(" ")
+fig, axes = mh.subplots(nrows=6, hspace=0.3)
+
 background_sum = sum(background_hists)
 
 mh.comp.data_model(

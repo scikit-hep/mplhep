@@ -103,7 +103,7 @@ def yscale_legend(
     ax: mpl.axes.Axes | None = None,
     otol: float = 0,
     soft_fail: bool = False,
-    N: int = 3,
+    N: int = 10,
 ) -> mpl.axes.Axes:
     """
     Automatically scale y-axis up to fit in legend().
@@ -544,7 +544,8 @@ def subplots(
     **kwargs,
 ) -> tuple[plt.Figure, np.ndarray]:
     """
-    Wrapper around plt.subplots to create a figure with multiple subplots
+    Wrapper around plt.subplots to create a figure with multiple subplots. Conveniently
+    adjusts the figure size and spacing between subplots if multiple rows are requested.
 
     Parameters
     ----------
@@ -569,22 +570,24 @@ def subplots(
     if gridspec_kw is None and nrows > 1:
         gridspec_kw = {
             "height_ratios": [
-                4 * (1 + 0.25 * (nrows - 2)),
+                4 - (0.2 * (nrows - 2)),
                 *(1 for _ in range(nrows - 1)),
             ]
         }
+
     if figsize is None:
         figsize = (
             plt.rcParams["figure.figsize"][0],
-            plt.rcParams["figure.figsize"][1] * (1 + 0.25 * (nrows - 1)),
+            plt.rcParams["figure.figsize"][1] * (1.25 ** (nrows - 1)),
         )
 
+    kwargs.setdefault("figsize", figsize)
+    kwargs.setdefault("gridspec_kw", gridspec_kw)
+    kwargs.setdefault("nrows", nrows)
+
     fig, axes = plt.subplots(
-        nrows=nrows,
-        figsize=figsize,
-        gridspec_kw=gridspec_kw,
-        *args,  # NOQA: B026
-        **kwargs,  # type: ignore[call-overload]
+        *args,
+        **kwargs,
     )
     if nrows > 1:
         fig.subplots_adjust(hspace=hspace)

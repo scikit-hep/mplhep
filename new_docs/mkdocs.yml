@@ -156,6 +156,7 @@ exclude_docs: |
   guide_basic_plotting_template.md
   guide_comparisons_template.md
   guide_styling_template.md
+  guide_utilities_template.md
   guide_advanced_template.md
 
 nav:
@@ -165,7 +166,8 @@ nav:
     - Basic Plotting: guide_basic_plotting.md
     - Comparisons: guide_comparisons.md
     - Styling: guide_styling.md
-    - Utilities: guide_advanced.md
+    - Utilities: guide_utilities.md
+    - To go further: guide_advanced.md
   - Gallery:
     - Overview: gallery.md
     - 1D Comparisons:

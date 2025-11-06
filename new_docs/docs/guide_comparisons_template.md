@@ -462,6 +462,9 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
 
 {{TABS_END}}
 
+!!! tip
+    To only plot the model, without data or comparison panel, use [`mh.model()`][mplhep.plot.model]. It takes the same arguments as [`mh.comp.data_model()`][mplhep.comp.data_model], except for the `data_hist` and `comparison` parameters.
+
 #### Showcasing more options
 
 [`mh.comp.data_model()`][mplhep.comp.data_model] is very flexible and can be customized further. For more examples and details, see the [API Reference](api.md#mplhep.comp.data_model) and the [Gallery](gallery.md). Here is a selection of additional examples showcasing some of the available options.
