@@ -28,8 +28,8 @@ repos:
   rev: v0.14.4
   hooks:
     # Run the linter.
-    - id: ruff
-      args: [ --fix, --show-fixes, --ignore, RUF022 ]
+    - id: ruff-check
+      args: [ --fix, --show-fixes ]
       exclude: '\.ipynb$'
     # Run the formatter.
     - id: ruff-format
