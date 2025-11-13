@@ -130,7 +130,10 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 minversion = 6.0
 addopts = ["-ra", "--strict-markers"]  # need to fix pytest dependency installs to enable --strict-config
-filterwarnings = ["error"]
+filterwarnings = [
+  "error",
+  "default:urllib3 v2 only supports OpenSSL:urllib3.exceptions.NotOpenSSLWarning",
+]
 log_level = "INFO"
 python_files = "test*.py"
 testpaths = ["tests"]
