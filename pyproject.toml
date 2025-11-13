@@ -130,12 +130,15 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 minversion = 6.0
 addopts = ["-ra", "--strict-markers"]  # need to fix pytest dependency installs to enable --strict-config
-asyncio_default_fixture_loop_scope = "session"
 filterwarnings = ["error"]
 log_level = "INFO"
 python_files = "test*.py"
 testpaths = ["tests"]
 xfail_strict = true
+markers = [
+    "latex: tests that require LaTeX to be installed",
+]
+
 
 [tool.ruff.lint]
 extend-select = [
