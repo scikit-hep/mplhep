@@ -16,14 +16,15 @@ jobs:
         python-version: ['3.12']
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
-    - uses: astral-sh/setup-uv@v5
+    - uses: astral-sh/setup-uv@v7
       with:
+        activate-environment: true
         version: "latest"
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -47,7 +48,7 @@ jobs:
         pytest -r sa --mpl --mpl-results-path=pytest_results
 
     - name: Upload pytest test results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       if: failure()
       with:
         name: pytest_results-${{ matrix.python-version }}-${{ matrix.runs-on }}
@@ -63,14 +64,15 @@ jobs:
         python-version: ['3.12']
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v5
 
-    - uses: astral-sh/setup-uv@v5
+    - uses: astral-sh/setup-uv@v7
       with:
+        activate-environment: true
         version: "latest"
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -100,7 +102,7 @@ jobs:
         pytest -r sa --mpl --mpl-results-path=pytest_results
 
     - name: Upload pytest test results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       if: failure()
       with:
         name: pytest_results-${{ matrix.python-version }}-${{ matrix.runs-on }}
@@ -116,14 +118,15 @@ jobs:
         python-version: ['3.12']
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v5
 
-    - uses: astral-sh/setup-uv@v5
+    - uses: astral-sh/setup-uv@v7
       with:
+        activate-environment: true
         version: "latest"
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -149,7 +152,7 @@ jobs:
         pytest -r sa --mpl --mpl-results-path=pytest_results
 
     - name: Upload pytest test results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       if: failure()
       with:
         name: pytest_results-${{ matrix.python-version }}-${{ matrix.runs-on }}
@@ -165,14 +168,15 @@ jobs:
         python-version: ['3.12']
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v5
 
-    - uses: astral-sh/setup-uv@v5
+    - uses: astral-sh/setup-uv@v7
       with:
+        activate-environment: true
         version: "latest"
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -198,7 +202,7 @@ jobs:
         pytest -r sa --mpl --mpl-results-path=pytest_results
 
     - name: Upload pytest test results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       if: failure()
       with:
         name: pytest_results-${{ matrix.python-version }}-${{ matrix.runs-on }}
