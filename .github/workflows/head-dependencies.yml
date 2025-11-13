@@ -20,6 +20,7 @@ jobs:
 
     - uses: astral-sh/setup-uv@v7
       with:
+        activate-environment: true
         version: "latest"
 
     - name: Set up Python ${{ matrix.python-version }}
@@ -67,6 +68,7 @@ jobs:
 
     - uses: astral-sh/setup-uv@v7
       with:
+        activate-environment: true
         version: "latest"
 
     - name: Set up Python ${{ matrix.python-version }}
@@ -120,6 +122,7 @@ jobs:
 
     - uses: astral-sh/setup-uv@v7
       with:
+        activate-environment: true
         version: "latest"
 
     - name: Set up Python ${{ matrix.python-version }}
@@ -169,6 +172,7 @@ jobs:
 
     - uses: astral-sh/setup-uv@v7
       with:
+        activate-environment: true
         version: "latest"
 
     - name: Set up Python ${{ matrix.python-version }}

@@ -46,6 +46,7 @@ jobs:
       - name: Setup uv
         uses: astral-sh/setup-uv@v7
         with:
+          activate-environment: true
           version: 'latest'
           python-version: ${{ matrix.python-version }}
           enable-cache: true
