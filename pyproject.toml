@@ -133,6 +133,7 @@ addopts = ["-ra", "--strict-markers"]  # need to fix pytest dependency installs 
 filterwarnings = [
   "error",
   "default:urllib3 v2 only supports OpenSSL",
+  "default:invalid value encountered in _fmt:RuntimeWarning",
 ]
 log_level = "INFO"
 python_files = "test*.py"
