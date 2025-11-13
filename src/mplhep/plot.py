@@ -879,6 +879,7 @@ def hist2dplot(
     cmax=None,
     ax: mpl.axes.Axes | None = None,
     flow="hint",
+    density: bool = False,
     binwnorm=None,
     **kwargs,
 ):
@@ -949,11 +950,38 @@ def hist2dplot(
 
     h = _hist_object_handler(H, xbins, ybins)
 
+    # Convert to real bool
+    density = bool(density)
+
+    if density and binwnorm is not None:
+        msg = "Cannot use density and binwnorm together."
+        raise ValueError(msg)
+
     # TODO: use Histogram everywhere
 
     H = np.copy(h.values())
     xbins, xtick_labels = _get_plottable_protocol_bins(h.axes[0])
     ybins, ytick_labels = _get_plottable_protocol_bins(h.axes[1])
+
+    if density:
+        # Calculate total sum of histogram values
+        total_sum: float = np.sum(H)
+        if total_sum == 0:
+            logger.warning("Histogram has zero sum, density normalization skipped.")
+        else:
+            # Calculate bin areas
+            x_bin_widths = np.diff(xbins)
+            y_bin_widths = np.diff(ybins)
+            bin_areas = np.outer(x_bin_widths, y_bin_widths)  # Shape (nx, ny)
+            # Calculate the sum of H * bin_areas
+            integral: float = np.sum(H * bin_areas)
+
+            if integral == 0:
+                msg = "Cannot normalize to density with zero integral."
+                raise ValueError(msg)
+
+            H = H / integral
+
     # Show under/overflow bins
     # "show": Add additional bin with 2 times bin width
     if (

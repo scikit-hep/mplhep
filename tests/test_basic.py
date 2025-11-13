@@ -420,6 +420,35 @@ def test_hist2dplot_flow():
 
 
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_hist2dplot_density():
+    np.random.seed(0)
+    xedges = np.arange(0, 11.5, 1.5)
+    yedges = [0, 2, 3, 4, 6, 7]
+    x = np.random.normal(5, 1.5, 100)
+    y = np.random.normal(4, 1, 100)
+    H, xedges, yedges = np.histogram2d(x, y, bins=(xedges, yedges))
+
+    fig, ax = plt.subplots()
+    pc_artists = mh.hist2dplot(H, xedges, yedges, density=True)
+    # Get the plotted data from the pcolormesh object
+    plotted_data = pc_artists.pcolormesh.get_array()
+
+    # If plotted_data is a masked array, fill masked values with 0 for sum calculation
+    if isinstance(plotted_data, np.ma.MaskedArray):
+        plotted_data = plotted_data.filled(0)
+
+    # Calculate the bin areas
+    x_bin_widths = np.diff(xedges)
+    y_bin_widths = np.diff(yedges)
+    bin_areas = np.outer(y_bin_widths, x_bin_widths)
+
+    # Sum of (value * area) should be close to 1 for density plot
+    assert np.isclose(np.sum(plotted_data.reshape(bin_areas.shape) * bin_areas), 1.0)
+
+    return fig
+
+
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_hist2dplot_inputs_nobin():
     np.random.seed(0)
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
