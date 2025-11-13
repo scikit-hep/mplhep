@@ -45,11 +45,12 @@ jobs:
         python-version: ['3.12']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
         with:
+          activate-environment: true
           version: 'latest'
           python-version: ${{ matrix.python-version }}
           enable-cache: true
@@ -88,7 +89,7 @@ jobs:
           python -m pytest tests/test_dune.py::test_dune_style_string_aliases -m latex -r sa --mpl --mpl-results-path=pytest_results_dune_tex
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: failure()
         with:
           name: pytest_results_latex-${{ matrix.python-version }}
