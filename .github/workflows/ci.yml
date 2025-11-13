@@ -19,12 +19,12 @@ jobs:
       fail-fast: false
       matrix:
         runs-on: [ ubuntu-latest ]
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"] # "3.8" conflicts with plothist_utils for now
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
         include:  # testing the last "reasonable supported" version
-          - runs-on: macOS-13
+          - runs-on: macOS-15-latest
             python-version: "3.9"
-          - runs-on: macOS-14
-            python-version: "3.9"  # min version available for Apple silicon # changed to 3.9 as conflicts with plothist_utils for now
+          - runs-on: macOS-latest
+            python-version: "3.9"
           - runs-on: windows-latest
             python-version: "3.9"
 
