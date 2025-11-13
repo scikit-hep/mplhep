@@ -64,7 +64,7 @@ mplhep requires:
 
 Install and set up pre-commit hooks to ensure code quality:
 
-- Python 3.8 or newer
+- Python 3.9 or newer
 
 - matplotlib```bash
 

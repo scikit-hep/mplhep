@@ -14,7 +14,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 try:
     import questionary
@@ -77,7 +77,7 @@ class DevScript:
             return 80
 
     def _run_command_with_confirmation(
-        self, cmd: List[str], prompt: str = "Confirm command (editable):"
+        self, cmd: list[str], prompt: str = "Confirm command (editable):"
     ) -> bool:
         """Run a command with user confirmation and editing capability."""
         if not HAS_QUESTIONARY or questionary is None:
@@ -99,7 +99,7 @@ class DevScript:
 
         return self._run_command(cmd)
 
-    def _run_command(self, cmd: List[str], cwd: Optional[Path] = None) -> bool:
+    def _run_command(self, cmd: list[str], cwd: Optional[Path] = None) -> bool:
         """Run a command and return True if successful."""
         try:
             self._print_header(f"Running: {' '.join(cmd)}")
@@ -115,7 +115,7 @@ class DevScript:
             self._print_error(f"Command not found: {cmd[0]}")
             return False
 
-    def _show_summary(self, items: List[Path], title: str) -> None:
+    def _show_summary(self, items: list[Path], title: str) -> None:
         """Show a formatted summary of items."""
         if not items:
             return
@@ -142,7 +142,7 @@ class DevScript:
             message, default=default, style=self._get_style()
         ).ask()
 
-    def _find_files_to_clean(self) -> List[Path]:
+    def _find_files_to_clean(self) -> list[Path]:
         """Find files and directories that can be cleaned."""
         items_to_clean = []
 
@@ -181,7 +181,7 @@ class DevScript:
         jobs: Optional[int] = None,
         filter_pattern: Optional[str] = None,
         skip_cleanup: bool = False,
-        extra_args: Optional[List[str]] = None,
+        extra_args: Optional[list[str]] = None,
     ) -> bool:
         """Run pytest with matplotlib comparison."""
         if jobs is None:
@@ -282,7 +282,7 @@ class DevScript:
 
         return success
 
-    def cmd_precommit(self, extra_args: Optional[List[str]] = None) -> bool:
+    def cmd_precommit(self, extra_args: Optional[list[str]] = None) -> bool:
         """Run pre-commit hooks on all files."""
         self._print_header("Running Pre-commit Hooks")
 
@@ -351,7 +351,7 @@ class DevScript:
         port: int = 8000,
         clean: bool = True,
         fast: bool = False,
-        extra_args: Optional[List[str]] = None,
+        extra_args: Optional[list[str]] = None,
     ) -> bool:
         """Build or serve documentation."""
         # Check if mkdocs is available
@@ -372,7 +372,7 @@ class DevScript:
         return False
 
     def _build_docs(
-        self, clean: bool, fast: bool, extra_args: Optional[List[str]] = None
+        self, clean: bool, fast: bool, extra_args: Optional[list[str]] = None
     ) -> bool:
         """Build documentation."""
         if fast:
@@ -411,7 +411,7 @@ class DevScript:
         return success
 
     def _serve_docs(
-        self, port: int, fast: bool, extra_args: Optional[List[str]] = None
+        self, port: int, fast: bool, extra_args: Optional[list[str]] = None
     ) -> bool:
         """Serve documentation locally."""
         if fast:
@@ -702,7 +702,7 @@ class DevScript:
 
         return True
 
-    def _get_available_baselines(self) -> List[str]:
+    def _get_available_baselines(self) -> list[str]:
         """Get list of available benchmark baselines."""
         benchmark_dir = self.project_root / "tests" / "baseline" / "benchmark"
 
@@ -716,7 +716,7 @@ class DevScript:
 
         return sorted(baselines)
 
-    def _get_available_benchmark_files(self) -> List[str]:
+    def _get_available_benchmark_files(self) -> list[str]:
         """Get list of available benchmark JSON files for comparison."""
         benchmark_dir = self.project_root / "tests" / "baseline" / "benchmark"
 
@@ -822,7 +822,7 @@ Examples:
         return response if response else default
 
     def _get_choice(
-        self, prompt: str, choices: List[tuple], fallback_prompt: str = ""
+        self, prompt: str, choices: list[tuple], fallback_prompt: str = ""
     ) -> Optional[str]:
         """Get choice selection with questionary or basic fallback."""
         if HAS_QUESTIONARY and questionary is not None:
@@ -847,7 +847,7 @@ Examples:
             except (ValueError, KeyboardInterrupt):
                 return None
 
-    def _check_tool_available(self, tool_name: str, check_cmd: List[str]) -> bool:
+    def _check_tool_available(self, tool_name: str, check_cmd: list[str]) -> bool:
         """Check if a tool is available."""
         try:
             result = subprocess.run(
@@ -873,7 +873,7 @@ Examples:
             else:
                 self._print_warning("Keeping existing pytest_results/")
 
-    def _get_test_modules(self) -> List[str]:
+    def _get_test_modules(self) -> list[str]:
         """Get available test modules/directories."""
         test_modules = []
 
