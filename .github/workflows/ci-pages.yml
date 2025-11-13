@@ -34,7 +34,6 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           activate-environment: true
-        with:
           version: "latest"
           python-version: "3.11"
           enable-cache: true
