@@ -472,14 +472,14 @@ def append_axes(ax, size=0.1, pad=0.1, position="right", extend=False):
                 fig.get_size_inches()[0],
                 fig.get_size_inches()[1] * extend_ratio(ax, yhax)[1],
             )
-            ax.get_shared_x_axes().join(ax, yhax)
+            yhax.sharex(ax)
         elif position in ["bottom"]:
             divider.set_vertical([*xsizes, axes_size.Fixed(height)])
             fig.set_size_inches(
                 fig.get_size_inches()[0],
                 fig.get_size_inches()[1] * extend_ratio(ax, yhax)[1],
             )
-            ax.get_shared_x_axes().join(ax, yhax)
+            yhax.sharex(ax)
 
     return yhax
 
