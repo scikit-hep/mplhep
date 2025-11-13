@@ -10,6 +10,10 @@ on:
   schedule:
     - cron: '1 0 * * *'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
 
   test:
@@ -21,7 +25,7 @@ jobs:
         runs-on: [ ubuntu-latest ]
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
         include:  # testing the last "reasonable supported" version
-          - runs-on: macOS-15-latest
+          - runs-on: macOS-15-intel
             python-version: "3.9"
           - runs-on: macOS-latest
             python-version: "3.9"
