@@ -9,7 +9,6 @@ import argparse
 import logging
 import re
 from pathlib import Path
-from typing import Dict, List
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -184,7 +183,7 @@ STYLES = {
 STYLE_ORDER = ["Default", "plothist", "CMS", "ATLAS", "LHCb", "ALICE", "DUNE"]
 
 
-def replace_placeholders(content: str, replacements: Dict[str, str]) -> str:
+def replace_placeholders(content: str, replacements: dict[str, str]) -> str:
     """Replace {{PLACEHOLDER}} style markers with actual values.
 
     Parameters
@@ -205,7 +204,7 @@ def replace_placeholders(content: str, replacements: Dict[str, str]) -> str:
     return result
 
 
-def generate_tab_content(tab_content: str, _style_configs: List[Dict[str, str]]) -> str:
+def generate_tab_content(tab_content: str, _style_configs: list[dict[str, str]]) -> str:
     """Generate tabbed content for all styles.
 
     Parameters
