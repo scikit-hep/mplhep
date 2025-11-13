@@ -29,7 +29,7 @@ repos:
   hooks:
     # Run the linter.
     - id: ruff-check
-      args: [ --fix, --show-fixes, --ignore, RUF022 ]
+      args: [ --fix, --show-fixes ]
       exclude: '\.ipynb$'
     # Run the formatter.
     - id: ruff-format
