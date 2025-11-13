@@ -11,7 +11,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Push updates to master
         uses: ad-m/github-push-action@master
