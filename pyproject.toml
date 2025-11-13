@@ -129,9 +129,20 @@ ignore_missing_imports = true
 # Additional configuration is in matplotlib/testing/conftest.py.
 [tool.pytest.ini_options]
 minversion = 6.0
-testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers"]  # need to fix pytest dependency installs to enable --strict-config
+filterwarnings = [
+  "error",
+  "default:urllib3 v2 only supports OpenSSL",
+  "default:invalid value encountered in _fmt:RuntimeWarning",
+]
+log_level = "INFO"
 python_files = "test*.py"
-asyncio_default_fixture_loop_scope = "session"
+testpaths = ["tests"]
+xfail_strict = true
+markers = [
+    "latex: tests that require LaTeX to be installed",
+]
+
 
 [tool.ruff.lint]
 extend-select = [
