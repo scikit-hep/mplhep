@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections.abc import Iterable, Sequence
 from numbers import Real
 from typing import TYPE_CHECKING, Any
 
@@ -13,7 +12,7 @@ from uhi.numpy_plottable import (
 from uhi.typing.plottable import PlottableAxis, PlottableHistogram
 
 if TYPE_CHECKING:
-    pass
+    from collections.abc import Iterable, Sequence
 
 ArrayLike = Any
 
