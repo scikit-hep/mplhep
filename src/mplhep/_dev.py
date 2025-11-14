@@ -3,6 +3,7 @@ Development helper script for mplhep. Vibe-coded.
 
 Usage: ./dev [command] [options] or ./dev for interactive mode
 """
+
 from __future__ import annotations
 
 import argparse
