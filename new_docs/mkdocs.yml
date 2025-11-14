@@ -160,7 +160,9 @@ exclude_docs: |
   guide_advanced_template.md
 
 nav:
-  - Home: index.md
+  - Home:
+    - Home: index.md
+    - Contributing: CONTRIBUTING.md
   - User Guide:
     - Overview: guide.md
     - Basic Plotting: guide_basic_plotting.md

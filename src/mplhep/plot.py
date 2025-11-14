@@ -295,7 +295,7 @@ def histplot(
         - True, sqrt(N) errors or poissonian interval when ``w2`` is specified
         - shape(N) array of for one sided errors or list thereof
         - shape(Nx2) array of for two sided errors or list thereof
-    w2method: callable, optional
+    w2method : callable, optional
         Function calculating CLs with signature ``low, high = fcn(w, w2)``. Here
         ``low`` and ``high`` are given in absolute terms, not relative to w.
         Default is ``None``. If w2 has integer values (likely to be data) poisson
@@ -311,25 +311,27 @@ def histplot(
     binwnorm : float, optional
         If true, convert sum weights to bin-width-normalized, with unit equal to
             supplied value (usually you want to specify 1.)
-    histtype: {'step', 'fill', 'errorbar', 'bar', 'barstep', 'band'}, optional, default: "step"
+    histtype : {'step', 'fill', 'errorbar', 'bar', 'barstep', 'band'}, optional, default: "step"
         Type of histogram to plot:
 
-        - "step": skyline/step/outline of a histogram using `plt.stairs <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs>`_
-        - "fill": filled histogram using `plt.stairs <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs>`_
-        - "errorbar": single marker histogram using `plt.errorbar <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.errorbar.html#matplotlib-axes-axes-errorbar>`_
-        - "bar": If multiple data are given the bars are arranged side by side using `plt.bar <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.bar.html#matplotlib-axes-axes-bar>`_ If only one histogram is provided, it will be treated as "fill" histtype
-        - "barstep": If multiple data are given the steps are arranged side by side using `plt.stairs <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs>`_ . Supports yerr representation. If one histogram is provided, it will be treated as "step" histtype.
-        - "band": filled band spanning the yerr range of the histogram using `plt.stairs <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs>`_
+        - "step": skyline/step/outline of a histogram using [plt.stairs](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs).
+        - "fill": filled histogram using [plt.stairs](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs).
+        - "errorbar": single marker histogram using [plt.errorbar](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.errorbar.html#matplotlib-axes-axes-errorbar).
+        - "bar": If multiple data are given the bars are arranged side by side using [plt.bar](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.bar.html#matplotlib-axes-axes-bar). If only one histogram is provided, it will be treated as "fill" histtype.
+        - "barstep": If multiple data are given the steps are arranged side by side using [plt.stairs](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs). Supports yerr representation. If one histogram is provided, it will be treated as "step" histtype.
+        - "band": filled band spanning the yerr range of the histogram using [plt.stairs](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs).
 
     label : str or list, optional
         Label for legend entry.
-    sort: {'label'/'l', 'yield'/'y'}, optional
-        Append '_r' for reverse.
+    sort : str, optional {'label'/'l', 'yield'/'y'}
+        "label"/"l": sort histograms alphabetically by label, "yield"/"y": sort by total histogram yield. Append '_r' to reverse the order.
     ax : matplotlib.axes.Axes, optional
         Axes object (if None, last one is fetched or one is created)
     flow :  str, optional { "show", "sum", "hint", "none"}
         Whether plot the under/overflow bin. If "show", add additional under/overflow bin.
         If "sum", add the under/overflow bin content to first/last bin.
+        If "hint", draw markers at the axis to indicate presence of under/overflow.
+        If "none", do nothing.
     **kwargs :
         Keyword arguments passed to underlying matplotlib functions -
         {'stairs', 'errorbar'}.
@@ -339,13 +341,13 @@ def histplot(
     w2 : iterable, optional
         Sum of the histogram weights squared for poissonian interval error
         calculation
-    xerr:  bool or float, optional
+    xerr : bool or float, optional
         Size of xerr if ``histtype == 'errorbar'``. If ``True``, bin-width will be used.
     edges : bool, default: True, optional
-        Specifies whether to draw first and last edges of the histogram
+        Specifies whether to draw first and last edges of the histogram.
     binticks : bool, default: False, optional
         Attempts to draw x-axis ticks coinciding with bin boundaries if feasible.
-    xoffsets: bool, default: False,
+    xoffsets : bool, default: False,
         If True, the bin "centers" of plotted histograms will be offset within their bin.
 
     Returns

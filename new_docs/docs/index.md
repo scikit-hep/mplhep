@@ -196,13 +196,22 @@ print(svg)  # markdown-exec: hide
 
 ## [User Guide](guide.md)
 
-Step-by-step instructions on how to use mplhep for your HEP plotting needs, explaining key features and functionalities.
+[Step-by-step instructions](guide.md) on how to use mplhep for your HEP plotting needs, explaining key features and functionalities.
 
 
 ## [Gallery](gallery.md)
 
-A collection of example plots created using mplhep, showcasing various plot types.
+A [collection of example plots](gallery.md) created using mplhep, showcasing various plot types.
 
 ## [API](api.md)
 
-Comprehensive reference documentation for all functions, classes, and modules in mplhep.
+Comprehensive [reference documentation](api.md) for all functions, classes, and modules in mplhep.
+
+## [Contributing](CONTRIBUTING.md)
+
+A [guide to contributing](CONTRIBUTING.md) to the mplhep project, including setup instructions and coding guidelines.
+
+## Getting Help
+
+- Check the [GitHub repository](https://github.com/scikit-hep/mplhep) for issues
+- Ask questions in the [scikit-hep discussions](https://github.com/scikit-hep/mplhep/discussions)
