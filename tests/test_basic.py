@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import itertools
 import os
 import re
 
@@ -274,12 +275,7 @@ def test_histplot_type_flow():
 
 @pytest.mark.mpl_image_compare(style="default")
 def test_hist2dplot_hist_all_flow_show():
-    flow_opts = []
-    for ufl1 in [True, False]:
-        for ofl1 in [True, False]:
-            for ufl2 in [True, False]:
-                for ofl2 in [True, False]:
-                    flow_opts.append([ufl1, ofl1, ufl2, ofl2])
+    flow_opts = [list(p) for p in itertools.product([True, False], repeat=4)]
 
     np.random.seed(0)
     _fill = np.random.normal(2.5, 2, 10000).reshape(-1, 2).T
@@ -302,12 +298,7 @@ def test_hist2dplot_hist_all_flow_show():
 
 @pytest.mark.mpl_image_compare(style="default")
 def test_hist2dplot_hist_all_flow_hint():
-    flow_opts = []
-    for ufl1 in [True, False]:
-        for ofl1 in [True, False]:
-            for ufl2 in [True, False]:
-                for ofl2 in [True, False]:
-                    flow_opts.append([ufl1, ofl1, ufl2, ofl2])
+    flow_opts = [list(p) for p in itertools.product([True, False], repeat=4)]
 
     np.random.seed(0)
     _fill = np.random.normal(2.5, 2, 10000).reshape(-1, 2).T
