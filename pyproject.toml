@@ -150,6 +150,7 @@ extend-select = [
     "PERF", # perflint
     "ARG", # flake8-unused-arguments
     "C4", # flake8-comprehensions
+    "DTZ", # flake8-datetimez
     "EM", # flake8-errmsg
     "ICN", # flake8-import-conventions
     "G", # flake8-logging-format

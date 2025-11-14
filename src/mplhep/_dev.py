@@ -544,7 +544,9 @@ class DevScript:
             self._print_success(f"Will save benchmark results as: {baseline_name}")
         else:
             # Auto-generate baseline name with timestamp
-            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            timestamp = datetime.datetime.now(tz=datetime.timezone.utc).strftime(
+                "%Y%m%d_%H%M%S"
+            )
             baseline_name = f"run_{timestamp}"
             cmd.append(f"--benchmark-save={baseline_name}")
             self._print_success(f"Will save benchmark results as: {baseline_name}")
