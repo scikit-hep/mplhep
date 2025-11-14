@@ -913,9 +913,9 @@ def exp_label(
         # Build label following main branch logic
         _label = text
         if supp:  # If supp is truthy, prepend "Supplementary"
-            _label = " ".join(["Supplementary", _label])
+            _label = f"Supplementary {_label}"
         if not data:
-            _label = " ".join(["Simulation", _label])
+            _label = f"Simulation {_label}"
         # Clean up extra whitespace
         llabel = " ".join(_label.split())
 
@@ -1013,7 +1013,7 @@ def savelabels(
     # At this point, labels is guaranteed to be list[tuple[str, str]]
     tuple_labels: list[tuple[str, str]] = labels  # type: ignore[assignment]
     for label_text, suffix in tuple_labels:
-        label_base.set_text(" ".join([_sim, label_text]).lstrip())
+        label_base.set_text(f"{_sim} {label_text}".lstrip())
 
         def _construct_filename(base_fname: str, suffix: str) -> str:
             """Construct output filename from base name and suffix."""

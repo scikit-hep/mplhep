@@ -168,6 +168,15 @@ extend-select = [
     "PD", # pandas-vet
     "FURB", # refurb
     "PYI", # flake8-pyi
+    "BLE", # flake8-blind-except
+    "FA", # flake8-future-annotations
+    "FLY", # flynt
+    "ISC", # flake8-implicit-str-concat
+    "Q", # flake8-quotes
+    "RSE", # flake8-raise
+    "SLOT", # flake8-slots
+    "T10", # flake8-debugger
+    "TC", # flake8-type-checking
 ]
 ignore = [
   "PLR09",    # Too many <...>
@@ -186,3 +195,4 @@ ignore = [
 "docs/conf.py" = ["T20"]
 "src/mplhep/_dev.py" = ["T20"]
 "test_*.py" = ["T20"]
+"src/mplhep/styles/*.py" = ["FLY002"]
