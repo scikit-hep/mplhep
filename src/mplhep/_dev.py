@@ -102,19 +102,21 @@ class DevScript:
 
     def _run_command(self, cmd: list[str], cwd: Path | None = None) -> bool:
         """Run a command and return True if successful."""
+        self._print_header(f"Running: {' '.join(cmd)}")
+        separator = 3 * ("=" * self._get_terminal_width() + "\n")
+        print(separator)
+
         try:
-            self._print_header(f"Running: {' '.join(cmd)}")
-            separator = 3 * ("=" * self._get_terminal_width() + "\n")
-            print(separator)
             result = subprocess.run(cmd, cwd=cwd or self.project_root, check=True)
-            print(separator)
-            return result.returncode == 0
         except subprocess.CalledProcessError as e:
             self._print_error(f"Command failed with exit code {e.returncode}")
             return False
         except FileNotFoundError:
             self._print_error(f"Command not found: {cmd[0]}")
             return False
+
+        print(separator)
+        return result.returncode == 0
 
     def _show_summary(self, items: list[Path], title: str) -> None:
         """Show a formatted summary of items."""
@@ -854,12 +856,13 @@ Examples:
             result = subprocess.run(
                 check_cmd, capture_output=True, text=True, check=True
             )
-            self._print_success(f"{tool_name} version: {result.stdout.strip()}")
-            return True
         except (subprocess.CalledProcessError, FileNotFoundError):
             self._print_error(f"{tool_name} not found!")
             self._print_warning(f"Please install {tool_name} to use this feature")
             return False
+
+        self._print_success(f"{tool_name} version: {result.stdout.strip()}")
+        return True
 
     def _handle_pytest_results_cleanup(self) -> None:
         """Handle cleanup of pytest_results directory."""
