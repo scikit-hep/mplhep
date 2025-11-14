@@ -167,7 +167,7 @@ def yscale_legend(
         msg = f"Could not fit legend after {N} scaling iterations (overlap: {final_overlap}). Try increasing otol, N, or using soft_fail=True."
         raise RuntimeError(msg)
     if final_overlap > otol:
-        logging.warning(
+        logger.warning(
             f"Legend still overlaps after {N} scaling iterations (overlap: {final_overlap})"
         )
 
@@ -246,7 +246,7 @@ def yscale_anchored_text(
         msg = f"Could not fit AnchoredText after {N} scaling iterations (overlap: {final_overlap}). Try increasing otol, N, or using soft_fail=True."
         raise RuntimeError(msg)
     if final_overlap > otol:
-        logging.warning(
+        logger.warning(
             f"AnchoredText still overlaps after {N} scaling iterations (overlap: {final_overlap})"
         )
 
