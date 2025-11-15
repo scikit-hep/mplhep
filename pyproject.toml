@@ -147,6 +147,7 @@ markers = [
 extend-select = [
     "B", # flake8-bugbear
     "I", # isort
+    "PERF", # perflint
     "ARG", # flake8-unused-arguments
     "C4", # flake8-comprehensions
     "EM", # flake8-errmsg
