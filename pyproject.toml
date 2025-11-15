@@ -176,6 +176,7 @@ extend-select = [
     "SLOT", # flake8-slots
     "T10", # flake8-debugger
     "TC", # flake8-type-checking
+    "LOG", # flake8-logging
 ]
 ignore = [
   "PLR09",    # Too many <...>
@@ -191,7 +192,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["T20", "RUF059"]
-"docs/conf.py" = ["T20"]
+"docs/source/conf.py" = ["T20", "LOG015"]
 "src/mplhep/_dev.py" = ["T20"]
 "test_*.py" = ["T20"]
 "src/mplhep/styles/*.py" = ["FLY002"]
