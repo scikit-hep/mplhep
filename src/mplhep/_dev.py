@@ -163,8 +163,7 @@ class DevScript:
         for target in cleanup_targets:
             if "*" in target:
                 # Handle glob patterns
-                for item in self.project_root.glob(target):
-                    items_to_clean.append(item)
+                items_to_clean.extend(self.project_root.glob(target))
             else:
                 item = self.project_root / target
                 if item.exists():
@@ -336,7 +335,7 @@ class DevScript:
                     self._print_success(
                         f"Removed {item.relative_to(self.project_root)}"
                     )
-            except OSError as e:
+            except OSError as e:  # noqa: PERF203
                 self._print_error(f"Failed to remove {item}: {e}")
 
         if len(items_to_clean) > 10:
@@ -477,7 +476,7 @@ class DevScript:
                     self._print_success(
                         f"Removed {item.relative_to(self.project_root)}"
                     )
-            except OSError as e:
+            except OSError as e:  # noqa: PERF203
                 self._print_error(f"Failed to remove {item}: {e}")
 
         if len(items_to_clean) > 10:
@@ -712,10 +711,11 @@ class DevScript:
         if not benchmark_dir.exists():
             return []
 
-        baselines = []
-        for item in benchmark_dir.iterdir():
-            if item.is_dir() and not item.name.startswith("."):
-                baselines.append(item.name)
+        baselines = [
+            item.name
+            for item in benchmark_dir.iterdir()
+            if item.is_dir() and not item.name.startswith(".")
+        ]
 
         return sorted(baselines)
 
@@ -726,12 +726,12 @@ class DevScript:
         if not benchmark_dir.exists():
             return []
 
-        benchmark_files = []
-        for subdir in benchmark_dir.iterdir():
-            if subdir.is_dir() and not subdir.name.startswith("."):
-                for json_file in subdir.glob("*.json"):
-                    # Use just the filename without extension for comparison
-                    benchmark_files.append(json_file.stem)
+        benchmark_files = [
+            json_file.stem
+            for subdir in benchmark_dir.iterdir()
+            if subdir.is_dir() and not subdir.name.startswith(".")
+            for json_file in subdir.glob("*.json")
+        ]
 
         return sorted(benchmark_files)
 
@@ -840,15 +840,15 @@ Examples:
         for i, (label, _) in enumerate(choices, 1):
             print(f"  {i}. {label}")
 
-        while True:
-            try:
+        try:
+            while True:
                 response = input("Enter choice (number): ").strip()
                 idx = int(response) - 1
                 if 0 <= idx < len(choices):
                     return choices[idx][1]
                 print(f"Please enter a number between 1 and {len(choices)}")
-            except (ValueError, KeyboardInterrupt):
-                return None
+        except (ValueError, KeyboardInterrupt):
+            return None
 
     def _check_tool_available(self, tool_name: str, check_cmd: list[str]) -> bool:
         """Check if a tool is available."""
