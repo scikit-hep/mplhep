@@ -16,13 +16,13 @@ def _has_latex():
             capture_output=True,
             timeout=5,
         )
-        return True
     except (
         subprocess.CalledProcessError,
         subprocess.TimeoutExpired,
         FileNotFoundError,
     ):
         return False
+    return True
 
 
 def pytest_collection_modifyitems(config, items):  # noqa: ARG001
