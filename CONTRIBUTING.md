@@ -8,24 +8,10 @@ Please open an [issue](https://github.com/scikit-hep/mplhep/issues).
 
 ## Installing the development environment
 
-**With  pip**
-
 ```bash
-python3 -m venv .venv
-
-source .venv/bin/activate
-
-python -m pip install --upgrade --editable ".[all]" # Also conveniently accessible as `bash install.sh`.
+python -m pip install --upgrade --editable ".[all]"
 ```
-
-**With  uv**
-
-``` bash
-uv sync --group all
-
-source .venv/bin/activate
-```
-
+Also conveniently accessible as `bash install.sh`.
 
 ## Pull Requests
 
