@@ -417,9 +417,7 @@ def histplot(
     def iterable_not_string(arg):
         return isinstance(arg, collections.abc.Iterable) and not isinstance(arg, str)
 
-    _chunked_kwargs: list[dict[str, Any]] = []
-    for _ in range(len(hists)):
-        _chunked_kwargs.append({})
+    _chunked_kwargs: list[dict[str, Any]] = [{} for _ in hists]
     for kwarg, kwarg_content in kwargs.items():
         # Check if iterable
         if iterable_not_string(kwarg_content):
@@ -488,9 +486,7 @@ def histplot(
         _labels = _labels[::-1]
         if "color" not in kwargs or kwargs.get("color") is None:
             # Inverse default color cycle
-            _colors = []
-            for _ in range(len(plottables)):
-                _colors.append(ax._get_lines.get_next_color())  # type: ignore[attr-defined]
+            _colors = [ax._get_lines.get_next_color() for _ in plottables]  # type: ignore[attr-defined]
             _colors.reverse()
             for i in range(len(plottables)):
                 _chunked_kwargs[i].update({"color": _colors[i]})
