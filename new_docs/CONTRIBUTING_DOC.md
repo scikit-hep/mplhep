@@ -1,14 +1,17 @@
 # Documentation
 
-The documentation for `mplhep` is built using [MkDocs](https://www.mkdocs.org/) with the [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/) theme. Additional requirements for building the docs are listed in `new_docs/requirements_docs.txt` and can be installed via:
-
-```bash
-pip install -r new_docs/requirements_docs.txt
-```
+The documentation for `mplhep` is built using [MkDocs](https://www.mkdocs.org/) with the [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/) theme.
 
 To build the documentation locally, run the following command from the root directory of the repository:
 
 **With MkDocs:**
+
+ Additional requirements for building the docs are listed in `new_docs/requirements_docs.txt` and can be installed via:
+
+```bash
+pip install -r new_docs/requirements_docs.txt
+```
+Then run:
 
 ```bash
 mkdocs build   # Builds the documentation into the site/ directory
