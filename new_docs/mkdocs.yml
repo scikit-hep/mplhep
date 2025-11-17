@@ -191,3 +191,4 @@ nav:
       - Stacked and Unstacked Histograms Components: gallery/model_with_stacked_and_unstacked_histograms_components.md
       - Ratio Data vs Model with Stacked and Unstacked Function Components: gallery/ratio_data_vs_model_with_stacked_and_unstacked_function_components.md
   - API: api.md
+  - Contributing: CONTRIBUTING.md

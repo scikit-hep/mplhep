@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import argparse
+
 import nox
 
 nox.options.sessions = ["lint", "tests"]
@@ -54,3 +56,47 @@ def root_tests(session):
     session.install("-e", ".")
     session.install(*pyproject["project"]["optional-dependencies"]["test"])
     session.run("pytest", "tests/test_make_plottable_histogram.py", *session.posargs)
+
+
+@nox.session(reuse_venv=True)
+def docs(session: nox.Session) -> None:
+    """
+    Build the documentation.
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--serve",
+        action="store_true",
+        help="Serve the docs locally. By default, the docs are built instead.",
+    )
+    parser.add_argument(
+        "--fast",
+        action="store_true",
+        help="Build docs without generating the codeblock examples.",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=8000,
+        help="Port to serve the docs on if --serve is used. Default is 8000.",
+    )
+    args, posargs = parser.parse_known_args(session.posargs)
+
+    pyproject = nox.project.load_toml("pyproject.toml")
+    session.install("-e", ".")
+    session.install(*pyproject["project"]["optional-dependencies"]["docs"])
+    session.install(*pyproject["project"]["optional-dependencies"]["test"])
+    session.chdir("new_docs")
+    session.install("-r", "requirements.txt")
+
+    cmd = ["mkdocs"]
+
+    if args.serve:
+        cmd.extend(["serve", "--dev-addr", f"127.0.0.1:{args.port}"])
+    else:
+        cmd.append("build")
+
+    if args.fast:
+        cmd.extend(["-f", "mkdocs_norender.yml"])
+
+    session.run(*cmd, *posargs)
