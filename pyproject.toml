@@ -8,22 +8,21 @@ dynamic = ["version"]
 description = "Matplotlib styles for HEP"
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 authors = [
     { name = "andrzejnovak", email = "novak5andrzej@gmail.com" },
 ]
 classifiers = [
     "Framework :: Matplotlib",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering :: Physics",
 ]
 dependencies = [
@@ -51,11 +50,11 @@ docs = [
     "mkdocs-git-revision-date-localized-plugin",
     "mkdocs-git-committers-plugin-2",
     "mkdocstrings[python]>=0.20",
+    "griffe_inherited_docstrings",
 ]
 test = [
     "boost_histogram",
     "hist",
-    "plothist_utils",
     "pytest-mock",
     "pytest-mpl",
     "pytest-xdist",
@@ -88,6 +87,12 @@ metadata.allow-direct-references = true
 dev = [
     "mplhep[test]",
 ]
+docs = [
+    "mplhep[docs]",
+]
+all = [
+    "mplhep[dev,test,docs]",
+]
 
 [tool.uv]
 environments = [
@@ -97,7 +102,7 @@ environments = [
 
 [tool.mypy]
 files = ["src"]
-python_version = "3.8"
+python_version = "3.9"
 warn_unused_configs = true
 
 allow_redefinition = true
@@ -123,16 +128,29 @@ ignore_missing_imports = true
 # Additional configuration is in matplotlib/testing/conftest.py.
 [tool.pytest.ini_options]
 minversion = 6.0
-testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers"]  # need to fix pytest dependency installs to enable --strict-config
+filterwarnings = [
+  "error",
+  "default:urllib3 v2 only supports OpenSSL",
+  "default:invalid value encountered in _fmt:RuntimeWarning",
+]
+log_level = "INFO"
 python_files = "test*.py"
-asyncio_default_fixture_loop_scope = "session"
+testpaths = ["tests"]
+xfail_strict = true
+markers = [
+    "latex: tests that require LaTeX to be installed",
+]
+
 
 [tool.ruff.lint]
 extend-select = [
     "B", # flake8-bugbear
     "I", # isort
+    "PERF", # perflint
     "ARG", # flake8-unused-arguments
     "C4", # flake8-comprehensions
+    "DTZ", # flake8-datetimez
     "EM", # flake8-errmsg
     "ICN", # flake8-import-conventions
     "G", # flake8-logging-format
@@ -144,6 +162,7 @@ extend-select = [
     "RUF", # Ruff-specific
     "SIM", # flake8-simplify
     "T20", # flake8-print
+    "TRY", # tryceratops
     "UP", # pyupgrade
     "YTT", # flake8-2020
     "EXE", # flake8-executable
@@ -151,6 +170,16 @@ extend-select = [
     "PD", # pandas-vet
     "FURB", # refurb
     "PYI", # flake8-pyi
+    "BLE", # flake8-blind-except
+    "FA", # flake8-future-annotations
+    "FLY", # flynt
+    "ISC", # flake8-implicit-str-concat
+    "Q", # flake8-quotes
+    "RSE", # flake8-raise
+    "SLOT", # flake8-slots
+    "T10", # flake8-debugger
+    "TC", # flake8-type-checking
+    "LOG", # flake8-logging
 ]
 ignore = [
   "PLR09",    # Too many <...>
@@ -161,10 +190,12 @@ ignore = [
   "PD011",    # .values vs .to_numpy can get confused
   "PT013",    # Import from pytest
   "E402",     # Make examples more readable
+  "RUF022",   # Unsorted __all__
 ]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["T20", "RUF059"]
-"docs/conf.py" = ["T20"]
+"docs/source/conf.py" = ["T20", "LOG015"]
 "src/mplhep/_dev.py" = ["T20"]
 "test_*.py" = ["T20"]
+"src/mplhep/styles/*.py" = ["FLY002"]

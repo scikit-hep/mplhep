@@ -12,15 +12,17 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 from ._utils import (
+    EnhancedPlottableHistogram,
+    _check_counting_histogram,
+    _get_plottable_protocol_bins,
+    _hist_object_handler,
+    _invert_collection_order,
+)
+from ._utils import (
     _align_marker as align_marker,
 )
 from ._utils import (
     _get_histogram_axes_title as get_histogram_axes_title,
-)
-from ._utils import (
-    _get_plottable_protocol_bins,
-    _hist_object_handler,
-    _invert_collection_order,
 )
 from ._utils import (
     _get_plottables as get_plottables,
@@ -29,13 +31,21 @@ from ._utils import (
     _isLight as isLight,
 )
 from ._utils import (
+    _make_plottable_histogram as make_plottable_histogram,
+)
+from ._utils import (
     _process_histogram_parts as process_histogram_parts,
 )
 from ._utils import (
     _to_padded2d as to_padded2d,
 )
+from .comparison_functions import (
+    _check_binning_consistency,
+)
 from .utils import (
+    _get_model_type,
     append_axes,
+    set_fitting_ylabel_fontsize,
 )
 
 if TYPE_CHECKING:
@@ -138,15 +148,15 @@ def hist(
 
     Examples
     --------
-    >>> import mplhep as hep
+    >>> import mplhep as mh
     >>> import numpy as np
     >>> data = np.random.normal(100, 15, 1000)
-    >>> hep.hist(data, bins=50, range=(50, 150))
+    >>> mh.hist(data, bins=50, range=(50, 150))
 
     >>> # Multiple datasets
     >>> data1 = np.random.normal(100, 15, 1000)
     >>> data2 = np.random.normal(120, 15, 1000)
-    >>> hep.hist([data1, data2], bins=50, label=['Dataset 1', 'Dataset 2'])
+    >>> mh.hist([data1, data2], bins=50, label=['Dataset 1', 'Dataset 2'])
 
     See Also
     --------
@@ -285,7 +295,7 @@ def histplot(
         - True, sqrt(N) errors or poissonian interval when ``w2`` is specified
         - shape(N) array of for one sided errors or list thereof
         - shape(Nx2) array of for two sided errors or list thereof
-    w2method: callable, optional
+    w2method : callable, optional
         Function calculating CLs with signature ``low, high = fcn(w, w2)``. Here
         ``low`` and ``high`` are given in absolute terms, not relative to w.
         Default is ``None``. If w2 has integer values (likely to be data) poisson
@@ -301,25 +311,27 @@ def histplot(
     binwnorm : float, optional
         If true, convert sum weights to bin-width-normalized, with unit equal to
             supplied value (usually you want to specify 1.)
-    histtype: {'step', 'fill', 'errorbar', 'bar', 'barstep', 'band'}, optional, default: "step"
+    histtype : {'step', 'fill', 'errorbar', 'bar', 'barstep', 'band'}, optional, default: "step"
         Type of histogram to plot:
 
-        - "step": skyline/step/outline of a histogram using `plt.stairs <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs>`_
-        - "fill": filled histogram using `plt.stairs <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs>`_
-        - "errorbar": single marker histogram using `plt.errorbar <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.errorbar.html#matplotlib-axes-axes-errorbar>`_
-        - "bar": If multiple data are given the bars are arranged side by side using `plt.bar <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.bar.html#matplotlib-axes-axes-bar>`_ If only one histogram is provided, it will be treated as "fill" histtype
-        - "barstep": If multiple data are given the steps are arranged side by side using `plt.stairs <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs>`_ . Supports yerr representation. If one histogram is provided, it will be treated as "step" histtype.
-        - "band": filled band spanning the yerr range of the histogram using `plt.stairs <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs>`_
+        - "step": skyline/step/outline of a histogram using [plt.stairs](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs).
+        - "fill": filled histogram using [plt.stairs](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs).
+        - "errorbar": single marker histogram using [plt.errorbar](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.errorbar.html#matplotlib-axes-axes-errorbar).
+        - "bar": If multiple data are given the bars are arranged side by side using [plt.bar](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.bar.html#matplotlib-axes-axes-bar). If only one histogram is provided, it will be treated as "fill" histtype.
+        - "barstep": If multiple data are given the steps are arranged side by side using [plt.stairs](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs). Supports yerr representation. If one histogram is provided, it will be treated as "step" histtype.
+        - "band": filled band spanning the yerr range of the histogram using [plt.stairs](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.stairs.html#matplotlib-axes-axes-stairs).
 
     label : str or list, optional
         Label for legend entry.
-    sort: {'label'/'l', 'yield'/'y'}, optional
-        Append '_r' for reverse.
+    sort : str, optional {'label'/'l', 'yield'/'y'}
+        "label"/"l": sort histograms alphabetically by label, "yield"/"y": sort by total histogram yield. Append '_r' to reverse the order.
     ax : matplotlib.axes.Axes, optional
         Axes object (if None, last one is fetched or one is created)
     flow :  str, optional { "show", "sum", "hint", "none"}
         Whether plot the under/overflow bin. If "show", add additional under/overflow bin.
         If "sum", add the under/overflow bin content to first/last bin.
+        If "hint", draw markers at the axis to indicate presence of under/overflow.
+        If "none", do nothing.
     **kwargs :
         Keyword arguments passed to underlying matplotlib functions -
         {'stairs', 'errorbar'}.
@@ -329,13 +341,13 @@ def histplot(
     w2 : iterable, optional
         Sum of the histogram weights squared for poissonian interval error
         calculation
-    xerr:  bool or float, optional
+    xerr : bool or float, optional
         Size of xerr if ``histtype == 'errorbar'``. If ``True``, bin-width will be used.
     edges : bool, default: True, optional
-        Specifies whether to draw first and last edges of the histogram
+        Specifies whether to draw first and last edges of the histogram.
     binticks : bool, default: False, optional
         Attempts to draw x-axis ticks coinciding with bin boundaries if feasible.
-    xoffsets: bool, default: False,
+    xoffsets : bool, default: False,
         If True, the bin "centers" of plotted histograms will be offset within their bin.
 
     Returns
@@ -405,9 +417,7 @@ def histplot(
     def iterable_not_string(arg):
         return isinstance(arg, collections.abc.Iterable) and not isinstance(arg, str)
 
-    _chunked_kwargs: list[dict[str, Any]] = []
-    for _ in range(len(hists)):
-        _chunked_kwargs.append({})
+    _chunked_kwargs: list[dict[str, Any]] = [{} for _ in hists]
     for kwarg, kwarg_content in kwargs.items():
         # Check if iterable
         if iterable_not_string(kwarg_content):
@@ -474,11 +484,9 @@ def histplot(
         plottables = plottables[::-1]
         _chunked_kwargs = _chunked_kwargs[::-1]
         _labels = _labels[::-1]
-        if "color" not in kwargs:
+        if "color" not in kwargs or kwargs.get("color") is None:
             # Inverse default color cycle
-            _colors = []
-            for _ in range(len(plottables)):
-                _colors.append(ax._get_lines.get_next_color())  # type: ignore[attr-defined]
+            _colors = [ax._get_lines.get_next_color() for _ in plottables]  # type: ignore[attr-defined]
             _colors.reverse()
             for i in range(len(plottables)):
                 _chunked_kwargs[i].update({"color": _colors[i]})
@@ -1250,3 +1258,240 @@ def funcplot(func, range, ax, stack=False, npoints=1000, **kwargs):
         )
         # Invert the order of the collection objects to match the top-down order of the stackplot
         _invert_collection_order(ax, n_collections_before)
+
+
+def model(
+    stacked_components=None,
+    stacked_labels=None,
+    stacked_colors=None,
+    unstacked_components=None,
+    unstacked_labels=None,
+    unstacked_colors=None,
+    xlabel=None,
+    ylabel=None,
+    stacked_kwargs=None,
+    unstacked_kwargs_list=None,
+    model_sum_kwargs=None,
+    function_range=None,
+    model_uncertainty=True,
+    model_uncertainty_label="MC stat. unc.",
+    fig=None,
+    ax=None,
+):
+    """
+    Plot model made of a collection of histograms.
+
+    Parameters
+    ----------
+    stacked_components : list of histogram (e.g. Hist, boost_histogram, np.histogram, TH1), optional
+        The list of histograms to be stacked composing the model. Default is None.
+    stacked_labels : list of str, optional
+        The labels of the model stacked components. Default is None.
+    stacked_colors : list of str, optional
+        The colors of the model stacked components. Default is None.
+    unstacked_components : list of histogram (e.g. Hist, boost_histogram, np.histogram, TH1), optional
+        The list of histograms not to be stacked composing the model. Default is None.
+    unstacked_labels : list of str, optional
+        The labels of the model unstacked components. Default is None.
+    unstacked_colors : list of str, optional
+        The colors of the model unstacked components. Default is None.
+    xlabel : str, optional
+        The label for the x-axis. Default is None.
+    ylabel : str, optional
+        The label for the y-axis. Default is None.
+    stacked_kwargs : dict, optional
+        The keyword arguments used when plotting the stacked components in plot_hist() or plot_function(), one of which is called only once. Default is None.
+    unstacked_kwargs_list : list of dict, optional
+        The list of keyword arguments used when plotting the unstacked components in plot_hist() or plot_function(), one of which is called once for each unstacked component. Default is None.
+    model_sum_kwargs : dict, optional
+        The keyword arguments for the plot_hist() function for the sum of the model components.
+        Has no effect if all the model components are stacked or if the model is one unstacked element.
+        The special keyword "show" can be used with a boolean to specify whether to show or not the sum of the model components.
+        Default is None. If None is provided, this is set to {"show": True, "label": "Model", "color": "navy"}.
+    function_range : tuple, optional (mandatory if the model is made of functions)
+        The range for the x-axis if the model is made of functions.
+    model_uncertainty : bool, optional
+        If False, set the model uncertainties to zeros. Default is True.
+    model_uncertainty_label : str, optional
+        The label for the model uncertainties. Default is "MC stat. unc.".
+    fig : matplotlib.figure.Figure or None, optional
+        The Figure object to use for the plot. Create a new one if none is provided.
+    ax : matplotlib.axes.Axes or None, optional
+        The Axes object to use for the plot. Create a new one if none is provided.
+
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        The Figure object containing the plot.
+    ax : matplotlib.axes.Axes
+        The Axes object containing the plot.
+
+    """
+    if model_sum_kwargs is None:
+        model_sum_kwargs = {"show": True, "label": "Model", "color": "navy"}
+    if unstacked_kwargs_list is None:
+        unstacked_kwargs_list = []
+    if stacked_kwargs is None:
+        stacked_kwargs = {}
+    if unstacked_components is None:
+        unstacked_components = []
+    if stacked_components is None:
+        stacked_components = []
+
+    # Create copies of the kwargs arguments passed as lists/dicts to avoid modifying them
+    stacked_kwargs = stacked_kwargs.copy()
+    unstacked_kwargs_list = unstacked_kwargs_list.copy()
+    model_sum_kwargs = model_sum_kwargs.copy()
+
+    components = stacked_components + unstacked_components
+
+    if len(components) == 0:
+        msg = "Need to provide at least one model component."
+        raise ValueError(msg)
+
+    model_type = _get_model_type(components)
+
+    if model_type == "histograms":
+        components = [
+            (
+                make_plottable_histogram(c)
+                if not isinstance(c, EnhancedPlottableHistogram)
+                else c
+            )
+            for c in components
+        ]
+        _check_counting_histogram(components)
+        _check_binning_consistency(components)
+
+    if fig is None and ax is None:
+        fig, ax = plt.subplots()
+    elif fig is None or ax is None:
+        msg = "Need to provide fig and ax (or none of them)."
+        raise ValueError(msg)
+
+    if model_type == "histograms":
+        xlim = (components[0].edges_1d()[0], components[0].edges_1d()[-1])
+    else:
+        if function_range is None:
+            msg = "Need to provide function_range for model made of functions."
+            raise ValueError(msg)
+        xlim = function_range
+
+    if len(stacked_components) > 0:
+        # Plot the stacked components
+        stacked_kwargs.setdefault("edgecolor", "black")
+        stacked_kwargs.setdefault("linewidth", 0.5)
+        if model_type == "histograms":
+            stacked_kwargs.setdefault("histtype", "fill")
+            histplot(
+                stacked_components,
+                ax=ax,
+                stack=True,
+                color=stacked_colors,
+                label=stacked_labels,
+                **stacked_kwargs,
+            )
+            if model_uncertainty and len(unstacked_components) == 0:
+                histplot(
+                    sum(stacked_components),
+                    ax=ax,
+                    label=model_uncertainty_label,
+                    histtype="band",
+                )
+        else:
+            funcplot(
+                stacked_components,
+                ax=ax,
+                stack=True,
+                colors=stacked_colors,
+                labels=stacked_labels,
+                range=xlim,
+                **stacked_kwargs,
+            )
+
+    if len(unstacked_components) > 0:
+        # Plot the unstacked components
+        if unstacked_colors is None:
+            unstacked_colors = [None] * len(unstacked_components)
+        if unstacked_labels is None:
+            unstacked_labels = [None] * len(unstacked_components)
+        if len(unstacked_kwargs_list) == 0:
+            unstacked_kwargs_list = [{}] * len(unstacked_components)
+        for component, color, label, unstacked_kwargs in zip(
+            unstacked_components,
+            unstacked_colors,
+            unstacked_labels,
+            unstacked_kwargs_list,
+        ):
+            if model_type == "histograms":
+                unstacked_kwargs.setdefault("histtype", "step")
+                histplot(
+                    component,
+                    ax=ax,
+                    stack=False,
+                    color=color,
+                    label=label,
+                    **unstacked_kwargs,
+                )
+            else:
+                funcplot(
+                    component,
+                    ax=ax,
+                    stack=False,
+                    color=color,
+                    label=label,
+                    range=xlim,
+                    **unstacked_kwargs,
+                )
+        # Plot the sum of all the components
+        if model_sum_kwargs.pop("show", True) and (
+            len(unstacked_components) > 1 or len(stacked_components) > 0
+        ):
+            if model_type == "histograms":
+                model_sum_kwargs.setdefault("yerr", False)
+            if model_type == "histograms":
+                histplot(
+                    sum(components),
+                    ax=ax,
+                    histtype="step",
+                    **model_sum_kwargs,
+                )
+                if (
+                    model_uncertainty
+                    and model_sum_kwargs.get("yerr", False) is not True
+                ):
+                    histplot(
+                        sum(components),
+                        ax=ax,
+                        label=model_uncertainty_label,
+                        histtype="band",
+                    )
+            else:
+
+                def sum_function(x):
+                    return sum(f(x) for f in components)
+
+                funcplot(
+                    sum_function,
+                    ax=ax,
+                    range=xlim,
+                    **model_sum_kwargs,
+                )
+        elif (
+            model_uncertainty
+            and len(stacked_components) == 0
+            and len(unstacked_components) == 1
+            and model_type == "histograms"
+        ):
+            histplot(
+                sum(components), ax=ax, label=model_uncertainty_label, histtype="band"
+            )
+
+    ax.set_xlim(xlim)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    set_fitting_ylabel_fontsize(ax)
+    ax.legend()
+
+    return fig, ax

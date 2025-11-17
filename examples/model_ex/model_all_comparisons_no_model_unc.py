@@ -8,10 +8,8 @@ All supported comparisons between data and model, without model uncertainty.
 # --8<-- [start:full_code]
 # --8<-- [start:imports]
 import hist
-import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-from hist import Hist
 
 import mplhep as mh
 
@@ -35,14 +33,13 @@ data_data = np.concatenate(
         np.random.normal(0, 2.5, 3500),  # Less background here
         np.random.normal(3, 1.2, 1800),  # Similar background
         np.random.normal(-1, 1.8, 1400),  # Similar background
-        np.random.normal(5, 0.8, 800),  # Clear signal peak
+        np.random.normal(0, 0.8, 500),  # Clear signal peak
         np.random.normal(-3, 0.5, 200),  # Some deficit here (under-predicted)
     ]
 )
 
 # Create histograms
-data_hist = Hist(hist.axis.Regular(50, -8, 8), storage=hist.storage.Weight())
-data_hist.fill(data_data)
+data_hist = hist.new.Regular(50, -8, 8).Weight().fill(data_data)
 
 background_hists = [
     hist.new.Regular(50, -8, 8).Weight().fill(bkg1_data),
@@ -73,18 +70,11 @@ background_colors = sns.color_palette("cubehelix", 3)
 
 # --8<-- [start:plot_body]
 # Create comparison plots
-fig, axes = plt.subplots(
-    nrows=6,
-    figsize=(6, 13),
-    gridspec_kw={"height_ratios": [3, 1, 1, 1, 1, 1]},
-)
-fig.subplots_adjust(hspace=0.3)
-for ax in axes[:-1]:
-    ax.xaxis.set_ticklabels([])
-    ax.set_xlabel(" ")
+fig, axes = mh.subplots(nrows=6, hspace=0.3)
+
 background_sum = sum(background_hists)
 
-mh.plot_data_model_comparison(
+mh.comp.data_model(
     data_hist=data_hist,
     stacked_components=background_hists,
     stacked_labels=background_labels,
@@ -108,7 +98,7 @@ mh.add_text(
     r'  $\mathbf{→}$ comparison = "ratio"', ax=axes[1], loc="over left", fontsize=13
 )
 
-for k_comp, comparison in enumerate(
+for k_comp, comp in enumerate(
     ["split_ratio", "pull", "relative_difference", "difference"], start=2
 ):
     ax_comparison = axes[k_comp]
@@ -119,21 +109,21 @@ for k_comp, comparison in enumerate(
         background_sum_copy.values(), np.zeros_like(background_sum_copy.values())
     ]
 
-    mh.plot_comparison(
+    mh.comp.comparison(
         data_hist,
         background_sum_copy,
         ax=ax_comparison,
-        comparison=comparison,
+        comparison=comp,
         xlabel="",
         h1_label="Data",
-        h2_label="Pred.",
+        h2_label="MC",
         h1_w2method="poisson",
     )
-    if comparison == "pull":
-        # Since the uncertainties of the model are neglected, the pull label is "(Data - Pred.)/sigma_Data"
-        ax_comparison.set_ylabel(r"$\frac{Data-Pred.}{\sigma_{Data}}$")
+    if comp == "pull":
+        # Since the uncertainties of the model are neglected, the pull label is "(Data - MC)/sigma_Data"
+        ax_comparison.set_ylabel(r"$\frac{Data-MC}{\sigma_{Data}}$")
     mh.add_text(
-        rf'  $\mathbf{{→}}$ comparison = "{comparison}"',
+        rf'  $\mathbf{{→}}$ comparison = "{comp}"',
         ax=ax_comparison,
         loc="over left",
         fontsize=13,

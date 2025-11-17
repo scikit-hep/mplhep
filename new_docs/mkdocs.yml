@@ -88,6 +88,8 @@ markdown_extensions:
   - neoteroi.cards
   - attr_list
   - md_in_html
+  - pymdownx.arithmatex:
+      generic: true
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
@@ -115,11 +117,10 @@ plugins:
   - search
   - minify
   - git-revision-date-localized
-  # - markdown-exec
+  - markdown-exec
   - mkdocs_matplotlib:
       align: left       # Options: left, center, right (default: center)
       image_width: 50%   # Default width for rendered images (default: 100%)
-  # - markdown-exec
   - mkdocstrings:
       handlers:
         python:
@@ -151,10 +152,22 @@ hooks:
 
 exclude_docs: |
   guide_template.md
+  guide_overview_template.md
+  guide_basic_plotting_template.md
+  guide_comparisons_template.md
+  guide_styling_template.md
+  guide_utilities_template.md
+  guide_advanced_template.md
 
 nav:
   - Home: index.md
-  - Guide: guide.md
+  - User Guide:
+    - Overview: guide.md
+    - Basic Plotting: guide_basic_plotting.md
+    - Comparisons: guide_comparisons.md
+    - Styling: guide_styling.md
+    - Utilities: guide_utilities.md
+    - To go further: guide_advanced.md
   - Gallery:
     - Overview: gallery.md
     - 1D Comparisons:
@@ -178,3 +191,4 @@ nav:
       - Stacked and Unstacked Histograms Components: gallery/model_with_stacked_and_unstacked_histograms_components.md
       - Ratio Data vs Model with Stacked and Unstacked Function Components: gallery/ratio_data_vs_model_with_stacked_and_unstacked_function_components.md
   - API: api.md
+  - Contributing: CONTRIBUTING.md

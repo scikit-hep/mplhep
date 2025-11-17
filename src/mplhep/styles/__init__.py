@@ -18,13 +18,13 @@ from .atlas import ATLAS, ATLAS1, ATLAS2, ATLASAlt, ATLASTex
 from .cms import CMS, ROOT, CMSTex, ROOTTex
 from .dune import DUNE, DUNE1, DUNETex, DUNETex1
 from .lhcb import LHCb, LHCb1, LHCb2, LHCb3, LHCbTex, LHCbTex1, LHCbTex2, LHCbTex3
-from .plothist import PLOTHIST
+from .plothist import plothist
 
 __all__ = (
     "ALICE",
     "ATLAS",
     "CMS",
-    "PLOTHIST",
+    "plothist",
     "ROOT",
     "ATLAS1",
     "ATLAS2",
@@ -56,7 +56,7 @@ __style_aliases__ = (
     "ALICE",
     "ATLAS",
     "CMS",
-    "PLOTHIST",
+    "plothist",
     "ROOT",
     "ATLAS1",
     "ATLAS2",

@@ -37,7 +37,6 @@ def test_style_cmstex():
     fig, ax = plt.subplots()
     mh.cms.label("Preliminary")
 
-    plt.rcParams.update(plt.rcParamsDefault)
     return fig
 
 
@@ -50,7 +49,6 @@ def test_style_roottex():
     ax.set_xlabel(r"$p_T$ [GeV]")
     ax.set_ylabel(r"Events / 10 GeV")
 
-    plt.rcParams.update(plt.rcParamsDefault)
     return fig
 
 
@@ -62,7 +60,6 @@ def test_style_dunetex():
     fig, ax = plt.subplots()
     mh.dune.label(text="Preliminary")
 
-    plt.rcParams.update(plt.rcParamsDefault)
     return fig
 
 
@@ -74,7 +71,6 @@ def test_style_dunetex1():
     fig, ax = plt.subplots()
     mh.dune.label(text="Preliminary")
 
-    plt.rcParams.update(plt.rcParamsDefault)
     return fig
 
 
@@ -86,7 +82,6 @@ def test_style_atlastex():
     fig, ax = plt.subplots()
     mh.atlas.label(text="Preliminary")
 
-    plt.rcParams.update(plt.rcParamsDefault)
     return fig
 
 
@@ -98,7 +93,6 @@ def test_style_lhcbtex1():
     fig, ax = plt.subplots()
     mh.lhcb.label("Preliminary")
 
-    plt.rcParams.update(plt.rcParamsDefault)
     return fig
 
 
@@ -110,7 +104,6 @@ def test_style_lhcbtex2():
     fig, ax = plt.subplots()
     mh.lhcb.label("Preliminary")
 
-    plt.rcParams.update(plt.rcParamsDefault)
     return fig
 
 

@@ -408,8 +408,25 @@ def add_text(
         msg = f"y should be numeric, got {type(y).__name__}"
         raise TypeError(msg)
 
+    # When using LaTeX, wrap text in appropriate commands based on fontweight and fontstyle
+    _text = text
+    if rcParams.get("text.usetex", False) and text:
+        fontweight = kwargs.get("fontweight", "normal")
+        fontstyle = kwargs.get("fontstyle", "normal")
+
+        # Apply both bold and italic if needed (order matters: textbf outside textit)
+        is_bold = fontweight in ("bold", 700, "heavy")
+        is_italic = fontstyle in ("italic", "oblique")
+
+        if is_bold and is_italic:
+            _text = rf"\textbf{{\textit{{{_text}}}}}"
+        elif is_bold:
+            _text = rf"\textbf{{{_text}}}"
+        elif is_italic:
+            _text = rf"\textit{{{_text}}}"
+
     t = text_class(
-        float(x), float(y), text, fontsize=_font_size, transform=transform, **kwargs
+        float(x), float(y), _text, fontsize=_font_size, transform=transform, **kwargs
     )
     ax._add_text(t)  # type: ignore[attr-defined]
 
@@ -552,7 +569,25 @@ def append_text(
         raise ValueError(msg)
     if _debug_x_override is not None:
         _x = _debug_x_override
-    txt_artist = text_class(_x, _y, s, va=va, ha=ha, transform=ax.transAxes, **kwargs)
+
+    # When using LaTeX, wrap text in appropriate commands based on fontweight and fontstyle
+    _s = s
+    if rcParams.get("text.usetex", False) and s:
+        fontweight = kwargs.get("fontweight", "normal")
+        fontstyle = kwargs.get("fontstyle", "normal")
+
+        # Apply both bold and italic if needed (order matters: textbf outside textit)
+        is_bold = fontweight in ("bold", 700, "heavy")
+        is_italic = fontstyle in ("italic", "oblique")
+
+        if is_bold and is_italic:
+            _s = rf"\textbf{{\textit{{{_s}}}}}"
+        elif is_bold:
+            _s = rf"\textbf{{{_s}}}"
+        elif is_italic:
+            _s = rf"\textit{{{_s}}}"
+
+    txt_artist = text_class(_x, _y, _s, va=va, ha=ha, transform=ax.transAxes, **kwargs)
     ax._add_text(txt_artist)  # type: ignore[attr-defined]
     return txt_artist
 
@@ -570,6 +605,7 @@ def exp_text(
     ) = None,
     fontweight: tuple[str, str, str, str] = ("bold", "normal", "normal", "normal"),
     fontstyle: tuple[str, str, str, str] = ("normal", "italic", "normal", "normal"),
+    scilocator_adjust: bool = True,
     **kwargs: Any,
 ) -> tuple[mtext.Text, mtext.Text | None, mtext.Text | None, mtext.Text | None]:
     """Add typical LHC experiment primary label to the axes.
@@ -606,6 +642,10 @@ def exp_text(
         Tuple of fontweights for (exp, text, lumi, supp), by default ("bold", "normal", "normal", "normal").
     fontstyle : tuple[str, str, str, str], optional
         Tuple of fontstyles for (exp, text, lumi, supp), by default ("normal", "italic", "normal", "normal").
+    scilocator_adjust : bool, optional
+        Whether to automatically adjust label position to accommodate scientific notation offset
+        that appears on axes (e.g., "x10³" on y-axis). Only applies to loc positions 0 and 3
+        (above axes), by default True.
     **kwargs
         Additional keyword arguments passed to text functions.
 
@@ -639,15 +679,21 @@ def exp_text(
     _italic_exp, _italic_suff, _italic_lumi, _italic_supp = fontstyle
     _weight_exp, _weight_suff, _weight_lumi, _weight_supp = fontweight
 
-    # Special cases
-    if (
-        loc in [0, 3] and ax.get_yaxis().get_major_formatter().get_useOffset()  # type: ignore[attr-defined]
-    ):  # Requires figure.draw call, fetch only when needed
-        ax.figure.draw(ax.figure.canvas.get_renderer())  # type: ignore[attr-defined]
-        _sci_box = _pixel_to_axis(
-            ax.get_yaxis().offsetText.get_window_extent(ax.figure.canvas.get_renderer())  # type: ignore[attr-defined]
-        )
-        _sci_offset = max(0, _sci_box.width * 1.1)
+    # Special cases - detect scientific notation offset only if enabled
+    if scilocator_adjust and loc in [0, 3]:
+        _fmt = ax.get_yaxis().get_major_formatter()
+        if hasattr(_fmt, "get_useOffset") and _fmt.get_useOffset():  # type: ignore[attr-defined]
+            # Requires figure.draw call, fetch only when needed
+            ax.figure.draw(ax.figure.canvas.get_renderer())  # type: ignore[attr-defined,union-attr]
+            _sci_box = _pixel_to_axis(
+                ax.get_yaxis().offsetText.get_window_extent(
+                    ax.figure.canvas.get_renderer()  # type: ignore[attr-defined,union-attr]
+                )  # type: ignore[attr-defined]
+            )
+            # Use abs() to handle cases where extent coordinates may be reversed
+            _sci_offset = max(0, abs(_sci_box.width) * 1.1)
+        else:
+            _sci_offset = 0
     else:
         _sci_offset = 0
 
@@ -779,6 +825,7 @@ def exp_label(
     fontstyle: tuple[str, str, str, str] = ("normal", "italic", "normal", "normal"),
     label: str | None = None,  # Deprecated
     pub: Any = None,  # Deprecated  # noqa: ARG001
+    scilocator_adjust: bool = True,
     ax: Axes | None = None,
     **kwargs: Any,
 ) -> tuple[mtext.Text, mtext.Text | None, mtext.Text | None, mtext.Text | None]:
@@ -832,6 +879,10 @@ def exp_label(
     fontstyle : tuple[str, str, str, str], optional
         Font styles for (exp, text, lumi, supp) elements,
         by default ("normal", "italic", "normal", "normal").
+    scilocator_adjust : bool, optional
+        Whether to automatically adjust label position to accommodate scientific notation offset
+        that appears on axes (e.g., "x10³" on y-axis). Only applies to loc positions 0 and 3
+        (above axes), by default True.
     ax : matplotlib.axes.Axes | None, optional
         Axes object to add labels to. If None, uses current axes.
     **kwargs : Any
@@ -862,9 +913,9 @@ def exp_label(
         # Build label following main branch logic
         _label = text
         if supp:  # If supp is truthy, prepend "Supplementary"
-            _label = " ".join(["Supplementary", _label])
+            _label = f"Supplementary {_label}"
         if not data:
-            _label = " ".join(["Simulation", _label])
+            _label = f"Simulation {_label}"
         # Clean up extra whitespace
         llabel = " ".join(_label.split())
 
@@ -878,6 +929,7 @@ def exp_label(
         fontsize=fontsize,
         fontweight=fontweight,
         fontstyle=fontstyle,
+        scilocator_adjust=scilocator_adjust,
         **kwargs,
     )
 
@@ -961,7 +1013,7 @@ def savelabels(
     # At this point, labels is guaranteed to be list[tuple[str, str]]
     tuple_labels: list[tuple[str, str]] = labels  # type: ignore[assignment]
     for label_text, suffix in tuple_labels:
-        label_base.set_text(" ".join([_sim, label_text]).lstrip())
+        label_base.set_text(f"{_sim} {label_text}".lstrip())
 
         def _construct_filename(base_fname: str, suffix: str) -> str:
             """Construct output filename from base name and suffix."""

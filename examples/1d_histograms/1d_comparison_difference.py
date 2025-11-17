@@ -9,7 +9,6 @@ Compare two 1D histograms using the difference [h1-h2].
 # --8<-- [start:imports]
 import hist
 import numpy as np
-from hist import Hist
 
 import mplhep as mh
 
@@ -21,17 +20,13 @@ np.random.seed(42)
 x1 = np.r_[np.random.normal(0.4, 0.1, 5000), np.random.normal(0.7, 0.1, 5000)]
 x2 = np.r_[np.random.normal(0.4, 0.1, 1000), np.random.normal(0.7, 0.11, 7000)]
 
-# Create and fill histograms"
-h1 = Hist(hist.axis.Regular(50, 0, 1), storage=hist.storage.Weight())  # Long interface
-h2 = hist.new.Regular(50, 0, 1).Weight()  # Shorthand interface
-h1.fill(x1)
-h2.fill(x2)
+# Create and fill histograms
+h1 = hist.new.Regular(50, 0, 1).Weight().fill(x1)
+h2 = hist.new.Regular(50, 0, 1).Weight().fill(x2)
 # --8<-- [end:setup]
 
 
 # --8<-- [start:plot_body]
-from mplhep import add_text
-
 fig, ax_main, ax_comparison = mh.comp.hists(
     h1,
     h2,
@@ -42,13 +37,13 @@ fig, ax_main, ax_comparison = mh.comp.hists(
     comparison="difference",  # <--
 )
 
-add_text(
+mh.add_text(
     "Comparison of two hist with difference plot",
     ax=ax_main,
     fontsize="small",
     loc="over left",
 )
-add_text("Difference ax", ax=ax_comparison, loc="over right", fontsize="small")
+mh.add_text("Difference ax", ax=ax_comparison, loc="over right", fontsize="small")
 
 # --8<-- [end:plot_body]
 # --8<-- [end:full_code]

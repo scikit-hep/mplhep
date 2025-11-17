@@ -7,60 +7,55 @@ Compare data and model with stacked and unstacked functional components.
 
 # --8<-- [start:full_code]
 # --8<-- [start:imports]
-from plothist_utils import get_dummy_data
-
-df = get_dummy_data()
-
-# Define the histograms
-
-key = "variable_1"
-range = (-9, 12)
-category = "category"
-
-# Define masks
-data_mask = df[category] == 8
-
-# Make histograms
 import hist
-from hist import Hist
-
-axis = hist.axis.Regular(50, range[0], range[1])
-data_hist = Hist(axis, storage=hist.storage.Weight())
-data_hist.fill(df[key][data_mask])
-
-# Define some random functions that will be used as model components with functions
+import numpy as np
 from scipy.stats import norm
 
+import mplhep as mh
+
+np.random.seed(42)
 # --8<-- [end:imports]
 
 
 # --8<-- [start:setup]
+# Create data histogram
+data_hist = hist.new.Regular(50, -8, 8).Weight()
+data_hist.fill(
+    np.concatenate(
+        [
+            np.random.normal(0, 2, 3500),
+            np.random.normal(-3, 1, 2000),
+            np.random.normal(5, 0.5, 200),
+        ]
+    )
+)
+_binwidth = data_hist.axes[0].widths[0]
+
+
+# Define model function components
 def f_signal(x):
-    return 1000 * norm.pdf(x, loc=0.5, scale=3)
+    return 200 * _binwidth * norm.pdf(x, loc=5, scale=0.5)
 
 
 def f_background1(x):
-    return 1000 * norm.pdf(x, loc=-1.5, scale=4)
+    return 3500 * _binwidth * norm.pdf(x, loc=0, scale=2)
 
 
 def f_background2(x):
-    return 3000 * norm.pdf(x, loc=-1.8, scale=1.8)
+    return 2000 * _binwidth * norm.pdf(x, loc=-3, scale=1)
 
 
 # --8<-- [end:setup]
 
 # --8<-- [start:plot_body]
-###
-from mplhep import plot_data_model_comparison
-
-fig, ax_main, ax_comparison = plot_data_model_comparison(
+fig, ax_main, ax_comparison = mh.comp.data_model(
     data_hist=data_hist,
     stacked_components=[f_background1, f_background2],
     stacked_labels=["c0", "c1"],
     unstacked_components=[f_signal],
     unstacked_labels=["Signal"],
     unstacked_colors=["#8EBA42"],
-    xlabel=key,
+    xlabel="Observable",
     ylabel="Entries",
     model_sum_kwargs={"show": True, "label": "Model", "color": "navy"},
     comparison="pull",

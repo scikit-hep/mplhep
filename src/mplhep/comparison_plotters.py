@@ -22,11 +22,13 @@ from .comparison_functions import (
     get_comparison,
 )
 from .plot import (
-    funcplot,
     histplot,
+    model,
 )
 from .utils import (
+    _get_model_type,
     set_fitting_ylabel_fontsize,
+    subplots,
 )
 
 
@@ -50,7 +52,7 @@ def _get_math_text(text):
     return text
 
 
-def plot_two_hist_comparison(
+def hists(
     h1,
     h2,
     xlabel=None,
@@ -86,7 +88,7 @@ def plot_two_hist_comparison(
     ax_comparison : matplotlib.axes.Axes or None, optional
         The axes for the comparison plot. If fig, ax_main and ax_comparison are None, a new axes will be created. Default is None.
     **comparison_kwargs : optional
-        Arguments to be passed to plot_comparison(), including the choice of the comparison function and the treatment of the uncertainties (see documentation of plot_comparison() for details).
+        Arguments to be passed to comparison(), including the choice of the comparison function and the treatment of the uncertainties (see documentation of comparison() for details).
 
     Returns
     -------
@@ -99,7 +101,7 @@ def plot_two_hist_comparison(
 
     See Also
     --------
-    plot_comparison : Plot the comparison between two histograms.
+    comparison : Plot the comparison between two histograms.
 
     """
     h1_plottable = make_plottable_histogram(h1)
@@ -110,12 +112,7 @@ def plot_two_hist_comparison(
     _check_counting_histogram(h2_plottable)
 
     if fig is None and ax_main is None and ax_comparison is None:
-        fig, (ax_main, ax_comparison) = plt.subplots(
-            nrows=2, figsize=(6, 5), gridspec_kw={"height_ratios": [4, 1]}
-        )
-        fig.subplots_adjust(hspace=0.15)
-        ax_main.xaxis.set_ticklabels([])
-        ax_main.set_xlabel(" ")
+        fig, (ax_main, ax_comparison) = subplots(nrows=2)
     elif fig is None or ax_main is None or ax_comparison is None:
         msg = "Need to provide fig, ax_main and ax_comparison (or none of them)."
         raise ValueError(msg)
@@ -129,7 +126,7 @@ def plot_two_hist_comparison(
     ax_main.legend()
     _ = ax_main.xaxis.set_ticklabels([])
 
-    plot_comparison(
+    comparison(
         h1_plottable,
         h2_plottable,
         ax_comparison,
@@ -144,7 +141,7 @@ def plot_two_hist_comparison(
     return fig, ax_main, ax_comparison
 
 
-def plot_comparison(
+def comparison(
     h1,
     h2,
     ax,
@@ -194,7 +191,7 @@ def plot_comparison(
 
     See Also
     --------
-    plot_two_hist_comparison : Compare two histograms and plot the comparison.
+    hists : Compare two histograms and plot the comparison.
 
     """
     h1_plottable = make_plottable_histogram(h1)
@@ -217,8 +214,9 @@ def plot_comparison(
             edges=h2_plottable.axes[0].edges,
             variances=lower_uncertainties**2,
             kind=h2_plottable.kind,
-            w2method=h2_plottable.method,
+            w2method="sqrt",
         )
+        histplot_kwargs.setdefault("w2method", "sqrt")
     else:
         comparison_plottable = EnhancedPlottableHistogram(
             comparison_values,
@@ -226,6 +224,9 @@ def plot_comparison(
             yerr=[lower_uncertainties, upper_uncertainties],
             kind=h2_plottable.kind,
             w2method=h2_plottable.method,
+        )
+        histplot_kwargs.setdefault(
+            "yerr", [comparison_plottable.yerr_lo, comparison_plottable.yerr_hi]
         )
 
     comparison_plottable.errors()
@@ -237,7 +238,6 @@ def plot_comparison(
     else:
         histplot_kwargs.setdefault("color", "black")
         histplot_kwargs.setdefault("histtype", "errorbar")
-        histplot_kwargs.setdefault("yerr", comparison_plottable.yerr)
         histplot(comparison_plottable, ax=ax, **histplot_kwargs)
 
     if comparison in ["ratio", "split_ratio", "relative_difference"]:
@@ -318,263 +318,6 @@ def plot_comparison(
     return ax
 
 
-def _get_model_type(components):
-    """
-    Check that all components of a model are either all histograms or all functions
-    and return the type of the model components.
-
-    Parameters
-    ----------
-    components : list
-        The list of model components.
-
-    Returns
-    -------
-    str
-        The type of the model components ("histograms" or "functions").
-
-    Raises
-    ------
-    ValueError
-        If the model components are not all histograms or all functions.
-    """
-    if all(callable(x) for x in components):
-        return "functions"
-    return "histograms"
-
-
-def plot_model(
-    stacked_components=None,
-    stacked_labels=None,
-    stacked_colors=None,
-    unstacked_components=None,
-    unstacked_labels=None,
-    unstacked_colors=None,
-    xlabel=None,
-    ylabel=None,
-    stacked_kwargs=None,
-    unstacked_kwargs_list=None,
-    model_sum_kwargs=None,
-    function_range=None,
-    model_uncertainty=True,
-    model_uncertainty_label="Model stat. unc.",
-    fig=None,
-    ax=None,
-):
-    """
-    Plot model made of a collection of histograms.
-
-    Parameters
-    ----------
-    stacked_components : list of histogram (e.g. Hist, boost_histogram, np.histogram, TH1), optional
-        The list of histograms to be stacked composing the model. Default is None.
-    stacked_labels : list of str, optional
-        The labels of the model stacked components. Default is None.
-    stacked_colors : list of str, optional
-        The colors of the model stacked components. Default is None.
-    unstacked_components : list of histogram (e.g. Hist, boost_histogram, np.histogram, TH1), optional
-        The list of histograms not to be stacked composing the model. Default is None.
-    unstacked_labels : list of str, optional
-        The labels of the model unstacked components. Default is None.
-    unstacked_colors : list of str, optional
-        The colors of the model unstacked components. Default is None.
-    xlabel : str, optional
-        The label for the x-axis. Default is None.
-    ylabel : str, optional
-        The label for the y-axis. Default is None.
-    stacked_kwargs : dict, optional
-        The keyword arguments used when plotting the stacked components in plot_hist() or plot_function(), one of which is called only once. Default is None.
-    unstacked_kwargs_list : list of dict, optional
-        The list of keyword arguments used when plotting the unstacked components in plot_hist() or plot_function(), one of which is called once for each unstacked component. Default is None.
-    model_sum_kwargs : dict, optional
-        The keyword arguments for the plot_hist() function for the sum of the model components.
-        Has no effect if all the model components are stacked or if the model is one unstacked element.
-        The special keyword "show" can be used with a boolean to specify whether to show or not the sum of the model components.
-        Default is None. If None is provided, this is set to {"show": True, "label": "Model", "color": "navy"}.
-    function_range : tuple, optional (mandatory if the model is made of functions)
-        The range for the x-axis if the model is made of functions.
-    model_uncertainty : bool, optional
-        If False, set the model uncertainties to zeros. Default is True.
-    model_uncertainty_label : str, optional
-        The label for the model uncertainties. Default is "Model stat. unc.".
-    fig : matplotlib.figure.Figure or None, optional
-        The Figure object to use for the plot. Create a new one if none is provided.
-    ax : matplotlib.axes.Axes or None, optional
-        The Axes object to use for the plot. Create a new one if none is provided.
-
-
-    Returns
-    -------
-    fig : matplotlib.figure.Figure
-        The Figure object containing the plot.
-    ax : matplotlib.axes.Axes
-        The Axes object containing the plot.
-
-    """
-    if model_sum_kwargs is None:
-        model_sum_kwargs = {"show": True, "label": "Model", "color": "navy"}
-    if unstacked_kwargs_list is None:
-        unstacked_kwargs_list = []
-    if stacked_kwargs is None:
-        stacked_kwargs = {}
-    if unstacked_components is None:
-        unstacked_components = []
-    if stacked_components is None:
-        stacked_components = []
-
-    # Create copies of the kwargs arguments passed as lists/dicts to avoid modifying them
-    stacked_kwargs = stacked_kwargs.copy()
-    unstacked_kwargs_list = unstacked_kwargs_list.copy()
-    model_sum_kwargs = model_sum_kwargs.copy()
-
-    components = stacked_components + unstacked_components
-
-    if len(components) == 0:
-        msg = "Need to provide at least one model component."
-        raise ValueError(msg)
-
-    model_type = _get_model_type(components)
-
-    if model_type == "histograms":
-        components = [
-            (
-                make_plottable_histogram(c)
-                if not isinstance(c, EnhancedPlottableHistogram)
-                else c
-            )
-            for c in components
-        ]
-        _check_counting_histogram(components)
-        _check_binning_consistency(components)
-
-    if fig is None and ax is None:
-        fig, ax = plt.subplots()
-    elif fig is None or ax is None:
-        msg = "Need to provide fig and ax (or none of them)."
-        raise ValueError(msg)
-
-    if model_type == "histograms":
-        xlim = (components[0].edges_1d()[0], components[0].edges_1d()[-1])
-    else:
-        if function_range is None:
-            msg = "Need to provide function_range for model made of functions."
-            raise ValueError(msg)
-        xlim = function_range
-
-    if len(stacked_components) > 0:
-        # Plot the stacked components
-        stacked_kwargs.setdefault("edgecolor", "black")
-        stacked_kwargs.setdefault("linewidth", 0.5)
-        if model_type == "histograms":
-            stacked_kwargs.setdefault("histtype", "fill")
-            histplot(
-                stacked_components,
-                ax=ax,
-                stack=True,
-                color=stacked_colors,
-                label=stacked_labels,
-                **stacked_kwargs,
-            )
-            if model_uncertainty and len(unstacked_components) == 0:
-                histplot(
-                    sum(stacked_components),
-                    ax=ax,
-                    label=model_uncertainty_label,
-                    histtype="band",
-                )
-        else:
-            funcplot(
-                stacked_components,
-                ax=ax,
-                stack=True,
-                colors=stacked_colors,
-                labels=stacked_labels,
-                range=xlim,
-                **stacked_kwargs,
-            )
-
-    if len(unstacked_components) > 0:
-        # Plot the unstacked components
-        if unstacked_colors is None:
-            unstacked_colors = [None] * len(unstacked_components)
-        if unstacked_labels is None:
-            unstacked_labels = [None] * len(unstacked_components)
-        if len(unstacked_kwargs_list) == 0:
-            unstacked_kwargs_list = [{}] * len(unstacked_components)
-        for component, color, label, unstacked_kwargs in zip(
-            unstacked_components,
-            unstacked_colors,
-            unstacked_labels,
-            unstacked_kwargs_list,
-        ):
-            if model_type == "histograms":
-                unstacked_kwargs.setdefault("histtype", "step")
-                histplot(
-                    component,
-                    ax=ax,
-                    stack=False,
-                    color=color,
-                    label=label,
-                    **unstacked_kwargs,
-                )
-            else:
-                funcplot(
-                    component,
-                    ax=ax,
-                    stack=False,
-                    color=color,
-                    label=label,
-                    range=xlim,
-                    **unstacked_kwargs,
-                )
-        # Plot the sum of all the components
-        if model_sum_kwargs.pop("show", True) and (
-            len(unstacked_components) > 1 or len(stacked_components) > 0
-        ):
-            if model_type == "histograms":
-                histplot(
-                    sum(components),
-                    ax=ax,
-                    histtype="step",
-                    **model_sum_kwargs,
-                )
-                if model_uncertainty:
-                    histplot(
-                        sum(components),
-                        ax=ax,
-                        label=model_uncertainty_label,
-                        histtype="band",
-                    )
-            else:
-
-                def sum_function(x):
-                    return sum(f(x) for f in components)
-
-                funcplot(
-                    sum_function,
-                    ax=ax,
-                    range=xlim,
-                    **model_sum_kwargs,
-                )
-        elif (
-            model_uncertainty
-            and len(stacked_components) == 0
-            and len(unstacked_components) == 1
-            and model_type == "histograms"
-        ):
-            histplot(
-                sum(components), ax=ax, label=model_uncertainty_label, histtype="band"
-            )
-
-    ax.set_xlim(xlim)
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
-    set_fitting_ylabel_fontsize(ax)
-    ax.legend()
-
-    return fig, ax
-
-
 def _make_hist_from_function(func, ref_hist):
     """
     Create a histogram from a function and a reference histogram.
@@ -585,12 +328,12 @@ def _make_hist_from_function(func, ref_hist):
     ----------
     func : function
         1D function. The function should support vectorization (i.e. accept a numpy array as input).
-    ref_hist : boost_histogram.Histogram
+    ref_hist : EnhancedPlottableHistogram
         The reference 1D histogram to use for the binning.
 
     Returns
     -------
-    hist : boost_histogram.Histogram
+    hist : EnhancedPlottableHistogram
         The histogram filled with the function.
 
     Raises
@@ -611,7 +354,7 @@ def _make_hist_from_function(func, ref_hist):
     )
 
 
-def plot_data_model_comparison(
+def data_model(
     data_hist,
     stacked_components=None,
     stacked_labels=None,
@@ -626,7 +369,7 @@ def plot_data_model_comparison(
     unstacked_kwargs_list=None,
     model_sum_kwargs=None,
     model_uncertainty=True,
-    model_uncertainty_label="Model stat. unc.",
+    model_uncertainty_label="MC stat. unc.",
     data_w2method="poisson",
     fig=None,
     ax_main=None,
@@ -671,7 +414,7 @@ def plot_data_model_comparison(
     model_uncertainty : bool, optional
         If False, set the model uncertainties to zeros. Default is True.
     model_uncertainty_label : str, optional
-        The label for the model uncertainties. Default is "Model stat. unc.".
+        The label for the model uncertainties. Default is "MC stat. unc.".
     data_w2method : str, optional
         What kind of bin uncertainty to use for data_hist: "sqrt" for the Poisson standard deviation derived from the variance stored in the histogram object, "poisson" for asymmetrical uncertainties based on a Poisson confidence interval. Default is "poisson".
     fig : matplotlib.figure.Figure or None, optional
@@ -683,7 +426,7 @@ def plot_data_model_comparison(
     plot_only : str, optional
         If "ax_main" or "ax_comparison", only the main or comparison axis is plotted on the figure. Both axes are plotted if None is specified, which is the default. This can only be used when fig, ax_main and ax_comparison are not provided by the user.
     **comparison_kwargs : optional
-        Arguments to be passed to plot_comparison(), including the choice of the comparison function and the treatment of the uncertainties (see documentation of plot_comparison() for details). If they are not provided explicitly, the following arguments are passed by default: h1_label="Data", h2_label="Pred.", comparison="split_ratio".
+        Arguments to be passed to comparison(), including the choice of the comparison function and the treatment of the uncertainties (see documentation of comparison() for details). If they are not provided explicitly, the following arguments are passed by default: h1_label="Data", h2_label="MC", comparison="split_ratio".
 
     Returns
     -------
@@ -696,7 +439,7 @@ def plot_data_model_comparison(
 
     See Also
     --------
-    plot_comparison : Plot the comparison between two histograms.
+    comparison : Plot the comparison between two histograms.
 
     """
     if model_sum_kwargs is None:
@@ -728,7 +471,7 @@ def plot_data_model_comparison(
     model_sum_kwargs = model_sum_kwargs.copy()
 
     comparison_kwargs.setdefault("h1_label", data_label)
-    comparison_kwargs.setdefault("h2_label", "Pred.")
+    comparison_kwargs.setdefault("h2_label", "MC")
     comparison_kwargs.setdefault("comparison", "split_ratio")
 
     model_components = stacked_components + unstacked_components
@@ -746,18 +489,13 @@ def plot_data_model_comparison(
 
     if fig is None and ax_main is None and ax_comparison is None:
         if plot_only is None:
-            fig, (ax_main, ax_comparison) = plt.subplots(
-                nrows=2, figsize=(6, 5), gridspec_kw={"height_ratios": [4, 1]}
-            )
-            fig.subplots_adjust(hspace=0.15)
-            ax_main.xaxis.set_ticklabels([])
-            ax_main.set_xlabel(" ")
+            fig, (ax_main, ax_comparison) = subplots(nrows=2)
         elif plot_only == "ax_main":
-            fig, ax_main = plt.subplots()
             _, ax_comparison = plt.subplots()
+            fig, ax_main = plt.subplots()
         elif plot_only == "ax_comparison":
-            fig, ax_comparison = plt.subplots()
             _, ax_main = plt.subplots()
+            fig, ax_comparison = plt.subplots()
         else:
             msg = "plot_only must be 'ax_main', 'ax_comparison' or None."
             raise ValueError(msg)
@@ -768,7 +506,7 @@ def plot_data_model_comparison(
         msg = "Cannot provide fig, ax_main or ax_comparison with plot_only."
         raise ValueError(msg)
 
-    plot_model(
+    model(
         stacked_components=stacked_components,
         stacked_labels=stacked_labels,
         stacked_colors=stacked_colors,
@@ -825,7 +563,7 @@ def plot_data_model_comparison(
 
     ax_main.legend()
 
-    plot_comparison(
+    comparison(
         data_hist_plottable,
         model_hist,
         ax=ax_comparison,

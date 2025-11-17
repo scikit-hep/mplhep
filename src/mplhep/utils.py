@@ -71,13 +71,17 @@ def set_fitting_ylabel_fontsize(ax: plt.Axes) -> float:
     # Force renderer to be initialized
     ax.figure.canvas.draw()
 
-    while (
+    current_extent = (
         ax.yaxis.get_label()
         .get_window_extent(renderer=ax.figure.canvas.get_renderer())  # type: ignore[attr-defined]
         .transformed(ax.transData.inverted())
-        .y1
-        > ax.get_ylim()[1]
-    ):
+    )
+
+    y_alignment = plt.rcParams["yaxis.labellocation"]
+
+    while (
+        y_alignment in ["center", "bottom"] and current_extent.y1 > ax.get_ylim()[1]
+    ) or (y_alignment == "top" and current_extent.y0 < ax.get_ylim()[0]):
         ylabel_fontsize -= 0.1
 
         if ylabel_fontsize <= 0:
@@ -86,6 +90,12 @@ def set_fitting_ylabel_fontsize(ax: plt.Axes) -> float:
 
         ax.get_yaxis().get_label().set_size(ylabel_fontsize)  # type: ignore[attr-defined]
 
+        current_extent = (
+            ax.yaxis.get_label()
+            .get_window_extent(renderer=ax.figure.canvas.get_renderer())  # type: ignore[attr-defined]
+            .transformed(ax.transData.inverted())
+        )
+
     return ylabel_fontsize
 
 
@@ -93,7 +103,7 @@ def yscale_legend(
     ax: mpl.axes.Axes | None = None,
     otol: float = 0,
     soft_fail: bool = False,
-    N: int = 3,
+    N: int = 10,
 ) -> mpl.axes.Axes:
     """
     Automatically scale y-axis up to fit in legend().
@@ -157,7 +167,7 @@ def yscale_legend(
         msg = f"Could not fit legend after {N} scaling iterations (overlap: {final_overlap}). Try increasing otol, N, or using soft_fail=True."
         raise RuntimeError(msg)
     if final_overlap > otol:
-        logging.warning(
+        logger.warning(
             f"Legend still overlaps after {N} scaling iterations (overlap: {final_overlap})"
         )
 
@@ -236,7 +246,7 @@ def yscale_anchored_text(
         msg = f"Could not fit AnchoredText after {N} scaling iterations (overlap: {final_overlap}). Try increasing otol, N, or using soft_fail=True."
         raise RuntimeError(msg)
     if final_overlap > otol:
-        logging.warning(
+        logger.warning(
             f"AnchoredText still overlaps after {N} scaling iterations (overlap: {final_overlap})"
         )
 
@@ -286,7 +296,7 @@ def mpl_magic(
     ylow: float | None = None,
     otol=1,
     soft_fail=False,
-    N=10,
+    N=2,
 ):
     """
     Consolidate all ex-post style adjustments:
@@ -462,14 +472,14 @@ def append_axes(ax, size=0.1, pad=0.1, position="right", extend=False):
                 fig.get_size_inches()[0],
                 fig.get_size_inches()[1] * extend_ratio(ax, yhax)[1],
             )
-            ax.get_shared_x_axes().join(ax, yhax)
+            yhax.sharex(ax)
         elif position in ["bottom"]:
             divider.set_vertical([*xsizes, axes_size.Fixed(height)])
             fig.set_size_inches(
                 fig.get_size_inches()[0],
                 fig.get_size_inches()[1] * extend_ratio(ax, yhax)[1],
             )
-            ax.get_shared_x_axes().join(ax, yhax)
+            yhax.sharex(ax)
 
     return yhax
 
@@ -498,3 +508,92 @@ def sort_legend(ax, order=None):
     if isinstance(order, OrderedDict):
         ordered_label_list = [order[k] for k in ordered_label_list]
     return ordered_label_values, ordered_label_list
+
+
+def _get_model_type(components):
+    """
+    Check that all components of a model are either all histograms or all functions
+    and return the type of the model components.
+
+    Parameters
+    ----------
+    components : list
+        The list of model components.
+
+    Returns
+    -------
+    str
+        The type of the model components ("histograms" or "functions").
+
+    Raises
+    ------
+    ValueError
+        If the model components are not all histograms or all functions.
+    """
+    if all(callable(x) for x in components):
+        return "functions"
+    return "histograms"
+
+
+def subplots(
+    figsize: tuple[float, float] | None = None,
+    nrows: int = 1,
+    gridspec_kw: dict | None = None,
+    hspace: float = 0.15,
+    *args,
+    **kwargs,
+) -> tuple[plt.Figure, np.ndarray]:
+    """
+    Wrapper around plt.subplots to create a figure with multiple subplots. Conveniently
+    adjusts the figure size and spacing between subplots if multiple rows are requested.
+
+    Parameters
+    ----------
+    figsize : tuple[float, float], optional
+        Figure size in inches. Default will adjust height based on number of rows.
+    nrows : int, optional
+        Number of rows in the subplot grid. Default is 1.
+    gridspec_kw : dict | None, optional
+        Additional keyword arguments for the GridSpec. Default is None.
+        If None is provided and nrows > 1, height_ratios will be set to
+        give more space to the top subplot.
+    hspace : float, optional
+        Height spacing between subplots. Default is 0.15.
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        The created figure.
+    axes : np.ndarray
+        Array of Axes objects representing the subplots.
+    """
+    if gridspec_kw is None and nrows > 1:
+        gridspec_kw = {
+            "height_ratios": [
+                4 - (0.2 * (nrows - 2)),
+                *(1 for _ in range(nrows - 1)),
+            ]
+        }
+
+    if figsize is None:
+        figsize = (
+            plt.rcParams["figure.figsize"][0],
+            plt.rcParams["figure.figsize"][1] * (1.25 ** (nrows - 1)),
+        )
+
+    kwargs.setdefault("figsize", figsize)
+    kwargs.setdefault("gridspec_kw", gridspec_kw)
+    kwargs.setdefault("nrows", nrows)
+
+    fig, axes = plt.subplots(
+        *args,
+        **kwargs,
+    )
+    if nrows > 1:
+        fig.subplots_adjust(hspace=hspace)
+
+        for ax in axes[:-1]:
+            _ = ax.xaxis.set_ticklabels([])
+            ax.set_xlabel(" ")
+
+    return fig, axes

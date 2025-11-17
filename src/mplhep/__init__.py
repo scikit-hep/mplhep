@@ -30,27 +30,18 @@ from ._utils import (
     _make_plottable_histogram as make_plottable_histogram,
 )
 from ._version import version as __version__  # noqa: F401
-from .comparison_functions import (
-    get_asymmetry,
-    get_comparison,
-    get_difference,
-    get_efficiency,
-    get_pull,
-    get_ratio,
-)
-from .comparison_plotters import (
-    plot_comparison,
-    plot_data_model_comparison,
-    plot_model,
-    plot_two_hist_comparison,
-)
 from .label import add_text, append_text, save_variations, savelabels
 from .plot import (
     funcplot,
     hist,
     hist2dplot,
     histplot,
+    model,
 )
+
+plot_model = model
+
+plot_hist = histplot
 from .styles import set_style
 from .utils import (
     append_axes,
@@ -62,6 +53,7 @@ from .utils import (
     set_fitting_ylabel_fontsize,
     set_ylow,
     sort_legend,
+    subplots,
     yscale_anchored_text,
     yscale_legend,
 )
@@ -103,13 +95,7 @@ __all__ = [
     "comp",
     "dune",
     "funcplot",
-    "get_asymmetry",
-    "get_comparison",
-    "get_difference",
-    "get_efficiency",
     "get_plottables",
-    "get_pull",
-    "get_ratio",
     "hist",
     "hist2dplot",
     # Log plot functions
@@ -121,10 +107,9 @@ __all__ = [
     "merge_legend_handles_labels",
     "mpl_magic",
     "plot",
-    "plot_comparison",
-    "plot_data_model_comparison",
+    "model",
+    "plot_hist",
     "plot_model",
-    "plot_two_hist_comparison",
     "rescale_to_axessize",
     "save_variations",
     "savelabels",
@@ -135,4 +120,5 @@ __all__ = [
     "style",
     "yscale_anchored_text",
     "yscale_legend",
+    "subplots",
 ]

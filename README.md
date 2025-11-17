@@ -25,106 +25,19 @@ needed in HEP as well as style them in way that's compatible with current
 collaboration requirements (ROOT-like plots for CMS, ATLAS, LHCb, ALICE).
 
 
-# Installation
+## Installation
 
 ```bash
 pip install mplhep
 ```
 
-# Getting Started
+## Documentation and Getting Started
 A tutorial given at PyHEP 2020 is available as a binder [here](https://github.com/andrzejnovak/2020-07-17-pyhep2020-mplhep)
 or you can watch the recording [here](https://www.youtube.com/watch?v=gUziXqCGe0o).
 
-Documentation can be found at [mplhep.readthedocs.io](https://mplhep.readthedocs.io).
+Documentation can be found at [scikit-hep.org/mplhep](https://scikit-hep.org/mplhep/).
 
-### Styling
-
-```python
-import mplhep as mh
-mh.style.use(mh.style.ROOT) # For now ROOT defaults to CMS
-# OR
-mh.style.use(mh.style.ATLAS)
-# OR
-mh.style.use("CMS") # string aliases work too
-```
-
-Or use `matplotlib` API directly
-
-```python
-plt.style.use(mh.style.ROOT)
-```
-**If the default styles are not what you need, please open an issue.**
-
-Default experiment labels are also available.
-
-```python
-# Overall - both left and right annotation
-mh.<experiment>.label(<text>, data=<True|False>, lumi=50, year=2017)
-# OR
-mh.<experiment>.text(<text>)
-```
-
-You can use `loc={0..4}` to control the label positioning.
-
-<p float="left">
-  <img src="tests/baseline/test_label_loc.png" width="100%" />
-</p>
-
-
-### Plotting
-#### 1D Histograms
-
-```python
-h, bins = [2, 3, 2], [0, 1, 2, 3]
-mh.histplot(h, bins)
-```
-
-#### 2D Histograms
-
-```python
-import numpy as np
-xbins, ybins = [0, 1, 2, 3], [0, 1, 2, 3]
-H = np.array([[2,3,2], [1,2,1], [3,1,3]])
-mh.hist2dplot(H, xbins, ybins)
-```
-
-# More Information
-
-### Save all labels at once
-- `mh.savelabels('test.png')` will produces 4 variation on experiment label
-  - "" -> "test.png"
-  - "Preliminary" -> "test_pas.png"
-  - "Supplementary" -> "test_supp.png"
-  - "Work in Progress" -> "test_wip.png"
-- Options can also be specified manually
-  - `mh.savelabels('test', labels=["FOO", "BAR"], suffixes=["foo.pdf", "bar"])` will produce
-    - "FOO" -> "foo.pdf"
-    - "BAR" -> "test_bar.png"
-- Other components of `<experiment>.label()` will remain unchanged.
-
-### Other styles:
-- `mh.style.use("fira")` - use Fira Sans
-- `mh.style.use("firamath")` - use Fira Math
-
-#### Styles can be chained:
-- e.g. `mh.style.use(["CMS", "fira", "firamath"])`
-- reappearing `rcParams` get overwritten silently
-
-#### Styles can be modified on the fly
-- Since styles are dictionaries and they can be chained/overwritten they can be easily modified on the fly. e.g.
-```
-mh.style.use("CMS")
-mh.style.use({"font.sans-serif":'Comic Sans MS'})
-```
-
-#### Styling with LaTeX
-- `mh.style.use("CMSTex")` - Use LaTeX to produce all text labels
-- Requires having the full tex-live distro
-- True Helvetica
-- Use sansmath as the math font
-- Takes longer and not always better
-- In general more possibilities, but a bit more difficult to get everything working properly
-
+<!---
 # Notes
 
 ## Consistency \& Fonts
@@ -161,17 +74,32 @@ https://github.com/mozilla/Fira
 #### Math font extension
 https://github.com/firamath/firamath
 
-## What doesn't work
+--->
 
-### Context styles and fonts
 
-```python
-with pyplot.style.context(style.ROOT):
-    plotting...
+## Notes
+
+### Citation
+
+If you've found this library helpful and are able to, please consider citing it. You can find us on [Zenodo](doi.org/10.5281/zenodo.3766157) as a permalink to the latest version.
+
+BiBTeX:
 ```
-- This syntax would be ideal, however, it doesn't work properly for fonts and there are no plans by mpl devs to fix this behaviour https://github.com/matplotlib/matplotlib/issues/11673
+@software{Novak_mplhep_2020,
+  author = {Novak, Andrzej and Schreiner, Henry and Feickert, Matthew and Eschle, Jonas and Fillinger, Tristan and Praz, Cyrille},
+  doi = {10.5281/zenodo.3766157},
+  license = {MIT},
+  month = apr,
+  title = {{mplhep}},
+  url = {https://github.com/scikit-hep/mplhep},
+  year = {2020}
+}
+```
 
-For now one has to set the style globally:
+APA:
+```
+Novak, A., Schreiner, H., Feickert, M., Eschle, J., Fillinger, T., & Praz, C. (2020). mplhep [Computer software]. https://doi.org/10.5281/zenodo.3766157
+```
 
 ### Use in publications
 
@@ -184,8 +112,6 @@ Updating list of citations and use cases of `mplhep` in publications:
 - [Search for long-lived particles decaying to eμν](https://arxiv.org/abs/2012.02696), LHCb Collaboration, 2020
 - [Measurement of the mass dependence of the transverse momentum of lepton pairs in Drell-Yan production in proton-proton collisions at √s = 13 TeV](http://arxiv.org/abs/2205.04897), CMS Collaboration, 2022 (Figs 3-)
 - And many others by now...
-
-
 
 [actions-badge]:            https://github.com/scikit-hep/mplhep/workflows/CI/badge.svg
 [actions-link]:             https://github.com/scikit-hep/mplhep/actions

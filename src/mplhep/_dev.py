@@ -4,6 +4,8 @@ Development helper script for mplhep. Vibe-coded.
 Usage: ./dev [command] [options] or ./dev for interactive mode
 """
 
+from __future__ import annotations
+
 import argparse
 import datetime
 import importlib.util
@@ -14,7 +16,6 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import List, Optional
 
 try:
     import questionary
@@ -77,7 +78,7 @@ class DevScript:
             return 80
 
     def _run_command_with_confirmation(
-        self, cmd: List[str], prompt: str = "Confirm command (editable):"
+        self, cmd: list[str], prompt: str = "Confirm command (editable):"
     ) -> bool:
         """Run a command with user confirmation and editing capability."""
         if not HAS_QUESTIONARY or questionary is None:
@@ -99,15 +100,14 @@ class DevScript:
 
         return self._run_command(cmd)
 
-    def _run_command(self, cmd: List[str], cwd: Optional[Path] = None) -> bool:
+    def _run_command(self, cmd: list[str], cwd: Path | None = None) -> bool:
         """Run a command and return True if successful."""
+        self._print_header(f"Running: {' '.join(cmd)}")
+        separator = 3 * ("=" * self._get_terminal_width() + "\n")
+        print(separator)
+
         try:
-            self._print_header(f"Running: {' '.join(cmd)}")
-            separator = 3 * ("=" * self._get_terminal_width() + "\n")
-            print(separator)
             result = subprocess.run(cmd, cwd=cwd or self.project_root, check=True)
-            print(separator)
-            return result.returncode == 0
         except subprocess.CalledProcessError as e:
             self._print_error(f"Command failed with exit code {e.returncode}")
             return False
@@ -115,7 +115,10 @@ class DevScript:
             self._print_error(f"Command not found: {cmd[0]}")
             return False
 
-    def _show_summary(self, items: List[Path], title: str) -> None:
+        print(separator)
+        return result.returncode == 0
+
+    def _show_summary(self, items: list[Path], title: str) -> None:
         """Show a formatted summary of items."""
         if not items:
             return
@@ -142,7 +145,7 @@ class DevScript:
             message, default=default, style=self._get_style()
         ).ask()
 
-    def _find_files_to_clean(self) -> List[Path]:
+    def _find_files_to_clean(self) -> list[Path]:
         """Find files and directories that can be cleaned."""
         items_to_clean = []
 
@@ -162,8 +165,7 @@ class DevScript:
         for target in cleanup_targets:
             if "*" in target:
                 # Handle glob patterns
-                for item in self.project_root.glob(target):
-                    items_to_clean.append(item)
+                items_to_clean.extend(self.project_root.glob(target))
             else:
                 item = self.project_root / target
                 if item.exists():
@@ -178,10 +180,10 @@ class DevScript:
 
     def cmd_test(
         self,
-        jobs: Optional[int] = None,
-        filter_pattern: Optional[str] = None,
+        jobs: int | None = None,
+        filter_pattern: str | None = None,
         skip_cleanup: bool = False,
-        extra_args: Optional[List[str]] = None,
+        extra_args: list[str] | None = None,
     ) -> bool:
         """Run pytest with matplotlib comparison."""
         if jobs is None:
@@ -282,7 +284,7 @@ class DevScript:
 
         return success
 
-    def cmd_precommit(self, extra_args: Optional[List[str]] = None) -> bool:
+    def cmd_precommit(self, extra_args: list[str] | None = None) -> bool:
         """Run pre-commit hooks on all files."""
         self._print_header("Running Pre-commit Hooks")
 
@@ -335,7 +337,7 @@ class DevScript:
                     self._print_success(
                         f"Removed {item.relative_to(self.project_root)}"
                     )
-            except OSError as e:
+            except OSError as e:  # noqa: PERF203
                 self._print_error(f"Failed to remove {item}: {e}")
 
         if len(items_to_clean) > 10:
@@ -350,7 +352,8 @@ class DevScript:
         action: str = "build",
         port: int = 8000,
         clean: bool = True,
-        extra_args: Optional[List[str]] = None,
+        fast: bool = False,
+        extra_args: list[str] | None = None,
     ) -> bool:
         """Build or serve documentation."""
         # Check if mkdocs is available
@@ -364,17 +367,28 @@ class DevScript:
             return False
 
         if action == "build":
-            return self._build_docs(clean, extra_args)
+            return self._build_docs(clean, fast, extra_args)
         if action == "serve":
-            return self._serve_docs(port, extra_args)
+            return self._serve_docs(port, fast, extra_args)
         self._print_error(f"Unknown docs action: {action}")
         return False
 
-    def _build_docs(self, clean: bool, extra_args: Optional[List[str]] = None) -> bool:
+    def _build_docs(
+        self, clean: bool, fast: bool, extra_args: list[str] | None = None
+    ) -> bool:
         """Build documentation."""
-        self._print_header("Building Documentation")
+        if fast:
+            self._print_header("Building Documentation (FAST MODE - no figures)")
+            self._print_warning("⚡ Figure rendering disabled for faster builds")
+        else:
+            self._print_header("Building Documentation")
 
         cmd = ["mkdocs", "build"]
+
+        # Use fast config if requested
+        if fast:
+            cmd.extend(["-f", "mkdocs_norender.yml"])
+
         if clean:
             cmd.append("--clean")
 
@@ -385,7 +399,11 @@ class DevScript:
         success = self._run_command(cmd, cwd=self.project_root / "new_docs")
 
         if success:
-            self._print_success("Documentation built successfully!")
+            if fast:
+                self._print_success("Fast documentation build completed!")
+                self._print_warning("Note: Figures were not rendered")
+            else:
+                self._print_success("Documentation built successfully!")
             site_dir = self.project_root / "new_docs" / "site"
             if site_dir.exists():
                 self._print_success(f"Built site available at: {site_dir}")
@@ -394,11 +412,23 @@ class DevScript:
 
         return success
 
-    def _serve_docs(self, port: int, extra_args: Optional[List[str]] = None) -> bool:
+    def _serve_docs(
+        self, port: int, fast: bool, extra_args: list[str] | None = None
+    ) -> bool:
         """Serve documentation locally."""
-        self._print_header(f"Serving Documentation on port {port}")
+        if fast:
+            self._print_header(
+                f"Serving Documentation on port {port} (FAST MODE - no figures)"
+            )
+            self._print_warning("⚡ Figure rendering disabled for faster builds")
+        else:
+            self._print_header(f"Serving Documentation on port {port}")
 
         cmd = ["mkdocs", "serve", "--dev-addr", f"127.0.0.1:{port}"]
+
+        # Use fast config if requested
+        if fast:
+            cmd.extend(["-f", "mkdocs_norender.yml"])
 
         # Add any extra arguments
         if extra_args:
@@ -407,6 +437,10 @@ class DevScript:
         self._print_success(
             f"Documentation will be available at: http://127.0.0.1:{port}"
         )
+        if fast:
+            self._print_warning(
+                "⚡ Fast mode: Builds ~50x faster but figures not rendered"
+            )
         self._print_warning("Press Ctrl+C to stop the server")
 
         # For serve, we don't use confirmation since it's a long-running process
@@ -444,7 +478,7 @@ class DevScript:
                     self._print_success(
                         f"Removed {item.relative_to(self.project_root)}"
                     )
-            except OSError as e:
+            except OSError as e:  # noqa: PERF203
                 self._print_error(f"Failed to remove {item}: {e}")
 
         if len(items_to_clean) > 10:
@@ -457,8 +491,8 @@ class DevScript:
     def cmd_benchmark(
         self,
         action: str = "run",
-        baseline_name: Optional[str] = None,
-        compare_with: Optional[str] = None,
+        baseline_name: str | None = None,
+        compare_with: str | None = None,
     ) -> bool:
         """Run performance benchmarks."""
         # Check if pytest-benchmark is available
@@ -491,7 +525,7 @@ class DevScript:
         self._print_warning("Install with: pip install pytest-benchmark")
         return False
 
-    def _run_benchmarks(self, baseline_name: Optional[str] = None) -> bool:
+    def _run_benchmarks(self, baseline_name: str | None = None) -> bool:
         """Run benchmark tests."""
         # Build benchmark command
         cmd = [
@@ -512,7 +546,9 @@ class DevScript:
             self._print_success(f"Will save benchmark results as: {baseline_name}")
         else:
             # Auto-generate baseline name with timestamp
-            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            timestamp = datetime.datetime.now(tz=datetime.timezone.utc).strftime(
+                "%Y%m%d_%H%M%S"
+            )
             baseline_name = f"run_{timestamp}"
             cmd.append(f"--benchmark-save={baseline_name}")
             self._print_success(f"Will save benchmark results as: {baseline_name}")
@@ -530,7 +566,7 @@ class DevScript:
 
         return success
 
-    def _compare_benchmarks(self, compare_with: Optional[str] = None) -> bool:
+    def _compare_benchmarks(self, compare_with: str | None = None) -> bool:
         """Compare current benchmarks with a baseline."""
         benchmark_dir = self.project_root / "tests" / "baseline" / "benchmark"
 
@@ -670,33 +706,34 @@ class DevScript:
 
         return True
 
-    def _get_available_baselines(self) -> List[str]:
+    def _get_available_baselines(self) -> list[str]:
         """Get list of available benchmark baselines."""
         benchmark_dir = self.project_root / "tests" / "baseline" / "benchmark"
 
         if not benchmark_dir.exists():
             return []
 
-        baselines = []
-        for item in benchmark_dir.iterdir():
-            if item.is_dir() and not item.name.startswith("."):
-                baselines.append(item.name)
+        baselines = [
+            item.name
+            for item in benchmark_dir.iterdir()
+            if item.is_dir() and not item.name.startswith(".")
+        ]
 
         return sorted(baselines)
 
-    def _get_available_benchmark_files(self) -> List[str]:
+    def _get_available_benchmark_files(self) -> list[str]:
         """Get list of available benchmark JSON files for comparison."""
         benchmark_dir = self.project_root / "tests" / "baseline" / "benchmark"
 
         if not benchmark_dir.exists():
             return []
 
-        benchmark_files = []
-        for subdir in benchmark_dir.iterdir():
-            if subdir.is_dir() and not subdir.name.startswith("."):
-                for json_file in subdir.glob("*.json"):
-                    # Use just the filename without extension for comparison
-                    benchmark_files.append(json_file.stem)
+        benchmark_files = [
+            json_file.stem
+            for subdir in benchmark_dir.iterdir()
+            if subdir.is_dir() and not subdir.name.startswith(".")
+            for json_file in subdir.glob("*.json")
+        ]
 
         return sorted(benchmark_files)
 
@@ -737,6 +774,7 @@ Docs command options:
   serve            Serve documentation locally
   --port PORT      Port for serve command (default: 8000)
   --no-clean       Skip --clean flag for build command
+  --fast           Fast mode: disable figure rendering (~50x faster builds)
 
 Examples:
   ./dev test -n 4                      # Run tests with 4 jobs
@@ -745,7 +783,9 @@ Examples:
   ./dev benchmark run --save baseline  # Run benchmarks and save as 'baseline'
   ./dev benchmark compare --with baseline  # Compare with 'baseline'
   ./dev benchmark list                 # List available baselines
-  ./dev docs build                     # Build documentation
+  ./dev docs build                     # Build documentation (full with figures)
+  ./dev docs build --fast              # Fast build without figures (~3s vs ~160s)
+  ./dev docs serve --fast              # Serve with fast rebuilds on changes
   ./dev docs serve --port 8080         # Serve documentation on port 8080
   ./dev clean                          # Clean up test artifacts
         """
@@ -773,7 +813,7 @@ Examples:
 
     def _get_text_input(
         self, prompt: str, default: str = "", fallback_prompt: str = ""
-    ) -> Optional[str]:
+    ) -> str | None:
         """Get text input with questionary or basic fallback."""
         if HAS_QUESTIONARY and questionary is not None:
             return questionary.text(prompt, default=default, style=self.style).ask()
@@ -787,8 +827,8 @@ Examples:
         return response if response else default
 
     def _get_choice(
-        self, prompt: str, choices: List[tuple], fallback_prompt: str = ""
-    ) -> Optional[str]:
+        self, prompt: str, choices: list[tuple], fallback_prompt: str = ""
+    ) -> str | None:
         """Get choice selection with questionary or basic fallback."""
         if HAS_QUESTIONARY and questionary is not None:
             choice_objects = [
@@ -802,28 +842,29 @@ Examples:
         for i, (label, _) in enumerate(choices, 1):
             print(f"  {i}. {label}")
 
-        while True:
-            try:
+        try:
+            while True:
                 response = input("Enter choice (number): ").strip()
                 idx = int(response) - 1
                 if 0 <= idx < len(choices):
                     return choices[idx][1]
                 print(f"Please enter a number between 1 and {len(choices)}")
-            except (ValueError, KeyboardInterrupt):
-                return None
+        except (ValueError, KeyboardInterrupt):
+            return None
 
-    def _check_tool_available(self, tool_name: str, check_cmd: List[str]) -> bool:
+    def _check_tool_available(self, tool_name: str, check_cmd: list[str]) -> bool:
         """Check if a tool is available."""
         try:
             result = subprocess.run(
                 check_cmd, capture_output=True, text=True, check=True
             )
-            self._print_success(f"{tool_name} version: {result.stdout.strip()}")
-            return True
         except (subprocess.CalledProcessError, FileNotFoundError):
             self._print_error(f"{tool_name} not found!")
             self._print_warning(f"Please install {tool_name} to use this feature")
             return False
+
+        self._print_success(f"{tool_name} version: {result.stdout.strip()}")
+        return True
 
     def _handle_pytest_results_cleanup(self) -> None:
         """Handle cleanup of pytest_results directory."""
@@ -838,7 +879,7 @@ Examples:
             else:
                 self._print_warning("Keeping existing pytest_results/")
 
-    def _get_test_modules(self) -> List[str]:
+    def _get_test_modules(self) -> list[str]:
         """Get available test modules/directories."""
         test_modules = []
 
@@ -1039,8 +1080,22 @@ Examples:
                 "docs_build",
             ),
             (
+                make_menu_item(
+                    "⚡ Build documentation (fast)",
+                    "cd new_docs && mkdocs build -f mkdocs_norender.yml",
+                ),
+                "docs_build_fast",
+            ),
+            (
                 make_menu_item("🌐 Serve documentation", "cd new_docs && mkdocs serve"),
                 "docs_serve",
+            ),
+            (
+                make_menu_item(
+                    "⚡ Serve documentation (fast)",
+                    "cd new_docs && mkdocs serve -f mkdocs_norender.yml",
+                ),
+                "docs_serve_fast",
             ),
             (
                 make_menu_item(
@@ -1085,9 +1140,13 @@ Examples:
                 elif choice == "precommit":
                     self.cmd_precommit()
                 elif choice == "docs_build":
-                    self.cmd_docs("build", clean=True)
+                    self.cmd_docs("build", clean=True, fast=False)
+                elif choice == "docs_build_fast":
+                    self.cmd_docs("build", clean=True, fast=True)
                 elif choice == "docs_serve":
-                    self.cmd_docs("serve", port=8000)
+                    self.cmd_docs("serve", port=8000, fast=False)
+                elif choice == "docs_serve_fast":
+                    self.cmd_docs("serve", port=8000, fast=True)
                 elif choice == "benchmark":
                     self._interactive_benchmark_menu()
                 elif choice == "help":
@@ -1218,6 +1277,11 @@ def main():
         action="store_true",
         help="Skip --clean flag for build command",
     )
+    docs_parser.add_argument(
+        "--fast",
+        action="store_true",
+        help="Fast mode: disable figure rendering for ~50x faster builds",
+    )
 
     # Other commands
     subparsers.add_parser(
@@ -1291,7 +1355,8 @@ def main():
             success = dev.cmd_benchmark(args.action, baseline_name, compare_with)
         elif args.command == "docs":
             clean = not getattr(args, "no_clean", False)
-            success = dev.cmd_docs(args.action, args.port, clean, unknown_args)
+            fast = getattr(args, "fast", False)
+            success = dev.cmd_docs(args.action, args.port, clean, fast, unknown_args)
         elif args.command == "clean":
             success = dev.cmd_clean()
         elif args.command == "precommit":

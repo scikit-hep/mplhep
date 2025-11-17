@@ -12,27 +12,36 @@ from pathlib import Path
 def on_pre_build(config):  # noqa: ARG001
     """Run before the build process starts.
 
-    This hook runs the generate_style_guides.py script to create style-specific
-    guide.md files from the template.
+    This hook runs the generation scripts to create style-specific
+    guide files and the guide overview from templates.
 
     Parameters
     ----------
     config : MkDocsConfig
         The MkDocs configuration object (unused)
     """
-    # Get the path to the script
     docs_root = Path(__file__).parent
-    script_path = docs_root / "generate_style_guides.py"
 
-    if not script_path.exists():
-        return
+    # Run the style guides generation script
+    style_guides_script = docs_root / "generate_style_guides.py"
+    if style_guides_script.exists():
+        with contextlib.suppress(subprocess.CalledProcessError):
+            subprocess.run(
+                [sys.executable, str(style_guides_script)],
+                cwd=docs_root,
+                capture_output=True,
+                text=True,
+                check=True,
+            )
 
-    # Run the generation script
-    with contextlib.suppress(subprocess.CalledProcessError):
-        subprocess.run(
-            [sys.executable, str(script_path)],
-            cwd=docs_root,
-            capture_output=True,
-            text=True,
-            check=True,
-        )
+    # Run the guide overview generation script
+    guide_overview_script = docs_root / "generate_guide_overview.py"
+    if guide_overview_script.exists():
+        with contextlib.suppress(subprocess.CalledProcessError):
+            subprocess.run(
+                [sys.executable, str(guide_overview_script)],
+                cwd=docs_root,
+                capture_output=True,
+                text=True,
+                check=True,
+            )
