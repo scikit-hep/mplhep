@@ -123,8 +123,8 @@ def hists(
         msg = "Need to provide fig, ax_main and ax_comparison (or none of them)."
         raise ValueError(msg)
 
-    histplot(h1_plottable, ax=ax_main, label=h1_label, histtype="step", flow=flow)
-    histplot(h2_plottable, ax=ax_main, label=h2_label, histtype="step", flow=flow)
+    histplot(h1, ax=ax_main, label=h1_label, histtype="step", flow=flow)
+    histplot(h2, ax=ax_main, label=h2_label, histtype="step", flow=flow)
 
     # Only set xlim if not showing flow bins (histplot handles xlim for flow="show")
     if flow != "show":
@@ -136,8 +136,8 @@ def hists(
     _ = ax_main.xaxis.set_ticklabels([])
 
     comparison(
-        h1_plottable,
-        h2_plottable,
+        h1,
+        h2,
         ax_comparison,
         xlabel=xlabel,
         h1_label=h1_label,
@@ -667,7 +667,7 @@ def data_model(
     )
 
     histplot(
-        data_hist_plottable,
+        data_hist,
         ax=ax_main,
         w2method=data_w2method,
         color="black",
