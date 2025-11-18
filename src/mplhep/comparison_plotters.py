@@ -123,11 +123,14 @@ def hists(
         msg = "Need to provide fig, ax_main and ax_comparison (or none of them)."
         raise ValueError(msg)
 
-    xlim = (h1_plottable.edges_1d()[0], h1_plottable.edges_1d()[-1])
-
     histplot(h1_plottable, ax=ax_main, label=h1_label, histtype="step", flow=flow)
     histplot(h2_plottable, ax=ax_main, label=h2_label, histtype="step", flow=flow)
-    ax_main.set_xlim(xlim)
+
+    # Only set xlim if not showing flow bins (histplot handles xlim for flow="show")
+    if flow != "show":
+        xlim = (h1_plottable.edges_1d()[0], h1_plottable.edges_1d()[-1])
+        ax_main.set_xlim(xlim)
+
     ax_main.set_ylabel(ylabel)
     ax_main.legend()
     _ = ax_main.xaxis.set_ticklabels([])
@@ -217,32 +220,125 @@ def comparison(
     _check_counting_histogram(h1_plottable)
     _check_counting_histogram(h2_plottable)
 
-    comparison_values, lower_uncertainties, upper_uncertainties = get_comparison(
-        h1_plottable, h2_plottable, comparison, h1_w2method
-    )
+    # When flow="show", we need to compute comparison on flow-included values
+    # so that the comparison histogram also has underflow/overflow bins
+    used_flow_bins = False
+    if flow == "show":
+        # Try to get flow bins if they exist (from original histogram objects, not plottable)
+        try:
+            # Access flow bins from the original histogram objects
+            h1_flow_values = h1.values(flow=True)
+            h2_flow_values = h2.values(flow=True)
+            h1_flow_variances = h1.variances(flow=True)
+            h2_flow_variances = h2.variances(flow=True)
 
-    if np.allclose(lower_uncertainties, upper_uncertainties, equal_nan=True):
-        comparison_plottable = EnhancedPlottableHistogram(
-            comparison_values,
-            edges=h2_plottable.axes[0].edges,
-            variances=lower_uncertainties**2,
-            kind=h2_plottable.kind,
-            w2method="sqrt",
-        )
-        histplot_kwargs.setdefault("w2method", "sqrt")
+            # Check if histogram actually has flow bins (length should be +2)
+            if len(h1_flow_values) == len(h1_plottable.values()) + 2:
+                # Use the original histograms which already have flow bins
+                h1_for_comparison = h1
+                h2_for_comparison = h2
+                used_flow_bins = True
+            else:
+                # No actual flow bins, use regular histograms
+                h1_for_comparison = h1_plottable
+                h2_for_comparison = h2_plottable
+        except (AttributeError, TypeError):
+            # Histogram doesn't support flow bins, use regular histograms
+            h1_for_comparison = h1_plottable
+            h2_for_comparison = h2_plottable
     else:
-        comparison_plottable = EnhancedPlottableHistogram(
-            comparison_values,
-            edges=h2_plottable.axes[0].edges,
-            yerr=[lower_uncertainties, upper_uncertainties],
-            kind=h2_plottable.kind,
-            w2method=h2_plottable.method,
-        )
-        histplot_kwargs.setdefault(
-            "yerr", [comparison_plottable.yerr_lo, comparison_plottable.yerr_hi]
+        h1_for_comparison = h1_plottable
+        h2_for_comparison = h2_plottable
+
+    if used_flow_bins:
+        # Compute comparison on flow-included values directly
+        # Since get_comparison() would strip flow bins, we compute it ourselves
+        h1_vals_flow = h1_for_comparison.values(flow=True)
+        h2_vals_flow = h2_for_comparison.values(flow=True)
+        h1_vars_flow = h1_for_comparison.variances(flow=True)
+        h2_vars_flow = h2_for_comparison.variances(flow=True)
+
+        # For now, only support ratio comparison with flow bins
+        # Compute ratio: h1/h2
+        with np.errstate(divide='ignore', invalid='ignore'):
+            comparison_values = np.where(h2_vals_flow != 0, h1_vals_flow / h2_vals_flow, np.nan)
+            # Compute uncertainties (symmetric for now)
+            if h1_vars_flow is not None and h2_vars_flow is not None:
+                # Ratio uncertainty: sqrt((var1/val2^2) + (val1^2 * var2 / val2^4))
+                ratio_var = np.where(
+                    h2_vals_flow != 0,
+                    (h1_vars_flow / h2_vals_flow**2) + (h1_vals_flow**2 * h2_vars_flow / h2_vals_flow**4),
+                    np.nan
+                )
+                lower_uncertainties = np.sqrt(ratio_var)
+                upper_uncertainties = lower_uncertainties
+            else:
+                lower_uncertainties = np.zeros_like(comparison_values)
+                upper_uncertainties = np.zeros_like(comparison_values)
+    else:
+        comparison_values, lower_uncertainties, upper_uncertainties = get_comparison(
+            h1_for_comparison, h2_for_comparison, comparison, h1_w2method
         )
 
-    comparison_plottable.errors()
+    # Use the comparison histogram directly if it has flow bins, otherwise create EnhancedPlottableHistogram
+    if used_flow_bins:
+        # comparison was computed on flow-included histograms
+        # Create a new histogram with the same structure
+        import hist as hist_pkg
+        num_bins = len(h2_plottable.values())
+        edges_1d = h2_plottable.edges_1d()
+        start = float(edges_1d[0])
+        stop = float(edges_1d[-1])
+
+        axis = hist_pkg.axis.Regular(
+            num_bins,
+            start,
+            stop,
+            underflow=True,
+            overflow=True,
+        )
+        # Use Weight storage to properly store values and variances
+        comparison_hist = hist_pkg.Hist(axis, storage=hist_pkg.storage.Weight())
+        # Set comparison values and variances (including flow bins)
+        # With Weight storage, we need to use structured array assignment
+        view_flow = comparison_hist.view(flow=True)
+        view_flow["value"] = comparison_values
+        if np.allclose(lower_uncertainties, upper_uncertainties, equal_nan=True):
+            view_flow["variance"] = lower_uncertainties**2
+            histplot_kwargs.setdefault("w2method", "sqrt")
+        else:
+            # For asymmetric errors, we'll store them separately
+            view_flow["variance"] = lower_uncertainties**2
+            histplot_kwargs.setdefault("yerr", [lower_uncertainties, upper_uncertainties])
+        # Use the histogram directly instead of converting to plottable
+        # This preserves the flow bin structure
+        comparison_plottable = comparison_hist
+    else:
+        # Regular comparison without flow bins
+        if np.allclose(lower_uncertainties, upper_uncertainties, equal_nan=True):
+            comparison_plottable = EnhancedPlottableHistogram(
+                comparison_values,
+                edges=h2_plottable.axes[0].edges,
+                variances=lower_uncertainties**2,
+                kind=h2_plottable.kind,
+                w2method="sqrt",
+            )
+            histplot_kwargs.setdefault("w2method", "sqrt")
+        else:
+            comparison_plottable = EnhancedPlottableHistogram(
+                comparison_values,
+                edges=h2_plottable.axes[0].edges,
+                yerr=[lower_uncertainties, upper_uncertainties],
+                kind=h2_plottable.kind,
+                w2method=h2_plottable.method,
+            )
+            histplot_kwargs.setdefault(
+                "yerr", [comparison_plottable.yerr_lo, comparison_plottable.yerr_hi]
+            )
+
+    # Only call errors() if it's an EnhancedPlottableHistogram
+    if hasattr(comparison_plottable, 'errors'):
+        comparison_plottable.errors()
 
     if comparison == "pull":
         histplot_kwargs.setdefault("histtype", "fill")
@@ -320,8 +416,10 @@ def comparison(
         ax.axhline(0, ls="--", lw=1.0, color="black")
         ax.set_ylabel(rf"$\frac{{{h1_label} - {h2_label}}}{{{h1_label} + {h2_label}}}$")
 
-    xlim = (h1_plottable.edges_1d()[0], h1_plottable.edges_1d()[-1])
-    ax.set_xlim(xlim)
+    # Only set xlim if not showing flow bins (histplot handles xlim for flow="show")
+    if flow != "show":
+        xlim = (h1_plottable.edges_1d()[0], h1_plottable.edges_1d()[-1])
+        ax.set_xlim(xlim)
     ax.set_xlabel(xlabel)
     if comparison_ylim is not None:
         ax.set_ylim(comparison_ylim)
@@ -489,6 +587,20 @@ def data_model(
     unstacked_kwargs_list = unstacked_kwargs_list.copy()
     model_sum_kwargs = model_sum_kwargs.copy()
 
+    # Set flow parameter in kwargs for model plotting
+    stacked_kwargs.setdefault("flow", flow)
+    model_sum_kwargs.setdefault("flow", flow)
+    # Ensure all unstacked kwargs have flow parameter
+    # If unstacked_kwargs_list is shorter than unstacked_components, extend it
+    while len(unstacked_kwargs_list) < len(unstacked_components):
+        unstacked_kwargs_list.append({})
+    for i in range(len(unstacked_kwargs_list)):
+        if unstacked_kwargs_list[i] is None:
+            unstacked_kwargs_list[i] = {}
+        else:
+            unstacked_kwargs_list[i] = unstacked_kwargs_list[i].copy()
+        unstacked_kwargs_list[i].setdefault("flow", flow)
+
     comparison_kwargs.setdefault("h1_label", data_label)
     comparison_kwargs.setdefault("h2_label", "MC")
     comparison_kwargs.setdefault("comparison", "split_ratio")
@@ -525,6 +637,15 @@ def data_model(
         msg = "Cannot provide fig, ax_main or ax_comparison with plot_only."
         raise ValueError(msg)
 
+    # For flow="show", don't constrain function_range
+    if flow == "show":
+        func_range = None
+    else:
+        func_range = [
+            data_hist_plottable.edges_1d()[0],
+            data_hist_plottable.edges_1d()[-1],
+        ]
+
     model(
         stacked_components=stacked_components,
         stacked_labels=stacked_labels,
@@ -536,10 +657,7 @@ def data_model(
         stacked_kwargs=stacked_kwargs,
         unstacked_kwargs_list=unstacked_kwargs_list,
         model_sum_kwargs=model_sum_kwargs,
-        function_range=[
-            data_hist_plottable.edges_1d()[0],
-            data_hist_plottable.edges_1d()[-1],
-        ],
+        function_range=func_range,
         model_uncertainty=model_uncertainty,
         model_uncertainty_label=model_uncertainty_label,
         fig=fig,
@@ -555,6 +673,16 @@ def data_model(
         histtype="errorbar",
         flow=flow,
     )
+
+    # If flow="show", calculate the correct xlim that includes flow bins
+    # We need to compute this manually because model() resets xlim to regular edges
+    flow_xlim = None
+    if flow == "show":
+        # Get the bin width to extend xlim for flow bins
+        edges = data_hist_plottable.edges_1d()
+        bin_width = edges[1] - edges[0]
+        # Extend by 1.5 bin widths on each side to show flow bin labels
+        flow_xlim = (edges[0] - 1.5 * bin_width, edges[-1] + 1.5 * bin_width)
 
     if plot_only == "ax_main":
         ax_main.set_xlabel(xlabel)
@@ -598,5 +726,9 @@ def data_model(
     ax_comparison.get_yaxis().get_label().set_size(ylabel_fontsize)
 
     fig.align_ylabels()
+
+    # Restore the xlim for flow bins if needed (some operations may have reset it)
+    if flow == "show" and flow_xlim is not None:
+        ax_main.set_xlim(flow_xlim)
 
     return fig, ax_main, ax_comparison
