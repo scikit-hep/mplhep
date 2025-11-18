@@ -133,7 +133,10 @@ def hists(
 
     ax_main.set_ylabel(ylabel)
     ax_main.legend()
-    _ = ax_main.xaxis.set_ticklabels([])
+    # For flow="show", don't clear ticklabels here (histplot set custom labels)
+    # tick_params(labelbottom=False) at the end will hide them instead
+    if flow != "show":
+        _ = ax_main.xaxis.set_ticklabels([])
 
     comparison(
         h1,
@@ -151,14 +154,19 @@ def hists(
     # Ensure tick labels appear only on the comparison axis, not on the main axis
     # This must be done at the end, after all plotting, because matplotlib's sharex
     # mechanism may override labels set during plotting
-    ax_main.tick_params(labelbottom=False)
-    ax_comparison.tick_params(labelbottom=True)
-
-    # Explicitly regenerate tick labels on the comparison axis
-    # (they may have been set to empty strings during plotting)
-    tick_positions = ax_comparison.get_xticks()
-    ax_comparison.set_xticks(tick_positions)
-    ax_comparison.set_xticklabels([f'{tick:g}' for tick in tick_positions])
+    if flow == "show":
+        # For flow="show", histplot already set everything correctly including
+        # custom labels with </> indicators, so just ensure main axis has no labels
+        ax_main.tick_params(labelbottom=False)
+    else:
+        # For other flow options, control label visibility and regenerate labels
+        ax_main.tick_params(labelbottom=False)
+        ax_comparison.tick_params(labelbottom=True)
+        # Explicitly regenerate tick labels on the comparison axis
+        # (they may have been set to empty strings during plotting)
+        tick_positions = ax_comparison.get_xticks()
+        ax_comparison.set_xticks(tick_positions)
+        ax_comparison.set_xticklabels([f'{tick:g}' for tick in tick_positions])
 
     return fig, ax_main, ax_comparison
 
@@ -701,7 +709,10 @@ def data_model(
     if plot_only == "ax_main":
         ax_main.set_xlabel(xlabel)
     else:
-        _ = ax_main.xaxis.set_ticklabels([])
+        # For flow="show", don't clear ticklabels here (histplot set custom labels)
+        # tick_params(labelbottom=False) at the end will hide them instead
+        if flow != "show":
+            _ = ax_main.xaxis.set_ticklabels([])
         ax_main.set_xlabel(" ")
 
     if model_type == "histograms":
@@ -755,13 +766,18 @@ def data_model(
     # Ensure tick labels appear only on the comparison axis, not on the main axis
     # This must be done at the end, after all plotting, because matplotlib's sharex
     # mechanism may override labels set during plotting
-    ax_main.tick_params(labelbottom=False)
-    ax_comparison.tick_params(labelbottom=True)
-
-    # Explicitly regenerate tick labels on the comparison axis
-    # (they may have been set to empty strings during plotting)
-    tick_positions = ax_comparison.get_xticks()
-    ax_comparison.set_xticks(tick_positions)
-    ax_comparison.set_xticklabels([f'{tick:g}' for tick in tick_positions])
+    if flow == "show":
+        # For flow="show", histplot already set everything correctly including
+        # custom labels with </> indicators, so just ensure main axis has no labels
+        ax_main.tick_params(labelbottom=False)
+    else:
+        # For other flow options, control label visibility and regenerate labels
+        ax_main.tick_params(labelbottom=False)
+        ax_comparison.tick_params(labelbottom=True)
+        # Explicitly regenerate tick labels on the comparison axis
+        # (they may have been set to empty strings during plotting)
+        tick_positions = ax_comparison.get_xticks()
+        ax_comparison.set_xticks(tick_positions)
+        ax_comparison.set_xticklabels([f'{tick:g}' for tick in tick_positions])
 
     return fig, ax_main, ax_comparison

@@ -747,37 +747,6 @@ def histplot(
                 )
 
     elif flow == "show":
-        underflow_xticklabel = f"<{flow_bins[1]:g}"
-        overflow_xticklabel = f">{flow_bins[-2]:g}"
-
-        # Loop over shared x axes to get xticks and xticklabels
-        xticks, xticklabels = np.array([]), []
-        shared_axes = ax.get_shared_x_axes().get_siblings(ax)
-        shared_axes = [
-            _ax for _ax in shared_axes if _ax.get_position().x0 == ax.get_position().x0
-        ]
-        for _ax in shared_axes:
-            _xticks = _ax.get_xticks()
-            _xticklabels = [label.get_text() for label in _ax.get_xticklabels()]
-
-            # Check if underflow/overflow xtick already exists
-            if (
-                underflow_xticklabel in _xticklabels
-                or overflow_xticklabel in _xticklabels
-            ):
-                xticks = _xticks
-                xticklabels = _xticklabels
-                break
-            # Only use existing labels if they're not all empty (can happen in comparison plots)
-            if len(_xticklabels) > 0 and any(label != '' for label in _xticklabels):
-                xticks = _xticks
-                xticklabels = _xticklabels
-
-        # If we didn't find any valid tick labels, generate them from tick positions
-        if len(xticks) > 0 and len(xticklabels) == 0:
-            xticks = ax.get_xticks()
-            xticklabels = [f'{tick:g}' for tick in xticks]
-
         lw = ax.spines["bottom"].get_linewidth()
         _edges = plottables[0].edges_1d()
         _centers = plottables[0].centers
@@ -786,85 +755,88 @@ def histplot(
             * ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width
         )
 
-        # Build xticks and xticklabels from bin edges
-        # Start with regular bin edges (excluding flow bins)
-        regular_edges = _edges[1:-1]  # Exclude first and last (which are flow bin edges)
-        new_xticks = list(regular_edges)
-        new_xticklabels = [f'{edge:g}' for edge in regular_edges]
+        # Use edge values for flow bin labels (not center values)
+        underflow_xticklabel = f"<{_edges[1]:g}"
+        overflow_xticklabel = f">{_edges[-2]:g}"
+
+        # Get shared axes for marker placement
+        shared_axes = ax.get_shared_x_axes().get_siblings(ax)
+        shared_axes = [
+            _ax for _ax in shared_axes if _ax.get_position().x0 == ax.get_position().x0
+        ]
+
+        # Use existing tick positions (from matplotlib's default ticker)
+        # rather than creating ticks at every bin edge
+        existing_ticks = ax.get_xticks()
+        # Filter to only include ticks within the regular bin range
+        regular_edges = _edges[1:-1]
+        new_xticks = [tick for tick in existing_ticks if regular_edges[0] <= tick <= regular_edges[-1]]
+        new_xticklabels = [f'{tick:g}' for tick in new_xticks]
 
         # Find top and bottom axes for marker placement
         top_axis = max(shared_axes, key=lambda a: a.get_position().y0)
         bottom_axis = min(shared_axes, key=lambda a: a.get_position().y0)
 
-        if underflow > 0.0 or underflow_xticklabel in xticklabels:
+        if underflow > 0.0:
             # Add underflow bin center at the beginning
             new_xticks.insert(0, _centers[0])
             new_xticklabels.insert(0, underflow_xticklabel)
 
-            # Draw on all shared axes
+            # Draw markers only on the bottom (h=0) of axes
             for _ax in shared_axes:
-                for h in [0, 1]:
-                    # Don't draw marker on the top of the top axis
-                    if _ax == top_axis and h == 1:
-                        continue
+                h = 0  # Only draw on bottom
+                _ax.plot(
+                    [_edges[0], _edges[1]],
+                    [h, h],
+                    color="white",
+                    zorder=5,
+                    ls="--",
+                    lw=lw,
+                    transform=_ax.get_xaxis_transform(),
+                    clip_on=False,
+                )
 
-                    _ax.plot(
-                        [_edges[0], _edges[1]],
-                        [h, h],
-                        color="white",
-                        zorder=5,
-                        ls="--",
-                        lw=lw,
-                        transform=_ax.get_xaxis_transform(),
-                        clip_on=False,
-                    )
-
-                    _ax.scatter(
-                        _centers[0],
-                        h,
-                        _marker_size,
-                        marker=align_marker("d", valign="center"),
-                        edgecolor="black",
-                        zorder=5,
-                        clip_on=False,
-                        facecolor="white",
-                        transform=_ax.get_xaxis_transform(),
-                    )
-        if overflow > 0.0 or overflow_xticklabel in xticklabels:
+                _ax.scatter(
+                    _centers[0],
+                    h,
+                    _marker_size,
+                    marker=align_marker("d", valign="center"),
+                    edgecolor="black",
+                    zorder=5,
+                    clip_on=False,
+                    facecolor="white",
+                    transform=_ax.get_xaxis_transform(),
+                )
+        if overflow > 0.0:
             # Add overflow bin center at the end
             new_xticks.append(_centers[-1])
             new_xticklabels.append(overflow_xticklabel)
 
-            # Draw on all shared axes
+            # Draw markers only on the bottom (h=0) of axes
             for _ax in shared_axes:
+                h = 0  # Only draw on bottom
+                _ax.plot(
+                    [_edges[-2], _edges[-1]],
+                    [h, h],
+                    color="white",
+                    zorder=5,
+                    ls="--",
+                    lw=lw,
+                    transform=_ax.get_xaxis_transform(),
+                    clip_on=False,
+                )
 
-                for h in [0, 1]:
-                    # Don't draw marker on the top of the top axis
-                    if _ax == top_axis and h == 1:
-                        continue
-
-                    _ax.plot(
-                        [_edges[-2], _edges[-1]],
-                        [h, h],
-                        color="white",
-                        zorder=5,
-                        ls="--",
-                        lw=lw,
-                        transform=_ax.get_xaxis_transform(),
-                        clip_on=False,
-                    )
-
-                    _ax.scatter(
-                        _centers[-1],
-                        h,
-                        _marker_size,
-                        marker=align_marker("d", valign="center"),
-                        edgecolor="black",
-                        zorder=5,
-                        clip_on=False,
-                        facecolor="white",
-                        transform=_ax.get_xaxis_transform(),
-                    )
+                _ax.scatter(
+                    _centers[-1],
+                    h,
+                    _marker_size,
+                    marker=align_marker("d", valign="center"),
+                    edgecolor="black",
+                    zorder=5,
+                    clip_on=False,
+                    facecolor="white",
+                    transform=_ax.get_xaxis_transform(),
+                )
 
         # Set the final xticks and xticklabels on all shared axes
         for _ax in shared_axes:
