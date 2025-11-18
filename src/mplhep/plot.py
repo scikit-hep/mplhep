@@ -768,9 +768,15 @@ def histplot(
                 xticks = _xticks
                 xticklabels = _xticklabels
                 break
-            if len(_xticklabels) > 0:
+            # Only use existing labels if they're not all empty (can happen in comparison plots)
+            if len(_xticklabels) > 0 and any(label != '' for label in _xticklabels):
                 xticks = _xticks
                 xticklabels = _xticklabels
+
+        # If we didn't find any valid tick labels, generate them from tick positions
+        if len(xticks) > 0 and len(xticklabels) == 0:
+            xticks = ax.get_xticks()
+            xticklabels = [f'{tick:g}' for tick in xticks]
 
         lw = ax.spines["bottom"].get_linewidth()
         _edges = plottables[0].edges_1d()
@@ -780,26 +786,23 @@ def histplot(
             * ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width
         )
 
-        if underflow > 0.0 or underflow_xticklabel in xticklabels:
-            # Replace any existing xticks in underflow region with underflow bin center
-            _mask = xticks > flow_bins[1]
-            xticks = np.insert(xticks[_mask], 0, _centers[0])
-            xticklabels = [underflow_xticklabel] + [
-                xlab for i, xlab in enumerate(xticklabels) if _mask[i]
-            ]
+        # Build xticks and xticklabels from bin edges
+        # Start with regular bin edges (excluding flow bins)
+        regular_edges = _edges[1:-1]  # Exclude first and last (which are flow bin edges)
+        new_xticks = list(regular_edges)
+        new_xticklabels = [f'{edge:g}' for edge in regular_edges]
 
-            # Don't draw markers on the top of the top axis
-            top_axis = max(shared_axes, key=lambda a: a.get_position().y0)
-            # Find the bottom-most axis for tick labels
-            bottom_axis = min(shared_axes, key=lambda a: a.get_position().y0)
+        # Find top and bottom axes for marker placement
+        top_axis = max(shared_axes, key=lambda a: a.get_position().y0)
+        bottom_axis = min(shared_axes, key=lambda a: a.get_position().y0)
+
+        if underflow > 0.0 or underflow_xticklabel in xticklabels:
+            # Add underflow bin center at the beginning
+            new_xticks.insert(0, _centers[0])
+            new_xticklabels.insert(0, underflow_xticklabel)
 
             # Draw on all shared axes
             for _ax in shared_axes:
-                # Set tick positions on all axes for alignment
-                _ax.set_xticks(xticks)
-                # Only set tick labels on the bottom axis
-                if _ax == bottom_axis:
-                    _ax.set_xticklabels(xticklabels)
                 for h in [0, 1]:
                     # Don't draw marker on the top of the top axis
                     if _ax == top_axis and h == 1:
@@ -828,25 +831,12 @@ def histplot(
                         transform=_ax.get_xaxis_transform(),
                     )
         if overflow > 0.0 or overflow_xticklabel in xticklabels:
-            # Replace any existing xticks in overflow region with overflow bin center
-            _mask = xticks < flow_bins[-2]
-            xticks = np.insert(xticks[_mask], sum(_mask), _centers[-1])
-            xticklabels = [xlab for i, xlab in enumerate(xticklabels) if _mask[i]] + [
-                overflow_xticklabel
-            ]
-
-            # Don't draw markers on the top of the top axis
-            top_axis = max(shared_axes, key=lambda a: a.get_position().y0)
-            # Find the bottom-most axis for tick labels
-            bottom_axis = min(shared_axes, key=lambda a: a.get_position().y0)
+            # Add overflow bin center at the end
+            new_xticks.append(_centers[-1])
+            new_xticklabels.append(overflow_xticklabel)
 
             # Draw on all shared axes
             for _ax in shared_axes:
-                # Set tick positions on all axes for alignment
-                _ax.set_xticks(xticks)
-                # Only set tick labels on the bottom axis
-                if _ax == bottom_axis:
-                    _ax.set_xticklabels(xticklabels)
 
                 for h in [0, 1]:
                     # Don't draw marker on the top of the top axis
@@ -875,6 +865,13 @@ def histplot(
                         facecolor="white",
                         transform=_ax.get_xaxis_transform(),
                     )
+
+        # Set the final xticks and xticklabels on all shared axes
+        for _ax in shared_axes:
+            _ax.set_xticks(new_xticks)
+            # Only set tick labels on the bottom axis
+            if _ax == bottom_axis:
+                _ax.set_xticklabels(new_xticklabels)
 
     return return_artists
 
