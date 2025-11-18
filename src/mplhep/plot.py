@@ -790,11 +790,16 @@ def histplot(
 
             # Don't draw markers on the top of the top axis
             top_axis = max(shared_axes, key=lambda a: a.get_position().y0)
+            # Find the bottom-most axis for tick labels
+            bottom_axis = min(shared_axes, key=lambda a: a.get_position().y0)
 
             # Draw on all shared axes
             for _ax in shared_axes:
+                # Set tick positions on all axes for alignment
                 _ax.set_xticks(xticks)
-                _ax.set_xticklabels(xticklabels)
+                # Only set tick labels on the bottom axis
+                if _ax == bottom_axis:
+                    _ax.set_xticklabels(xticklabels)
                 for h in [0, 1]:
                     # Don't draw marker on the top of the top axis
                     if _ax == top_axis and h == 1:
@@ -832,11 +837,16 @@ def histplot(
 
             # Don't draw markers on the top of the top axis
             top_axis = max(shared_axes, key=lambda a: a.get_position().y0)
+            # Find the bottom-most axis for tick labels
+            bottom_axis = min(shared_axes, key=lambda a: a.get_position().y0)
 
             # Draw on all shared axes
             for _ax in shared_axes:
+                # Set tick positions on all axes for alignment
                 _ax.set_xticks(xticks)
-                _ax.set_xticklabels(xticklabels)
+                # Only set tick labels on the bottom axis
+                if _ax == bottom_axis:
+                    _ax.set_xticklabels(xticklabels)
 
                 for h in [0, 1]:
                     # Don't draw marker on the top of the top axis
