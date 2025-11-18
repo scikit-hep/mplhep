@@ -155,13 +155,29 @@ def hists(
     # This must be done at the end, after all plotting, because matplotlib's sharex
     # mechanism may override labels set during plotting
     if flow == "show":
-        # For flow="show", histplot set custom labels with </> indicators
-        # but matplotlib's sharex may have cleared them, so explicitly restore
+        # For flow="show", regenerate tick labels with </> indicators for flow bins
+        # matplotlib's sharex clears labels, so we must regenerate from histogram edges
         ax_main.tick_params(labelbottom=False)
         ax_comparison.tick_params(labelbottom=True)
-        # Get current ticks and labels and re-set them to ensure they appear
+
+        # Get histogram edges to identify flow bin boundaries
+        edges = h1_plottable.edges_1d()
         tick_positions = ax_comparison.get_xticks()
-        tick_labels = [label.get_text() for label in ax_comparison.get_xticklabels()]
+        tick_labels = []
+
+        # Calculate flow bin centers
+        underflow_center = edges[0] + (edges[1] - edges[0]) / 2
+        overflow_center = edges[-1] - (edges[-1] - edges[-2]) / 2
+
+        for tick in tick_positions:
+            # Check if this tick is outside the regular histogram range (flow bins)
+            if tick < edges[1]:  # Underflow bin
+                tick_labels.append(f"<{edges[1]:g}")
+            elif tick > edges[-2]:  # Overflow bin
+                tick_labels.append(f">{edges[-2]:g}")
+            else:
+                tick_labels.append(f"{tick:g}")
+
         ax_comparison.set_xticks(tick_positions)
         ax_comparison.set_xticklabels(tick_labels)
     else:
@@ -773,13 +789,25 @@ def data_model(
     # This must be done at the end, after all plotting, because matplotlib's sharex
     # mechanism may override labels set during plotting
     if flow == "show":
-        # For flow="show", histplot set custom labels with </> indicators
-        # but matplotlib's sharex may have cleared them, so explicitly restore
+        # For flow="show", regenerate tick labels with </> indicators for flow bins
+        # matplotlib's sharex clears labels, so we must regenerate from histogram edges
         ax_main.tick_params(labelbottom=False)
         ax_comparison.tick_params(labelbottom=True)
-        # Get current ticks and labels and re-set them to ensure they appear
+
+        # Get histogram edges to identify flow bin boundaries
+        edges = data_hist_plottable.edges_1d()
         tick_positions = ax_comparison.get_xticks()
-        tick_labels = [label.get_text() for label in ax_comparison.get_xticklabels()]
+        tick_labels = []
+        for tick in tick_positions:
+            # Check if this tick is the underflow bin center (first edge + half bin width)
+            if abs(tick - (edges[0] + (edges[1] - edges[0]) / 2)) < 0.01:
+                tick_labels.append(f"<{edges[1]:g}")
+            # Check if this tick is the overflow bin center (last edge - half bin width)
+            elif abs(tick - (edges[-1] - (edges[-1] - edges[-2]) / 2)) < 0.01:
+                tick_labels.append(f">{edges[-2]:g}")
+            else:
+                tick_labels.append(f"{tick:g}")
+
         ax_comparison.set_xticks(tick_positions)
         ax_comparison.set_xticklabels(tick_labels)
     else:
