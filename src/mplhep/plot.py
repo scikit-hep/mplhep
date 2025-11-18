@@ -876,30 +876,6 @@ def histplot(
                 # Explicitly set empty labels on other axes
                 _ax.set_xticklabels(['' for _ in new_xticks])
 
-    # For non-"show" flow options, ensure tick labels are set on bottom axis only
-    if flow != "show":
-        shared_axes = ax.get_shared_x_axes().get_siblings(ax)
-        shared_axes = [
-            _ax for _ax in shared_axes if _ax.get_position().x0 == ax.get_position().x0
-        ]
-
-        if len(shared_axes) > 1:
-            # Find bottom axis
-            bottom_axis = min(shared_axes, key=lambda a: a.get_position().y0)
-
-            # Get tick positions
-            tick_positions = ax.get_xticks()
-
-            # Set tick positions and labels on all axes
-            for _ax in shared_axes:
-                _ax.set_xticks(tick_positions)
-                if _ax == bottom_axis:
-                    # Set labels on bottom axis
-                    _ax.set_xticklabels([f'{tick:g}' for tick in tick_positions])
-                else:
-                    # Explicitly set empty labels on other axes
-                    _ax.set_xticklabels(['' for _ in tick_positions])
-
     return return_artists
 
 

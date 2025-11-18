@@ -148,6 +148,18 @@ def hists(
 
     fig.align_ylabels()
 
+    # Ensure tick labels appear only on the comparison axis, not on the main axis
+    # This must be done at the end, after all plotting, because matplotlib's sharex
+    # mechanism may override labels set during plotting
+    ax_main.tick_params(labelbottom=False)
+    ax_comparison.tick_params(labelbottom=True)
+
+    # Explicitly regenerate tick labels on the comparison axis
+    # (they may have been set to empty strings during plotting)
+    tick_positions = ax_comparison.get_xticks()
+    ax_comparison.set_xticks(tick_positions)
+    ax_comparison.set_xticklabels([f'{tick:g}' for tick in tick_positions])
+
     return fig, ax_main, ax_comparison
 
 
@@ -739,5 +751,17 @@ def data_model(
     # Restore the xlim for flow bins if needed (some operations may have reset it)
     if flow == "show" and flow_xlim is not None:
         ax_main.set_xlim(flow_xlim)
+
+    # Ensure tick labels appear only on the comparison axis, not on the main axis
+    # This must be done at the end, after all plotting, because matplotlib's sharex
+    # mechanism may override labels set during plotting
+    ax_main.tick_params(labelbottom=False)
+    ax_comparison.tick_params(labelbottom=True)
+
+    # Explicitly regenerate tick labels on the comparison axis
+    # (they may have been set to empty strings during plotting)
+    tick_positions = ax_comparison.get_xticks()
+    ax_comparison.set_xticks(tick_positions)
+    ax_comparison.set_xticklabels([f'{tick:g}' for tick in tick_positions])
 
     return fig, ax_main, ax_comparison
