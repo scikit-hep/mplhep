@@ -155,9 +155,15 @@ def hists(
     # This must be done at the end, after all plotting, because matplotlib's sharex
     # mechanism may override labels set during plotting
     if flow == "show":
-        # For flow="show", histplot already set everything correctly including
-        # custom labels with </> indicators, so just ensure main axis has no labels
+        # For flow="show", histplot set custom labels with </> indicators
+        # but matplotlib's sharex may have cleared them, so explicitly restore
         ax_main.tick_params(labelbottom=False)
+        ax_comparison.tick_params(labelbottom=True)
+        # Get current ticks and labels and re-set them to ensure they appear
+        tick_positions = ax_comparison.get_xticks()
+        tick_labels = [label.get_text() for label in ax_comparison.get_xticklabels()]
+        ax_comparison.set_xticks(tick_positions)
+        ax_comparison.set_xticklabels(tick_labels)
     else:
         # For other flow options, control label visibility and regenerate labels
         ax_main.tick_params(labelbottom=False)
@@ -767,9 +773,15 @@ def data_model(
     # This must be done at the end, after all plotting, because matplotlib's sharex
     # mechanism may override labels set during plotting
     if flow == "show":
-        # For flow="show", histplot already set everything correctly including
-        # custom labels with </> indicators, so just ensure main axis has no labels
+        # For flow="show", histplot set custom labels with </> indicators
+        # but matplotlib's sharex may have cleared them, so explicitly restore
         ax_main.tick_params(labelbottom=False)
+        ax_comparison.tick_params(labelbottom=True)
+        # Get current ticks and labels and re-set them to ensure they appear
+        tick_positions = ax_comparison.get_xticks()
+        tick_labels = [label.get_text() for label in ax_comparison.get_xticklabels()]
+        ax_comparison.set_xticks(tick_positions)
+        ax_comparison.set_xticklabels(tick_labels)
     else:
         # For other flow options, control label visibility and regenerate labels
         ax_main.tick_params(labelbottom=False)
