@@ -570,14 +570,15 @@ def data_model(
     if stacked_components is None:
         stacked_components = []
 
-    # Convert input histograms to plottable histograms.
+    # Convert input histograms to plottable histograms for binning checks.
+    # Keep original histograms for passing to histplot (to preserve flow bin info).
     # If the input is a function, it is left unchanged.
     data_hist_plottable = make_plottable_histogram(data_hist)
-    stacked_components = [
+    stacked_components_plottable = [
         make_plottable_histogram(component) if not callable(component) else component
         for component in stacked_components
     ]
-    unstacked_components = [
+    unstacked_components_plottable = [
         make_plottable_histogram(component) if not callable(component) else component
         for component in unstacked_components
     ]
@@ -606,6 +607,7 @@ def data_model(
     comparison_kwargs.setdefault("comparison", "split_ratio")
 
     model_components = stacked_components + unstacked_components
+    model_components_plottable = stacked_components_plottable + unstacked_components_plottable
 
     if len(model_components) == 0:
         msg = "Need to provide at least one model component."
@@ -614,8 +616,8 @@ def data_model(
     model_type = _get_model_type(model_components)
 
     if model_type == "histograms":
-        _check_binning_consistency([*model_components, data_hist_plottable])
-        for component in [*model_components, data_hist_plottable]:
+        _check_binning_consistency([*model_components_plottable, data_hist_plottable])
+        for component in [*model_components_plottable, data_hist_plottable]:
             _check_counting_histogram(component)
 
     if fig is None and ax_main is None and ax_comparison is None:
@@ -691,15 +693,22 @@ def data_model(
         ax_main.set_xlabel(" ")
 
     if model_type == "histograms":
-        model_hist = sum(model_components)
+        # Sum the original histograms to preserve flow bin information for comparison
+        model_hist_orig = sum(model_components)
+        # Also sum plottables for variance manipulation
+        model_hist_plottable = sum(model_components_plottable)
         if not model_uncertainty:
-            model_hist.set_variances(np.zeros_like(model_hist.variances()))
+            model_hist_plottable.set_variances(np.zeros_like(model_hist_plottable.variances()))
+            # Need to update the original hist's variances too if it's plottable
+            if hasattr(model_hist_orig, 'set_variances'):
+                model_hist_orig.set_variances(np.zeros_like(model_hist_orig.variances()))
     else:
 
         def sum_components(x):
             return sum(f(x) for f in model_components)
 
-        model_hist = _make_hist_from_function(sum_components, data_hist_plottable)
+        model_hist_orig = _make_hist_from_function(sum_components, data_hist_plottable)
+        model_hist_plottable = model_hist_orig
 
     if comparison_kwargs["comparison"] == "pull" and (
         model_type == "functions" or not model_uncertainty
@@ -712,8 +721,8 @@ def data_model(
     ax_main.legend()
 
     comparison(
-        data_hist_plottable,
-        model_hist,
+        data_hist,
+        model_hist_orig,
         ax=ax_comparison,
         xlabel=xlabel,
         w2method=data_w2method,

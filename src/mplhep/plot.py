@@ -1400,6 +1400,8 @@ def model(
                     histtype="band",
                 )
         else:
+            # Remove flow parameter for funcplot (it only works with histplot)
+            funcplot_kwargs = {k: v for k, v in stacked_kwargs.items() if k != 'flow'}
             funcplot(
                 stacked_components,
                 ax=ax,
@@ -1407,7 +1409,7 @@ def model(
                 colors=stacked_colors,
                 labels=stacked_labels,
                 range=xlim,
-                **stacked_kwargs,
+                **funcplot_kwargs,
             )
 
     if len(unstacked_components) > 0:
@@ -1435,6 +1437,8 @@ def model(
                     **unstacked_kwargs,
                 )
             else:
+                # Remove flow parameter for funcplot (it only works with histplot)
+                funcplot_unstacked_kwargs = {k: v for k, v in unstacked_kwargs.items() if k != 'flow'}
                 funcplot(
                     component,
                     ax=ax,
@@ -1442,7 +1446,7 @@ def model(
                     color=color,
                     label=label,
                     range=xlim,
-                    **unstacked_kwargs,
+                    **funcplot_unstacked_kwargs,
                 )
         # Plot the sum of all the components
         if model_sum_kwargs.pop("show", True) and (
@@ -1472,11 +1476,13 @@ def model(
                 def sum_function(x):
                     return sum(f(x) for f in components)
 
+                # Remove flow parameter for funcplot (it only works with histplot)
+                funcplot_sum_kwargs = {k: v for k, v in model_sum_kwargs.items() if k != 'flow'}
                 funcplot(
                     sum_function,
                     ax=ax,
                     range=xlim,
-                    **model_sum_kwargs,
+                    **funcplot_sum_kwargs,
                 )
         elif (
             model_uncertainty
@@ -1488,7 +1494,20 @@ def model(
                 sum(components), ax=ax, label=model_uncertainty_label, histtype="band"
             )
 
-    ax.set_xlim(xlim)
+    # Check if flow="show" is set in any of the kwargs
+    # If so, don't reset xlim as histplot will have set it correctly for flow bins
+    flow_in_kwargs = (
+        stacked_kwargs.get("flow") == "show"
+        or model_sum_kwargs.get("flow") == "show"
+        or any(
+            kwargs.get("flow") == "show"
+            for kwargs in unstacked_kwargs_list
+            if kwargs is not None
+        )
+    )
+
+    if not flow_in_kwargs:
+        ax.set_xlim(xlim)
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
     set_fitting_ylabel_fontsize(ax)
