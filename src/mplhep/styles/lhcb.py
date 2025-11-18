@@ -3,7 +3,7 @@ from __future__ import annotations
 import matplotlib as mpl
 from cycler import cycler
 
-from .._deprecate import deprecated_dict
+from mplhep._deprecate import deprecated_dict
 
 colors1 = [
     "#1f77b4",
