@@ -80,7 +80,7 @@ jobs:
 
       - name: Test LaTeX styles with pytest
         run: |
-          python -m pytest tests/test_styles_latex.py -m latex -r sa --mpl --mpl-results-path=pytest_results_latex -n 4
+          python -m pytest tests/test_styles_latex.py -m latex -r sa --mpl --mpl-results-path=pytest_results_latex -n 4 --benchmark-disable
 
       - name: Test DUNE LaTeX styles with pytest
         run: |
