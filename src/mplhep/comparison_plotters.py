@@ -163,13 +163,23 @@ def hists(
         # Get histogram edges to identify flow bin boundaries
         edges = h1_plottable.edges_1d()
         tick_positions = ax_comparison.get_xticks()
+
+        # Check if there are flow labels (ticks in underflow/overflow regions)
+        has_underflow = any(tick < edges[1] for tick in tick_positions)
+        has_overflow = any(tick > edges[-2] for tick in tick_positions)
+
+        # Filter out edge ticks that would overlap with flow labels
+        filtered_ticks = []
         tick_labels = []
 
-        # Calculate flow bin centers
-        underflow_center = edges[0] + (edges[1] - edges[0]) / 2
-        overflow_center = edges[-1] - (edges[-1] - edges[-2]) / 2
-
         for tick in tick_positions:
+            # Skip edge ticks that would overlap with adjacent flow labels
+            if has_underflow and abs(tick - edges[1]) < 1e-10:
+                continue  # Skip tick at first regular edge (e.g., 0)
+            if has_overflow and abs(tick - edges[-2]) < 1e-10:
+                continue  # Skip tick at last regular edge (e.g., 10)
+
+            filtered_ticks.append(tick)
             # Check if this tick is outside the regular histogram range (flow bins)
             if tick < edges[1]:  # Underflow bin
                 tick_labels.append(f"<{edges[1]:g}")
@@ -178,7 +188,7 @@ def hists(
             else:
                 tick_labels.append(f"{tick:g}")
 
-        ax_comparison.set_xticks(tick_positions)
+        ax_comparison.set_xticks(filtered_ticks)
         ax_comparison.set_xticklabels(tick_labels)
     else:
         # For other flow options, control label visibility and regenerate labels
@@ -797,18 +807,37 @@ def data_model(
         # Get histogram edges to identify flow bin boundaries
         edges = data_hist_plottable.edges_1d()
         tick_positions = ax_comparison.get_xticks()
+
+        # Calculate flow bin centers
+        underflow_center = edges[0] + (edges[1] - edges[0]) / 2
+        overflow_center = edges[-1] - (edges[-1] - edges[-2]) / 2
+
+        # Check if there are flow labels (ticks at underflow/overflow centers)
+        has_underflow = any(abs(tick - underflow_center) < 0.01 for tick in tick_positions)
+        has_overflow = any(abs(tick - overflow_center) < 0.01 for tick in tick_positions)
+
+        # Filter out edge ticks that would overlap with flow labels
+        filtered_ticks = []
         tick_labels = []
+
         for tick in tick_positions:
+            # Skip edge ticks that would overlap with adjacent flow labels
+            if has_underflow and abs(tick - edges[1]) < 1e-10:
+                continue  # Skip tick at first regular edge (e.g., 0)
+            if has_overflow and abs(tick - edges[-2]) < 1e-10:
+                continue  # Skip tick at last regular edge (e.g., 10)
+
+            filtered_ticks.append(tick)
             # Check if this tick is the underflow bin center (first edge + half bin width)
-            if abs(tick - (edges[0] + (edges[1] - edges[0]) / 2)) < 0.01:
+            if abs(tick - underflow_center) < 0.01:
                 tick_labels.append(f"<{edges[1]:g}")
             # Check if this tick is the overflow bin center (last edge - half bin width)
-            elif abs(tick - (edges[-1] - (edges[-1] - edges[-2]) / 2)) < 0.01:
+            elif abs(tick - overflow_center) < 0.01:
                 tick_labels.append(f">{edges[-2]:g}")
             else:
                 tick_labels.append(f"{tick:g}")
 
-        ax_comparison.set_xticks(tick_positions)
+        ax_comparison.set_xticks(filtered_ticks)
         ax_comparison.set_xticklabels(tick_labels)
     else:
         # For other flow options, control label visibility and regenerate labels
