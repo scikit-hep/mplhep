@@ -58,13 +58,15 @@ test = [
     "pytest-mock",
     "pytest-mpl",
     "pytest-xdist",
-    "pytest-benchmark",
     "pytest>=6.0",
     "scikit-hep-testdata",
     "scipy>=1.1.0",
     "uproot",
     "uproot4",
     "seaborn",
+]
+benchmark = [
+    "pytest-benchmark",
 ]
 all = [
     "mplhep[dev,test,docs]",
@@ -199,3 +201,61 @@ ignore = [
 "src/mplhep/_dev.py" = ["T20"]
 "test_*.py" = ["T20"]
 "src/mplhep/styles/*.py" = ["FLY002"]
+
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+
+[tool.pixi.environments]
+default = { features = ["dev", "test", "docs"], solve-group = "default" }
+dev = { features = ["dev", "test"], solve-group = "default" }
+docs = { features = ["docs"], solve-group = "default" }
+test = { features = ["test"], solve-group = "default" }
+benchmark = { features = ["test", "benchmark"], solve-group = "default" }
+
+[tool.pixi.tasks]
+
+[tool.pixi.feature.test.tasks]
+test = "pytest -r sa --mpl --mpl-results-path=pytest_results"
+test-parallel = "pytest -r sa --mpl --mpl-results-path=pytest_results -n auto"
+test-basic = "pytest tests/"
+test-single = "pytest"
+generate-baseline = "pytest -r sa --mpl --mpl-generate-path=tests/baseline"
+
+[tool.pixi.feature.benchmark.tasks]
+benchmark = "pytest --benchmark-only --benchmark-sort=mean"
+benchmark-run = "pytest --benchmark-only --benchmark-sort=mean --benchmark-save=latest"
+benchmark-compare = "pytest --benchmark-only --benchmark-compare=latest"
+
+[tool.pixi.feature.dev.tasks]
+lint = "ruff check src/"
+format = "ruff format src/"
+format-check = "ruff format --check src/"
+
+[tool.pixi.dependencies]
+python = ">=3.9,<3.14"
+pytest = ">=9.0.1,<10"
+matplotlib = ">=3.4"
+numpy = ">=1.16.0"
+packaging = "*"
+
+[tool.pixi.pypi-dependencies]
+mplhep = { path = ".", editable = true }
+
+[tool.pixi.feature.test.dependencies]
+pytest-mock = "*"
+pytest-mpl = "*"
+pytest-xdist = "*"
+scipy = ">=1.1.0"
+seaborn = "*"
+
+[tool.pixi.feature.benchmark.dependencies]
+pytest-benchmark = "*"
+
+[tool.pixi.feature.dev.dependencies]
+jupyter = "*"
+twine = "*"
+ruff = "*"
+pre-commit = "*"
+questionary = "*"
+mkdocs = ">=1.6"
