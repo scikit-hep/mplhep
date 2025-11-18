@@ -12,10 +12,10 @@ def test_comparison_flow():
     np.random.seed(42)
 
     # Create histograms with underflow and overflow
-    h_data = hist.Hist(hist.axis.Regular(10, 0, 10, underflow=True, overflow=True))
+    h_data = hist.Hist(hist.axis.Regular(10, 0, 10, name="x", underflow=True, overflow=True))
     h_data.fill(np.random.normal(5, 2, 1000))
 
-    h_model = hist.Hist(hist.axis.Regular(10, 0, 10, underflow=True, overflow=True))
+    h_model = hist.Hist(hist.axis.Regular(10, 0, 10, name="x", underflow=True, overflow=True))
     h_model.fill(np.random.normal(5, 2, 1000))
 
     # Create 2x2 grid for different flow options
@@ -40,6 +40,7 @@ def test_comparison_flow():
             unstacked_components=[h_model],
             unstacked_labels=["Model"],
             data_label="Data",
+            xlabel="x",
             flow=flow_opt,
             fig=fig,
             ax_main=ax_main,

@@ -708,34 +708,43 @@ def histplot(
         msg = "No figure found"
         raise ValueError(msg)
     if flow == "hint":
+        # Get all shared x-axes to draw markers on all of them
+        shared_axes = ax.get_shared_x_axes().get_siblings(ax)
+        shared_axes = [
+            _ax for _ax in shared_axes if _ax.get_position().x0 == ax.get_position().x0
+        ]
+
         _marker_size = (
             30
             * ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width
         )
-        if underflow > 0.0:
-            ax.scatter(
-                final_bins[0],
-                0,
-                _marker_size,
-                marker=align_marker("<", halign="right"),
-                edgecolor="black",
-                zorder=5,
-                clip_on=False,
-                facecolor="white",
-                transform=ax.get_xaxis_transform(),
-            )
-        if overflow > 0.0:
-            ax.scatter(
-                final_bins[-1],
-                0,
-                _marker_size,
-                marker=align_marker(">", halign="left"),
-                edgecolor="black",
-                zorder=5,
-                clip_on=False,
-                facecolor="white",
-                transform=ax.get_xaxis_transform(),
-            )
+
+        # Draw markers on all shared axes
+        for _ax in shared_axes:
+            if underflow > 0.0:
+                _ax.scatter(
+                    final_bins[0],
+                    0,
+                    _marker_size,
+                    marker=align_marker("<", halign="right"),
+                    edgecolor="black",
+                    zorder=5,
+                    clip_on=False,
+                    facecolor="white",
+                    transform=_ax.get_xaxis_transform(),
+                )
+            if overflow > 0.0:
+                _ax.scatter(
+                    final_bins[-1],
+                    0,
+                    _marker_size,
+                    marker=align_marker(">", halign="left"),
+                    edgecolor="black",
+                    zorder=5,
+                    clip_on=False,
+                    facecolor="white",
+                    transform=_ax.get_xaxis_transform(),
+                )
 
     elif flow == "show":
         underflow_xticklabel = f"<{flow_bins[1]:g}"

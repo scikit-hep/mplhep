@@ -12,10 +12,10 @@ def test_hists_flow():
     np.random.seed(42)
 
     # Create histograms with underflow and overflow
-    h1 = hist.Hist(hist.axis.Regular(10, 0, 10, underflow=True, overflow=True))
+    h1 = hist.Hist(hist.axis.Regular(10, 0, 10, name="x", underflow=True, overflow=True))
     h1.fill(np.random.normal(5, 2, 1000))
 
-    h2 = hist.Hist(hist.axis.Regular(10, 0, 10, underflow=True, overflow=True))
+    h2 = hist.Hist(hist.axis.Regular(10, 0, 10, name="x", underflow=True, overflow=True))
     h2.fill(np.random.normal(5, 2, 1000))
 
     # Create 2x2 grid for different flow options
@@ -40,6 +40,7 @@ def test_hists_flow():
             h2,
             h1_label="h1",
             h2_label="h2",
+            xlabel="x",
             flow=flow_opt,
             fig=fig,
             ax_main=ax_main,
