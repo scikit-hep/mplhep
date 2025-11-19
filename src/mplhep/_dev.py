@@ -78,11 +78,14 @@ class DevScript:
             return 80
 
     def _run_command_with_confirmation(
-        self, cmd: list[str], prompt: str = "Confirm command (editable):"
+        self,
+        cmd: list[str],
+        prompt: str = "Confirm command (editable):",
+        env: Optional[dict] = None,
     ) -> bool:
         """Run a command with user confirmation and editing capability."""
         if not HAS_QUESTIONARY or questionary is None:
-            return self._run_command(cmd)
+            return self._run_command(cmd, env=env)
 
         modified_cmd_str = questionary.text(
             prompt, default=" ".join(cmd), style=self.style
@@ -98,9 +101,12 @@ class DevScript:
                 self._print_error(f"Invalid command syntax: {e}")
                 return False
 
-        return self._run_command(cmd)
+        return self._run_command(cmd, env=env)
 
     def _run_command(self, cmd: list[str], cwd: Path | None = None) -> bool:
+    def _run_command(
+        self, cmd: list[str], cwd: Optional[Path] = None, env: Optional[dict] = None
+    ) -> bool:
         """Run a command and return True if successful."""
         self._print_header(f"Running: {' '.join(cmd)}")
         separator = 3 * ("=" * self._get_terminal_width() + "\n")
@@ -108,6 +114,18 @@ class DevScript:
 
         try:
             result = subprocess.run(cmd, cwd=cwd or self.project_root, check=True)
+            self._print_header(f"Running: {' '.join(cmd)}")
+            separator = 3 * ("=" * self._get_terminal_width() + "\n")
+            print(separator)
+            # Merge environment variables if provided
+            run_env = os.environ.copy()
+            if env:
+                run_env.update(env)
+            result = subprocess.run(
+                cmd, cwd=cwd or self.project_root, env=run_env, check=True
+            )
+            print(separator)
+            return result.returncode == 0
         except subprocess.CalledProcessError as e:
             self._print_error(f"Command failed with exit code {e.returncode}")
             return False
@@ -200,15 +218,30 @@ class DevScript:
             sys.executable,
             "-m",
             "pytest",
-            "-r",
-            "sa",
-            "--mpl",
-            "--mpl-results-path=pytest_results",
         ]
 
-        # Only add -n flag if using parallelism (jobs > 1)
+        # Handle parallel execution - now works normally without conflicts
         if jobs > 1:
-            cmd.extend(["-n", str(jobs)])
+            cmd.extend(
+                [
+                    "-r",
+                    "sa",
+                    "--mpl",
+                    "--mpl-results-path=pytest_results",
+                    "-n",
+                    str(jobs),
+                ]
+            )
+        else:
+            # Non-parallel execution - use normal config
+            cmd.extend(
+                [
+                    "-r",
+                    "sa",
+                    "--mpl",
+                    "--mpl-results-path=pytest_results",
+                ]
+            )
 
         if filter_pattern:
             cmd.extend(["-k", filter_pattern])
@@ -1062,7 +1095,7 @@ Examples:
             (
                 make_menu_item(
                     "🧪 Run pytest",
-                    "python -m pytest -r sa --mpl --mpl-results-path=pytest_results",
+                    f"python -m pytest -r sa --mpl --mpl-results-path=pytest_results{' -n ' + str(self.default_jobs) if self.default_jobs > 1 else ''}",
                 ),
                 "test",
             ),

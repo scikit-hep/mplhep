@@ -9,6 +9,40 @@ Please open an [issue](https://github.com/scikit-hep/mplhep/issues).
 ## Installing the development environment
 
 ```bash
+### Using pixi (recommended)
+
+[Pixi](https://prefix.dev/docs/pixi/overview) provides a fast, reproducible development environment:
+
+```bash
+```bash
+```bash
+# Install the default environment (includes all development tools)
+pixi install
+
+# Activate a shell with all tools
+pixi shell
+
+# Or run commands directly
+pixi run test-basic
+```
+
+Available pixi tasks (now just `pixi run <task>`):
+- `pixi run test` - Run full test suite with visual comparison
+- `pixi run test-parallel` - Run tests in parallel (auto-detects optimal worker count)
+- `pixi run test-basic` - Run basic tests without visual comparison
+- `pixi run generate-baseline` - Generate new baseline images
+- `pixi run lint` - Check code with ruff
+- `pixi run format` - Format code with ruff
+- `pixi run format-check` - Check formatting without changes
+
+Benchmarking tasks (requires benchmark environment):
+- `pixi run -e benchmark benchmark` - Run benchmark tests
+- `pixi run -e benchmark benchmark-run` - Run and save benchmark results
+- `pixi run -e benchmark benchmark-compare` - Compare benchmark results
+
+**Note:** For development work, use the default environment (`pixi install`) which includes all tools. The specialized environments (`dev`, `test`, `docs`, `benchmark`) are available for specific use cases.
+
+```
 python -m pip install --upgrade --editable ".[all]"
 ```
 Also conveniently accessible as `bash install.sh`.
