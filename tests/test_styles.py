@@ -141,10 +141,9 @@ def test_use_style(fig_test, fig_ref, mplhep_style):
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @check_figures_equal(extensions=["pdf"])
-def test_use_style_LHCb_dep(fig_test, fig_ref):
+def test_use_style_LHCb_default(fig_test, fig_ref):
     mh.rcParams.clear()
-    with pytest.warns(FutureWarning):
-        plt.style.use(mh.style.LHCb)
+    mh.style.use(mh.style.LHCb2)
     fig_ref.subplots()
 
     mh.rcParams.clear()
