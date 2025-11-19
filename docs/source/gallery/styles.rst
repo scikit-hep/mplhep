@@ -107,6 +107,20 @@ LHCb2 style
 .. image:: ../_static/_generated/LHCb2/band/pos0.png
     :width: 45%
 
+LHCb3 style (new, long-term)
+
+.. image:: ../../_static/_generated/LHCb3/fill/pos0.png
+   :width: 45%
+
+.. image:: ../../_static/_generated/LHCb3/step/pos0.png
+    :width: 45%
+
+.. image:: ../../_static/_generated/LHCb3/errorbar/pos0.png
+    :width: 45%
+
+.. image:: ../../_static/_generated/LHCb3/band/pos0.png
+    :width: 45%
+
 
 ALICE
 ------------
