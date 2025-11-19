@@ -161,12 +161,13 @@ def hists(
         ax_comparison.tick_params(labelbottom=True)
 
         # Get histogram edges to identify flow bin boundaries
+        # Note: h1_plottable has original edges [0, 1, 2, ..., 10], not flow-extended
         edges = h1_plottable.edges_1d()
         tick_positions = ax_comparison.get_xticks()
 
         # Check if there are flow labels (ticks in underflow/overflow regions)
-        has_underflow = any(tick < edges[1] for tick in tick_positions)
-        has_overflow = any(tick > edges[-2] for tick in tick_positions)
+        has_underflow = any(tick < edges[0] for tick in tick_positions)
+        has_overflow = any(tick > edges[-1] for tick in tick_positions)
 
         # Filter out edge ticks that would overlap with flow labels
         filtered_ticks = []
@@ -174,17 +175,17 @@ def hists(
 
         for tick in tick_positions:
             # Skip edge ticks that would overlap with adjacent flow labels
-            if has_underflow and abs(tick - edges[1]) < 1e-10:
+            if has_underflow and abs(tick - edges[0]) < 1e-10:
                 continue  # Skip tick at first regular edge (e.g., 0)
-            if has_overflow and abs(tick - edges[-2]) < 1e-10:
+            if has_overflow and abs(tick - edges[-1]) < 1e-10:
                 continue  # Skip tick at last regular edge (e.g., 10)
 
             filtered_ticks.append(tick)
             # Check if this tick is outside the regular histogram range (flow bins)
-            if tick < edges[1]:  # Underflow bin
-                tick_labels.append(f"<{edges[1]:g}")
-            elif tick > edges[-2]:  # Overflow bin
-                tick_labels.append(f">{edges[-2]:g}")
+            if tick < edges[0]:  # Underflow bin
+                tick_labels.append(f"<{edges[0]:g}")
+            elif tick > edges[-1]:  # Overflow bin
+                tick_labels.append(f">{edges[-1]:g}")
             else:
                 tick_labels.append(f"{tick:g}")
 
@@ -805,16 +806,13 @@ def data_model(
         ax_comparison.tick_params(labelbottom=True)
 
         # Get histogram edges to identify flow bin boundaries
+        # Note: data_hist_plottable has original edges [0, 1, 2, ..., 10], not flow-extended
         edges = data_hist_plottable.edges_1d()
         tick_positions = ax_comparison.get_xticks()
 
-        # Calculate flow bin centers
-        underflow_center = edges[0] + (edges[1] - edges[0]) / 2
-        overflow_center = edges[-1] - (edges[-1] - edges[-2]) / 2
-
-        # Check if there are flow labels (ticks at underflow/overflow centers)
-        has_underflow = any(abs(tick - underflow_center) < 0.01 for tick in tick_positions)
-        has_overflow = any(abs(tick - overflow_center) < 0.01 for tick in tick_positions)
+        # Check if there are flow labels (ticks in underflow/overflow regions)
+        has_underflow = any(tick < edges[0] for tick in tick_positions)
+        has_overflow = any(tick > edges[-1] for tick in tick_positions)
 
         # Filter out edge ticks that would overlap with flow labels
         filtered_ticks = []
@@ -822,18 +820,17 @@ def data_model(
 
         for tick in tick_positions:
             # Skip edge ticks that would overlap with adjacent flow labels
-            if has_underflow and abs(tick - edges[1]) < 1e-10:
+            if has_underflow and abs(tick - edges[0]) < 1e-10:
                 continue  # Skip tick at first regular edge (e.g., 0)
-            if has_overflow and abs(tick - edges[-2]) < 1e-10:
+            if has_overflow and abs(tick - edges[-1]) < 1e-10:
                 continue  # Skip tick at last regular edge (e.g., 10)
 
             filtered_ticks.append(tick)
-            # Check if this tick is the underflow bin center (first edge + half bin width)
-            if abs(tick - underflow_center) < 0.01:
-                tick_labels.append(f"<{edges[1]:g}")
-            # Check if this tick is the overflow bin center (last edge - half bin width)
-            elif abs(tick - overflow_center) < 0.01:
-                tick_labels.append(f">{edges[-2]:g}")
+            # Check if this tick is outside the regular histogram range (flow bins)
+            if tick < edges[0]:  # Underflow bin
+                tick_labels.append(f"<{edges[0]:g}")
+            elif tick > edges[-1]:  # Overflow bin
+                tick_labels.append(f">{edges[-1]:g}")
             else:
                 tick_labels.append(f"{tick:g}")
 
