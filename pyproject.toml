@@ -37,7 +37,7 @@ dependencies = [
 dev = [
     "bumpversion",
     "jupyter",
-    "pre-commit",
+    "prek",
     "questionary",
     "twine",
 ]

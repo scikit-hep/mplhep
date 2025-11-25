@@ -289,10 +289,10 @@ class DevScript:
         self._print_header("Running Pre-commit Hooks")
 
         # Check if pre-commit is available
-        if not self._check_tool_available("pre-commit", ["pre-commit", "--version"]):
+        if not self._check_tool_available("prek", ["prek", "--version"]):
             return False
 
-        cmd = ["pre-commit", "run", "--all-files"]
+        cmd = ["prek", "run", "--all-files"]
 
         # Add any extra arguments
         if extra_args:
@@ -1056,7 +1056,7 @@ Examples:
 
         menu_choices = [
             (
-                make_menu_item("🔍 Run pre-commit", "pre-commit run --all-files"),
+                make_menu_item("🔍 Run pre-commit", "prek run --all-files"),
                 "precommit",
             ),
             (
