@@ -127,3 +127,6 @@ venv.bak/
 /docs/source/_generated/
 /tmp/
 /docs/source/_static/_generated/
+# pixi environments
+.pixi/*
+!.pixi/config.toml
