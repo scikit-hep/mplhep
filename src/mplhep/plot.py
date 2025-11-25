@@ -392,14 +392,14 @@ def histplot(
     binticks = bool(binticks)
 
     # Handle ratio plots - redirect to comparison functionality
-    if kwargs.get('ratio', False):
+    if kwargs.get("ratio", False):
         from .comparison_plotters import hists
+
         # Remove ratio from kwargs before passing to comparison function
-        _kwargs = {k: v for k, v in kwargs.items() if k != 'ratio'}
+        _kwargs = {k: v for k, v in kwargs.items() if k != "ratio"}
         if isinstance(H, (list, tuple)) and len(H) >= 2:
             return hists(H[0], H[1], comparison="ratio", flow=flow, **_kwargs)
-        else:
-            raise ValueError("ratio=True requires at least 2 histograms for comparison")
+        raise ValueError("ratio=True requires at least 2 histograms for comparison")
 
     # Process input
     hists = list(process_histogram_parts(H, bins))

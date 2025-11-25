@@ -281,9 +281,12 @@ def comparison(
         try:
             # First check if both histograms support flow=True without actually calling it
             # This prevents side effects from accessing flow values on histograms that don't have them
-            if (hasattr(h1, 'values') and hasattr(h2, 'values') and
-                hasattr(h1.values, '__call__') and hasattr(h2.values, '__call__')):
-
+            if (
+                hasattr(h1, "values")
+                and hasattr(h2, "values")
+                and hasattr(h1.values, "__call__")
+                and hasattr(h2.values, "__call__")
+            ):
                 # Access flow bins from the original histogram objects
                 h1_flow_values = h1.values(flow=True)
 
@@ -402,8 +405,9 @@ def comparison(
 
     # Filter out comparison-specific parameters that shouldn't be passed to histplot
     _valid_histplot_kwargs = {
-        k: v for k, v in histplot_kwargs.items()
-        if k not in ['ratio', 'comparison', 'comparison_ylabel', 'comparison_ylim']
+        k: v
+        for k, v in histplot_kwargs.items()
+        if k not in ["ratio", "comparison", "comparison_ylabel", "comparison_ylim"]
     }
 
     if comparison == "pull":
