@@ -215,3 +215,42 @@ flake8-builtins.ignorelist = ["copyright", "range"]
 "{new_docs,docs,examples}/**" = ["INP001", "S", "T20", "LOG015"]
 "src/mplhep/_dev.py" = ["T20"]
 "src/mplhep/styles/*.py" = ["FLY002"]
+
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
+
+[tool.pixi.dependencies]
+matplotlib = "==3.10.6"
+numpy = ">=1.16.0"
+packaging = "*"
+pytest = ">=6.0"
+
+[tool.pixi.pypi-dependencies]
+mplhep = { path = ".", editable = true }
+mplhep-data = ">=0.0.4"
+uhi = ">=0.2.0"
+boost_histogram = "*"
+hist = "*"
+pytest-mock = "*"
+pytest-mpl = "*"
+pytest-xdist = "*"
+pytest-benchmark = "*"
+scikit-hep-testdata = "*"
+uproot = "*"
+uproot4 = "*"
+
+[tool.pixi.environments]
+default = {features = ["all"], solve-group = "default" }
+all = { features = ["all"], solve-group = "default" }
+dev = { features = ["dev"], solve-group = "default" }
+docs = { features = ["docs"], solve-group = "default" }
+test = { features = ["test"], solve-group = "default" }
+
+[tool.pixi.tasks]
+install = "echo 'Package is already installed in editable mode'"
+test = "pytest"
+lint = "ruff check src"
+format = "ruff format src"
+prek = "prek run --all-files"
+pre-commit = "prek run --all-files"

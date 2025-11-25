@@ -279,17 +279,26 @@ def comparison(
     if flow == "show":
         # Try to get flow bins if they exist (from original histogram objects, not plottable)
         try:
-            # Access flow bins from the original histogram objects
-            h1_flow_values = h1.values(flow=True)
+            # First check if both histograms support flow=True without actually calling it
+            # This prevents side effects from accessing flow values on histograms that don't have them
+            if (hasattr(h1, 'values') and hasattr(h2, 'values') and
+                hasattr(h1.values, '__call__') and hasattr(h2.values, '__call__')):
 
-            # Check if histogram actually has flow bins (length should be +2)
-            if len(h1_flow_values) == len(h1_plottable.values()) + 2:
-                # Use the original histograms which already have flow bins
-                h1_for_comparison = h1
-                h2_for_comparison = h2
-                used_flow_bins = True
+                # Access flow bins from the original histogram objects
+                h1_flow_values = h1.values(flow=True)
+
+                # Check if histogram actually has flow bins (length should be +2)
+                if len(h1_flow_values) == len(h1_plottable.values()) + 2:
+                    # Use the original histograms which already have flow bins
+                    h1_for_comparison = h1
+                    h2_for_comparison = h2
+                    used_flow_bins = True
+                else:
+                    # No actual flow bins, use regular histograms
+                    h1_for_comparison = h1_plottable
+                    h2_for_comparison = h2_plottable
             else:
-                # No actual flow bins, use regular histograms
+                # Histograms don't support flow parameter
                 h1_for_comparison = h1_plottable
                 h2_for_comparison = h2_plottable
         except (AttributeError, TypeError):
@@ -349,13 +358,15 @@ def comparison(
             0.05 * (final_bins[-1] - final_bins[0]), np.mean(np.diff(final_bins))
         )
 
-        # Check if underflow/overflow bins exist and extend edges accordingly
+        # For flow="show", we need to always extend edges to match flow values length
+        # because flow=True always includes underflow/overflow positions
         flow_edges = np.copy(final_bins)
         h2_flow_values = h2_for_comparison.values(flow=True)
-        if h2_flow_values[0] > 0:  # Underflow exists
-            flow_edges = np.insert(flow_edges, 0, flow_edges[0] - _flow_bin_size)
-        if h2_flow_values[-1] > 0:  # Overflow exists
-            flow_edges = np.append(flow_edges, flow_edges[-1] + _flow_bin_size)
+
+        # Always add underflow and overflow edges when using flow="show"
+        # to match the structure of flow=True values
+        flow_edges = np.insert(flow_edges, 0, flow_edges[0] - _flow_bin_size)
+        flow_edges = np.append(flow_edges, flow_edges[-1] + _flow_bin_size)
 
         comparison_plottable = EnhancedPlottableHistogram(
             comparison_values,
@@ -389,14 +400,20 @@ def comparison(
     if hasattr(comparison_plottable, "errors"):
         comparison_plottable.errors()
 
+    # Filter out comparison-specific parameters that shouldn't be passed to histplot
+    _valid_histplot_kwargs = {
+        k: v for k, v in histplot_kwargs.items()
+        if k not in ['ratio', 'comparison', 'comparison_ylabel', 'comparison_ylim']
+    }
+
     if comparison == "pull":
-        histplot_kwargs.setdefault("histtype", "fill")
-        histplot_kwargs.setdefault("color", "darkgrey")
-        histplot(comparison_plottable, ax=ax, flow=flow, **histplot_kwargs)
+        _valid_histplot_kwargs.setdefault("histtype", "fill")
+        _valid_histplot_kwargs.setdefault("color", "darkgrey")
+        histplot(comparison_plottable, ax=ax, flow=flow, **_valid_histplot_kwargs)
     else:
-        histplot_kwargs.setdefault("color", "black")
-        histplot_kwargs.setdefault("histtype", "errorbar")
-        histplot(comparison_plottable, ax=ax, flow=flow, **histplot_kwargs)
+        _valid_histplot_kwargs.setdefault("color", "black")
+        _valid_histplot_kwargs.setdefault("histtype", "errorbar")
+        histplot(comparison_plottable, ax=ax, flow=flow, **_valid_histplot_kwargs)
 
     if comparison in ["ratio", "split_ratio", "relative_difference"]:
         if comparison_ylim is None:
