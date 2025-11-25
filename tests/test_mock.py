@@ -31,6 +31,18 @@ def mock_matplotlib(mocker):
     _get_lines.get_next_color.return_value = "next-color"
     ax._get_lines = _get_lines
 
+    # Mock shared axes methods for flow parameter support
+    mock_shared_axes = mocker.Mock()
+    mock_shared_axes.get_siblings.return_value = [
+        ax
+    ]  # Return list containing current axis
+    ax.get_shared_x_axes.return_value = mock_shared_axes
+
+    # Mock position method
+    mock_position = mocker.Mock()
+    mock_position.x0 = 0.1  # Arbitrary x-position value
+    ax.get_position.return_value = mock_position
+
     mpl = mocker.patch("matplotlib.pyplot", autospec=True)
     mocker.patch("matplotlib.pyplot.subplots", return_value=(fig, ax))
 
@@ -44,7 +56,7 @@ def test_simple(mock_matplotlib):
     bins = [0, 1, 2, 3]
     mh.histplot(h, bins, yerr=True, label="X", ax=ax)
 
-    assert len(ax.mock_calls) == 13
+    assert len(ax.mock_calls) == 17  # Updated count due to shared axes functionality
 
     ax.stairs.assert_called_once_with(
         values=approx([1.0, 3.0, 2.0]),
@@ -89,7 +101,7 @@ def test_histplot_real(mock_matplotlib):
     mh.histplot([a, b, c], bins=bins, ax=ax, yerr=True, label=["MC1", "MC2", "Data"])
     ax.legend()
     ax.set_title("Raw")
-    assert len(ax.mock_calls) == 27
+    assert len(ax.mock_calls) == 31  # Updated count due to shared axes functionality
 
     ax.reset_mock()
 
@@ -97,7 +109,7 @@ def test_histplot_real(mock_matplotlib):
     mh.histplot([c], bins=bins, ax=ax, yerr=True, histtype="errorbar", label="Data")
     ax.legend()
     ax.set_title("Data/MC")
-    assert len(ax.mock_calls) == 20
+    assert len(ax.mock_calls) == 28  # Updated count due to shared axes functionality
     ax.reset_mock()
 
     mh.histplot(
@@ -114,7 +126,7 @@ def test_histplot_real(mock_matplotlib):
     )
     ax.legend()
     ax.set_title("Data/MC binwnorm")
-    assert len(ax.mock_calls) == 20
+    assert len(ax.mock_calls) == 28  # Updated count due to shared axes functionality
     ax.reset_mock()
 
     mh.histplot(
@@ -131,4 +143,4 @@ def test_histplot_real(mock_matplotlib):
     )
     ax.legend()
     ax.set_title("Data/MC Density")
-    assert len(ax.mock_calls) == 20
+    assert len(ax.mock_calls) == 28  # Updated count due to shared axes functionality

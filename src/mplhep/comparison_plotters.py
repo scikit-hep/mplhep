@@ -339,10 +339,28 @@ def comparison(
         # Create a new histogram with the same structure
 
         # Use enhanced plottable histogram for flow comparison
+        comparison_variances = (
+            lower_uncertainties**2 if np.any(lower_uncertainties) else None
+        )
+
+        # Create flow-extended edges to match the comparison values
+        final_bins = h2_plottable.edges_1d()  # Use the same method as in plot.py
+        _flow_bin_size = max(
+            0.05 * (final_bins[-1] - final_bins[0]), np.mean(np.diff(final_bins))
+        )
+
+        # Check if underflow/overflow bins exist and extend edges accordingly
+        flow_edges = np.copy(final_bins)
+        h2_flow_values = h2_for_comparison.values(flow=True)
+        if h2_flow_values[0] > 0:  # Underflow exists
+            flow_edges = np.insert(flow_edges, 0, flow_edges[0] - _flow_bin_size)
+        if h2_flow_values[-1] > 0:  # Overflow exists
+            flow_edges = np.append(flow_edges, flow_edges[-1] + _flow_bin_size)
+
         comparison_plottable = EnhancedPlottableHistogram(
             comparison_values,
-            edges=h2_plottable.axes[0].edges,
-            variances=comparison_variances if np.any(comparison_variances) else None,
+            edges=flow_edges,  # Use flow-extended edges
+            variances=comparison_variances,
             kind=h2_plottable.kind,
         )
     # Regular comparison without flow bins
