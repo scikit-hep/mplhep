@@ -191,16 +191,6 @@ def hists(
 
         ax_comparison.set_xticks(filtered_ticks)
         ax_comparison.set_xticklabels(tick_labels)
-    else:
-        # For other flow options, control label visibility and regenerate labels
-        ax_main.tick_params(labelbottom=False)
-        ax_comparison.tick_params(labelbottom=True)
-        # Explicitly regenerate tick labels on the comparison axis
-        # (they may have been set to empty strings during plotting)
-        tick_positions = ax_comparison.get_xticks()
-        ax_comparison.set_xticks(tick_positions)
-        ax_comparison.set_xticklabels([f"{tick:g}" for tick in tick_positions])
-
     return fig, ax_main, ax_comparison
 
 
@@ -859,14 +849,4 @@ def data_model(
 
         ax_comparison.set_xticks(filtered_ticks)
         ax_comparison.set_xticklabels(tick_labels)
-    else:
-        # For other flow options, control label visibility and regenerate labels
-        ax_main.tick_params(labelbottom=False)
-        ax_comparison.tick_params(labelbottom=True)
-        # Explicitly regenerate tick labels on the comparison axis
-        # (they may have been set to empty strings during plotting)
-        tick_positions = ax_comparison.get_xticks()
-        ax_comparison.set_xticks(tick_positions)
-        ax_comparison.set_xticklabels([f"{tick:g}" for tick in tick_positions])
-
     return fig, ax_main, ax_comparison
