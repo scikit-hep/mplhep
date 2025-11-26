@@ -56,7 +56,7 @@ def test_simple(mock_matplotlib):
     bins = [0, 1, 2, 3]
     mh.histplot(h, bins, yerr=True, label="X", ax=ax)
 
-    assert len(ax.mock_calls) == 17  # Updated count due to shared axes functionality
+    assert len(ax.mock_calls) == 13  # Updated count after removing shared axes iteration
 
     ax.stairs.assert_called_once_with(
         values=approx([1.0, 3.0, 2.0]),
@@ -101,7 +101,7 @@ def test_histplot_real(mock_matplotlib):
     mh.histplot([a, b, c], bins=bins, ax=ax, yerr=True, label=["MC1", "MC2", "Data"])
     ax.legend()
     ax.set_title("Raw")
-    assert len(ax.mock_calls) == 31  # Updated count due to shared axes functionality
+    assert len(ax.mock_calls) == 27  # Updated count after removing shared axes iteration
 
     ax.reset_mock()
 
@@ -109,7 +109,7 @@ def test_histplot_real(mock_matplotlib):
     mh.histplot([c], bins=bins, ax=ax, yerr=True, histtype="errorbar", label="Data")
     ax.legend()
     ax.set_title("Data/MC")
-    assert len(ax.mock_calls) == 28  # Updated count due to shared axes functionality
+    assert len(ax.mock_calls) == 20  # Updated count after removing shared axes iteration
     ax.reset_mock()
 
     mh.histplot(
@@ -126,7 +126,7 @@ def test_histplot_real(mock_matplotlib):
     )
     ax.legend()
     ax.set_title("Data/MC binwnorm")
-    assert len(ax.mock_calls) == 28  # Updated count due to shared axes functionality
+    assert len(ax.mock_calls) == 20  # Updated count after removing shared axes iteration
     ax.reset_mock()
 
     mh.histplot(
@@ -143,4 +143,4 @@ def test_histplot_real(mock_matplotlib):
     )
     ax.legend()
     ax.set_title("Data/MC Density")
-    assert len(ax.mock_calls) == 28  # Updated count due to shared axes functionality
+    assert len(ax.mock_calls) == 20  # Updated count after removing shared axes iteration
