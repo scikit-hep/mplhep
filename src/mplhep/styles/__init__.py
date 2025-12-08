@@ -17,7 +17,7 @@ from .alice import ALICE
 from .atlas import ATLAS, ATLAS1, ATLAS2, ATLASAlt, ATLASTex
 from .cms import CMS, ROOT, CMSTex, ROOTTex
 from .dune import DUNE, DUNE1, DUNETex, DUNETex1
-from .lhcb import LHCb, LHCb1, LHCb2, LHCbTex, LHCbTex1, LHCbTex2
+from .lhcb import LHCb, LHCb1, LHCb2, LHCbTex, LHCbTex1, LHCbTex2, LHCB2_VARIANTS
 from .plothist import plothist
 
 __all__ = (
@@ -93,6 +93,7 @@ def use(styles=None):
 
         >>> import mplhep as mh
         >>> mh.style.use("ATLAS")
+        >>> mh.style.use("LHCb2:constrained")  # Use a variant
         >>> mh.style.use(mh.style.CMS)
 
     Parameters
@@ -116,18 +117,49 @@ def use(styles=None):
             f"Got {', '.join(_passed_aliases)}"
         )
         raise ValueError(error_msg)
-    if (
-        len(_passed_aliases) == 1
-        and _passed_aliases[0] not in sys.modules[__name__].__dict__
-    ):
-        error_msg = f"Unknown style alias: {_passed_aliases[0]}. Choose from {list(__style_aliases__)}"
-        raise ValueError(error_msg)
-    styles = [
-        style if isinstance(style, dict) else getattr(sys.modules[__name__], f"{style}")
-        for style in styles
-    ]
 
-    plt_style.use(styles)
+    # Resolve aliases and variants
+    new_styles = []
+    for style in styles:
+        if isinstance(style, dict):
+            new_styles.append(style)
+            continue
+        
+        # It is a string alias
+        base_style = style
+        variant = None
+
+        # 1. Parse "Style:variant" syntax
+        if isinstance(style, str) and ":" in style:
+            base_style, variant = style.split(":", 1)
+
+        # 2. Check if base style exists
+        if base_style not in sys.modules[__name__].__dict__:
+             error_msg = f"Unknown style alias: {base_style}. Choose from {list(__style_aliases__)}"
+             raise ValueError(error_msg)
+
+        # 3. Retrieve the Base Dictionary
+        # IMPORTANT: We use .copy() to ensure we don't permanently mutate the base style
+        style_obj = getattr(sys.modules[__name__], base_style)
+        if isinstance(style_obj, dict):
+            style_obj = style_obj.copy()
+
+        # 4. Apply Variant (if requested)
+        if variant:
+            # Construct the registry name (e.g., "LHCB2_VARIANTS")
+            registry_name = f"{base_style.upper()}_VARIANTS"
+            if hasattr(sys.modules[__name__], registry_name):
+                registry = getattr(sys.modules[__name__], registry_name)
+                if variant in registry:
+                    style_obj.update(registry[variant])
+                else:
+                    raise ValueError(f"Variant '{variant}' not found in {registry_name}")
+            else:
+                raise ValueError(f"Style '{base_style}' does not support variants (requested '{variant}').")
+
+        new_styles.append(style_obj)
+
+    plt_style.use(new_styles)
     return None
 
 

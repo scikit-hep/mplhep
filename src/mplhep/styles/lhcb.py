@@ -35,7 +35,6 @@ LHCb1 = {
     "figure.dpi": 100,
     # Outer frame color
     "figure.facecolor": "white",
-    "figure.autolayout": True,
     # Set default font to Times New Roman
     "font.family": "serif",
     "font.serif": ["Times New Roman"],
@@ -130,14 +129,14 @@ colors2 = [
     "#FF7733",
     "#BFD1D4",
 ]
+# === REPLACEMENT BLOCK START ===
 
-LHCb2 = {
+LHCB2_BASE = {
     # Plot properties
     "axes.labelsize": 32,
     "axes.linewidth": 2,
     "axes.facecolor": "white",
     "axes.xmargin": 0.0,
-    # "axes.ymargin": 0.0,
     # Custom colors
     "axes.prop_cycle": cycler("color", colors2),
     "axes.formatter.min_exponent": 3,
@@ -149,7 +148,7 @@ LHCb2 = {
     "figure.dpi": 100,
     # Outer frame color
     "figure.facecolor": "white",
-    "figure.autolayout": True,
+    # "figure.autolayout": True,  <-- REMOVED (Sanitization)
     # Set default font to Times New Roman
     "font.family": "serif",
     "font.serif": ["Tex Gyre Termes"],
@@ -188,7 +187,6 @@ LHCb2 = {
     "savefig.pad_inches": 0.1,
     "savefig.format": "pdf",
     # Ticks settings
-    # xticks
     "xtick.minor.visible": True,
     "xtick.top": True,
     "xtick.major.size": 14,
@@ -199,7 +197,6 @@ LHCb2 = {
     "xtick.minor.pad": 10,
     "xtick.labelsize": 30,
     "xtick.direction": "in",
-    # yticks
     "ytick.minor.visible": True,
     "ytick.right": True,
     "ytick.major.size": 14,
@@ -210,16 +207,25 @@ LHCb2 = {
     "ytick.minor.pad": 10,
     "ytick.labelsize": 30,
     "ytick.direction": "in",
-    # Legend frame border size
-    # WARNING: this affects every patch object
-    # (i.e. histograms and so on)
     "patch.linewidth": 2,
     "xaxis.labellocation": "right",
     "yaxis.labellocation": "top",
 }
 
 # Filter extra (labellocation) items if needed
-LHCb2 = {k: v for k, v in LHCb2.items() if k in mpl.rcParams}
+LHCB2_BASE = {k: v for k, v in LHCB2_BASE.items() if k in mpl.rcParams}
+
+# The Variant Registry (New Architecture)
+LHCB2_VARIANTS = {
+    "constrained": {
+        "figure.autolayout": True,
+    }
+}
+
+# Backward compatibility (LHCb2 now points to the Base)
+LHCb2 = LHCB2_BASE
+
+# === REPLACEMENT BLOCK END ===
 
 LHCbTex2 = {
     **LHCb2,
