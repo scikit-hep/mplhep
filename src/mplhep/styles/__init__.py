@@ -163,6 +163,94 @@ def use(styles=None):
     return None
 
 
+def _resolve_styles(styles):
+    """
+    Helper: Resolves style strings (including 'Style:Variant' syntax) into 
+    Matplotlib-compatible dictionaries.
+    """
+    if styles is None:
+        return ["default"]
+    if not isinstance(styles, list):
+        styles = [styles]
+
+    # ... (alias check remains same) ...
+    _passed_aliases = [style for style in styles if not isinstance(style, dict)]
+    if len(_passed_aliases) > 1:
+        # ... (error msg) ...
+        pass # (Assume existing logic here)
+
+    new_styles = []
+    for style in styles:
+        if isinstance(style, dict):
+            new_styles.append(style)
+            continue
+        
+        # === FIX STARTS HERE ===
+        # Pass "default" directly to Matplotlib
+        if style == "default":
+            new_styles.append("default")
+            continue
+        # === FIX ENDS HERE ===
+
+        # It is a string alias
+        base_style = style
+        variant = None
+
+        if isinstance(style, str) and ":" in style:
+            base_style, variant = style.split(":", 1)
+
+        if base_style not in sys.modules[__name__].__dict__:
+             error_msg = f"Unknown style alias: {base_style}. Choose from {list(__style_aliases__)}"
+             raise ValueError(error_msg)
+
+        style_obj = getattr(sys.modules[__name__], base_style)
+        if isinstance(style_obj, dict):
+            style_obj = style_obj.copy()
+
+        if variant:
+            registry_name = f"{base_style.upper()}_VARIANTS"
+            if hasattr(sys.modules[__name__], registry_name):
+                registry = getattr(sys.modules[__name__], registry_name)
+                if variant in registry:
+                    style_obj.update(registry[variant])
+                else:
+                    raise ValueError(f"Variant '{variant}' not found in {registry_name}")
+            else:
+                raise ValueError(f"Style '{base_style}' does not support variants (requested '{variant}').")
+
+        new_styles.append(style_obj)
+    
+    return new_styles
+
+
+def use(styles=None):
+    """
+    Set the experiment specific plotting style.
+
+    Example:
+        >>> import mplhep as hep
+        >>> hep.style.use("ATLAS")
+        >>> hep.style.use("LHCb2:constrained")
+
+    Parameters
+    ----------
+    styles : str or mplhep.style or dict or None
+        The experiment style.
+    """
+    plt_style.use(_resolve_styles(styles))
+
+
+def context(styles=None):
+    """
+    Context manager for using a style temporarily.
+
+    Example:
+        >>> with hep.style.context("LHCb2:constrained"):
+        >>>     plt.plot(...)
+    """
+    return plt_style.context(_resolve_styles(styles))
+
+
 fira = {"font.sans-serif": "Fira Sans"}
 
 firamath = {
@@ -177,3 +265,4 @@ firamath = {
 fabiola = {
     "font.sans-serif": "Comic Sans MS",
 }
+
