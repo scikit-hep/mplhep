@@ -216,11 +216,19 @@ LHCB2_BASE = {
 LHCB2_BASE = {k: v for k, v in LHCB2_BASE.items() if k in mpl.rcParams}
 
 # The Variant Registry (New Architecture)
+# The Variant Registry (New Architecture)
 LHCB2_VARIANTS = {
     "constrained": {
-        "figure.autolayout": True,
+        # Matplotlib 3.9 API (no figure.layout)
+        "figure.constrained_layout.use": True,
+        # Zero padding so join_axes can eliminate the gap completely
+        "figure.constrained_layout.h_pad": 0.0,
+        "figure.constrained_layout.w_pad": 0.0,
+        # MUST disable autolayout to avoid conflict
+        "figure.autolayout": False,
     }
 }
+
 
 # Backward compatibility (LHCb2 now points to the Base)
 LHCb2 = LHCB2_BASE

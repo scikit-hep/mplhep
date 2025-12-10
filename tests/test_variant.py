@@ -1,7 +1,9 @@
-import matplotlib.pyplot as plt
-import mplhep as hep
-import pytest
 import warnings
+
+import matplotlib.pyplot as plt
+
+import mplhep as hep
+
 
 def test_lhcb2_default_is_manual():
     """Verify default LHCb2 does NOT have constrained_layout."""
@@ -10,12 +12,14 @@ def test_lhcb2_default_is_manual():
     assert plt.rcParams.get("figure.autolayout") is False
     assert plt.rcParams.get("figure.constrained_layout.use") is False
 
+
 def test_lhcb2_variant_is_constrained():
     """Verify LHCb2:constrained ENABLES constrained_layout."""
     hep.style.use("LHCb2:constrained")
     # Should be True (Constrained Engine)
     val = plt.rcParams.get("figure.constrained_layout.use")
     assert val is True
+
 
 def test_variant_application():
     """Integration Test: Check the gap behavior."""
@@ -26,20 +30,36 @@ def test_variant_application():
     fig1.canvas.draw()
     gap1 = ax1a.get_position().y0 - ax1b.get_position().y1
     plt.close(fig1)
-    
+
     # Case 2: Variant (Constrained) -> Gap should be > 0 (Solver inserts padding)
     hep.style.use("LHCb2:constrained")
     fig2, (ax2a, ax2b) = plt.subplots(2, 1, sharex=True)
-    
-    # We expect a warning here because we are mixing engines. 
+
+    # We expect a warning here because we are mixing engines.
     # We ignore it because we WANT to verify that the solver ignored our command.
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        plt.subplots_adjust(hspace=0) 
-        
+        plt.subplots_adjust(hspace=0)
+
     fig2.canvas.draw()
     gap2 = ax2a.get_position().y0 - ax2b.get_position().y1
     plt.close(fig2)
 
     assert gap1 < 0.001, "Default style should allow zero gap"
-    assert gap2 > 0.001, "Constrained variant should enforce padding (when join_axes is NOT used)"
+    assert gap2 > 0.001, (
+        "Constrained variant should enforce padding (when join_axes is NOT used)"
+    )
+
+
+def test_context_manager():
+    """Verify hep.style.context works with variants."""
+    # Start with defaults (autolayout should be False)
+    hep.style.use("default")
+    assert plt.rcParams.get("figure.constrained_layout.use") in [False, None]
+
+    # Enter Context: Should be True
+    with hep.style.context("LHCb2:constrained"):
+        assert plt.rcParams.get("figure.constrained_layout.use") is True
+
+    # Exit Context: Should revert to False
+    assert plt.rcParams.get("figure.constrained_layout.use") in [False, None]
