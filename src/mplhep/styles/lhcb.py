@@ -238,7 +238,29 @@ LHCbTex2 = {
     "pgf.rcfonts": False,
 }
 
+# LHCb3: Same as LHCb2 but without figure.autolayout
+# This allows users to use subplots_adjust(hspace=0) and similar layout controls
+LHCb3 = copy.deepcopy(LHCb2)
+LHCb3.pop("figure.autolayout", None)
+
+LHCbTex3 = {
+    **LHCb3,
+    # Use LaTeX rendering by default
+    # (overrides default font)
+    "text.usetex": True,
+    # Use the LaTeX version of Times New Roman
+    "text.latex.preamble": "\n".join(
+        [
+            r"\usepackage[T1]{fontenc}",
+            r"\usepackage{amsmath}",
+            r"\usepackage{txfonts}",
+            r"\setlength{\parindent}{0pt}",
+        ]
+    ),
+    "pgf.rcfonts": False,
+}
+
 # alias LHCb Style
 
-LHCb = copy.deepcopy(LHCb2)
-LHCbTex = copy.deepcopy(LHCbTex2)
+LHCb = copy.deepcopy(LHCb3)
+LHCbTex = copy.deepcopy(LHCbTex3)
