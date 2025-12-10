@@ -21,7 +21,7 @@ If you would like to make a pull request please:
 
 1. Make a fork of the project
 2. Clone your fork locally
-3. Install `pre-commit` and the project's `pre-commit` hooks
+3. Install `prek` and the project's `pre-commit` hooks
 4. Test your changes with `pytest`
 5. Commit your changes to a feature branch of your fork, push to your branch
 6. Make a PR
@@ -74,12 +74,12 @@ Only include the actually modified baseline images in your PR! Running `git add 
 
 ### Linting and Formatting
 
-We use `pre-commit` to manage code formatting and linting. Make sure to run it before committing your changes:
+We use `prek` to manage code formatting and linting. Make sure to run it before committing your changes:
 
-**With  pre-commit**
+**With  prek**
 
 ```bash
-pre-commit run --all-files
+prek run --all-files
 ```
 
 **With  nox**
