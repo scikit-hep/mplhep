@@ -237,8 +237,13 @@ LHCbTex2 = {
     ),
     "pgf.rcfonts": False,
 }
+LHCb3 = LHCb2.copy()
 
-# alias LHCb Style
+if "figure.autolayout" in LHCb3:
+    del LHCb3["figure.autolayout"]
+
+LHCb = LHCb3
+
 
 LHCb = copy.deepcopy(LHCb2)
 LHCbTex = copy.deepcopy(LHCbTex2)
