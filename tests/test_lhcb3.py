@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
-import mplhep as hep
 import pytest
+
+import mplhep as hep
+
 
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_lhcb3_simple():
@@ -10,6 +12,7 @@ def test_lhcb3_simple():
     hep.cms.text("LHCb3 Test", loc=0)
     ax.plot([1, 2, 3], [1, 2, 3])
     return fig
+
 
 def test_lhcb3_no_autolayout():
     """Verify that autolayout is FALSE in LHCb3."""
