@@ -1,5 +1,3 @@
-import matplotlib.pyplot as plt
-
 def join_axes(axes, orientation="vertical"):
     """
     Force axes to physically touch (gap = 0), manually overriding any layout engine.
