@@ -714,7 +714,7 @@ def histplot(
             30
             * ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width
         )
-        if underflow > 0.0:
+        if underflow != 0.0:
             ax.scatter(
                 final_bins[0],
                 0,
@@ -726,7 +726,7 @@ def histplot(
                 facecolor="white",
                 transform=ax.get_xaxis_transform(),
             )
-        if overflow > 0.0:
+        if overflow != 0.0:
             ax.scatter(
                 final_bins[-1],
                 0,
