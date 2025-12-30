@@ -864,12 +864,31 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
             added_variances = self._variances + other._variances
         else:
             added_variances = None
+
+        # Sum flow bins if both histograms have them
+        added_underflow = None
+        added_overflow = None
+        added_underflow_var = None
+        added_overflow_var = None
+        if self._underflow is not None and other._underflow is not None:
+            added_underflow = self._underflow + other._underflow
+            if self._underflow_var is not None and other._underflow_var is not None:
+                added_underflow_var = self._underflow_var + other._underflow_var
+        if self._overflow is not None and other._overflow is not None:
+            added_overflow = self._overflow + other._overflow
+            if self._overflow_var is not None and other._overflow_var is not None:
+                added_overflow_var = self._overflow_var + other._overflow_var
+
         return EnhancedPlottableHistogram(
             added_values,
             edges=self.axes[0].edges,
             variances=added_variances,
             kind=self.kind,
             w2method=self.method,
+            underflow=added_underflow,
+            overflow=added_overflow,
+            underflow_var=added_underflow_var,
+            overflow_var=added_overflow_var,
         )
 
     def __radd__(self, other):
