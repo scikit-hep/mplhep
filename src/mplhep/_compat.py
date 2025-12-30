@@ -63,4 +63,4 @@ def filter_deprecated(obj):
 # Create a singleton instance for backward compatibility
 docstring = DocstringCopier()
 
-__all__ = ("docstring", "copy_doc", "filter_deprecated")
+__all__ = ("copy_doc", "docstring", "filter_deprecated")

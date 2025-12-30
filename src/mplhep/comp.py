@@ -29,17 +29,17 @@ from .comparison_functions import (
 compare = __import__(__name__)
 
 __all__ = [
-    "hists",
-    "plot_two_hist_comparison",
-    "comparison",
-    "plot_comparison",
-    "data_model",
-    "plot_data_model_comparison",
     "compare",
-    "get_ratio",
+    "comparison",
+    "data_model",
+    "get_asymmetry",
+    "get_comparison",
     "get_difference",
     "get_efficiency",
     "get_pull",
-    "get_comparison",
-    "get_asymmetry",
+    "get_ratio",
+    "hists",
+    "plot_comparison",
+    "plot_data_model_comparison",
+    "plot_two_hist_comparison",
 ]
