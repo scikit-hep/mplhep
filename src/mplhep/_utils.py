@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from numbers import Real
-from typing import TYPE_CHECKING, Any, Iterable, Sequence
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from uhi.numpy_plottable import (
@@ -12,7 +12,7 @@ from uhi.numpy_plottable import (
 from uhi.typing.plottable import PlottableAxis, PlottableHistogram
 
 if TYPE_CHECKING:
-    pass
+    from collections.abc import Iterable, Sequence
 
 ArrayLike = Any
 
@@ -264,11 +264,9 @@ def _get_plottables(
     final_bins, _ = _get_plottable_protocol_bins(hists[0].axes[0])
 
     if xoffsets is True:
-        parsed_offsets = []
         widths = np.diff(final_bins)
         sub_bin_width = widths / (len(hists) + 1)
-        for i in range(len(hists)):
-            parsed_offsets.append(sub_bin_width * (i + 1))
+        parsed_offsets = [sub_bin_width * (i + 1) for i in range(len(hists))]
         xoffsets = parsed_offsets
     else:
         xoffsets = [None] * len(hists)
@@ -1240,9 +1238,11 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
                         lines_display.append(interpolated_display)
 
     # Collect bboxes from texts (excluding specified text objects to avoid self-overlap)
-    for handle in ax.texts:
-        if isinstance(handle, Text) and handle not in exclude_texts:
-            bboxes_display.append(handle.get_window_extent())
+    bboxes_display.extend(
+        handle.get_window_extent()
+        for handle in ax.texts
+        if isinstance(handle, Text) and handle not in exclude_texts
+    )
 
     # Concatenate all vertices in display coordinates
     all_vertices_display = (
@@ -1523,8 +1523,6 @@ def _draw_text_bbox(ax):
         return [], []
 
     fig.canvas.draw()
-    bboxes = []
-    for box in textboxes:
-        bboxes.append(box.get_tightbbox(fig.canvas.renderer))
+    bboxes = [box.get_tightbbox(fig.canvas.renderer) for box in textboxes]
     logger.debug(f"_draw_text_bbox: Returning {len(bboxes)} bboxes")
     return bboxes, textboxes

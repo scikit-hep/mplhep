@@ -4,6 +4,8 @@ Development helper script for mplhep. Vibe-coded.
 Usage: ./dev [command] [options] or ./dev for interactive mode
 """
 
+from __future__ import annotations
+
 import argparse
 import datetime
 import importlib.util
@@ -14,7 +16,6 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import List, Optional
 
 try:
     import questionary
@@ -77,7 +78,7 @@ class DevScript:
             return 80
 
     def _run_command_with_confirmation(
-        self, cmd: List[str], prompt: str = "Confirm command (editable):"
+        self, cmd: list[str], prompt: str = "Confirm command (editable):"
     ) -> bool:
         """Run a command with user confirmation and editing capability."""
         if not HAS_QUESTIONARY or questionary is None:
@@ -99,15 +100,14 @@ class DevScript:
 
         return self._run_command(cmd)
 
-    def _run_command(self, cmd: List[str], cwd: Optional[Path] = None) -> bool:
+    def _run_command(self, cmd: list[str], cwd: Path | None = None) -> bool:
         """Run a command and return True if successful."""
+        self._print_header(f"Running: {' '.join(cmd)}")
+        separator = 3 * ("=" * self._get_terminal_width() + "\n")
+        print(separator)
+
         try:
-            self._print_header(f"Running: {' '.join(cmd)}")
-            separator = 3 * ("=" * self._get_terminal_width() + "\n")
-            print(separator)
             result = subprocess.run(cmd, cwd=cwd or self.project_root, check=True)
-            print(separator)
-            return result.returncode == 0
         except subprocess.CalledProcessError as e:
             self._print_error(f"Command failed with exit code {e.returncode}")
             return False
@@ -115,7 +115,10 @@ class DevScript:
             self._print_error(f"Command not found: {cmd[0]}")
             return False
 
-    def _show_summary(self, items: List[Path], title: str) -> None:
+        print(separator)
+        return result.returncode == 0
+
+    def _show_summary(self, items: list[Path], title: str) -> None:
         """Show a formatted summary of items."""
         if not items:
             return
@@ -142,7 +145,7 @@ class DevScript:
             message, default=default, style=self._get_style()
         ).ask()
 
-    def _find_files_to_clean(self) -> List[Path]:
+    def _find_files_to_clean(self) -> list[Path]:
         """Find files and directories that can be cleaned."""
         items_to_clean = []
 
@@ -162,8 +165,7 @@ class DevScript:
         for target in cleanup_targets:
             if "*" in target:
                 # Handle glob patterns
-                for item in self.project_root.glob(target):
-                    items_to_clean.append(item)
+                items_to_clean.extend(self.project_root.glob(target))
             else:
                 item = self.project_root / target
                 if item.exists():
@@ -178,10 +180,10 @@ class DevScript:
 
     def cmd_test(
         self,
-        jobs: Optional[int] = None,
-        filter_pattern: Optional[str] = None,
+        jobs: int | None = None,
+        filter_pattern: str | None = None,
         skip_cleanup: bool = False,
-        extra_args: Optional[List[str]] = None,
+        extra_args: list[str] | None = None,
     ) -> bool:
         """Run pytest with matplotlib comparison."""
         if jobs is None:
@@ -282,15 +284,15 @@ class DevScript:
 
         return success
 
-    def cmd_precommit(self, extra_args: Optional[List[str]] = None) -> bool:
+    def cmd_precommit(self, extra_args: list[str] | None = None) -> bool:
         """Run pre-commit hooks on all files."""
         self._print_header("Running Pre-commit Hooks")
 
         # Check if pre-commit is available
-        if not self._check_tool_available("pre-commit", ["pre-commit", "--version"]):
+        if not self._check_tool_available("prek", ["prek", "--version"]):
             return False
 
-        cmd = ["pre-commit", "run", "--all-files"]
+        cmd = ["prek", "run", "--all-files"]
 
         # Add any extra arguments
         if extra_args:
@@ -335,7 +337,7 @@ class DevScript:
                     self._print_success(
                         f"Removed {item.relative_to(self.project_root)}"
                     )
-            except OSError as e:
+            except OSError as e:  # noqa: PERF203
                 self._print_error(f"Failed to remove {item}: {e}")
 
         if len(items_to_clean) > 10:
@@ -351,7 +353,7 @@ class DevScript:
         port: int = 8000,
         clean: bool = True,
         fast: bool = False,
-        extra_args: Optional[List[str]] = None,
+        extra_args: list[str] | None = None,
     ) -> bool:
         """Build or serve documentation."""
         # Check if mkdocs is available
@@ -372,7 +374,7 @@ class DevScript:
         return False
 
     def _build_docs(
-        self, clean: bool, fast: bool, extra_args: Optional[List[str]] = None
+        self, clean: bool, fast: bool, extra_args: list[str] | None = None
     ) -> bool:
         """Build documentation."""
         if fast:
@@ -411,7 +413,7 @@ class DevScript:
         return success
 
     def _serve_docs(
-        self, port: int, fast: bool, extra_args: Optional[List[str]] = None
+        self, port: int, fast: bool, extra_args: list[str] | None = None
     ) -> bool:
         """Serve documentation locally."""
         if fast:
@@ -476,7 +478,7 @@ class DevScript:
                     self._print_success(
                         f"Removed {item.relative_to(self.project_root)}"
                     )
-            except OSError as e:
+            except OSError as e:  # noqa: PERF203
                 self._print_error(f"Failed to remove {item}: {e}")
 
         if len(items_to_clean) > 10:
@@ -489,8 +491,8 @@ class DevScript:
     def cmd_benchmark(
         self,
         action: str = "run",
-        baseline_name: Optional[str] = None,
-        compare_with: Optional[str] = None,
+        baseline_name: str | None = None,
+        compare_with: str | None = None,
     ) -> bool:
         """Run performance benchmarks."""
         # Check if pytest-benchmark is available
@@ -523,7 +525,7 @@ class DevScript:
         self._print_warning("Install with: pip install pytest-benchmark")
         return False
 
-    def _run_benchmarks(self, baseline_name: Optional[str] = None) -> bool:
+    def _run_benchmarks(self, baseline_name: str | None = None) -> bool:
         """Run benchmark tests."""
         # Build benchmark command
         cmd = [
@@ -544,7 +546,9 @@ class DevScript:
             self._print_success(f"Will save benchmark results as: {baseline_name}")
         else:
             # Auto-generate baseline name with timestamp
-            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            timestamp = datetime.datetime.now(tz=datetime.timezone.utc).strftime(
+                "%Y%m%d_%H%M%S"
+            )
             baseline_name = f"run_{timestamp}"
             cmd.append(f"--benchmark-save={baseline_name}")
             self._print_success(f"Will save benchmark results as: {baseline_name}")
@@ -562,7 +566,7 @@ class DevScript:
 
         return success
 
-    def _compare_benchmarks(self, compare_with: Optional[str] = None) -> bool:
+    def _compare_benchmarks(self, compare_with: str | None = None) -> bool:
         """Compare current benchmarks with a baseline."""
         benchmark_dir = self.project_root / "tests" / "baseline" / "benchmark"
 
@@ -702,33 +706,34 @@ class DevScript:
 
         return True
 
-    def _get_available_baselines(self) -> List[str]:
+    def _get_available_baselines(self) -> list[str]:
         """Get list of available benchmark baselines."""
         benchmark_dir = self.project_root / "tests" / "baseline" / "benchmark"
 
         if not benchmark_dir.exists():
             return []
 
-        baselines = []
-        for item in benchmark_dir.iterdir():
-            if item.is_dir() and not item.name.startswith("."):
-                baselines.append(item.name)
+        baselines = [
+            item.name
+            for item in benchmark_dir.iterdir()
+            if item.is_dir() and not item.name.startswith(".")
+        ]
 
         return sorted(baselines)
 
-    def _get_available_benchmark_files(self) -> List[str]:
+    def _get_available_benchmark_files(self) -> list[str]:
         """Get list of available benchmark JSON files for comparison."""
         benchmark_dir = self.project_root / "tests" / "baseline" / "benchmark"
 
         if not benchmark_dir.exists():
             return []
 
-        benchmark_files = []
-        for subdir in benchmark_dir.iterdir():
-            if subdir.is_dir() and not subdir.name.startswith("."):
-                for json_file in subdir.glob("*.json"):
-                    # Use just the filename without extension for comparison
-                    benchmark_files.append(json_file.stem)
+        benchmark_files = [
+            json_file.stem
+            for subdir in benchmark_dir.iterdir()
+            if subdir.is_dir() and not subdir.name.startswith(".")
+            for json_file in subdir.glob("*.json")
+        ]
 
         return sorted(benchmark_files)
 
@@ -808,7 +813,7 @@ Examples:
 
     def _get_text_input(
         self, prompt: str, default: str = "", fallback_prompt: str = ""
-    ) -> Optional[str]:
+    ) -> str | None:
         """Get text input with questionary or basic fallback."""
         if HAS_QUESTIONARY and questionary is not None:
             return questionary.text(prompt, default=default, style=self.style).ask()
@@ -822,8 +827,8 @@ Examples:
         return response if response else default
 
     def _get_choice(
-        self, prompt: str, choices: List[tuple], fallback_prompt: str = ""
-    ) -> Optional[str]:
+        self, prompt: str, choices: list[tuple], fallback_prompt: str = ""
+    ) -> str | None:
         """Get choice selection with questionary or basic fallback."""
         if HAS_QUESTIONARY and questionary is not None:
             choice_objects = [
@@ -837,28 +842,29 @@ Examples:
         for i, (label, _) in enumerate(choices, 1):
             print(f"  {i}. {label}")
 
-        while True:
-            try:
+        try:
+            while True:
                 response = input("Enter choice (number): ").strip()
                 idx = int(response) - 1
                 if 0 <= idx < len(choices):
                     return choices[idx][1]
                 print(f"Please enter a number between 1 and {len(choices)}")
-            except (ValueError, KeyboardInterrupt):
-                return None
+        except (ValueError, KeyboardInterrupt):
+            return None
 
-    def _check_tool_available(self, tool_name: str, check_cmd: List[str]) -> bool:
+    def _check_tool_available(self, tool_name: str, check_cmd: list[str]) -> bool:
         """Check if a tool is available."""
         try:
             result = subprocess.run(
                 check_cmd, capture_output=True, text=True, check=True
             )
-            self._print_success(f"{tool_name} version: {result.stdout.strip()}")
-            return True
         except (subprocess.CalledProcessError, FileNotFoundError):
             self._print_error(f"{tool_name} not found!")
             self._print_warning(f"Please install {tool_name} to use this feature")
             return False
+
+        self._print_success(f"{tool_name} version: {result.stdout.strip()}")
+        return True
 
     def _handle_pytest_results_cleanup(self) -> None:
         """Handle cleanup of pytest_results directory."""
@@ -873,7 +879,7 @@ Examples:
             else:
                 self._print_warning("Keeping existing pytest_results/")
 
-    def _get_test_modules(self) -> List[str]:
+    def _get_test_modules(self) -> list[str]:
         """Get available test modules/directories."""
         test_modules = []
 
@@ -1050,7 +1056,7 @@ Examples:
 
         menu_choices = [
             (
-                make_menu_item("🔍 Run pre-commit", "pre-commit run --all-files"),
+                make_menu_item("🔍 Run pre-commit", "prek run --all-files"),
                 "precommit",
             ),
             (

@@ -60,4 +60,9 @@ UHI integration and best practices.
 
 - **[API Reference](api.md)** - Detailed documentation of all functions and parameters
 - **[Gallery](gallery.md)** - Visual examples of all plot types
-- **[Contributing](contributing.md)** - Information on development and testing
+- **[Contributing](CONTRIBUTING.md)** - Information on development and testing
+
+## Getting Help
+
+- Check the [GitHub repository](https://github.com/scikit-hep/mplhep) for issues
+- Ask questions in the [scikit-hep discussions](https://github.com/scikit-hep/mplhep/discussions)

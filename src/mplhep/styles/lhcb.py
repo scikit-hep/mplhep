@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import copy
+
 import matplotlib as mpl
 from cycler import cycler
 
-from .._deprecate import deprecated_dict
+from mplhep._deprecate import deprecated_dict
 
 colors1 = [
     "#1f77b4",
@@ -238,9 +240,5 @@ LHCbTex2 = {
 
 # alias LHCb Style
 
-lhcb_depr_msg = (
-    "'LHCb' style is deprecated as it may change in the future. Please use 'LHCb1' (which is"
-    " the same as currently 'LHCb') or 'LHCb2'."
-)
-LHCb = deprecated_dict(LHCb1, message=lhcb_depr_msg, warning=FutureWarning)
-LHCbTex = deprecated_dict(LHCbTex1, message=lhcb_depr_msg, warning=FutureWarning)
+LHCb = copy.deepcopy(LHCb2)
+LHCbTex = copy.deepcopy(LHCbTex2)

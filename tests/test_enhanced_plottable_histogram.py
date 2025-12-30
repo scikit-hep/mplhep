@@ -147,12 +147,12 @@ def test_mul_no_fixed_errors(basic_hist):
 
 def test_scale_and_scale_error(basic_hist):
     values = np.array([1.0, 2.0, 3.0])
-    vars = np.array([1.0, 4.0, 9.0])
+    varis = np.array([1.0, 4.0, 9.0])
     edges = basic_hist.axes[0].edges
-    h = EnhancedPlottableHistogram(values.copy(), edges=edges, variances=vars.copy())
+    h = EnhancedPlottableHistogram(values.copy(), edges=edges, variances=varis.copy())
     h2 = h.scale(2.0)
     assert np.allclose(h2.values(), values * 2)
-    assert np.allclose(h2.variances(), vars * 4)
+    assert np.allclose(h2.variances(), varis * 4)
     h2.fixed_errors(np.zeros(3), np.zeros(3))
     with pytest.raises(RuntimeError):
         h2.scale(2.0)
@@ -355,8 +355,8 @@ def test_binwnorm_then_density(basic_hist):
 
 def test_to_stairs_and_to_stairband_and_to_errorbar(basic_hist):
     h = basic_hist
-    vars = np.array([1.0, 1.0, 1.0])
-    h.set_variances(vars)
+    varis = np.array([1.0, 1.0, 1.0])
+    h.set_variances(varis)
     stairs = h.to_stairs()
     assert set(stairs) == {"values", "edges", "baseline"}
     stairband = h.to_stairband()

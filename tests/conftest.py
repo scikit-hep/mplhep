@@ -5,20 +5,6 @@ import matplotlib.pyplot as plt
 import pytest
 
 
-def pytest_configure(config):
-    """Configure pytest to handle pytest-xdist + pytest-asyncio compatibility."""
-    # Disable pytest-asyncio when running with pytest-xdist to avoid warnings
-    # This is the recommended fix from pytest-xdist documentation
-    if hasattr(config.option, "numprocesses") and config.option.numprocesses:
-        # Running with xdist, disable pytest-asyncio
-        config.pluginmanager.set_blocked("pytest_asyncio")
-
-    # Register custom markers
-    config.addinivalue_line(
-        "markers", "latex: tests that require LaTeX to be installed"
-    )
-
-
 def _has_latex():
     """Check if LaTeX is available on the system."""
     if not shutil.which("latex"):
@@ -30,13 +16,13 @@ def _has_latex():
             capture_output=True,
             timeout=5,
         )
-        return True
     except (
         subprocess.CalledProcessError,
         subprocess.TimeoutExpired,
         FileNotFoundError,
     ):
         return False
+    return True
 
 
 def pytest_collection_modifyitems(config, items):  # noqa: ARG001

@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -31,8 +31,9 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Setup uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
         with:
+          activate-environment: true
           version: "latest"
           python-version: "3.11"
           enable-cache: true
@@ -41,6 +42,9 @@ jobs:
         run: |
           echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
           sudo apt-get install ttf-mscorefonts-installer
+
+      - name: List available fonts
+        run: fc-list | grep -i microsoft || fc-list | grep -i "times new" || echo "Microsoft fonts listing complete"
 
       - name: Install package and documentation dependencies
         run: |
@@ -55,7 +59,7 @@ jobs:
           mkdocs build --clean
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: ./new_docs/site
 
