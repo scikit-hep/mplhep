@@ -62,6 +62,7 @@ def hists(
     fig=None,
     ax_main=None,
     ax_comparison=None,
+    flow="hint",
     **comparison_kwargs,
 ):
     """
@@ -87,6 +88,8 @@ def hists(
         The main axes for the histogram comparison. If fig, ax_main and ax_comparison are None, a new axes will be created. Default is None.
     ax_comparison : matplotlib.axes.Axes or None, optional
         The axes for the comparison plot. If fig, ax_main and ax_comparison are None, a new axes will be created. Default is None.
+    flow : str, optional
+        Whether to show under/overflow bins. Options: "show", "sum", "hint", "none". Default is "hint".
     **comparison_kwargs : optional
         Arguments to be passed to comparison(), including the choice of the comparison function and the treatment of the uncertainties (see documentation of comparison() for details).
 
@@ -119,8 +122,8 @@ def hists(
 
     xlim = (h1_plottable.edges_1d()[0], h1_plottable.edges_1d()[-1])
 
-    histplot(h1_plottable, ax=ax_main, label=h1_label, histtype="step")
-    histplot(h2_plottable, ax=ax_main, label=h2_label, histtype="step")
+    histplot(h1_plottable, ax=ax_main, label=h1_label, histtype="step", flow=flow)
+    histplot(h2_plottable, ax=ax_main, label=h2_label, histtype="step", flow=flow)
     ax_main.set_xlim(xlim)
     ax_main.set_ylabel(ylabel)
     ax_main.legend()
@@ -133,6 +136,7 @@ def hists(
         xlabel=xlabel,
         h1_label=h1_label,
         h2_label=h2_label,
+        flow=flow,
         **comparison_kwargs,
     )
 
@@ -152,6 +156,7 @@ def comparison(
     comparison_ylabel=None,
     comparison_ylim=None,
     h1_w2method="sqrt",
+    flow="hint",
     **histplot_kwargs,
 ):
     """
@@ -181,6 +186,8 @@ def comparison(
     h1_w2method : str, optional
         What kind of bin uncertainty to use for h1: "sqrt" for the Poisson standard deviation derived from the variance stored in the histogram object, "poisson" for asymmetrical uncertainties based on a Poisson confidence interval. Default is "sqrt".
         Asymmetrical uncertainties are not supported for the asymmetry and efficiency comparisons.
+    flow : str, optional
+        Whether to show under/overflow bins. Options: "show", "sum", "hint", "none". Default is "hint".
     **histplot_kwargs : optional
         Arguments to be passed to histplot(), called in case the comparison is "pull", or plot_error_hist(), called for every other comparison case. In the former case, the default arguments are histtype="stepfilled" and color="darkgrey". In the later case, the default argument is color="black".
 
@@ -208,6 +215,61 @@ def comparison(
         h1_plottable, h2_plottable, comparison, h1_w2method
     )
 
+    # Compute flow bin comparison values
+    underflow_comp, overflow_comp = None, None
+    h1_under, h1_over = h1_plottable._underflow, h1_plottable._overflow
+    h2_under, h2_over = h2_plottable._underflow, h2_plottable._overflow
+
+    if comparison in ("ratio", "split_ratio"):
+        if h1_under is not None and h2_under is not None and h2_under != 0:
+            underflow_comp = h1_under / h2_under
+        if h1_over is not None and h2_over is not None and h2_over != 0:
+            overflow_comp = h1_over / h2_over
+    elif comparison == "relative_difference":
+        if h1_under is not None and h2_under is not None and h2_under != 0:
+            underflow_comp = (h1_under / h2_under) - 1
+        if h1_over is not None and h2_over is not None and h2_over != 0:
+            overflow_comp = (h1_over / h2_over) - 1
+    elif comparison == "difference":
+        if h1_under is not None and h2_under is not None:
+            underflow_comp = h1_under - h2_under
+        if h1_over is not None and h2_over is not None:
+            overflow_comp = h1_over - h2_over
+    elif comparison == "pull":
+        # Pull = (h1 - h2) / sqrt(var1 + var2)
+        h1_under_var = h1_plottable._underflow_var
+        h1_over_var = h1_plottable._overflow_var
+        h2_under_var = h2_plottable._underflow_var
+        h2_over_var = h2_plottable._overflow_var
+        if (
+            h1_under is not None
+            and h2_under is not None
+            and h1_under_var is not None
+            and h2_under_var is not None
+        ):
+            denom = np.sqrt(h1_under_var + h2_under_var)
+            if denom != 0:
+                underflow_comp = (h1_under - h2_under) / denom
+        if (
+            h1_over is not None
+            and h2_over is not None
+            and h1_over_var is not None
+            and h2_over_var is not None
+        ):
+            denom = np.sqrt(h1_over_var + h2_over_var)
+            if denom != 0:
+                overflow_comp = (h1_over - h2_over) / denom
+    elif comparison == "asymmetry":
+        if h1_under is not None and h2_under is not None and (h1_under + h2_under) != 0:
+            underflow_comp = (h1_under - h2_under) / (h1_under + h2_under)
+        if h1_over is not None and h2_over is not None and (h1_over + h2_over) != 0:
+            overflow_comp = (h1_over - h2_over) / (h1_over + h2_over)
+    elif comparison == "efficiency":
+        if h1_under is not None and h2_under is not None and h2_under != 0:
+            underflow_comp = h1_under / h2_under
+        if h1_over is not None and h2_over is not None and h2_over != 0:
+            overflow_comp = h1_over / h2_over
+
     if np.allclose(lower_uncertainties, upper_uncertainties, equal_nan=True):
         comparison_plottable = EnhancedPlottableHistogram(
             comparison_values,
@@ -215,6 +277,8 @@ def comparison(
             variances=lower_uncertainties**2,
             kind=h2_plottable.kind,
             w2method="sqrt",
+            underflow=underflow_comp,
+            overflow=overflow_comp,
         )
         histplot_kwargs.setdefault("w2method", "sqrt")
     else:
@@ -224,6 +288,8 @@ def comparison(
             yerr=[lower_uncertainties, upper_uncertainties],
             kind=h2_plottable.kind,
             w2method=h2_plottable.method,
+            underflow=underflow_comp,
+            overflow=overflow_comp,
         )
         histplot_kwargs.setdefault(
             "yerr", [comparison_plottable.yerr_lo, comparison_plottable.yerr_hi]
@@ -234,11 +300,11 @@ def comparison(
     if comparison == "pull":
         histplot_kwargs.setdefault("histtype", "fill")
         histplot_kwargs.setdefault("color", "darkgrey")
-        histplot(comparison_plottable, ax=ax, **histplot_kwargs)
+        histplot(comparison_plottable, ax=ax, flow=flow, **histplot_kwargs)
     else:
         histplot_kwargs.setdefault("color", "black")
         histplot_kwargs.setdefault("histtype", "errorbar")
-        histplot(comparison_plottable, ax=ax, **histplot_kwargs)
+        histplot(comparison_plottable, ax=ax, flow=flow, **histplot_kwargs)
 
     if comparison in ["ratio", "split_ratio", "relative_difference"]:
         if comparison_ylim is None:
@@ -375,6 +441,7 @@ def data_model(
     ax_main=None,
     ax_comparison=None,
     plot_only=None,
+    flow="hint",
     **comparison_kwargs,
 ):
     """
@@ -425,6 +492,8 @@ def data_model(
         The axes for the comparison plot. If fig, ax_main and ax_comparison are None, a new axes will be created. Default is None.
     plot_only : str, optional
         If "ax_main" or "ax_comparison", only the main or comparison axis is plotted on the figure. Both axes are plotted if None is specified, which is the default. This can only be used when fig, ax_main and ax_comparison are not provided by the user.
+    flow : str, optional
+        Whether to show under/overflow bins. Options: "show", "sum", "hint", "none". Default is "hint".
     **comparison_kwargs : optional
         Arguments to be passed to comparison(), including the choice of the comparison function and the treatment of the uncertainties (see documentation of comparison() for details). If they are not provided explicitly, the following arguments are passed by default: h1_label="Data", h2_label="MC", comparison="split_ratio".
 
@@ -525,6 +594,7 @@ def data_model(
         model_uncertainty_label=model_uncertainty_label,
         fig=fig,
         ax=ax_main,
+        flow=flow,
     )
 
     histplot(
@@ -534,6 +604,7 @@ def data_model(
         color="black",
         label=data_label,
         histtype="errorbar",
+        flow=flow,
     )
 
     if plot_only == "ax_main":
@@ -569,6 +640,7 @@ def data_model(
         ax=ax_comparison,
         xlabel=xlabel,
         w2method=data_w2method,
+        flow=flow,
         **comparison_kwargs,
     )
 

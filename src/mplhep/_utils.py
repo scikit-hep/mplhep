@@ -276,8 +276,18 @@ def _get_plottables(
             variance = np.copy(variance)
         underflow, overflow = 0.0, 0.0
         underflowv, overflowv = 0.0, 0.0
+        # EnhancedPlottableHistogram already has flow bins stored
+        if isinstance(h, EnhancedPlottableHistogram):
+            if h._underflow is not None:
+                underflow = h._underflow
+                if has_variances and h._underflow_var is not None:
+                    underflowv = h._underflow_var
+            if h._overflow is not None:
+                overflow = h._overflow
+                if has_variances and h._overflow_var is not None:
+                    overflowv = h._overflow_var
         # One sided flow bins - hist (uproot hist does not have the over- or underflow traits)
-        if (
+        elif (
             hasattr(h, "axes")
             and (traits := getattr(h.axes[0], "traits", None)) is not None
             and hasattr(traits, "underflow")
@@ -307,10 +317,23 @@ def _get_plottables(
                     )
 
         # Set plottables
-        if flow in ("none", "hint"):
+        if flow == "none":
             plottables.append(
                 EnhancedPlottableHistogram(
                     value, edges=final_bins, variances=variance, xoffsets=xoffset
+                )
+            )
+        elif flow == "hint":
+            plottables.append(
+                EnhancedPlottableHistogram(
+                    value,
+                    edges=final_bins,
+                    variances=variance,
+                    xoffsets=xoffset,
+                    underflow=underflow if underflow != 0.0 else None,
+                    overflow=overflow if overflow != 0.0 else None,
+                    underflow_var=underflowv if underflowv != 0.0 else None,
+                    overflow_var=overflowv if overflowv != 0.0 else None,
                 )
             )
         elif flow == "show":
@@ -561,11 +584,47 @@ def _make_plottable_histogram(hist_like, **kwargs):
         msg = "Categorical axis is not supported yet."
         raise NotImplementedError(msg)
 
+    # Extract flow bin values if available (handle one-sided flow from hist library)
+    underflow, overflow = None, None
+    underflow_var, overflow_var = None, None
+    has_variances = hist_obj.variances() is not None
+
+    # Check for axis traits (hist library) - can have only underflow or only overflow
+    traits = getattr(axis, "traits", None)
+    if (
+        traits is not None
+        and hasattr(traits, "underflow")
+        and hasattr(traits, "overflow")
+    ):
+        if traits.underflow:
+            underflow = hist_obj.values(flow=True)[0]
+            if has_variances:
+                underflow_var = hist_obj.variances(flow=True)[0]
+        if traits.overflow:
+            overflow = hist_obj.values(flow=True)[-1]
+            if has_variances:
+                overflow_var = hist_obj.variances(flow=True)[-1]
+    # Fallback: check if values(flow=True) adds 2 bins (both over/under)
+    elif (
+        hasattr(hist_obj, "values")
+        and "flow" in inspect.getfullargspec(hist_obj.values).args
+    ):
+        flow_vals = hist_obj.values(flow=True)
+        if len(flow_vals) == len(hist_obj.values()) + 2:
+            underflow, overflow = flow_vals[0], flow_vals[-1]
+            if has_variances:
+                flow_vars = hist_obj.variances(flow=True)
+                underflow_var, overflow_var = flow_vars[0], flow_vars[-1]
+
     return EnhancedPlottableHistogram(
         np.array(hist_obj.values()),  # copy to avoid further modification
         edges=edges,
-        variances=np.array(hist_obj.variances()),  # copy to avoid further modification
+        variances=np.array(hist_obj.variances()) if has_variances else None,
         kind=hist_obj.kind,
+        underflow=underflow,
+        overflow=overflow,
+        underflow_var=underflow_var,
+        overflow_var=overflow_var,
         **kwargs,
     )
 
@@ -706,6 +765,10 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         yerr=None,
         w2method="poisson",
         kind=Kind.COUNT,
+        underflow=None,
+        overflow=None,
+        underflow_var=None,
+        overflow_var=None,
     ):
         """Initialize the EnhancedPlottableHistogram object with values, bin edges, optional variances, and error bars."""
 
@@ -716,6 +779,12 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
 
         self._binwnorm = False
         self._density = False
+
+        # Store flow bin values (underflow/overflow)
+        self._underflow = underflow
+        self._overflow = overflow
+        self._underflow_var = underflow_var
+        self._overflow_var = overflow_var
 
         self.baseline = np.zeros_like(self.values())
         self.centers = self.axes[0].edges.mean(axis=1)
@@ -806,12 +875,31 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
             added_variances = self._variances + other._variances
         else:
             added_variances = None
+
+        # Sum flow bins if both histograms have them
+        added_underflow = None
+        added_overflow = None
+        added_underflow_var = None
+        added_overflow_var = None
+        if self._underflow is not None and other._underflow is not None:
+            added_underflow = self._underflow + other._underflow
+            if self._underflow_var is not None and other._underflow_var is not None:
+                added_underflow_var = self._underflow_var + other._underflow_var
+        if self._overflow is not None and other._overflow is not None:
+            added_overflow = self._overflow + other._overflow
+            if self._overflow_var is not None and other._overflow_var is not None:
+                added_overflow_var = self._overflow_var + other._overflow_var
+
         return EnhancedPlottableHistogram(
             added_values,
             edges=self.axes[0].edges,
             variances=added_variances,
             kind=self.kind,
             w2method=self.method,
+            underflow=added_underflow,
+            overflow=added_overflow,
+            underflow_var=added_underflow_var,
+            overflow_var=added_overflow_var,
         )
 
     def __radd__(self, other):
@@ -849,6 +937,30 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
     def set_variances(self, variances: np.typing.NDArray[Any] | None) -> None:
         """Set the variances of the histogram."""
         self._variances = variances
+
+    def values(self, flow=False):
+        """Return the histogram values, optionally including flow bins."""
+        if not flow:
+            return self._values
+        result = self._values
+        if self._underflow is not None:
+            result = np.concatenate([[self._underflow], result])
+        if self._overflow is not None:
+            result = np.concatenate([result, [self._overflow]])
+        return result
+
+    def variances(self, flow=False):
+        """Return the histogram variances, optionally including flow bins."""
+        if self._variances is None:
+            return None
+        if not flow:
+            return self._variances
+        result = self._variances
+        if self._underflow_var is not None:
+            result = np.concatenate([[self._underflow_var], result])
+        if self._overflow_var is not None:
+            result = np.concatenate([result, [self._overflow_var]])
+        return result
 
     def edges_1d(self):
         """Return the edges of the first axis as a 1D array."""
