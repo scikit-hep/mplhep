@@ -215,6 +215,40 @@ def comparison(
         h1_plottable, h2_plottable, comparison, h1_w2method
     )
 
+    # Compute flow bin comparison values
+    underflow_comp, overflow_comp = None, None
+    h1_under, h1_over = h1_plottable._underflow, h1_plottable._overflow
+    h2_under, h2_over = h2_plottable._underflow, h2_plottable._overflow
+
+    if comparison in ("ratio", "split_ratio"):
+        if h1_under is not None and h2_under is not None and h2_under != 0:
+            underflow_comp = h1_under / h2_under
+        if h1_over is not None and h2_over is not None and h2_over != 0:
+            overflow_comp = h1_over / h2_over
+    elif comparison == "relative_difference":
+        if h1_under is not None and h2_under is not None and h2_under != 0:
+            underflow_comp = (h1_under / h2_under) - 1
+        if h1_over is not None and h2_over is not None and h2_over != 0:
+            overflow_comp = (h1_over / h2_over) - 1
+    elif comparison == "difference":
+        if h1_under is not None and h2_under is not None:
+            underflow_comp = h1_under - h2_under
+        if h1_over is not None and h2_over is not None:
+            overflow_comp = h1_over - h2_over
+    elif comparison == "pull":
+        # Pull requires variances - skip flow for simplicity
+        pass
+    elif comparison == "asymmetry":
+        if h1_under is not None and h2_under is not None and (h1_under + h2_under) != 0:
+            underflow_comp = (h1_under - h2_under) / (h1_under + h2_under)
+        if h1_over is not None and h2_over is not None and (h1_over + h2_over) != 0:
+            overflow_comp = (h1_over - h2_over) / (h1_over + h2_over)
+    elif comparison == "efficiency":
+        if h1_under is not None and h2_under is not None and h2_under != 0:
+            underflow_comp = h1_under / h2_under
+        if h1_over is not None and h2_over is not None and h2_over != 0:
+            overflow_comp = h1_over / h2_over
+
     if np.allclose(lower_uncertainties, upper_uncertainties, equal_nan=True):
         comparison_plottable = EnhancedPlottableHistogram(
             comparison_values,
@@ -222,6 +256,8 @@ def comparison(
             variances=lower_uncertainties**2,
             kind=h2_plottable.kind,
             w2method="sqrt",
+            underflow=underflow_comp,
+            overflow=overflow_comp,
         )
         histplot_kwargs.setdefault("w2method", "sqrt")
     else:
@@ -231,6 +267,8 @@ def comparison(
             yerr=[lower_uncertainties, upper_uncertainties],
             kind=h2_plottable.kind,
             w2method=h2_plottable.method,
+            underflow=underflow_comp,
+            overflow=overflow_comp,
         )
         histplot_kwargs.setdefault(
             "yerr", [comparison_plottable.yerr_lo, comparison_plottable.yerr_hi]
