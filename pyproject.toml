@@ -27,10 +27,12 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Physics",
 ]
 dependencies = [
-    "matplotlib>=3.4",
+    "matplotlib>=3.4,<3.10; python_version < '3.10'",
+    "matplotlib>=3.10.8; python_version >= '3.10'",
     "mplhep-data>=0.0.4",
     "numpy>=1.16.0",
     "packaging",
+    "pyparsing<3.3.0; python_version < '3.10'",  # Avoid oneOf deprecation warning with older matplotlib
     "uhi>=0.2.0",
 ]
 
