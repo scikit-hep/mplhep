@@ -32,6 +32,69 @@ from .utils import (
 )
 
 
+def _configure_comparison_axes(ax_main, ax_comparison, edges, flow):
+    """
+    Configure tick labels for comparison plot axes.
+
+    Ensures tick labels appear only on the comparison axis, not on the main axis.
+    For flow="show", regenerates tick labels with </> indicators for flow bins.
+
+    Parameters
+    ----------
+    ax_main : matplotlib.axes.Axes
+        The main axes for the histogram comparison.
+    ax_comparison : matplotlib.axes.Axes
+        The axes for the comparison plot.
+    edges : array-like
+        The histogram bin edges (without flow bins).
+    flow : str
+        The flow option ("show", "sum", "hint", or "none").
+    """
+    if flow == "show":
+        # For flow="show", regenerate tick labels with </> indicators for flow bins
+        # matplotlib's sharex clears labels, so we must regenerate from histogram edges
+        ax_main.tick_params(labelbottom=False)
+        ax_comparison.tick_params(labelbottom=True)
+
+        tick_positions = ax_comparison.get_xticks()
+
+        # Check if there are flow labels (ticks in underflow/overflow regions)
+        has_underflow = any(tick < edges[0] for tick in tick_positions)
+        has_overflow = any(tick > edges[-1] for tick in tick_positions)
+
+        # Filter out edge ticks that would overlap with flow labels
+        filtered_ticks = []
+        tick_labels = []
+
+        for tick in tick_positions:
+            # Skip edge ticks that would overlap with adjacent flow labels
+            if has_underflow and abs(tick - edges[0]) < 1e-10:
+                continue  # Skip tick at first regular edge (e.g., 0)
+            if has_overflow and abs(tick - edges[-1]) < 1e-10:
+                continue  # Skip tick at last regular edge (e.g., 10)
+
+            filtered_ticks.append(tick)
+            # Check if this tick is outside the regular histogram range (flow bins)
+            if tick < edges[0]:  # Underflow bin
+                tick_labels.append(f"<{edges[0]:g}")
+            elif tick > edges[-1]:  # Overflow bin
+                tick_labels.append(f">{edges[-1]:g}")
+            else:
+                tick_labels.append(f"{tick:g}")
+
+        ax_comparison.set_xticks(filtered_ticks)
+        ax_comparison.set_xticklabels(tick_labels)
+    else:
+        # For other flow options, control label visibility and regenerate labels
+        ax_main.tick_params(labelbottom=False)
+        ax_comparison.tick_params(labelbottom=True)
+        # Explicitly regenerate tick labels on the comparison axis
+        # (they may have been set to empty strings during plotting)
+        tick_positions = ax_comparison.get_xticks()
+        ax_comparison.set_xticks(tick_positions)
+        ax_comparison.set_xticklabels([f"{tick:g}" for tick in tick_positions])
+
+
 def _get_math_text(text):
     """
     Search for text between $ and return it.
@@ -151,55 +214,8 @@ def hists(
 
     fig.align_ylabels()
 
-    # Ensure tick labels appear only on the comparison axis, not on the main axis
-    # This must be done at the end, after all plotting, because matplotlib's sharex
-    # mechanism may override labels set during plotting
-    if flow == "show":
-        # For flow="show", regenerate tick labels with </> indicators for flow bins
-        # matplotlib's sharex clears labels, so we must regenerate from histogram edges
-        ax_main.tick_params(labelbottom=False)
-        ax_comparison.tick_params(labelbottom=True)
-
-        # Get histogram edges to identify flow bin boundaries
-        # Note: h1_plottable has original edges [0, 1, 2, ..., 10], not flow-extended
-        edges = h1_plottable.edges_1d()
-        tick_positions = ax_comparison.get_xticks()
-
-        # Check if there are flow labels (ticks in underflow/overflow regions)
-        has_underflow = any(tick < edges[0] for tick in tick_positions)
-        has_overflow = any(tick > edges[-1] for tick in tick_positions)
-
-        # Filter out edge ticks that would overlap with flow labels
-        filtered_ticks = []
-        tick_labels = []
-
-        for tick in tick_positions:
-            # Skip edge ticks that would overlap with adjacent flow labels
-            if has_underflow and abs(tick - edges[0]) < 1e-10:
-                continue  # Skip tick at first regular edge (e.g., 0)
-            if has_overflow and abs(tick - edges[-1]) < 1e-10:
-                continue  # Skip tick at last regular edge (e.g., 10)
-
-            filtered_ticks.append(tick)
-            # Check if this tick is outside the regular histogram range (flow bins)
-            if tick < edges[0]:  # Underflow bin
-                tick_labels.append(f"<{edges[0]:g}")
-            elif tick > edges[-1]:  # Overflow bin
-                tick_labels.append(f">{edges[-1]:g}")
-            else:
-                tick_labels.append(f"{tick:g}")
-
-        ax_comparison.set_xticks(filtered_ticks)
-        ax_comparison.set_xticklabels(tick_labels)
-    else:
-        # For other flow options, control label visibility and regenerate labels
-        ax_main.tick_params(labelbottom=False)
-        ax_comparison.tick_params(labelbottom=True)
-        # Explicitly regenerate tick labels on the comparison axis
-        # (they may have been set to empty strings during plotting)
-        tick_positions = ax_comparison.get_xticks()
-        ax_comparison.set_xticks(tick_positions)
-        ax_comparison.set_xticklabels([f"{tick:g}" for tick in tick_positions])
+    # Configure tick labels for both axes
+    _configure_comparison_axes(ax_main, ax_comparison, h1_plottable.edges_1d(), flow)
 
     return fig, ax_main, ax_comparison
 
@@ -284,8 +300,8 @@ def comparison(
             if (
                 hasattr(h1, "values")
                 and hasattr(h2, "values")
-                and hasattr(h1.values, "__call__")
-                and hasattr(h2.values, "__call__")
+                and callable(h1.values)
+                and callable(h2.values)
             ):
                 # Access flow bins from the original histogram objects
                 h1_flow_values = h1.values(flow=True)
@@ -364,7 +380,6 @@ def comparison(
         # For flow="show", we need to always extend edges to match flow values length
         # because flow=True always includes underflow/overflow positions
         flow_edges = np.copy(final_bins)
-        h2_flow_values = h2_for_comparison.values(flow=True)
 
         # Always add underflow and overflow edges when using flow="show"
         # to match the structure of flow=True values
@@ -819,54 +834,9 @@ def data_model(
     if flow == "show" and flow_xlim is not None:
         ax_main.set_xlim(flow_xlim)
 
-    # Ensure tick labels appear only on the comparison axis, not on the main axis
-    # This must be done at the end, after all plotting, because matplotlib's sharex
-    # mechanism may override labels set during plotting
-    if flow == "show":
-        # For flow="show", regenerate tick labels with </> indicators for flow bins
-        # matplotlib's sharex clears labels, so we must regenerate from histogram edges
-        ax_main.tick_params(labelbottom=False)
-        ax_comparison.tick_params(labelbottom=True)
-
-        # Get histogram edges to identify flow bin boundaries
-        # Note: data_hist_plottable has original edges [0, 1, 2, ..., 10], not flow-extended
-        edges = data_hist_plottable.edges_1d()
-        tick_positions = ax_comparison.get_xticks()
-
-        # Check if there are flow labels (ticks in underflow/overflow regions)
-        has_underflow = any(tick < edges[0] for tick in tick_positions)
-        has_overflow = any(tick > edges[-1] for tick in tick_positions)
-
-        # Filter out edge ticks that would overlap with flow labels
-        filtered_ticks = []
-        tick_labels = []
-
-        for tick in tick_positions:
-            # Skip edge ticks that would overlap with adjacent flow labels
-            if has_underflow and abs(tick - edges[0]) < 1e-10:
-                continue  # Skip tick at first regular edge (e.g., 0)
-            if has_overflow and abs(tick - edges[-1]) < 1e-10:
-                continue  # Skip tick at last regular edge (e.g., 10)
-
-            filtered_ticks.append(tick)
-            # Check if this tick is outside the regular histogram range (flow bins)
-            if tick < edges[0]:  # Underflow bin
-                tick_labels.append(f"<{edges[0]:g}")
-            elif tick > edges[-1]:  # Overflow bin
-                tick_labels.append(f">{edges[-1]:g}")
-            else:
-                tick_labels.append(f"{tick:g}")
-
-        ax_comparison.set_xticks(filtered_ticks)
-        ax_comparison.set_xticklabels(tick_labels)
-    else:
-        # For other flow options, control label visibility and regenerate labels
-        ax_main.tick_params(labelbottom=False)
-        ax_comparison.tick_params(labelbottom=True)
-        # Explicitly regenerate tick labels on the comparison axis
-        # (they may have been set to empty strings during plotting)
-        tick_positions = ax_comparison.get_xticks()
-        ax_comparison.set_xticks(tick_positions)
-        ax_comparison.set_xticklabels([f"{tick:g}" for tick in tick_positions])
+    # Configure tick labels for both axes
+    _configure_comparison_axes(
+        ax_main, ax_comparison, data_hist_plottable.edges_1d(), flow
+    )
 
     return fig, ax_main, ax_comparison
