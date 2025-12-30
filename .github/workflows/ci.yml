@@ -48,6 +48,10 @@ jobs:
           echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
           sudo apt-get install ttf-mscorefonts-installer
 
+      - name: List available fonts
+        if: runner.os == 'Linux'
+        run: fc-list | grep -i microsoft || fc-list | grep -i "times new" || echo "Microsoft fonts listing complete"
+
       - name: Install package for user  # check that this installs all dependencies properly
         run: uv pip install -e .
 
