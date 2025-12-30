@@ -319,10 +319,23 @@ def _get_plottables(
                     )
 
         # Set plottables
-        if flow in ("none", "hint"):
+        if flow == "none":
             plottables.append(
                 EnhancedPlottableHistogram(
                     value, edges=final_bins, variances=variance, xoffsets=xoffset
+                )
+            )
+        elif flow == "hint":
+            plottables.append(
+                EnhancedPlottableHistogram(
+                    value,
+                    edges=final_bins,
+                    variances=variance,
+                    xoffsets=xoffset,
+                    underflow=underflow if underflow != 0.0 else None,
+                    overflow=overflow if overflow != 0.0 else None,
+                    underflow_var=underflowv if underflowv != 0.0 else None,
+                    overflow_var=overflowv if overflowv != 0.0 else None,
                 )
             )
         elif flow == "show":
