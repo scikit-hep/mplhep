@@ -236,8 +236,29 @@ def comparison(
         if h1_over is not None and h2_over is not None:
             overflow_comp = h1_over - h2_over
     elif comparison == "pull":
-        # Pull requires variances - skip flow for simplicity
-        pass
+        # Pull = (h1 - h2) / sqrt(var1 + var2)
+        h1_under_var = h1_plottable._underflow_var
+        h1_over_var = h1_plottable._overflow_var
+        h2_under_var = h2_plottable._underflow_var
+        h2_over_var = h2_plottable._overflow_var
+        if (
+            h1_under is not None
+            and h2_under is not None
+            and h1_under_var is not None
+            and h2_under_var is not None
+        ):
+            denom = np.sqrt(h1_under_var + h2_under_var)
+            if denom != 0:
+                underflow_comp = (h1_under - h2_under) / denom
+        if (
+            h1_over is not None
+            and h2_over is not None
+            and h1_over_var is not None
+            and h2_over_var is not None
+        ):
+            denom = np.sqrt(h1_over_var + h2_over_var)
+            if denom != 0:
+                overflow_comp = (h1_over - h2_over) / denom
     elif comparison == "asymmetry":
         if h1_under is not None and h2_under is not None and (h1_under + h2_under) != 0:
             underflow_comp = (h1_under - h2_under) / (h1_under + h2_under)
