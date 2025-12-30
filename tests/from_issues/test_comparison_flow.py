@@ -6,6 +6,7 @@ import pytest
 import mplhep as hep
 
 
+@pytest.mark.filterwarnings("ignore:divide by zero:RuntimeWarning")
 @pytest.mark.mpl_image_compare(remove_text=False, style="default", tolerance=20)
 def test_comparison_flow():
     """Test all flow options with comparison plotters (data_model)."""
