@@ -1,0 +1,55 @@
+# Pixi development environment for mplhep
+#
+# We use a standalone pixi.toml instead of embedding in pyproject.toml because
+# pixi doesn't properly evaluate PEP 508 environment markers in dependencies.
+# The pyproject.toml has markers like `python_version < '3.10'` which pixi
+# tries to satisfy simultaneously, causing resolution failures.
+#
+# Tracking issues:
+#   https://github.com/prefix-dev/pixi/issues/1259
+#   https://github.com/prefix-dev/pixi/issues/3724
+#
+# Usage:
+#   pixi install && pixi run test
+
+[workspace]
+name = "mplhep"
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+
+[dependencies]
+python = ">=3.10"
+# Core dependencies from conda (avoids pyproject.toml marker conflicts)
+matplotlib = ">=3.10"
+numpy = ">=1.16"
+packaging = "*"
+uhi = ">=0.2"
+pip = "*"
+# Test dependencies
+pytest = ">=6.0"
+pytest-mpl = "*"
+pytest-xdist = "*"
+pytest-benchmark = "*"
+pytest-mock = "*"
+boost-histogram = "*"
+hist = "*"
+scipy = ">=1.1"
+uproot = ">=5.0"
+seaborn = "*"
+scikit-hep-testdata = "*"
+# Dev dependencies
+jupyter = "*"
+pre-commit = "*"
+
+[pypi-dependencies]
+mplhep-data = ">=0.0.4"
+prek = "*"
+
+[tasks]
+postinstall = "pip install --no-deps -e ."
+test = { cmd = "python -m pytest -r sa --mpl --mpl-results-path=pytest_results -n auto", depends-on = ["postinstall"] }
+test-serial = { cmd = "python -m pytest -r sa --mpl --mpl-results-path=pytest_results", depends-on = ["postinstall"] }
+test-benchmark = "python -m pytest --benchmark-only --benchmark-sort=mean --benchmark-warmup=on"
+test-baseline = "python -m pytest -r sa --mpl -n auto --mpl-generate-path=tests/baseline"
+precommit = "prek run --all-files"
+prek = "prek run --all-files"

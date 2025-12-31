@@ -48,7 +48,7 @@ repos:
   hooks:
   - id: codespell
     args: ["-L", "hist,heros,hep", "--uri-ignore-words-list", "*"]
-    exclude: '^examples/Examples\.ipynb$|^new_docs/site/|\.ipynb$'
+    exclude: '^examples/Examples\.ipynb$|^new_docs/site/|\.ipynb$|^pixi\.lock$'
 
 - repo: https://github.com/pre-commit/pygrep-hooks
   rev: "v1.10.0"
