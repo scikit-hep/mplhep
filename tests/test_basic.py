@@ -452,6 +452,50 @@ def test_hist2dplot_cbar_subplots():
     return fig
 
 
+def test_hist2dplot_cbarextend_auto_single_axes(mocker):
+    """Test that cbarextend defaults to True for single axes figure."""
+    mock_append_axes = mocker.patch("mplhep.plot.append_axes")
+    mock_append_axes.return_value = plt.gca()  # Return a valid axes
+
+    np.random.seed(0)
+    H = np.array([[1, 2], [3, 4]])
+    xedges = [0, 1, 2]
+    yedges = [0, 1, 2]
+
+    fig, ax = plt.subplots()
+    mh.hist2dplot(H, xedges, yedges, cbar=True, ax=ax)
+
+    # Verify append_axes was called with extend=True for single axes
+    mock_append_axes.assert_called_once()
+    call_kwargs = mock_append_axes.call_args
+    assert call_kwargs.kwargs.get("extend") is True, (
+        "cbarextend should default to True for single axes"
+    )
+    plt.close(fig)
+
+
+def test_hist2dplot_cbarextend_auto_multiple_axes(mocker):
+    """Test that cbarextend defaults to False for multiple axes figure."""
+    mock_append_axes = mocker.patch("mplhep.plot.append_axes")
+    mock_append_axes.return_value = plt.gca()  # Return a valid axes
+
+    np.random.seed(0)
+    H = np.array([[1, 2], [3, 4]])
+    xedges = [0, 1, 2]
+    yedges = [0, 1, 2]
+
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    mh.hist2dplot(H, xedges, yedges, cbar=True, ax=ax1)
+
+    # Verify append_axes was called with extend=False for multiple axes
+    mock_append_axes.assert_called_once()
+    call_kwargs = mock_append_axes.call_args
+    assert call_kwargs.kwargs.get("extend") is False, (
+        "cbarextend should default to False for multiple axes"
+    )
+    plt.close(fig)
+
+
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_hist2dplot_custom_labels():
     np.random.seed(0)

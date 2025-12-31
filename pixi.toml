@@ -15,7 +15,7 @@
 [workspace]
 name = "mplhep"
 channels = ["conda-forge"]
-platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
+platforms = ["linux-64"]
 
 [dependencies]
 python = ">=3.10"
@@ -40,6 +40,12 @@ scikit-hep-testdata = "*"
 # Dev dependencies
 jupyter = "*"
 pre-commit = "*"
+questionary = "*"
+# PDF to PNG conversion for pytest-mpl
+ghostscript = "*"
+# ROOT support for histogram tests
+root = "*"
+# Note: LaTeX tests require system texlive installation (texlive-core on conda-forge is broken)
 
 [pypi-dependencies]
 mplhep-data = ">=0.0.4"
