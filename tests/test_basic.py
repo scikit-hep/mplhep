@@ -396,10 +396,10 @@ def test_hist2dplot_flow():
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
     axs = axs.flatten()
 
-    mh.hist2dplot(h, ax=axs[0], flow="hint", cmin=0, cmax=10)
-    mh.hist2dplot(h, ax=axs[1], flow="show", cmin=0, cmax=10)
-    mh.hist2dplot(h, ax=axs[2], flow="sum", cmin=0, cmax=10)
-    mh.hist2dplot(h, ax=axs[3], flow=None, cmin=0, cmax=10)
+    mh.hist2dplot(h, ax=axs[0], flow="hint", cmin=0, cmax=10, cbarextend=True)
+    mh.hist2dplot(h, ax=axs[1], flow="show", cmin=0, cmax=10, cbarextend=True)
+    mh.hist2dplot(h, ax=axs[2], flow="sum", cmin=0, cmax=10, cbarextend=True)
+    mh.hist2dplot(h, ax=axs[3], flow=None, cmin=0, cmax=10, cbarextend=True)
 
     axs[0].set_title("Default(hint)", fontsize=18)
     axs[1].set_title("Show", fontsize=18)
@@ -415,10 +415,10 @@ def test_hist2dplot_inputs_nobin():
     np.random.seed(0)
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
     axs = axs.flatten()
-    mh.hist2dplot([[1, 2, 3]], ax=axs[0])
-    mh.hist2dplot(np.array([[1, 2, 3]]), ax=axs[1])
-    mh.hist2dplot([[1, 2, 3], [3, 4, 1]], ax=axs[2])
-    mh.hist2dplot(np.array([[1, 2, 3], [3, 4, 1]]), ax=axs[3])
+    mh.hist2dplot([[1, 2, 3]], ax=axs[0], cbarextend=True)
+    mh.hist2dplot(np.array([[1, 2, 3]]), ax=axs[1], cbarextend=True)
+    mh.hist2dplot([[1, 2, 3], [3, 4, 1]], ax=axs[2], cbarextend=True)
+    mh.hist2dplot(np.array([[1, 2, 3], [3, 4, 1]]), ax=axs[3], cbarextend=True)
     return fig
 
 
@@ -447,9 +447,55 @@ def test_hist2dplot_cbar_subplots():
     H, xedges, yedges = np.histogram2d(x, y, bins=(xedges, yedges))
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
-    mh.hist2dplot(H, xedges, yedges, labels=True, cbar=True, ax=ax1)
-    mh.hist2dplot(H * 2, xedges, yedges, labels=True, cbar=True, ax=ax2)
+    mh.hist2dplot(H, xedges, yedges, labels=True, cbar=True, ax=ax1, cbarextend=True)
+    mh.hist2dplot(
+        H * 2, xedges, yedges, labels=True, cbar=True, ax=ax2, cbarextend=True
+    )
     return fig
+
+
+def test_hist2dplot_cbarextend_auto_single_axes(mocker):
+    """Test that cbarextend defaults to True for single axes figure."""
+    mock_append_axes = mocker.patch("mplhep.plot.append_axes")
+    mock_append_axes.return_value = plt.gca()  # Return a valid axes
+
+    np.random.seed(0)
+    H = np.array([[1, 2], [3, 4]])
+    xedges = [0, 1, 2]
+    yedges = [0, 1, 2]
+
+    fig, ax = plt.subplots()
+    mh.hist2dplot(H, xedges, yedges, cbar=True, ax=ax)
+
+    # Verify append_axes was called with extend=True for single axes
+    mock_append_axes.assert_called_once()
+    call_kwargs = mock_append_axes.call_args
+    assert call_kwargs.kwargs.get("extend") is True, (
+        "cbarextend should default to True for single axes"
+    )
+    plt.close(fig)
+
+
+def test_hist2dplot_cbarextend_auto_multiple_axes(mocker):
+    """Test that cbarextend defaults to False for multiple axes figure."""
+    mock_append_axes = mocker.patch("mplhep.plot.append_axes")
+    mock_append_axes.return_value = plt.gca()  # Return a valid axes
+
+    np.random.seed(0)
+    H = np.array([[1, 2], [3, 4]])
+    xedges = [0, 1, 2]
+    yedges = [0, 1, 2]
+
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    mh.hist2dplot(H, xedges, yedges, cbar=True, ax=ax1)
+
+    # Verify append_axes was called with extend=False for multiple axes
+    mock_append_axes.assert_called_once()
+    call_kwargs = mock_append_axes.call_args
+    assert call_kwargs.kwargs.get("extend") is False, (
+        "cbarextend should default to False for multiple axes"
+    )
+    plt.close(fig)
 
 
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)

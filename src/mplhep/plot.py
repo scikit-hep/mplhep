@@ -872,7 +872,7 @@ def hist2dplot(
     cbarsize="7%",
     cbarpad=0.2,
     cbarpos="right",
-    cbarextend=True,
+    cbarextend=None,
     cmin=None,
     cmax=None,
     ax: mpl.axes.Axes | None = None,
@@ -915,9 +915,10 @@ def hist2dplot(
         Colorbar distance from main axis.
     cbarpos : {'right', 'left', 'bottom', 'top'}, optional,  default "right"
         Colorbar position w.r.t main axis.
-    cbarextend : bool, optional, default False
+    cbarextend : bool, optional, default None (auto)
         Extends figure size to keep original axes size same as without cbar.
-        Only safe for 1 axes per fig.
+        If None (default), automatically set to True for single-axes figures
+        and False for multi-axes figures to prevent layout issues.
     cmin : float, optional
         Colorbar minimum.
     cmax : float, optional
@@ -944,6 +945,10 @@ def hist2dplot(
     elif not isinstance(ax, plt.Axes):
         msg = "ax must be a matplotlib Axes object"
         raise ValueError(msg)
+
+    # Auto-detect cbarextend: only extend for single-axes figures
+    if cbarextend is None:
+        cbarextend = len(ax.figure.axes) == 1
 
     h = _hist_object_handler(H, xbins, ybins)
 
