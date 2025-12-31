@@ -40,6 +40,7 @@ scikit-hep-testdata = "*"
 # Dev dependencies
 jupyter = "*"
 pre-commit = "*"
+questionary = "*"
 
 [pypi-dependencies]
 mplhep-data = ">=0.0.4"
