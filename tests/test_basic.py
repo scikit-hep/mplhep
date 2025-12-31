@@ -396,10 +396,10 @@ def test_hist2dplot_flow():
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
     axs = axs.flatten()
 
-    mh.hist2dplot(h, ax=axs[0], flow="hint", cmin=0, cmax=10)
-    mh.hist2dplot(h, ax=axs[1], flow="show", cmin=0, cmax=10)
-    mh.hist2dplot(h, ax=axs[2], flow="sum", cmin=0, cmax=10)
-    mh.hist2dplot(h, ax=axs[3], flow=None, cmin=0, cmax=10)
+    mh.hist2dplot(h, ax=axs[0], flow="hint", cmin=0, cmax=10, cbarextend=True)
+    mh.hist2dplot(h, ax=axs[1], flow="show", cmin=0, cmax=10, cbarextend=True)
+    mh.hist2dplot(h, ax=axs[2], flow="sum", cmin=0, cmax=10, cbarextend=True)
+    mh.hist2dplot(h, ax=axs[3], flow=None, cmin=0, cmax=10, cbarextend=True)
 
     axs[0].set_title("Default(hint)", fontsize=18)
     axs[1].set_title("Show", fontsize=18)
@@ -415,10 +415,10 @@ def test_hist2dplot_inputs_nobin():
     np.random.seed(0)
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
     axs = axs.flatten()
-    mh.hist2dplot([[1, 2, 3]], ax=axs[0])
-    mh.hist2dplot(np.array([[1, 2, 3]]), ax=axs[1])
-    mh.hist2dplot([[1, 2, 3], [3, 4, 1]], ax=axs[2])
-    mh.hist2dplot(np.array([[1, 2, 3], [3, 4, 1]]), ax=axs[3])
+    mh.hist2dplot([[1, 2, 3]], ax=axs[0], cbarextend=True)
+    mh.hist2dplot(np.array([[1, 2, 3]]), ax=axs[1], cbarextend=True)
+    mh.hist2dplot([[1, 2, 3], [3, 4, 1]], ax=axs[2], cbarextend=True)
+    mh.hist2dplot(np.array([[1, 2, 3], [3, 4, 1]]), ax=axs[3], cbarextend=True)
     return fig
 
 
@@ -447,8 +447,10 @@ def test_hist2dplot_cbar_subplots():
     H, xedges, yedges = np.histogram2d(x, y, bins=(xedges, yedges))
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
-    mh.hist2dplot(H, xedges, yedges, labels=True, cbar=True, ax=ax1)
-    mh.hist2dplot(H * 2, xedges, yedges, labels=True, cbar=True, ax=ax2)
+    mh.hist2dplot(H, xedges, yedges, labels=True, cbar=True, ax=ax1, cbarextend=True)
+    mh.hist2dplot(
+        H * 2, xedges, yedges, labels=True, cbar=True, ax=ax2, cbarextend=True
+    )
     return fig
 
 
