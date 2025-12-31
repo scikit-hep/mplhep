@@ -100,40 +100,6 @@ environments = [
     "python_version >= '3.10'",
 ]
 
-[tool.pixi.workspace]
-name = "mplhep"
-authors = ["andrzejnovak <novak5andrzej@gmail.com>"]
-description = "Matplotlib styles for HEP"
-channels = ["conda-forge"]
-platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
-
-[tool.pixi.pypi-dependencies]
-mplhep = { path = ".", editable = true, extras = ["dev", "test"] }
-
-[tool.pixi.environments]
-default = { solve-group = "default" }
-test = { solve-group = "default" }
-
-[tool.pixi.tasks]
-# Testing
-test = "python -m pytest -r sa --mpl --mpl-results-path=pytest_results -n auto"
-test-benchmark = "python -m pytest --benchmark-only --benchmark-sort=mean --benchmark-warmup=on"
-test-baseline = "python -m pytest -r sa --mpl -n auto --mpl-generate-path=tests/baseline"
-
-# Linting & formatting (via pre-commit hooks)
-precommit = "prek run --all-files"
-prek = "prek run --all-files"
-
-# Documentation
-docs-build = { cmd = "mkdocs build --clean", cwd = "new_docs" }
-docs-build-fast = { cmd = "mkdocs build -f mkdocs_norender.yml", cwd = "new_docs" }
-docs-serve = { cmd = "mkdocs serve --dev-addr 127.0.0.1:8000", cwd = "new_docs" }
-docs-serve-fast = { cmd = "mkdocs serve -f mkdocs_norender.yml --dev-addr 127.0.0.1:8000", cwd = "new_docs" }
-
-# Cleanup
-clean = "rm -rf pytest_results __pycache__ .pytest_cache .coverage .mypy_cache htmlcov dist build *.egg-info"
-
-
 [tool.mypy]
 files = ["src"]
 python_version = "3.9"
