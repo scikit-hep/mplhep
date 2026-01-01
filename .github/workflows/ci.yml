@@ -75,7 +75,7 @@ jobs:
           python -m pytest -r sa --mpl --mpl-results-path=pytest_results -n 4 --benchmark-disable
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: failure()
         with:
           name: pytest_results-${{ matrix.python-version }}-${{ matrix.runs-on }}
