@@ -52,7 +52,7 @@ jobs:
         pytest -r sa --mpl --mpl-results-path=pytest_results
 
     - name: Upload pytest test results
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       if: failure()
       with:
         name: pytest_results-${{ matrix.python-version }}-${{ matrix.runs-on }}
@@ -110,7 +110,7 @@ jobs:
         pytest -r sa --mpl --mpl-results-path=pytest_results
 
     - name: Upload pytest test results
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       if: failure()
       with:
         name: pytest_results-${{ matrix.python-version }}-${{ matrix.runs-on }}
@@ -164,7 +164,7 @@ jobs:
         pytest -r sa --mpl --mpl-results-path=pytest_results
 
     - name: Upload pytest test results
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       if: failure()
       with:
         name: pytest_results-${{ matrix.python-version }}-${{ matrix.runs-on }}
@@ -218,7 +218,7 @@ jobs:
         pytest -r sa --mpl --mpl-results-path=pytest_results
 
     - name: Upload pytest test results
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       if: failure()
       with:
         name: pytest_results-${{ matrix.python-version }}-${{ matrix.runs-on }}
