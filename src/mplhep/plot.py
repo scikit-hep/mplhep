@@ -875,6 +875,7 @@ def hist2dplot(
     cbarextend=None,
     cmin=None,
     cmax=None,
+    mask=None,
     ax: mpl.axes.Axes | None = None,
     flow="hint",
     binwnorm=None,
@@ -923,6 +924,8 @@ def hist2dplot(
         Colorbar minimum.
     cmax : float, optional
         Colorbar maximum.
+    mask : 2D array (H-like), optional
+        Boolean mask to hide cells. Cells with False value are not shown.
     ax : matplotlib.axes.Axes, optional
         Axes object (if None, last one is fetched or one is created)
     flow :  str, optional {"show", "sum","hint", None}
@@ -1034,6 +1037,8 @@ def hist2dplot(
         H[cmin > H] = None
     if cmax is not None:
         H[cmax < H] = None
+    if mask is not None:
+        H[~mask.T] = None
 
     X, Y = np.meshgrid(xbins, ybins)
 

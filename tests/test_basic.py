@@ -319,6 +319,23 @@ def test_hist2dplot_hist_all_flow_hint():
     return fig
 
 
+@pytest.mark.mpl_image_compare(style="default")
+def test_hist2dplot_hist_mask():
+    np.random.seed(0)
+    _fill_x = np.random.uniform(-5, 5, 300)
+    _fill_y = np.random.normal(-5, 5, 300)
+    _fill_value = np.random.normal(1000, 5, 300)
+    h = hist.new.Reg(10, -5, 5, name="x").Reg(10, -5, 5, name="y").Mean()
+    h.fill(_fill_x, _fill_y, sample=_fill_value)
+    fig, ax = plt.subplots()
+    h.plot(ax=ax, mask=h.counts() > 1, cmax=1010)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_xlabel("")
+    ax.set_ylabel("")
+    return fig
+
+
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_histplot_multiple():
     np.random.seed(0)
