@@ -653,7 +653,7 @@ def histplot(
         err_defaults = {
             "linestyle": "none",
             "marker": ".",
-            "markersize": 10.0,
+            "markersize": plt.rcParams["lines.markersize"],
             "elinewidth": 1,
         }
 
