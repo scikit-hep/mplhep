@@ -4,12 +4,24 @@ import os
 import sys
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pytest
 from matplotlib.testing.decorators import check_figures_equal
 
 os.environ["RUNNING_PYTEST"] = "true"
 
 import mplhep as mh
+
+
+def _make_color_wheel_hists(n=10):
+    """Create n histograms, each filling exactly one bin to visualize color cycle."""
+    bins = np.arange(n + 1)  # 0, 1, 2, ..., n
+    hists = []
+    for i in range(n):
+        h = np.zeros(n)
+        h[i] = 1
+        hists.append(h)
+    return hists, bins
 
 """
 To test run:
@@ -29,7 +41,10 @@ def test_style_atlas():
     # Test suite does not have Helvetica
     plt.style.use([mh.style.ATLAS, {"font.sans-serif": ["Tex Gyre Heros"]}])
     fig, ax = plt.subplots()
+    hists, bins = _make_color_wheel_hists()
+    mh.histplot(hists, bins, ax=ax, stack=True, histtype="fill")
     mh.atlas.label(text="Preliminary")
+    mh.mpl_magic()
 
     return fig
 
@@ -39,7 +54,10 @@ def test_style_atlas():
 def test_style_cms():
     plt.style.use(mh.style.CMS)
     fig, ax = plt.subplots()
+    hists, bins = _make_color_wheel_hists()
+    mh.histplot(hists, bins, ax=ax, stack=True, histtype="fill")
     mh.cms.label("Preliminary")
+    mh.mpl_magic()
 
     return fig
 
@@ -49,7 +67,10 @@ def test_style_cms():
 def test_style_alice():
     plt.style.use(mh.style.ALICE)
     fig, ax = plt.subplots()
+    hists, bins = _make_color_wheel_hists()
+    mh.histplot(hists, bins, ax=ax, stack=True, histtype="fill")
     mh.alice.label("Preliminary")
+    mh.mpl_magic()
 
     return fig
 
@@ -59,7 +80,10 @@ def test_style_alice():
 def test_style_lhcb():
     plt.style.use([mh.style.LHCb1, {"figure.autolayout": False}])
     fig, ax = plt.subplots()
+    hists, bins = _make_color_wheel_hists()
+    mh.histplot(hists, bins, ax=ax, stack=True, histtype="fill")
     mh.lhcb.label("Preliminary")
+    mh.mpl_magic()
     return fig
 
 
@@ -68,7 +92,10 @@ def test_style_lhcb():
 def test_style_lhcb2():
     plt.style.use([mh.style.LHCb2, {"figure.autolayout": False}])
     fig, ax = plt.subplots()
+    hists, bins = _make_color_wheel_hists()
+    mh.histplot(hists, bins, ax=ax, stack=True, histtype="fill")
     mh.lhcb.label("Preliminary")
+    mh.mpl_magic()
     return fig
 
 
@@ -77,7 +104,10 @@ def test_style_lhcb2():
 def test_style_dune():
     plt.style.use(mh.style.DUNE)
     fig, ax = plt.subplots()
+    hists, bins = _make_color_wheel_hists()
+    mh.histplot(hists, bins, ax=ax, stack=True, histtype="fill")
     mh.dune.label(text="Preliminary")
+    mh.mpl_magic()
 
     return fig
 
@@ -87,7 +117,10 @@ def test_style_dune():
 def test_style_dune1():
     plt.style.use(mh.style.DUNE1)
     fig, ax = plt.subplots()
+    hists, bins = _make_color_wheel_hists()
+    mh.histplot(hists, bins, ax=ax, stack=True, histtype="fill")
     mh.dune.label(text="Preliminary")
+    mh.mpl_magic()
 
     return fig
 
@@ -252,3 +285,4 @@ def test_label_config(fig_test, fig_ref):
     ref_ax = fig_ref.subplots()
     mh.rcParams.clear()
     mh.cms.label(data=False, lumi=30, text="Internal", ax=ref_ax)
+
