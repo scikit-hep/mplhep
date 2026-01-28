@@ -85,3 +85,13 @@ def test_style_ratio_plot_dune(get_histogram):
     fig, _, _ = mh.comp.hists(h1, h2)
 
     return fig
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+@pytest.mark.mpl_image_compare(style="default", remove_text=False)
+def test_style_ratio_plot_default(get_histogram):
+    mh.rcParams.clear()
+    h1, h2 = get_histogram
+    fig, _, _ = mh.comp.hists(h1, h2)
+
+    return fig
