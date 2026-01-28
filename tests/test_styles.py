@@ -23,6 +23,7 @@ def _make_color_wheel_hists(n=10):
         hists.append(h)
     return hists, bins
 
+
 """
 To test run:
 pytest --mpl
@@ -285,4 +286,3 @@ def test_label_config(fig_test, fig_ref):
     ref_ax = fig_ref.subplots()
     mh.rcParams.clear()
     mh.cms.label(data=False, lumi=30, text="Internal", ax=ref_ax)
-
