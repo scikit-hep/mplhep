@@ -20,22 +20,22 @@ platforms = ["linux-64"]
 [dependencies]
 python = ">=3.10"
 # Core dependencies from conda (avoids pyproject.toml marker conflicts)
-matplotlib = ">=3.10"
+# Note: matplotlib is installed via pip (see pypi-dependencies) to get freetype 2.6.1
+# embedded in PyPI wheels, matching nox environment and avoiding pytest-mpl baseline mismatches
 numpy = ">=1.16"
 packaging = "*"
+pyparsing = "<3.3.0"  # Avoid oneOf deprecation warning with matplotlib
 uhi = ">=0.2"
 pip = "*"
-# Test dependencies
+# Test dependencies (only packages that don't depend on matplotlib)
+# hist, seaborn, pytest-mpl are installed via pip to avoid conda's matplotlib-base
 pytest = ">=6.0"
-pytest-mpl = "*"
 pytest-xdist = "*"
 pytest-benchmark = "*"
 pytest-mock = "*"
 boost-histogram = "*"
-hist = "*"
 scipy = ">=1.1"
 uproot = ">=5.0"
-seaborn = "*"
 scikit-hep-testdata = "*"
 # Dev dependencies
 jupyter = "*"
@@ -43,11 +43,18 @@ pre-commit = "*"
 questionary = "*"
 # PDF to PNG conversion for pytest-mpl
 ghostscript = "*"
-# ROOT support for histogram tests
-root = "*"
+# Note: ROOT testing is done via the 'root' feature (pixi run root-test)
+# ROOT requires newer freetype which conflicts with matching PyPI wheel rendering
+# The single ROOT test (test_make_plottable_histogram_from_root_hist) uses pytest.importorskip
 # Note: LaTeX tests require system texlive installation (texlive-core on conda-forge is broken)
 
 [pypi-dependencies]
+# Install matplotlib and dependents via pip to get freetype 2.6.1 (embedded in PyPI wheels)
+# This ensures pytest-mpl baseline images match CI (which uses uv/pip)
+matplotlib = ">=3.10.8"
+pytest-mpl = "*"
+hist = "*"
+seaborn = "*"
 mplhep-data = ">=0.0.4"
 prek = "*"
 
@@ -59,3 +66,13 @@ test-benchmark = "python -m pytest --benchmark-only --benchmark-sort=mean --benc
 test-baseline = "python -m pytest -r sa --mpl -n auto --mpl-generate-path=tests/baseline"
 precommit = "prek run --all-files"
 prek = "prek run --all-files"
+
+# ROOT feature for testing ROOT histogram support
+[feature.root.dependencies]
+root = "*"
+
+[feature.root.tasks]
+root-test = { cmd = "python -m pytest tests/test_make_plottable_histogram.py::test_make_plottable_histogram_from_root_hist -v", depends-on = ["postinstall"] }
+
+[environments]
+root = ["root"]
