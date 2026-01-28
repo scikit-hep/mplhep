@@ -48,6 +48,7 @@ plothist = {
     "axes.linewidth": 1,
     "lines.linewidth": 1,
     "patch.linewidth": 1,
+    "lines.markersize": 6,
     "axes.formatter.limits": (-4, 4),
     "axes.prop_cycle": cycler(
         "color",

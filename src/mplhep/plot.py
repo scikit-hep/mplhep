@@ -79,6 +79,7 @@ def soft_update_kwargs(kwargs, mods, rc=True):
         "lines.linewidth",
         "patch.linewidth",
         "lines.linestyle",
+        "lines.markersize",
     ]
     aliases = {"ls": "linestyle", "lw": "linewidth"}
     kwargs = {aliases.get(k, k): v for k, v in kwargs.items()}
@@ -653,7 +654,6 @@ def histplot(
         err_defaults = {
             "linestyle": "none",
             "marker": ".",
-            "markersize": plt.rcParams["lines.markersize"],
             "elinewidth": 1,
         }
 
