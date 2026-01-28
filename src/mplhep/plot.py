@@ -533,6 +533,9 @@ def histplot(
                 )
                 if do_errors:
                     _kwargs = soft_update_kwargs(_kwargs, {"color": _s.get_edgecolor()})
+                    # Match errorbar line width to step edge width (issue #613)
+                    if "elinewidth" not in _kwargs:
+                        _kwargs["elinewidth"] = _s.get_linewidth()
                     _ls = _kwargs.pop("linestyle", "-")
                     _kwargs["linestyle"] = "none"
                     _plot_info = plottables[i].to_errorbar()
@@ -549,6 +552,7 @@ def histplot(
                         color=_s.get_edgecolor(),
                         label=_label,
                         linestyle=_ls,
+                        elinewidth=_s.get_linewidth(),
                     )
                 return_artists.append(
                     StairsArtists(
@@ -581,6 +585,10 @@ def histplot(
                     _ls = _kwargs.pop("linestyle", "-")
                     # _kwargs["linestyle"] = "none"
                     _plot_info = plottables[i].to_errorbar()
+                    # Match errorbar line width to bar edge width (issue #613)
+                    _bar_lw = _b[0].get_linewidth()
+                    if "elinewidth" not in _kwargs:
+                        _kwargs["elinewidth"] = _bar_lw
                     _e = ax.errorbar(
                         _plot_info["x"] + _shift[i],
                         _plot_info["y"],
@@ -596,6 +604,7 @@ def histplot(
                         color=_kwargs.get("color"),
                         label=_label,
                         linestyle=_ls,
+                        elinewidth=_bar_lw,
                     )
                 return_artists.append(
                     StairsArtists(

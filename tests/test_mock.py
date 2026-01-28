@@ -44,7 +44,7 @@ def test_simple(mock_matplotlib):
     bins = [0, 1, 2, 3]
     mh.histplot(h, bins, yerr=True, label="X", ax=ax)
 
-    assert len(ax.mock_calls) == 13
+    assert len(ax.mock_calls) == 15
 
     ax.stairs.assert_called_once_with(
         values=approx([1.0, 3.0, 2.0]),
@@ -64,6 +64,7 @@ def test_simple(mock_matplotlib):
         linestyle="-",
         color=ax.stairs().get_edgecolor(),
         label="X",
+        elinewidth=ax.stairs().get_linewidth(),
     )
 
     ax.errorbar.assert_any_call(
@@ -76,6 +77,7 @@ def test_simple(mock_matplotlib):
         color="next-color",
         linestyle="none",
         linewidth=1.5,
+        elinewidth=ax.stairs().get_linewidth(),
     )
 
 
@@ -89,7 +91,7 @@ def test_histplot_real(mock_matplotlib):
     mh.histplot([a, b, c], bins=bins, ax=ax, yerr=True, label=["MC1", "MC2", "Data"])
     ax.legend()
     ax.set_title("Raw")
-    assert len(ax.mock_calls) == 27
+    assert len(ax.mock_calls) == 33
 
     ax.reset_mock()
 
