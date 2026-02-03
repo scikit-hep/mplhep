@@ -84,6 +84,10 @@ extra_css:
   - stylesheets/neoteroi-mkdocs.css
   - _static/custom_css.css
 
+extra:
+  version:
+    provider: mike
+
 markdown_extensions:
   - neoteroi.cards
   - attr_list
