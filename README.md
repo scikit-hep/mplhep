@@ -1,6 +1,7 @@
-<p float="left">
-  <img src="https://raw.githubusercontent.com/scikit-hep/mplhep/master/docs/source/_static/mplhep.png" width="300"/>
-</p>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="new_docs/docs/mplhep_inverted.png">
+  <img src="new_docs/docs/mplhep.png" width=300 />
+</picture>
 
 [![DOI](https://zenodo.org/badge/184555939.svg)](https://zenodo.org/badge/latestdoi/184555939)
 [![Scikit-HEP][sk-badge]](https://scikit-hep.org/)

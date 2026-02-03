@@ -67,3 +67,7 @@
   -webkit-mask-image: var(--md-admonition-icon--code);
           mask-image: var(--md-admonition-icon--code);
 }
+
+[data-md-color-scheme="slate"] .md-logo img {
+  filter: invert(1);
+}
