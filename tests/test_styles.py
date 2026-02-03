@@ -14,13 +14,11 @@ import mplhep as mh
 
 
 def _make_color_wheel_hists(n=10):
-    """Create n histograms, each filling exactly one bin to visualize color cycle."""
-    bins = np.arange(n + 1)  # 0, 1, 2, ..., n
-    hists = []
-    for i in range(n):
-        h = np.zeros(n)
-        h[i] = 1
-        hists.append(h)
+    """Create n Gaussian-like histograms to visualize color cycle in a stacked plot."""
+    bins = np.arange(9)  # 8 bins: 0-1, 1-2, ..., 7-8
+    # Hardcoded Gaussian-like values peaking around 10 in the middle
+    h = np.array([1, 2, 5, 8, 10, 8, 5, 2])
+    hists = [h] * n
     return hists, bins
 
 """
@@ -130,6 +128,9 @@ def test_style_dune1():
 def test_style_plothist():
     plt.style.use(mh.style.plothist)
     fig, ax = plt.subplots()
+    hists, bins = _make_color_wheel_hists()
+    mh.histplot(hists, bins, ax=ax, stack=True, histtype="fill")
+    mh.mpl_magic()
     return fig
 
 
