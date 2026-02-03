@@ -5,21 +5,27 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*'
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
+  pull-requests: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+# Allow only one concurrent deployment per ref
 concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  group: "pages-${{ github.ref }}"
+  cancel-in-progress: true
 
 jobs:
-  build:
+  deploy:
+    # Don't run deploy on PR close (cleanup job handles that)
+    if: github.event.action != 'closed'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -27,8 +33,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
+      - name: Configure Git
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
       - name: Setup uv
         uses: astral-sh/setup-uv@v7
@@ -49,24 +57,96 @@ jobs:
       - name: Install package and documentation dependencies
         run: |
           uv pip install -e ".[all]"
-          uv pip install markdown-exec griffe-inherited-docstrings docstring-inheritance
+          uv pip install markdown-exec griffe-inherited-docstrings docstring-inheritance mike
           uv pip install git+https://github.com/andrzejnovak/mkdocs-matplotlib.git
           uv pip list
 
-      - name: Build documentation
+      - name: Deploy dev documentation
+        if: github.ref == 'refs/heads/main'
         run: |
           cd new_docs
-          mkdocs build --clean
+          mike deploy --push dev
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+      - name: Deploy versioned documentation
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          cd new_docs
+          # Extract version from tag (v1.2.3 -> 1.2)
+          VERSION=$(echo "${GITHUB_REF#refs/tags/v}" | cut -d. -f1,2)
+          mike deploy --push --update-aliases "$VERSION" latest
+          mike set-default --push latest
+
+      - name: Deploy PR preview
+        if: github.event_name == 'pull_request'
+        run: |
+          cd new_docs
+          mike deploy --push "pr-${{ github.event.pull_request.number }}"
+
+      - name: Comment PR with preview link
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
         with:
-          path: ./new_docs/site
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const previewUrl = `https://${owner}.github.io/${repo}/pr-${prNumber}/`;
+            
+            // Check if we already commented
+            const comments = await github.rest.issues.listComments({
+              owner,
+              repo,
+              issue_number: prNumber,
+            });
+            
+            const botComment = comments.data.find(c => 
+              c.user.type === 'Bot' && c.body.includes('📚 Documentation Preview')
+            );
+            
+            const body = `📚 **Documentation Preview**\n\n` +
+              `Preview this PR's documentation at: ${previewUrl}\n\n` +
+              `_This preview will be removed when the PR is closed._`;
+            
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: botComment.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: prNumber,
+                body,
+              });
+            }
 
-  deploy:
+  # Cleanup PR preview when PR is closed
+  cleanup:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
-    needs: build
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install mike
+        run: pip install mike
+
+      - name: Remove PR preview
+        run: |
+          cd new_docs
+          mike delete --push "pr-${{ github.event.pull_request.number }}" || true
