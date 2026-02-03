@@ -149,7 +149,7 @@ LHCb2 = {
     "figure.dpi": 100,
     # Outer frame color
     "figure.facecolor": "white",
-    "figure.autolayout": True,
+    # Note: autolayout disabled to allow subplots_adjust(hspace=0) - see issue #401
     # Set default font to Times New Roman
     "font.family": "serif",
     "font.serif": ["Tex Gyre Termes"],
@@ -237,6 +237,7 @@ LHCbTex2 = {
     ),
     "pgf.rcfonts": False,
 }
+
 
 # alias LHCb Style
 

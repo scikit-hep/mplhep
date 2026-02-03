@@ -70,7 +70,7 @@ def test_style_ratio_plot_alice(get_histogram):
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @pytest.mark.mpl_image_compare(style="default", remove_text=False)
 def test_style_ratio_plot_lhcb(get_histogram):
-    plt.style.use([mh.style.LHCb, {"figure.autolayout": False}])
+    plt.style.use([mh.style.LHCb])
     h1, h2 = get_histogram
     fig, _, _ = mh.comp.hists(h1, h2)
 
@@ -81,6 +81,36 @@ def test_style_ratio_plot_lhcb(get_histogram):
 @pytest.mark.mpl_image_compare(style="default", remove_text=False)
 def test_style_ratio_plot_dune(get_histogram):
     plt.style.use(mh.style.DUNE)
+    h1, h2 = get_histogram
+    fig, _, _ = mh.comp.hists(h1, h2)
+
+    return fig
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+@pytest.mark.mpl_image_compare(style="default", remove_text=False)
+def test_style_ratio_plot_lhcb2(get_histogram):
+    plt.style.use(mh.style.LHCb2)
+    h1, h2 = get_histogram
+    fig, _, _ = mh.comp.hists(h1, h2)
+
+    return fig
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+@pytest.mark.mpl_image_compare(style="default", remove_text=False)
+def test_style_ratio_plot_dune1(get_histogram):
+    plt.style.use(mh.style.DUNE1)
+    h1, h2 = get_histogram
+    fig, _, _ = mh.comp.hists(h1, h2)
+
+    return fig
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+@pytest.mark.mpl_image_compare(style="default", remove_text=False)
+def test_style_ratio_plot_plothist(get_histogram):
+    plt.style.use(mh.style.plothist)
     h1, h2 = get_histogram
     fig, _, _ = mh.comp.hists(h1, h2)
 
