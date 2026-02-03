@@ -58,6 +58,9 @@ seaborn = "*"
 mplhep-data = ">=0.0.4"
 prek = "*"
 
+[activation]
+scripts = [".pixi/install-hooks.sh"]
+
 [tasks]
 postinstall = "pip install --no-deps -e ."
 test = { cmd = "python -m pytest -r sa --mpl --mpl-results-path=pytest_results -n auto", depends-on = ["postinstall"] }
