@@ -91,22 +91,22 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const previewUrl = `https://${owner}.github.io/${repo}/pr-${prNumber}/`;
-            
+
             // Check if we already commented
             const comments = await github.rest.issues.listComments({
               owner,
               repo,
               issue_number: prNumber,
             });
-            
-            const botComment = comments.data.find(c => 
+
+            const botComment = comments.data.find(c =>
               c.user.type === 'Bot' && c.body.includes('📚 Documentation Preview')
             );
-            
+
             const body = `📚 **Documentation Preview**\n\n` +
               `Preview this PR's documentation at: ${previewUrl}\n\n` +
               `_This preview will be removed when the PR is closed._`;
-            
+
             if (botComment) {
               await github.rest.issues.updateComment({
                 owner,
