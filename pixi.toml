@@ -79,7 +79,7 @@ root-test = { cmd = "python -m pytest tests/test_make_plottable_histogram.py::te
 
 # Docs feature for building documentation with mkdocs
 [feature.docs.pypi-dependencies]
-mkdocs-material = "*"
+mkdocs-material = { version = ">=9.0", extras = ["imaging"] }
 mkdocstrings = { version = "*", extras = ["python"] }
 mike = "*"
 mkdocs-minify-plugin = "*"
