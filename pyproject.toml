@@ -53,6 +53,9 @@ docs = [
     "mkdocs-git-committers-plugin-2",
     "mkdocstrings[python]>=0.20",
     "griffe_inherited_docstrings",
+    "docstring-inheritance",
+    "markdown-exec",
+    "mike",
 ]
 test = [
     "boost_histogram",
