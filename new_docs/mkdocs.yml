@@ -128,7 +128,7 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          paths: [/home/anovak/software/mplhep/src]
+          paths: ["../src"]
           options:
             docstring_style: numpy
             docstring_section_style: table

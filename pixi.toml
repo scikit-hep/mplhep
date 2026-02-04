@@ -77,5 +77,24 @@ root = "*"
 [feature.root.tasks]
 root-test = { cmd = "python -m pytest tests/test_make_plottable_histogram.py::test_make_plottable_histogram_from_root_hist -v", depends-on = ["postinstall"] }
 
+# Docs feature for building documentation with mkdocs
+[feature.docs.pypi-dependencies]
+mkdocs-material = { version = ">=9.0", extras = ["imaging"] }
+mkdocstrings = { version = ">=0.20", extras = ["python"] }
+mike = "*"
+mkdocs-minify-plugin = "*"
+mkdocs-git-revision-date-localized-plugin = "*"
+mkdocs-git-committers-plugin-2 = "*"
+markdown-exec = "*"
+docstring-inheritance = "*"
+griffe-inherited-docstrings = "*"
+neoteroi-mkdocs = "*"
+mkdocs-matplotlib = { git = "https://github.com/andrzejnovak/mkdocs-matplotlib.git" }
+
+[feature.docs.tasks]
+docs = { cmd = "mkdocs serve -f new_docs/mkdocs.yml", depends-on = ["postinstall"] }
+docs-build = { cmd = "mkdocs build -f new_docs/mkdocs.yml", depends-on = ["postinstall"] }
+
 [environments]
 root = ["root"]
+docs = ["docs"]
