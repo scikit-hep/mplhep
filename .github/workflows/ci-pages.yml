@@ -2,6 +2,15 @@ name: Deploy Documentation
 
 on:
   workflow_dispatch:
+    inputs:
+      deploy_version:
+        description: 'Deploy docs for a specific git tag (e.g. v1.0.0). Leave empty for normal dev deploy.'
+        required: false
+        type: string
+      delete_version:
+        description: 'Delete a mike version (e.g. pr-683). Leave empty to skip.'
+        required: false
+        type: string
   push:
     branches:
       - main
@@ -58,29 +67,44 @@ jobs:
           uv pip install git+https://github.com/andrzejnovak/mkdocs-matplotlib.git
           uv pip list
 
-      - name: Deploy dev documentation
-        if: github.ref == 'refs/heads/main'
+      - name: Delete mike version
+        if: inputs.delete_version != ''
         run: |
           cd new_docs
-          mike deploy dev
-          mike set-default dev
+          mike delete --push ${{ inputs.delete_version }}
+
+      - name: Deploy docs for specific tag
+        if: inputs.deploy_version != ''
+        run: |
+          git checkout ${{ inputs.deploy_version }}
+          uv pip install --reinstall --no-deps -e ".[all]"
+          cd new_docs
+          VERSION=$(echo "${{ inputs.deploy_version }}" | sed 's/^v//' | cut -d. -f1,2)
+          mike deploy --push --update-aliases "$VERSION" latest
+          mike set-default --push latest
+
+      - name: Deploy dev documentation
+        if: inputs.deploy_version == '' && inputs.delete_version == '' && github.ref == 'refs/heads/main'
+        run: |
+          cd new_docs
+          mike deploy --push dev
+          mike set-default --push dev
 
       - name: Deploy versioned documentation
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: inputs.deploy_version == '' && inputs.delete_version == '' && startsWith(github.ref, 'refs/tags/v')
         run: |
           cd new_docs
           # Extract version from tag (v1.2.3 -> 1.2)
           VERSION=$(echo "${GITHUB_REF#refs/tags/v}" | cut -d. -f1,2)
-          mike deploy --update-aliases "$VERSION" latest
+          mike deploy --push --update-aliases "$VERSION" latest
+          mike set-default --push latest
 
-      - name: Export site from local gh-pages branch
-        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+      - name: Export gh-pages for upload
         run: |
           git worktree add _gh-pages gh-pages
           rm -rf _gh-pages/.git
 
       - name: Upload Pages artifact
-        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
         uses: actions/upload-pages-artifact@v3
         with:
           path: _gh-pages
