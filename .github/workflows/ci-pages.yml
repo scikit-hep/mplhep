@@ -76,8 +76,14 @@ jobs:
       - name: Deploy docs for specific tag
         if: inputs.deploy_version != ''
         run: |
-          git checkout ${{ inputs.deploy_version }}
+          # Save current docs config (has mike version provider etc.)
+          cp -r new_docs /tmp/new_docs_config
+          # Checkout old tag for source code only
+          git checkout ${{ inputs.deploy_version }} -- src/
           uv pip install --reinstall --no-deps -e ".[all]"
+          # Restore current docs config
+          rm -rf new_docs
+          cp -r /tmp/new_docs_config new_docs
           cd new_docs
           VERSION=$(echo "${{ inputs.deploy_version }}" | sed 's/^v//' | cut -d. -f1,2)
           mike deploy --push --update-aliases "$VERSION" latest
