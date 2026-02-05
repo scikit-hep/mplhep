@@ -1,0 +1,69 @@
+/* Custom CSS for mplhep docs */
+
+.md-header__topic {
+  font-weight: 600;
+}
+
+.md-nav__link--active {
+  font-weight: 600;
+}
+
+/* MathJax styling */
+.math {
+  font-size: 1.1em;
+}
+
+/* Code block styling */
+.highlight pre {
+  border-radius: 0.3rem;
+}
+
+/* Admonition styling */
+.md-typeset .admonition {
+  border-radius: 0.3rem;
+}
+
+.md-typeset .admonition.imports,
+.md-typeset details.imports {
+  border-color: rgb(25, 118, 210);
+}
+.md-typeset .imports > .admonition-title,
+.md-typeset .imports > summary {
+  background-color: rgba(25, 118, 210, 0.1);
+}
+.md-typeset .imports > .admonition-title::before,
+.md-typeset .imports > summary::before {
+  background-color: rgb(25, 118, 210);
+  -webkit-mask-image: var(--md-admonition-icon--imports);
+          mask-image: var(--md-admonition-icon--imports);
+}
+
+.md-typeset .admonition.setup,
+.md-typeset details.setup {
+  border-color: rgb(76, 175, 80);
+}
+.md-typeset .setup > .admonition-title,
+.md-typeset .setup > summary {
+  background-color: rgba(76, 175, 80, 0.1);
+}
+.md-typeset .setup > .admonition-title::before,
+.md-typeset .setup > summary::before {
+  background-color: rgb(76, 175, 80);
+  -webkit-mask-image: var(--md-admonition-icon--setup);
+          mask-image: var(--md-admonition-icon--setup);
+}
+
+.md-typeset .admonition.code,
+.md-typeset details.code {
+  border-color: rgb(156, 39, 176);
+}
+.md-typeset .code > .admonition-title,
+.md-typeset .code > summary {
+  background-color: rgba(156, 39, 176, 0.1);
+}
+.md-typeset .code > .admonition-title::before,
+.md-typeset .code > summary::before {
+  background-color: rgb(156, 39, 176);
+  -webkit-mask-image: var(--md-admonition-icon--code);
+          mask-image: var(--md-admonition-icon--code);
+}
