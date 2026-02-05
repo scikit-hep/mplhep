@@ -21,7 +21,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -60,7 +60,8 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: |
           cd new_docs
-          mike deploy --push dev
+          mike deploy dev
+          mike set-default dev
 
       - name: Deploy versioned documentation
         if: startsWith(github.ref, 'refs/tags/v')
@@ -68,5 +69,26 @@ jobs:
           cd new_docs
           # Extract version from tag (v1.2.3 -> 1.2)
           VERSION=$(echo "${GITHUB_REF#refs/tags/v}" | cut -d. -f1,2)
-          mike deploy --push --update-aliases "$VERSION" latest
-          mike set-default --push latest
+          mike deploy --update-aliases "$VERSION" latest
+          mike set-default latest
+
+      - name: Export site from local gh-pages branch
+        run: |
+          git checkout gh-pages -- .
+          rm -rf .git
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
