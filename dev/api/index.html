@@ -6580,7 +6580,7 @@ Asymmetrical uncertainties are not supported for the asymmetry and efficiency co
 </span></code></pre></div>
 <div class="doc doc-contents">
 <p>Calculate the ratio of two correlated histograms (h1/h2), in which the entries of h1 are a subsample of the entries of h2.
-The variances are calculated according to the formula given in :ref:<code>documentation-statistics-label</code>.</p>
+The variances are calculated using the Bayesian method with a uniform prior Beta(1,1), following the approach in ROOT's TEfficiency class (see https://root.cern.ch/doc/master/classTEfficiency.html).</p>
 <p>The following conditions must be fulfilled for the calculation of the efficiency:
 * The bins of the histograms must be equal.
 * The histograms must be unweighted.
