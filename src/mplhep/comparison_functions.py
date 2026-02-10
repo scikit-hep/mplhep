@@ -371,7 +371,7 @@ def get_asymmetry(h1, h2):
 def get_efficiency(h1, h2):
     """
     Calculate the ratio of two correlated histograms (h1/h2), in which the entries of h1 are a subsample of the entries of h2.
-    The variances are calculated according to the formula given in :ref:`documentation-statistics-label`.
+    The variances are calculated using the Bayesian method with a uniform prior Beta(1,1), following the approach in ROOT's TEfficiency class (see https://root.cern.ch/doc/master/classTEfficiency.html).
 
     The following conditions must be fulfilled for the calculation of the efficiency:
     * The bins of the histograms must be equal.
