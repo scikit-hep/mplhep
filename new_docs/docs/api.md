@@ -56,6 +56,13 @@ search:
       show_root_heading: true
       show_source: false
 
+### Blinding
+
+::: mplhep.loc
+    options:
+      show_root_heading: false
+      show_source: false
+
 ## Experiment styling
 
 ::: mplhep.style

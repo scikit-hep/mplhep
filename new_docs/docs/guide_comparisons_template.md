@@ -611,6 +611,95 @@ To compare data to a model made of multiple components (e.g. signal, backgrounds
 
 {{TABS_END}}
 
+### Blinding in Comparisons
+
+The `blind` parameter is available in comparison functions ([`mh.comp.hists()`][mplhep.comp.hists], [`mh.comp.data_model()`][mplhep.comp.data_model]) to hide specific regions in both the main plot and the comparison panel. This is particularly useful for blind analyses where signal regions should remain hidden until the analysis is finalized.
+
+For detailed information about blinding syntax and options, see the [Blinding section](guide_basic_plotting.md#blinding) in the Basic Plotting guide.
+
+#### Blinding Two-Histogram Comparisons
+
+Use `blind` with [`mh.comp.hists()`][mplhep.comp.hists]:
+
+{{TABS_START}}
+{{TAB_HEADER}}
+
+    ```python
+    # mkdocs: render
+    # mkdocs: align=left
+    import matplotlib.pyplot as plt  # mkdocs: hide
+    import mplhep as mh  # mkdocs: hide
+    import numpy as np  # mkdocs: hide
+    import hist  # mkdocs: hide
+    np.random.seed(42)  # mkdocs: hide
+    {{STYLE_USE_CODE}}  # mkdocs: hide
+    # Generate sample data
+    x1 = np.random.normal(0, 1, 1000)
+    x2 = np.random.normal(0, 1.05, 1000)
+    h1 = hist.new.Reg(25, -4, 4).Weight().fill(x1)
+    h2 = hist.new.Reg(25, -4, 4).Weight().fill(x2)
+
+    # Create comparison plot with blinded signal region
+    fig, ax_main, ax_comp = mh.comp.hists(
+        h1,
+        h2,
+        blind=(-1.0, 1.0),  # Blind the region from -1 to 1 GeV
+        comparison='ratio',
+        xlabel='Observable [GeV]',
+        ylabel='Events',
+        h1_label='Data',
+        h2_label='MC'
+    )
+    {{LABEL_CODE_AX}}{{MAGIC_CODE_INLINE_NESTED}}
+    ```
+
+{{TABS_END}}
+
+#### Blinding Data-Model Comparisons
+
+Use `blind` with [`mh.comp.data_model()`][mplhep.comp.data_model] to blind signal regions in data-model comparisons:
+
+{{TABS_START}}
+{{TAB_HEADER}}
+
+    ```python
+    # mkdocs: render
+    # mkdocs: align=left
+    import matplotlib.pyplot as plt  # mkdocs: hide
+    import mplhep as mh  # mkdocs: hide
+    import numpy as np  # mkdocs: hide
+    import hist  # mkdocs: hide
+    np.random.seed(42)  # mkdocs: hide
+    {{STYLE_USE_CODE}}  # mkdocs: hide
+    # Generate sample background and data
+    bkg1 = np.random.exponential(2.0, 800)
+    bkg2 = np.random.exponential(1.5, 600)
+    data = np.concatenate([
+        np.random.exponential(2.0, 800),
+        np.random.exponential(1.5, 600)
+    ])
+
+    # Create histograms
+    h_bkg1 = hist.new.Reg(30, 0, 10).Weight().fill(bkg1)
+    h_bkg2 = hist.new.Reg(30, 0, 10).Weight().fill(bkg2)
+    h_data = hist.new.Reg(30, 0, 10).Weight().fill(data)
+
+    # Create comparison plot with blinded region
+    fig, ax_main, ax_comp = mh.comp.data_model(
+        h_data,
+        stacked_components=[h_bkg1, h_bkg2],
+        stacked_labels=['Background 1', 'Background 2'],
+        blind=(2.0, 4.0),  # Blind potential signal region
+        xlabel='Observable [GeV]',
+        ylabel='Events',
+        data_label='Data',
+        comparison='split_ratio'
+    )
+    {{LABEL_CODE_AX}}{{MAGIC_CODE_INLINE_NESTED}}
+    ```
+
+{{TABS_END}}
+
 ### Additional examples
 
 The functions are very flexible, here is some additional examples showcasing more options and use cases. For more details, see the [API Reference](api.md) and the [Gallery](gallery.md).
