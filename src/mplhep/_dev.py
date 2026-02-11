@@ -824,7 +824,7 @@ Examples:
         display_prompt += ": "
 
         response = input(display_prompt).strip()
-        return response if response else default
+        return response or default
 
     def _get_choice(
         self, prompt: str, choices: list[tuple], fallback_prompt: str = ""

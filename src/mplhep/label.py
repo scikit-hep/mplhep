@@ -1075,5 +1075,5 @@ def save_variations(
         name_ext = "" if text == "" else "_" + text.lower()
         if exp is not None:
             name_ext = exp.lower() + name_ext
-        save_name = name.split(".")[0] + name_ext + "." + name.split(".")[1]
+        save_name = name.split(".", maxsplit=1)[0] + name_ext + "." + name.split(".")[1]
         fig.savefig(save_name)
