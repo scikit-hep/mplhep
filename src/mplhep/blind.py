@@ -70,8 +70,8 @@ def _parse_blind_spec(spec):
     if isinstance(spec, tuple):
         if len(spec) != 2:
             msg = (
-                'Tuple blind spec must be of the form (start, stop); '
-                f'got {spec!r} with {len(spec)} elements'
+                "Tuple blind spec must be of the form (start, stop); "
+                f"got {spec!r} with {len(spec)} elements"
             )
             raise ValueError(msg)
         return (spec[0], spec[1], True, True)
