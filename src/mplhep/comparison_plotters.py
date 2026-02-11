@@ -219,6 +219,14 @@ def comparison(
     hists : Compare two histograms and plot the comparison.
 
     """
+    # Pop w2method from histplot_kwargs to prevent it from overriding the
+    # comparison uncertainties already computed by get_comparison().
+    # The comparison() function handles uncertainty computation via h1_w2method;
+    # allowing w2method to leak through would cause histplot to recompute
+    # errors on the comparison values (e.g., Poisson on ratio values), which
+    # is statistically incorrect.
+    histplot_kwargs.pop("w2method", None)
+
     h1_plottable = make_plottable_histogram(h1)
     h2_plottable = make_plottable_histogram(h2)
 
@@ -298,7 +306,8 @@ def comparison(
             underflow=underflow_comp,
             overflow=overflow_comp,
         )
-        histplot_kwargs.setdefault("w2method", "sqrt")
+        # Force sqrt so histplot doesn't recompute errors with a different method
+        histplot_kwargs["w2method"] = "sqrt"
     else:
         comparison_plottable = EnhancedPlottableHistogram(
             comparison_values,
@@ -309,9 +318,18 @@ def comparison(
             underflow=underflow_comp,
             overflow=overflow_comp,
         )
-        histplot_kwargs.setdefault(
-            "yerr", [comparison_plottable.yerr_lo, comparison_plottable.yerr_hi]
-        )
+        # Build yerr arrays that will be extended for flow bins so that
+        # histplot(..., flow="show") doesn't hit a shape mismatch.
+        yerr_lo = np.copy(comparison_plottable.yerr_lo)
+        yerr_hi = np.copy(comparison_plottable.yerr_hi)
+        if flow == "show":
+            if underflow_comp is not None:
+                yerr_lo = np.r_[0.0, yerr_lo]
+                yerr_hi = np.r_[0.0, yerr_hi]
+            if overflow_comp is not None:
+                yerr_lo = np.r_[yerr_lo, 0.0]
+                yerr_hi = np.r_[yerr_hi, 0.0]
+        histplot_kwargs.setdefault("yerr", [yerr_lo, yerr_hi])
 
     comparison_plottable.errors()
 
