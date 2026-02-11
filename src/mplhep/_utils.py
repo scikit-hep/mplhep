@@ -1046,6 +1046,9 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         self.yerr_hi = self.yerr_hi.astype(float)
         self.yerr_lo[~mask] = np.nan
         self.yerr_hi[~mask] = np.nan
+        if isinstance(self.baseline, np.ndarray):
+            self.baseline = self.baseline.astype(float)
+            self.baseline[~mask] = np.nan
 
     def fixed_errors(self, yerr_lo, yerr_hi):
         """Manually assign fixed lower and upper y-errors."""
