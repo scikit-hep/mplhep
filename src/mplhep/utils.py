@@ -454,26 +454,26 @@ def append_axes(ax, size=0.1, pad=0.1, position="right", extend=False):
             new_size = sum(itax.get_position().size for itax in [ax, yhax])
             return new_size / orig_size
 
-        if position in ["right"]:
+        if position == "right":
             divider.set_horizontal([axes_size.Fixed(width), *xsizes])
             fig.set_size_inches(
                 fig.get_size_inches()[0] * extend_ratio(ax, yhax)[0],
                 fig.get_size_inches()[1],
             )
-        elif position in ["left"]:
+        elif position == "left":
             divider.set_horizontal([*xsizes[::-1], axes_size.Fixed(width)])
             fig.set_size_inches(
                 fig.get_size_inches()[0] * extend_ratio(ax, yhax)[0],
                 fig.get_size_inches()[1],
             )
-        elif position in ["top"]:
+        elif position == "top":
             divider.set_vertical([axes_size.Fixed(height), *xsizes[::-1]])
             fig.set_size_inches(
                 fig.get_size_inches()[0],
                 fig.get_size_inches()[1] * extend_ratio(ax, yhax)[1],
             )
             yhax.sharex(ax)
-        elif position in ["bottom"]:
+        elif position == "bottom":
             divider.set_vertical([*xsizes, axes_size.Fixed(height)])
             fig.set_size_inches(
                 fig.get_size_inches()[0],
