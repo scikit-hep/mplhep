@@ -1034,6 +1034,19 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         self.yerr_lo = np.nan_to_num(self.yerr_lo, 0)
         self.yerr_hi = np.nan_to_num(self.yerr_hi, 0)
 
+    def apply_blind(self, mask):
+        """Apply a boolean mask to hide (blind) bins. True = visible, False = blinded."""
+        self.errors()  # force error computation before NaN-ing
+        self._values = self._values.astype(float)
+        self._values[~mask] = np.nan
+        if self._variances is not None:
+            self._variances = self._variances.astype(float)
+            self._variances[~mask] = np.nan
+        self.yerr_lo = self.yerr_lo.astype(float)
+        self.yerr_hi = self.yerr_hi.astype(float)
+        self.yerr_lo[~mask] = np.nan
+        self.yerr_hi[~mask] = np.nan
+
     def fixed_errors(self, yerr_lo, yerr_hi):
         """Manually assign fixed lower and upper y-errors."""
         self.yerr_lo = yerr_lo

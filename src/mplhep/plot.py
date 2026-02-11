@@ -273,6 +273,7 @@ def histplot(
     xoffsets=None,
     ax: mpl.axes.Axes | None = None,
     flow="hint",
+    blind=None,
     **kwargs,
 ):
     """
@@ -333,6 +334,21 @@ def histplot(
         If "sum", add the under/overflow bin content to first/last bin.
         If "hint", draw markers at the axis to indicate presence of under/overflow.
         If "none", do nothing.
+    blind : int, tuple, str, slice, or list thereof, optional
+        Region(s) to blind (hide) in the histogram. Blinded bins are set to NaN,
+        creating visual gaps. Supports:
+
+        - ``int``: single bin index to blind; a list of ints ``[2, 5, 7]`` blinds
+          those individual bins.
+        - Tuple ``(lo, hi)``: value-based, blinds bins overlapping ``[lo, hi)``.
+        - String ``"100j:200j"``: ``j`` suffix for value-based; ``"3:7"`` for
+          index-based; ``"5:10j"`` for mixed (index start, value stop).
+        - ``mplhep.loc[lo:hi]``: value-based via the ``mplhep.loc`` helper.
+          ``mplhep.loc[5:10j]`` for mixed (index 5 start, value 10 stop).
+        - ``slice(100j, 200j)``: value-based via complex numbers (UHI convention).
+        - ``slice(3, 7)``: index-based.
+        - ``slice(3, 70j)``: mixed (index start, value stop).
+        - A list of any of the above to blind multiple regions.
     **kwargs :
         Keyword arguments passed to underlying matplotlib functions -
         {'stairs', 'errorbar'}.
@@ -470,6 +486,14 @@ def histplot(
         xoffsets=xoffsets,
     )
     flow_bins, underflow, overflow = flow_info
+
+    # Apply blinding
+    if blind is not None:
+        from .blind import _resolve_blind_mask  # noqa: PLC0415
+
+        blind_mask = _resolve_blind_mask(blind, flow_bins)
+        for plottable in plottables:
+            plottable.apply_blind(blind_mask)
 
     ##########
     # Plotting
@@ -1297,6 +1321,7 @@ def model(
     fig=None,
     ax=None,
     flow="hint",
+    blind=None,
 ):
     """
     Plot model made of a collection of histograms.
@@ -1340,6 +1365,8 @@ def model(
         The Axes object to use for the plot. Create a new one if none is provided.
     flow : str, optional
         Whether to show under/overflow bins. Options: "show", "sum", "hint", "none". Default is "hint".
+    blind : tuple, str, slice, or list thereof, optional
+        Region(s) to blind. Passed through to ``histplot``.
 
 
     Returns
@@ -1413,6 +1440,7 @@ def model(
                 color=stacked_colors,
                 label=stacked_labels,
                 flow=flow,
+                blind=blind,
                 **stacked_kwargs,
             )
             if model_uncertainty and len(unstacked_components) == 0:
@@ -1422,6 +1450,7 @@ def model(
                     label=model_uncertainty_label,
                     histtype="band",
                     flow=flow,
+                    blind=blind,
                 )
         else:
             funcplot(
@@ -1457,6 +1486,7 @@ def model(
                     color=color,
                     label=label,
                     flow=flow,
+                    blind=blind,
                     **unstacked_kwargs,
                 )
             else:
@@ -1481,6 +1511,7 @@ def model(
                     ax=ax,
                     histtype="step",
                     flow=flow,
+                    blind=blind,
                     **model_sum_kwargs,
                 )
                 if (
@@ -1493,6 +1524,7 @@ def model(
                         label=model_uncertainty_label,
                         histtype="band",
                         flow=flow,
+                        blind=blind,
                     )
             else:
 
@@ -1517,6 +1549,7 @@ def model(
                 label=model_uncertainty_label,
                 histtype="band",
                 flow=flow,
+                blind=blind,
             )
 
     ax.set_xlim(xlim)
