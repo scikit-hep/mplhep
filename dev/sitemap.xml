@@ -2,118 +2,118 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://mplhep.readthedocs.io/dev/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/CONTRIBUTING/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/CONTRIBUTING_DOC/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/api/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/gallery/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/guide/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/guide_advanced/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/guide_basic_plotting/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/guide_comparisons/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/guide_styling/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/guide_utilities/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/gallery/1d_comparison_asymmetry/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/gallery/1d_comparison_difference/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/gallery/1d_comparison_efficiency/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/gallery/1d_comparison_only_efficiency/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/gallery/1d_comparison_pull/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/gallery/1d_comparison_ratio/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/gallery/1d_comparison_relative_difference/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/gallery/1d_comparison_split_ratio/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/gallery/model_all_comparisons/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/gallery/model_all_comparisons_no_model_unc/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/gallery/model_examples_pull/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/gallery/model_examples_pull_no_model_unc/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/gallery/model_examples_stacked/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/gallery/model_examples_stacked_unstacked/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/gallery/model_examples_unstacked/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/gallery/model_with_stacked_and_unstacked_function_components/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/gallery/model_with_stacked_and_unstacked_histograms_components/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
     <url>
          <loc>https://mplhep.readthedocs.io/dev/gallery/ratio_data_vs_model_with_stacked_and_unstacked_function_components/</loc>
-         <lastmod>2026-02-10</lastmod>
+         <lastmod>2026-02-11</lastmod>
     </url>
 </urlset>
