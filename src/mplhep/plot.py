@@ -1365,8 +1365,8 @@ def model(
         The Axes object to use for the plot. Create a new one if none is provided.
     flow : str, optional
         Whether to show under/overflow bins. Options: "show", "sum", "hint", "none". Default is "hint".
-    blind : tuple, str, slice, or list thereof, optional
-        Region(s) to blind. Passed through to ``histplot``.
+    blind : int, tuple, str, slice, or list thereof, optional
+        Region(s) to blind (including individual bin indices). Passed through to ``histplot``.
 
 
     Returns

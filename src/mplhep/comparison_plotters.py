@@ -675,7 +675,7 @@ def data_model(
         model_hist,
         ax=ax_comparison,
         xlabel=xlabel,
-        w2method=data_w2method,
+        h1_w2method=data_w2method,
         flow=flow,
         blind=blind,
         **comparison_kwargs,

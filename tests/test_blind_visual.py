@@ -13,7 +13,7 @@ from mplhep.blind import loc
 plt.switch_backend("Agg")
 
 # Shared histogram data
-np.random.seed(42)
+
 _h = np.array([2, 5, 10, 15, 20, 18, 12, 8, 4, 1])
 _h2 = np.array([1, 3, 7, 10, 14, 12, 9, 5, 2, 1])
 _bins = np.linspace(0, 100, 11)

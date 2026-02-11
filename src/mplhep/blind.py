@@ -68,6 +68,12 @@ def _parse_blind_spec(spec):
 
     # --- tuple → always value-based ---
     if isinstance(spec, tuple):
+        if len(spec) != 2:
+            msg = (
+                'Tuple blind spec must be of the form (start, stop); '
+                f'got {spec!r} with {len(spec)} elements'
+            )
+            raise ValueError(msg)
         return (spec[0], spec[1], True, True)
 
     # --- string → parse "start:stop" with optional j suffix ---
