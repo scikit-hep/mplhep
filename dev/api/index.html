@@ -2111,8 +2111,30 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#blinding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Blinding
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mplhep.loc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;loc
+      
+    </span>
+  </a>
   
 </li>
       
@@ -2439,7 +2461,7 @@
 <h3 class="doc doc-heading" id="mplhep.histplot">
 <code class="doc-symbol doc-symbol-heading doc-symbol-function"></code> <span class="doc doc-object-name doc-function-name">mplhep.histplot</span>
 <a class="headerlink" href="#mplhep.histplot" title="Permanent link">¤</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nf">histplot</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">yerr</span><span class="p">:</span> <span class="n">ArrayLike</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">w2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">w2method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stack</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">density</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">binwnorm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">histtype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'step'</span><span class="p">,</span> <span class="n">xerr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">binticks</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">xoffsets</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="p">:</span> <span class="n">Axes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">flow</span><span class="o">=</span><span class="s1">'hint'</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nf">histplot</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">yerr</span><span class="p">:</span> <span class="n">ArrayLike</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">w2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">w2method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stack</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">density</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">binwnorm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">histtype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'step'</span><span class="p">,</span> <span class="n">xerr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">binticks</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">xoffsets</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="p">:</span> <span class="n">Axes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">flow</span><span class="o">=</span><span class="s1">'hint'</span><span class="p">,</span> <span class="n">blind</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span></code></pre></div>
 <div class="doc doc-contents">
 <p>Create a 1D histogram plot from <code>np.histogram</code>-like inputs.</p>
@@ -2673,6 +2695,36 @@ If "none", do nothing.</p>
 </td>
 <td>
 <code>'hint'</code>
+</td>
+</tr>
+<tr class="doc-section-item">
+<td>
+<code>blind</code>
+</td>
+<td>
+<code>int, tuple, str, slice, or list thereof</code>
+</td>
+<td>
+<div class="doc-md-description">
+<p>Region(s) to blind (hide) in the histogram. Blinded bins are set to NaN,
+creating visual gaps. Supports:</p>
+<ul>
+<li><code>int</code>: single bin index to blind; a list of ints <code>[2, 5, 7]</code> blinds
+  those individual bins.</li>
+<li>Tuple <code>(lo, hi)</code>: value-based, blinds bins overlapping <code>[lo, hi)</code>.</li>
+<li>String <code>"100j:200j"</code>: <code>j</code> suffix for value-based; <code>"3:7"</code> for
+  index-based; <code>"5:10j"</code> for mixed (index start, value stop).</li>
+<li><code>mplhep.loc[lo:hi]</code>: value-based via the <code>mplhep.loc</code> helper.
+  <code>mplhep.loc[5:10j]</code> for mixed (index 5 start, value 10 stop).</li>
+<li><code>slice(100j, 200j)</code>: value-based via complex numbers (UHI convention).</li>
+<li><code>slice(3, 7)</code>: index-based.</li>
+<li><code>slice(3, 70j)</code>: mixed (index start, value stop).</li>
+<li>A list of any of the above to blind multiple regions.</li>
+</ul>
+</div>
+</td>
+<td>
+<code>None</code>
 </td>
 </tr>
 <tr class="doc-section-item">
@@ -3917,7 +3969,7 @@ If float, specifies padding as percentage of axes size.</p>
 <h3 class="doc doc-heading" id="mplhep.plot.histplot">
 <code class="doc-symbol doc-symbol-heading doc-symbol-function"></code> <span class="doc doc-object-name doc-function-name">mplhep.plot.histplot</span>
 <a class="headerlink" href="#mplhep.plot.histplot" title="Permanent link">¤</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nf">histplot</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">yerr</span><span class="p">:</span> <span class="n">ArrayLike</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">w2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">w2method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stack</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">density</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">binwnorm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">histtype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'step'</span><span class="p">,</span> <span class="n">xerr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">binticks</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">xoffsets</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="p">:</span> <span class="n">Axes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">flow</span><span class="o">=</span><span class="s1">'hint'</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nf">histplot</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">yerr</span><span class="p">:</span> <span class="n">ArrayLike</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">w2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">w2method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stack</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">density</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">binwnorm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">histtype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'step'</span><span class="p">,</span> <span class="n">xerr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">binticks</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">xoffsets</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="p">:</span> <span class="n">Axes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">flow</span><span class="o">=</span><span class="s1">'hint'</span><span class="p">,</span> <span class="n">blind</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span></code></pre></div>
 <div class="doc doc-contents">
 <p>Create a 1D histogram plot from <code>np.histogram</code>-like inputs.</p>
@@ -4151,6 +4203,36 @@ If "none", do nothing.</p>
 </td>
 <td>
 <code>'hint'</code>
+</td>
+</tr>
+<tr class="doc-section-item">
+<td>
+<code>blind</code>
+</td>
+<td>
+<code>int, tuple, str, slice, or list thereof</code>
+</td>
+<td>
+<div class="doc-md-description">
+<p>Region(s) to blind (hide) in the histogram. Blinded bins are set to NaN,
+creating visual gaps. Supports:</p>
+<ul>
+<li><code>int</code>: single bin index to blind; a list of ints <code>[2, 5, 7]</code> blinds
+  those individual bins.</li>
+<li>Tuple <code>(lo, hi)</code>: value-based, blinds bins overlapping <code>[lo, hi)</code>.</li>
+<li>String <code>"100j:200j"</code>: <code>j</code> suffix for value-based; <code>"3:7"</code> for
+  index-based; <code>"5:10j"</code> for mixed (index start, value stop).</li>
+<li><code>mplhep.loc[lo:hi]</code>: value-based via the <code>mplhep.loc</code> helper.
+  <code>mplhep.loc[5:10j]</code> for mixed (index 5 start, value 10 stop).</li>
+<li><code>slice(100j, 200j)</code>: value-based via complex numbers (UHI convention).</li>
+<li><code>slice(3, 7)</code>: index-based.</li>
+<li><code>slice(3, 70j)</code>: mixed (index start, value stop).</li>
+<li>A list of any of the above to blind multiple regions.</li>
+</ul>
+</div>
+</td>
+<td>
+<code>None</code>
 </td>
 </tr>
 <tr class="doc-section-item">
@@ -4623,7 +4705,7 @@ and False for multi-axes figures to prevent layout issues.</p>
 <h3 class="doc doc-heading" id="mplhep.plot.model">
 <code class="doc-symbol doc-symbol-heading doc-symbol-function"></code> <span class="doc doc-object-name doc-function-name">mplhep.plot.model</span>
 <a class="headerlink" href="#mplhep.plot.model" title="Permanent link">¤</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nf">model</span><span class="p">(</span><span class="n">stacked_components</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stacked_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stacked_colors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unstacked_components</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unstacked_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unstacked_colors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stacked_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unstacked_kwargs_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_sum_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">function_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_uncertainty</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">model_uncertainty_label</span><span class="o">=</span><span class="s1">'MC stat. unc.'</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">flow</span><span class="o">=</span><span class="s1">'hint'</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nf">model</span><span class="p">(</span><span class="n">stacked_components</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stacked_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stacked_colors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unstacked_components</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unstacked_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unstacked_colors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stacked_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unstacked_kwargs_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_sum_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">function_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_uncertainty</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">model_uncertainty_label</span><span class="o">=</span><span class="s1">'MC stat. unc.'</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">flow</span><span class="o">=</span><span class="s1">'hint'</span><span class="p">,</span> <span class="n">blind</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </span></code></pre></div>
 <div class="doc doc-contents">
 <p>Plot model made of a collection of histograms.</p>
@@ -4911,6 +4993,22 @@ Default is None. If None is provided, this is set to {"show": True, "label": "Mo
 </td>
 <td>
 <code>'hint'</code>
+</td>
+</tr>
+<tr class="doc-section-item">
+<td>
+<code>blind</code>
+</td>
+<td>
+<code>int, tuple, str, slice, or list thereof</code>
+</td>
+<td>
+<div class="doc-md-description">
+<p>Region(s) to blind (including individual bin indices). Passed through to <code>histplot</code>.</p>
+</div>
+</td>
+<td>
+<code>None</code>
 </td>
 </tr>
 </tbody>
@@ -5299,7 +5397,7 @@ data vs. model comparisons, and more.</p>
 <h3 class="doc doc-heading" id="mplhep.comp.comparison">
 <code class="doc-symbol doc-symbol-heading doc-symbol-function"></code> <span class="doc doc-object-name doc-function-name">mplhep.comp.comparison</span>
 <a class="headerlink" href="#mplhep.comp.comparison" title="Permanent link">¤</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nf">comparison</span><span class="p">(</span><span class="n">h1</span><span class="p">,</span> <span class="n">h2</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">''</span><span class="p">,</span> <span class="n">h1_label</span><span class="o">=</span><span class="s1">'h1'</span><span class="p">,</span> <span class="n">h2_label</span><span class="o">=</span><span class="s1">'h2'</span><span class="p">,</span> <span class="n">comparison</span><span class="o">=</span><span class="s1">'ratio'</span><span class="p">,</span> <span class="n">comparison_ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">comparison_ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">h1_w2method</span><span class="o">=</span><span class="s1">'sqrt'</span><span class="p">,</span> <span class="n">flow</span><span class="o">=</span><span class="s1">'hint'</span><span class="p">,</span> <span class="o">**</span><span class="n">histplot_kwargs</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nf">comparison</span><span class="p">(</span><span class="n">h1</span><span class="p">,</span> <span class="n">h2</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">''</span><span class="p">,</span> <span class="n">h1_label</span><span class="o">=</span><span class="s1">'h1'</span><span class="p">,</span> <span class="n">h2_label</span><span class="o">=</span><span class="s1">'h2'</span><span class="p">,</span> <span class="n">comparison</span><span class="o">=</span><span class="s1">'ratio'</span><span class="p">,</span> <span class="n">comparison_ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">comparison_ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">h1_w2method</span><span class="o">=</span><span class="s1">'sqrt'</span><span class="p">,</span> <span class="n">flow</span><span class="o">=</span><span class="s1">'hint'</span><span class="p">,</span> <span class="n">blind</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">histplot_kwargs</span><span class="p">)</span>
 </span></code></pre></div>
 <div class="doc doc-contents">
 <p>Plot the comparison between two histograms.</p>
@@ -5541,7 +5639,7 @@ Asymmetrical uncertainties are not supported for the asymmetry and efficiency co
 <h3 class="doc doc-heading" id="mplhep.comp.data_model">
 <code class="doc-symbol doc-symbol-heading doc-symbol-function"></code> <span class="doc doc-object-name doc-function-name">mplhep.comp.data_model</span>
 <a class="headerlink" href="#mplhep.comp.data_model" title="Permanent link">¤</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nf">data_model</span><span class="p">(</span><span class="n">data_hist</span><span class="p">,</span> <span class="n">stacked_components</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stacked_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stacked_colors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unstacked_components</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unstacked_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unstacked_colors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_label</span><span class="o">=</span><span class="s1">'Data'</span><span class="p">,</span> <span class="n">stacked_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unstacked_kwargs_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_sum_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_uncertainty</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">model_uncertainty_label</span><span class="o">=</span><span class="s1">'MC stat. unc.'</span><span class="p">,</span> <span class="n">data_w2method</span><span class="o">=</span><span class="s1">'poisson'</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax_main</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax_comparison</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_only</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">flow</span><span class="o">=</span><span class="s1">'hint'</span><span class="p">,</span> <span class="o">**</span><span class="n">comparison_kwargs</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nf">data_model</span><span class="p">(</span><span class="n">data_hist</span><span class="p">,</span> <span class="n">stacked_components</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stacked_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stacked_colors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unstacked_components</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unstacked_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unstacked_colors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_label</span><span class="o">=</span><span class="s1">'Data'</span><span class="p">,</span> <span class="n">stacked_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unstacked_kwargs_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_sum_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_uncertainty</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">model_uncertainty_label</span><span class="o">=</span><span class="s1">'MC stat. unc.'</span><span class="p">,</span> <span class="n">data_w2method</span><span class="o">=</span><span class="s1">'poisson'</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax_main</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax_comparison</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_only</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">flow</span><span class="o">=</span><span class="s1">'hint'</span><span class="p">,</span> <span class="n">blind</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">comparison_kwargs</span><span class="p">)</span>
 </span></code></pre></div>
 <div class="doc doc-contents">
 <p>Compare data to model. The data uncertainties are computed using the Poisson confidence interval.</p>
@@ -5964,7 +6062,7 @@ Default is None. If None is provided, this is set to {"show": True, "label": "Su
 <h3 class="doc doc-heading" id="mplhep.comp.hists">
 <code class="doc-symbol doc-symbol-heading doc-symbol-function"></code> <span class="doc doc-object-name doc-function-name">mplhep.comp.hists</span>
 <a class="headerlink" href="#mplhep.comp.hists" title="Permanent link">¤</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nf">hists</span><span class="p">(</span><span class="n">h1</span><span class="p">,</span> <span class="n">h2</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">h1_label</span><span class="o">=</span><span class="s1">'h1'</span><span class="p">,</span> <span class="n">h2_label</span><span class="o">=</span><span class="s1">'h2'</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax_main</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax_comparison</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">flow</span><span class="o">=</span><span class="s1">'hint'</span><span class="p">,</span> <span class="o">**</span><span class="n">comparison_kwargs</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nf">hists</span><span class="p">(</span><span class="n">h1</span><span class="p">,</span> <span class="n">h2</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">h1_label</span><span class="o">=</span><span class="s1">'h1'</span><span class="p">,</span> <span class="n">h2_label</span><span class="o">=</span><span class="s1">'h2'</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax_main</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax_comparison</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">flow</span><span class="o">=</span><span class="s1">'hint'</span><span class="p">,</span> <span class="n">blind</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">comparison_kwargs</span><span class="p">)</span>
 </span></code></pre></div>
 <div class="doc doc-contents">
 <p>Compare two histograms.</p>
@@ -8955,6 +9053,21 @@ give more space to the top subplot.</p>
 </div>
 </div>
 </div>
+</div><h3 id="blinding">Blinding<a class="headerlink" href="#blinding" title="Permanent link">¤</a></h3>
+<div class="doc doc-object doc-class">
+<a id="mplhep.loc"></a>
+<div class="doc doc-contents first">
+<p>UHI-like value-based bin locator.</p>
+<p>Use <code>loc(value)</code> to create a locator for a single value, or
+<code>loc[start:stop]</code> to create a slice of locators.</p>
+<p>When both sides of the slice are plain numbers (no <code>j</code> suffix),
+they are treated as <strong>value-based</strong> (the purpose of <code>loc</code>).
+When at least one side uses the complex-number <code>j</code> suffix (UHI
+convention), the <code>j</code>-suffixed side is value-based and any plain-int
+side is <strong>index-based</strong>, enabling mixed specs like <code>loc[5:10j]</code>.</p>
+<div class="doc doc-children">
+</div>
+</div>
 </div><h2 id="experiment-styling">Experiment styling<a class="headerlink" href="#experiment-styling" title="Permanent link">¤</a></h2>
 <div class="doc doc-object doc-module">
 <h2 class="doc doc-heading" id="mplhep.style">
@@ -9182,7 +9295,7 @@ based on the works of Kevin Dungs, Tim Head, Thomas Schietinger,
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 31, 2025 11:41:27 UTC">October 31, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 12, 2026 13:04:01 UTC">February 12, 2026</span>
   </span>
 
     
