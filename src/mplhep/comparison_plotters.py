@@ -122,8 +122,6 @@ def hists(
         msg = "Need to provide fig, ax_main and ax_comparison (or none of them)."
         raise ValueError(msg)
 
-    xlim = (h1_plottable.edges_1d()[0], h1_plottable.edges_1d()[-1])
-
     histplot(
         h1_plottable,
         ax=ax_main,
@@ -140,7 +138,9 @@ def hists(
         flow=flow,
         blind=blind,
     )
-    ax_main.set_xlim(xlim)
+    if flow != "show":
+        xlim = (h1_plottable.edges_1d()[0], h1_plottable.edges_1d()[-1])
+        ax_main.set_xlim(xlim)
     ax_main.set_ylabel(ylabel)
     ax_main.legend()
     _ = ax_main.xaxis.set_ticklabels([])
@@ -424,8 +424,9 @@ def comparison(
         ax.axhline(0, ls="--", lw=1.0, color="black")
         ax.set_ylabel(rf"$\frac{{{h1_label} - {h2_label}}}{{{h1_label} + {h2_label}}}$")
 
-    xlim = (h1_plottable.edges_1d()[0], h1_plottable.edges_1d()[-1])
-    ax.set_xlim(xlim)
+    if flow != "show":
+        xlim = (h1_plottable.edges_1d()[0], h1_plottable.edges_1d()[-1])
+        ax.set_xlim(xlim)
     ax.set_xlabel(xlabel)
     if comparison_ylim is not None:
         ax.set_ylim(comparison_ylim)

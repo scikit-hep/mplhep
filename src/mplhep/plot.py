@@ -1552,7 +1552,8 @@ def model(
                 blind=blind,
             )
 
-    ax.set_xlim(xlim)
+    if flow != "show":
+        ax.set_xlim(xlim)
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
     set_fitting_ylabel_fontsize(ax)
