@@ -650,7 +650,7 @@ Use `blind` with [`mh.comp.hists()`][mplhep.comp.hists]:
         h1_label='Data',
         h2_label='MC'
     )
-    {{LABEL_CODE_AX}}{{MAGIC_CODE_INLINE_NESTED}}
+    {{LABEL_CODE_AX}}{{MAGIC_CODE_INLINE}}
     ```
 
 {{TABS_END}}
@@ -695,7 +695,7 @@ Use `blind` with [`mh.comp.data_model()`][mplhep.comp.data_model] to blind signa
         data_label='Data',
         comparison='split_ratio'
     )
-    {{LABEL_CODE_AX}}{{MAGIC_CODE_INLINE_NESTED}}
+    {{LABEL_CODE_AX}}{{MAGIC_CODE_INLINE}}
     ```
 
 {{TABS_END}}
