@@ -237,6 +237,29 @@ def comparison(
     _check_counting_histogram(h1_plottable)
     _check_counting_histogram(h2_plottable)
 
+    # When flow="sum", incorporate flow bins into the values before computing
+    # the comparison. This ensures correct results (e.g. sum-then-ratio rather
+    # than ratio-then-sum).
+    if flow == "sum":
+        for hp in (h1_plottable, h2_plottable):
+            vals = np.copy(hp.values())
+            var = np.copy(hp.variances()) if hp.variances() is not None else None
+            if hp._underflow is not None and hp._underflow > 0:
+                vals[0] += hp._underflow
+                if var is not None and hp._underflow_var is not None:
+                    var[0] += hp._underflow_var
+            if hp._overflow is not None and hp._overflow > 0:
+                vals[-1] += hp._overflow
+                if var is not None and hp._overflow_var is not None:
+                    var[-1] += hp._overflow_var
+            hp._values = vals
+            if var is not None:
+                hp._variances = var
+            hp._underflow = None
+            hp._overflow = None
+            hp._underflow_var = None
+            hp._overflow_var = None
+
     comparison_values, lower_uncertainties, upper_uncertainties = get_comparison(
         h1_plottable, h2_plottable, comparison, h1_w2method
     )
