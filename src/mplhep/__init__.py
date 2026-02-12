@@ -30,6 +30,7 @@ from ._utils import (
     _make_plottable_histogram as make_plottable_histogram,
 )
 from ._version import version as __version__  # noqa: F401
+from .blind import loc
 from .label import add_text, append_text, save_variations, savelabels
 from .plot import (
     funcplot,
@@ -102,6 +103,7 @@ __all__ = [
     "histplot",
     "label",
     "lhcb",
+    "loc",
     "make_plottable_histogram",
     "make_square_add_cbar",
     "merge_legend_handles_labels",

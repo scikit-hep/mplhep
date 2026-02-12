@@ -92,8 +92,9 @@ neoteroi-mkdocs = "*"
 mkdocs-matplotlib = { git = "https://github.com/andrzejnovak/mkdocs-matplotlib.git" }
 
 [feature.docs.tasks]
-docs = { cmd = "mkdocs serve -f new_docs/mkdocs.yml", depends-on = ["postinstall"] }
-docs-build = { cmd = "mkdocs build -f new_docs/mkdocs.yml", depends-on = ["postinstall"] }
+docs-postinstall = "pip install --no-deps -e ."
+docs = { cmd = "mkdocs serve -f new_docs/mkdocs.yml", depends-on = ["docs-postinstall"] }
+docs-build = { cmd = "mkdocs build -f new_docs/mkdocs.yml", depends-on = ["docs-postinstall"] }
 
 [environments]
 root = ["root"]
