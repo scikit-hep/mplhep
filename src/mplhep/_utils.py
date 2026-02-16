@@ -1433,6 +1433,22 @@ def _calculate_optimal_scaling(ax, bboxes, exclude_texts=None):
     if not bboxes_data:
         return 1.0
 
+    # Determine which bboxes actually have overlapping vertices
+    # Only these should be used for computing the required scaling
+    if len(vertices) > 0:
+        overlapping_bboxes_data = []
+        for bbox_data in bboxes_data:
+            in_x = (vertices[:, 0] >= bbox_data.x0) & (vertices[:, 0] <= bbox_data.x1)
+            in_y = (vertices[:, 1] >= bbox_data.y0) & (vertices[:, 1] <= bbox_data.y1)
+            contained = (in_x & in_y).any()
+            above = (in_x & (vertices[:, 1] > bbox_data.y1)).any()
+            if contained or above:
+                overlapping_bboxes_data.append(bbox_data)
+        # Fall back to all bboxes if no vertex-based overlap found
+        # (overlap may come from bbox-bbox overlap)
+        if overlapping_bboxes_data:
+            bboxes_data = overlapping_bboxes_data
+
     # Get annotation properties
     tallest_bbox = max(bboxes_data, key=lambda b: b.y1)
     annotation_height = tallest_bbox.y1 - tallest_bbox.y0
