@@ -3,6 +3,7 @@ from __future__ import annotations
 import warnings
 
 import numpy as np
+import scipy.spatial
 import scipy.stats
 
 _coverage1sd = scipy.stats.norm.cdf(1) - scipy.stats.norm.cdf(-1)
@@ -41,9 +42,8 @@ def poisson_interval(sumw, sumw2, coverage=_coverage1sd):
                 stacklevel=2,
             )
             return np.vstack([sumw, sumw])
-        nearest = np.sum(
-            [np.subtract.outer(d, d0) ** 2 for d, d0 in zip(available, missing)]
-        ).argmin(axis=0)
+        tree = scipy.spatial.KDTree(np.stack(available, axis=-1))
+        _, nearest = tree.query(np.stack(missing, axis=-1))
         argnearest = tuple(dim[nearest] for dim in available)
         scale[missing] = scale[argnearest]
     counts = sumw / scale
