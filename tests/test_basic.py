@@ -876,3 +876,30 @@ def test_histplot_xoffsets():
     )
     mh.histplot(htype1, yerr=False, alpha=0.2, ax=axs[3])
     return fig
+
+
+@pytest.mark.parametrize("ls", ["-", "solid", (0, (3, 5))])
+def test_histplot_linestyle_tuple(ls):
+    fig, ax = plt.subplots()
+    h = [1, 3, 2]
+    bins = [0, 1, 2, 3]
+    mh.histplot(h, bins, ax=ax, linestyle=ls)
+    plt.close(fig)
+
+
+@pytest.mark.parametrize("ls", ["-", "solid", (0, (3, 5))])
+def test_histplot_linestyle_tuple_multiple(ls):
+    fig, ax = plt.subplots()
+    h = [[1, 3, 2], [2, 1, 3]]
+    bins = [0, 1, 2, 3]
+    mh.histplot(h, bins, ax=ax, linestyle=ls)
+    plt.close(fig)
+
+
+def test_histplot_linestyle_tuple_list():
+    fig, ax = plt.subplots()
+    h = [[1, 3, 2], [2, 1, 3]]
+    bins = [0, 1, 2, 3]
+    ls_list = [(0, (3, 5)), (0, (1, 1))]
+    mh.histplot(h, bins, ax=ax, linestyle=ls_list)
+    plt.close(fig)

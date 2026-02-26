@@ -457,14 +457,24 @@ def histplot(
         # Check if iterable
         if iterable_not_string(kwarg_content):
             # Check if tuple of floats or ints (can be used for colors)
-            if isinstance(kwarg_content, tuple) and all(
-                isinstance(x, (int, float)) for x in kwarg_content
+            if (
+                isinstance(kwarg_content, tuple)
+                and all(isinstance(x, (int, float)) for x in kwarg_content)
+            ) or (
+                kwarg == "linestyle"
+                and isinstance(kwarg_content, tuple)
+                and len(kwarg_content) == 2
+                and isinstance(kwarg_content[1], (list, tuple))
             ):
                 for i in range(len(_chunked_kwargs)):
                     _chunked_kwargs[i][kwarg] = kwarg_content
-            else:
+            # Check if length matches
+            elif len(kwarg_content) == len(hists):
                 for i, kw in enumerate(kwarg_content):
                     _chunked_kwargs[i][kwarg] = kw
+            else:
+                for i in range(len(_chunked_kwargs)):
+                    _chunked_kwargs[i][kwarg] = kwarg_content
         else:
             for i in range(len(_chunked_kwargs)):
                 _chunked_kwargs[i][kwarg] = kwarg_content
