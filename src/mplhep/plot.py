@@ -102,7 +102,7 @@ def _get_next_prop_cycle(ax: mpl.axes.Axes, kwargs: dict[str, Any]) -> dict[str,
 
     if hasattr(ax, "_get_lines") and hasattr(ax._get_lines, "_getdefaults"):
         # This is the standard way for modern matplotlib
-        res = ax._get_lines._getdefaults(clean_kwargs)
+        res = ax._get_lines._getdefaults(kw=clean_kwargs, ignore=frozenset())
         if isinstance(res, dict):
             return res
         return {}
