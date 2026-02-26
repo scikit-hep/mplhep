@@ -97,16 +97,25 @@ def _get_next_prop_cycle(ax: mpl.axes.Axes, kwargs: dict[str, Any]) -> dict[str,
     Retrieve the next set of properties from the Axes property cycler.
     Advances the cycler if defaults are needed for the given kwargs.
     """
+    # Filter out None values to treat them as "not provided"
+    clean_kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
     if hasattr(ax, "_get_lines") and hasattr(ax._get_lines, "_getdefaults"):
         # This is the standard way for modern matplotlib
-        return ax._get_lines._getdefaults(kwargs)
+        res = ax._get_lines._getdefaults(clean_kwargs)
+        if isinstance(res, dict):
+            return res
+        return {}
     if (
         hasattr(ax, "_get_lines")
         and hasattr(ax._get_lines, "get_next_color")
-        and "color" not in kwargs
+        and clean_kwargs.get("color") is None
     ):
         # Fallback for when _getdefaults is not available but get_next_color is
-        return {"color": ax._get_lines.get_next_color()}
+        try:
+            return {"color": ax._get_lines.get_next_color()}
+        except AttributeError:
+            return {}
     return {}
 
 
@@ -542,7 +551,9 @@ def histplot(
             _prop_dicts = [_get_next_prop_cycle(ax, {}) for _ in plottables]
             _prop_dicts.reverse()
             for i in range(len(plottables)):
-                _chunked_kwargs[i].update(_prop_dicts[i])
+                for k, v in _prop_dicts[i].items():
+                    if _chunked_kwargs[i].get(k) is None:
+                        _chunked_kwargs[i][k] = v
 
     if "bar" in histtype:
         if kwargs.get("bin_width") is None:
@@ -574,13 +585,16 @@ def histplot(
             _plot_info = plottables[i].to_stairs()
             _plot_info["baseline"] = None if not edges else 0
 
-            _kwargs.update(_get_next_prop_cycle(ax, _kwargs))
+            _new_props = _get_next_prop_cycle(ax, _kwargs)
+            for k, v in _new_props.items():
+                if _kwargs.get(k) is None:
+                    _kwargs[k] = v
 
             if histtype == "step":
                 _s = ax.stairs(
                     **_plot_info,
                     label=_step_label,
-                    **_kwargs,
+                    **{k: v for k, v in _kwargs.items() if k != "marker"},
                 )
                 if do_errors:
                     _kwargs = soft_update_kwargs(_kwargs, {"color": _s.get_edgecolor()})
@@ -629,7 +643,7 @@ def histplot(
                     align="center",
                     edgecolor=edgecolor,
                     fill=False,
-                    **_kwargs,
+                    **{k: v for k, v in _kwargs.items() if k != "marker"},
                 )
 
                 if do_errors:
@@ -678,7 +692,7 @@ def histplot(
                 label=_labels[i],
                 align="center",
                 fill=True,
-                **_kwargs,
+                **{k: v for k, v in _kwargs.items() if k != "marker"},
             )
             return_artists.append(StairsArtists(_b, None, None))
         _artist = _b  # type: ignore[assignment]
@@ -687,7 +701,10 @@ def histplot(
         for i in range(len(plottables)):
             _kwargs = _chunked_kwargs[i]
             _f = ax.stairs(
-                **plottables[i].to_stairs(), label=_labels[i], fill=True, **_kwargs
+                **plottables[i].to_stairs(),
+                label=_labels[i],
+                fill=True,
+                **{k: v for k, v in _kwargs.items() if k != "marker"},
             )
             return_artists.append(StairsArtists(_f, None, None))
         _artist = _f
@@ -705,7 +722,11 @@ def histplot(
                 **plottables[i].to_stairband(),
                 label=_labels[i],
                 fill=True,
-                **soft_update_kwargs(_kwargs, band_defaults),
+                **{
+                    k: v
+                    for k, v in soft_update_kwargs(_kwargs, band_defaults).items()
+                    if k != "marker"
+                },
             )
             return_artists.append(StairsArtists(_f, None, None))
         _artist = _f
