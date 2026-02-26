@@ -92,6 +92,24 @@ def soft_update_kwargs(kwargs, mods, rc=True):
     return kwargs
 
 
+def _get_next_prop_cycle(ax: mpl.axes.Axes, kwargs: dict[str, Any]) -> dict[str, Any]:
+    """
+    Retrieve the next set of properties from the Axes property cycler.
+    Advances the cycler if defaults are needed for the given kwargs.
+    """
+    if hasattr(ax, "_get_lines") and hasattr(ax._get_lines, "_getdefaults"):
+        # This is the standard way for modern matplotlib
+        return ax._get_lines._getdefaults(kwargs)
+    if (
+        hasattr(ax, "_get_lines")
+        and hasattr(ax._get_lines, "get_next_color")
+        and "color" not in kwargs
+    ):
+        # Fallback for when _getdefaults is not available but get_next_color is
+        return {"color": ax._get_lines.get_next_color()}
+    return {}
+
+
 ########################################
 # Histogram plotter
 def hist(
@@ -511,10 +529,10 @@ def histplot(
         _labels = _labels[::-1]
         if "color" not in kwargs or kwargs.get("color") is None:
             # Inverse default color cycle
-            _colors = [ax._get_lines.get_next_color() for _ in plottables]  # type: ignore[attr-defined]
-            _colors.reverse()
+            _prop_dicts = [_get_next_prop_cycle(ax, {}) for _ in plottables]
+            _prop_dicts.reverse()
             for i in range(len(plottables)):
-                _chunked_kwargs[i].update({"color": _colors[i]})
+                _chunked_kwargs[i].update(_prop_dicts[i])
 
     if "bar" in histtype:
         if kwargs.get("bin_width") is None:
@@ -546,8 +564,7 @@ def histplot(
             _plot_info = plottables[i].to_stairs()
             _plot_info["baseline"] = None if not edges else 0
 
-            if _kwargs.get("color") is None:
-                _kwargs["color"] = ax._get_lines.get_next_color()  # type: ignore[attr-defined]
+            _kwargs.update(_get_next_prop_cycle(ax, _kwargs))
 
             if histtype == "step":
                 _s = ax.stairs(
