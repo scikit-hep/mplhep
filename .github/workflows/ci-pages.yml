@@ -111,7 +111,7 @@ jobs:
           rm -rf _gh-pages/.git
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: _gh-pages
 
