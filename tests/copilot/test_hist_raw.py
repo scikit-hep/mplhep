@@ -135,7 +135,7 @@ def test_hist_returns_artists():
     plt.close('all')
 
 
-def test_hist_empty_list_guard():
+def test_hist_list_of_numbers():
     """Test that hist() handles list of numbers correctly (not as multiple datasets)."""
     fig, ax = plt.subplots()
     # A list of numbers should be treated as a single dataset, not multiple
