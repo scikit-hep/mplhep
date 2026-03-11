@@ -196,7 +196,7 @@ def hist(
     hist_range = range
 
     # Handle multiple datasets
-    if isinstance(x, (list, tuple)) and not isinstance(x[0], (int, float, np.number)):
+    if isinstance(x, (list, tuple)) and len(x) > 0 and not isinstance(x[0], (int, float, np.number)):
         # Multiple datasets - histogram each one
         datasets = x
 
@@ -210,12 +210,25 @@ def hist(
         else:
             bin_edges = np.asarray(bins)
 
+        # Determine if weights is a list of per-dataset weights
+        _is_multi_weights = (
+            weights is not None
+            and isinstance(weights, (list, tuple))
+            and len(weights) > 0
+            and not isinstance(weights[0], (int, float, np.number))
+        )
+
         # Histogram each dataset
         hist_values = []
         hist_w2 = []
-        for dataset in datasets:
+        for i, dataset in enumerate(datasets):
             data_arr = np.asarray(dataset).ravel()
-            w = None if weights is None else np.asarray(weights).ravel()
+            if weights is None:
+                w = None
+            elif _is_multi_weights:
+                w = np.asarray(weights[i]).ravel()
+            else:
+                w = np.asarray(weights).ravel()
 
             h, _ = np.histogram(data_arr, bins=bin_edges, weights=w, density=False)
             hist_values.append(h)
