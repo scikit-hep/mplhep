@@ -209,9 +209,8 @@ def _fontsize_axis(ax: Axes, fontsize: str | float) -> float:
     """Convert fontsize to axis fraction units."""
     fontsize_points = _fontsize_to_points(fontsize)
     return (
-        fontsize_points
+        (fontsize_points / 72)
         / (ax.get_position().height * ax.figure.get_size_inches()[1])  # type: ignore[union-attr]
-        / ax.figure.dpi
     )
 
 
@@ -487,9 +486,9 @@ def append_text(
     width, height = bbox.width, bbox.height
     dpi = ax.figure.dpi
     text_height = height / ax_height / dpi
-    text_height_corr = fontsize / FONT_HEIGHT_CORRECTION_FACTOR / ax_height / dpi
+    text_height_corr = (fontsize / 72) / FONT_HEIGHT_CORRECTION_FACTOR / ax_height
     text_width = width / ax_width / dpi
-    text_width_corr = fontsize / FONT_WIDTH_CORRECTION_FACTOR / ax_width / dpi
+    text_width_corr = (fontsize / 72) / FONT_WIDTH_CORRECTION_FACTOR / ax_width
     yoffset = descent / ax_height / dpi
 
     # Account for horizontal alignment of the reference text
