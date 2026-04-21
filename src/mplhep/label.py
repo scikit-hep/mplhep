@@ -1062,18 +1062,23 @@ def save_variations(
     if text_list is None:
         text_list = ["Preliminary", ""]
 
-    from mplhep.label import ExpText  # noqa: PLC0415
+    from mplhep.label import ExpLabel, ExpText  # noqa: PLC0415
 
     for text in text_list:
         for ax in fig.get_axes():
-            exp_labels = [t for t in ax.get_children() if isinstance(t, ExpText)]
-            suffixes = [t for t in ax.get_children() if isinstance(t, ExpText)]
-            for exp_label, suffix_text in zip(exp_labels, suffixes):
-                if exp is not None:
-                    exp_label.set_text(exp)
-                suffix_text.set_text(text)
+            if exp is not None:
+                for exp_label in ax.get_children():
+                    if isinstance(exp_label, ExpLabel):
+                        exp_label.set_text(exp)
+            for suffix_text in ax.get_children():
+                if isinstance(suffix_text, ExpText):
+                    suffix_text.set_text(text)
         name_ext = "" if text == "" else "_" + text.lower()
         if exp is not None:
             name_ext = exp.lower() + name_ext
-        save_name = name.split(".", maxsplit=1)[0] + name_ext + "." + name.split(".")[1]
+        name_parts = name.rsplit(".", 1)
+        if len(name_parts) == 2:
+            save_name = f"{name_parts[0]}{name_ext}.{name_parts[1]}"
+        else:
+            save_name = f"{name}{name_ext}"
         fig.savefig(save_name)
