@@ -291,6 +291,78 @@ def set_ylow(
     return ax
 
 
+def xlabel_sci_adjust(ax: mpl.axes.Axes | None = None) -> mpl.axes.Axes:
+    """Shift the x-axis label inwards when it overlaps the sci-notation offset text.
+
+    Mirrors the analogous adjustment for experiment labels (``CMS``, ``ATLAS``, ...)
+    on the y-axis: when matplotlib places a ``x10^n`` offset at the right edge of
+    the x-axis, an x-label anchored at the same right edge (the HEP-style default,
+    via ``xaxis.labellocation = "right"``) overlaps the offset text (issue #712).
+    This helper detects the overlap and shifts the x-label leftward (inward) by
+    just enough to clear it, leaving the offset text where matplotlib drew it.
+
+    The function is idempotent: if no overlap is currently present (e.g. because
+    it was already fixed), it is a no-op.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes, optional
+        Axes object (if None, ``plt.gca()`` is used).
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+    """
+    if ax is None:
+        ax = plt.gca()
+
+    xaxis = ax.get_xaxis()
+    fmt = xaxis.get_major_formatter()
+    if not (hasattr(fmt, "get_useOffset") and fmt.get_useOffset()):
+        return ax
+    if not ax.get_xlabel():
+        return ax
+
+    fig = ax.figure
+    if fig is None:
+        return ax
+    fig.canvas.draw()
+    canvas = fig.canvas
+    renderer = (
+        canvas.get_renderer()
+        if hasattr(canvas, "get_renderer")
+        else fig._get_renderer()  # type: ignore[attr-defined,union-attr]
+    )
+
+    offset_text = xaxis.offsetText
+    if not offset_text.get_text():
+        return ax
+
+    offset_bbox = offset_text.get_window_extent(renderer)
+    label_bbox = xaxis.label.get_window_extent(renderer)
+
+    horiz_overlap = label_bbox.x1 > offset_bbox.x0 and offset_bbox.x1 > label_bbox.x0
+    vert_overlap = label_bbox.y1 > offset_bbox.y0 and offset_bbox.y1 > label_bbox.y0
+    if not (horiz_overlap and vert_overlap):
+        return ax
+
+    # Shift the label leftward by (overlap + margin) pixels so its right edge
+    # sits just left of the offset text's left edge.
+    overlap_px = label_bbox.x1 - offset_bbox.x0
+    margin_px = 4.0
+    shift_px = overlap_px + margin_px
+
+    ax_bbox = ax.get_window_extent(renderer)
+    ax_width_px = ax_bbox.x1 - ax_bbox.x0
+    if ax_width_px <= 0:
+        return ax
+    shift_axes_fraction = shift_px / ax_width_px
+
+    current_x = xaxis.label.get_position()[0]
+    xaxis.label.set_x(current_x - shift_axes_fraction)
+    return ax
+
+
 def mpl_magic(
     ax=None,
     ylow: float | None = None,
@@ -303,6 +375,7 @@ def mpl_magic(
         ylow
         yscale_legend
         yscale_anchored_text
+        xlabel_sci_adjust
 
     Parameters
     ----------
@@ -325,7 +398,8 @@ def mpl_magic(
 
     ax = set_ylow(ax, ylow=ylow)
     ax = yscale_legend(ax, otol=otol, soft_fail=soft_fail, N=N)
-    return yscale_anchored_text(ax, otol=otol, soft_fail=soft_fail, N=N)
+    ax = yscale_anchored_text(ax, otol=otol, soft_fail=soft_fail, N=N)
+    return xlabel_sci_adjust(ax)
 
 
 ########################################

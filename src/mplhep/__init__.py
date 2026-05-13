@@ -55,6 +55,7 @@ from .utils import (
     set_ylow,
     sort_legend,
     subplots,
+    xlabel_sci_adjust,
     yscale_anchored_text,
     yscale_legend,
 )
@@ -120,7 +121,8 @@ __all__ = [
     "set_ylow",
     "sort_legend",
     "style",
+    "subplots",
+    "xlabel_sci_adjust",
     "yscale_anchored_text",
     "yscale_legend",
-    "subplots",
 ]
