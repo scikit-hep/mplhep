@@ -976,6 +976,9 @@ Examples:
             # Get available test modules/directories
             test_modules = self._get_test_modules()
             if test_modules:
+                # Reaching this branch implies the user already picked "submodules"
+                # from an interactive questionary prompt, so the dependency is loaded.
+                assert questionary is not None
                 while True:
                     selected_modules = questionary.checkbox(
                         "Select test modules to run:",

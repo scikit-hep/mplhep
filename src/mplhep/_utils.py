@@ -359,11 +359,11 @@ def _get_plottables(
         elif flow == "sum":
             if underflow > 0:
                 value[0] += underflow
-                if has_variances:
+                if variance is not None:
                     variance[0] += underflowv
             if overflow > 0:
                 value[-1] += overflow
-                if has_variances:
+                if variance is not None:
                     variance[-1] += overflowv
             plottables.append(
                 EnhancedPlottableHistogram(
