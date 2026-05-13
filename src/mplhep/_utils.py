@@ -1560,13 +1560,14 @@ def _draw_text_bbox(ax):
         return [], []
 
     fig.canvas.draw()
-    raw = [(box.get_tightbbox(fig.canvas.renderer), box) for box in textboxes]
     # Drop null/empty bboxes (mpl >= 3.12 returns Bbox(inf, inf, -inf, -inf)
     # for unrenderable text, which would propagate as NaN through transforms).
-    filtered = [(b, t) for b, t in raw if np.isfinite(b.x0) and np.isfinite(b.y0)]
-    if not filtered:
-        return [], []
-    bboxes, textboxes = zip(*filtered, strict=True)
-    bboxes, textboxes = list(bboxes), list(textboxes)
+    bboxes = []
+    kept = []
+    for box in textboxes:
+        bbox = box.get_tightbbox(fig.canvas.renderer)
+        if np.isfinite(bbox.x0) and np.isfinite(bbox.y0):
+            bboxes.append(bbox)
+            kept.append(box)
     logger.debug(f"_draw_text_bbox: Returning {len(bboxes)} bboxes")
-    return bboxes, textboxes
+    return bboxes, kept
