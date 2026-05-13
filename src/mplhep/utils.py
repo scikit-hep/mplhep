@@ -292,13 +292,14 @@ def set_ylow(
 
 
 def xlabel_sci_adjust(ax: mpl.axes.Axes | None = None) -> mpl.axes.Axes:
-    """Push the x-axis label below the scientific-notation offset text when they overlap.
+    """Shift the x-axis label inwards when it overlaps the sci-notation offset text.
 
     Mirrors the analogous adjustment for experiment labels (``CMS``, ``ATLAS``, ...)
     on the y-axis: when matplotlib places a ``x10^n`` offset at the right edge of
-    the x-axis, a centred ``set_xlabel`` text can sit at the same vertical level
-    and overlap the offset (issue #712). This helper detects the overlap and bumps
-    ``ax.xaxis.labelpad`` by just enough to clear it (plus a small margin).
+    the x-axis, an x-label anchored at the same right edge (the HEP-style default,
+    via ``xaxis.labellocation = "right"``) overlaps the offset text (issue #712).
+    This helper detects the overlap and shifts the x-label leftward (inward) by
+    just enough to clear it, leaving the offset text where matplotlib drew it.
 
     The function is idempotent: if no overlap is currently present (e.g. because
     it was already fixed), it is a no-op.
@@ -345,11 +346,20 @@ def xlabel_sci_adjust(ax: mpl.axes.Axes | None = None) -> mpl.axes.Axes:
     if not (horiz_overlap and vert_overlap):
         return ax
 
-    # Push the label down so its top edge sits just below the offset's bottom.
-    overlap_px = label_bbox.y1 - offset_bbox.y0
+    # Shift the label leftward by (overlap + margin) pixels so its right edge
+    # sits just left of the offset text's left edge.
+    overlap_px = label_bbox.x1 - offset_bbox.x0
     margin_px = 4.0
-    push_points = (overlap_px + margin_px) * 72 / fig.dpi  # type: ignore[union-attr]
-    ax.xaxis.labelpad += push_points
+    shift_px = overlap_px + margin_px
+
+    ax_bbox = ax.get_window_extent(renderer)
+    ax_width_px = ax_bbox.x1 - ax_bbox.x0
+    if ax_width_px <= 0:
+        return ax
+    shift_axes_fraction = shift_px / ax_width_px
+
+    current_x = xaxis.label.get_position()[0]
+    xaxis.label.set_x(current_x - shift_axes_fraction)
     return ax
 
 

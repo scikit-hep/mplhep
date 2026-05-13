@@ -370,37 +370,37 @@ def test_xlabel_sci_adjust_resolves_overlap(style):
 
 
 def test_xlabel_sci_adjust_is_idempotent():
-    """Repeated invocations must not keep bumping labelpad."""
+    """Repeated invocations must not keep shifting the label further left."""
     fig, ax = _make_sci_overlap_axes(mh.style.ATLAS)
     mh.xlabel_sci_adjust(ax)
-    pad_after_first = ax.xaxis.labelpad
+    x_after_first = ax.xaxis.label.get_position()[0]
     mh.xlabel_sci_adjust(ax)
     mh.xlabel_sci_adjust(ax)
-    assert ax.xaxis.labelpad == pad_after_first, (
+    assert ax.xaxis.label.get_position()[0] == x_after_first, (
         "Calling xlabel_sci_adjust again after the first run should be a no-op."
     )
     plt.close(fig)
 
 
 def test_xlabel_sci_adjust_skips_when_no_offset():
-    """No sci-notation offset = no labelpad change."""
+    """No sci-notation offset = no label-position change."""
     plt.style.use(mh.style.ATLAS)
     fig, ax = plt.subplots()
     ax.plot([0, 1, 2], [0, 1, 4])
     ax.set_xlabel("x")
-    original_pad = ax.xaxis.labelpad
+    original_x = ax.xaxis.label.get_position()[0]
     mh.xlabel_sci_adjust(ax)
-    assert ax.xaxis.labelpad == original_pad
+    assert ax.xaxis.label.get_position()[0] == original_x
     plt.close(fig)
 
 
 def test_xlabel_sci_adjust_skips_when_no_xlabel():
-    """No x-label = nothing to push."""
+    """No x-label = nothing to shift."""
     plt.style.use(mh.style.ATLAS)
     fig, ax = plt.subplots()
     ax.plot(np.linspace(0, 5e6, 10), np.linspace(0, 1, 10))
     ax.ticklabel_format(axis="x", style="sci", scilimits=(0, 0))
-    original_pad = ax.xaxis.labelpad
+    original_x = ax.xaxis.label.get_position()[0]
     mh.xlabel_sci_adjust(ax)
-    assert ax.xaxis.labelpad == original_pad
+    assert ax.xaxis.label.get_position()[0] == original_x
     plt.close(fig)
