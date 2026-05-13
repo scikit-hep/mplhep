@@ -1548,13 +1548,25 @@ def _draw_text_bbox(ax):
         (bboxes, text_objects) - List of bboxes and corresponding text objects
     """
     fig = ax.figure
-    textboxes = [k for k in ax.get_children() if isinstance(k, (AnchoredText, Text))]
+    textboxes = [
+        k
+        for k in ax.get_children()
+        if isinstance(k, (AnchoredText, Text))
+        and (isinstance(k, AnchoredText) or k.get_text())
+    ]
     logger.debug(f"_draw_text_bbox: Found {len(textboxes)} text objects")
     logger.debug(f"_draw_text_bbox: Found {textboxes}")
     if not textboxes:
         return [], []
 
     fig.canvas.draw()
-    bboxes = [box.get_tightbbox(fig.canvas.renderer) for box in textboxes]
+    raw = [(box.get_tightbbox(fig.canvas.renderer), box) for box in textboxes]
+    # Drop null/empty bboxes (mpl >= 3.12 returns Bbox(inf, inf, -inf, -inf)
+    # for unrenderable text, which would propagate as NaN through transforms).
+    filtered = [(b, t) for b, t in raw if np.isfinite(b.x0) and np.isfinite(b.y0)]
+    if not filtered:
+        return [], []
+    bboxes, textboxes = zip(*filtered, strict=True)
+    bboxes, textboxes = list(bboxes), list(textboxes)
     logger.debug(f"_draw_text_bbox: Returning {len(bboxes)} bboxes")
     return bboxes, textboxes

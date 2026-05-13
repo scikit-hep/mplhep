@@ -31,6 +31,33 @@ if TYPE_CHECKING:
     from matplotlib.figure import Figure
 
 
+def _safe_get_renderer(fig):
+    """Return a renderer for *fig*, tolerating canvases without ``get_renderer``.
+
+    On bare ``Figure()`` instances (e.g. ones produced by
+    ``matplotlib.testing.decorators.check_figures_equal`` before save), the
+    canvas is ``FigureCanvasBase`` which lacks ``get_renderer`` on mpl >= 3.11.
+    ``Figure._get_renderer`` is the cross-canvas fallback used by mpl itself.
+    """
+    canvas = fig.canvas
+    if hasattr(canvas, "get_renderer"):
+        return canvas.get_renderer()
+    return fig._get_renderer()
+
+
+def _descent_from_layout(layout):
+    """Extract a scalar descent (in display units) from a ``Text._get_layout`` result.
+
+    mpl < 3.12 returned ``(bbox, lines, descent)`` with ``descent`` a scalar.
+    mpl >= 3.12 returned ``(bbox, lines, (xy_corner, (w, h)))`` where the
+    lower-left corner's y is at ``-descent`` relative to the baseline.
+    """
+    descent_or_corner = layout[2]
+    if isinstance(descent_or_corner, tuple) and isinstance(descent_or_corner[0], tuple):
+        return -descent_or_corner[0][1]
+    return float(descent_or_corner)
+
+
 class ExpLabel(mtext.Text):
     def __repr__(self):
         return f"Experiment Label: Text({self._x}, {self._y}, {self._text!r})"
@@ -483,7 +510,9 @@ def append_text(
 
     ax_width = ax.get_position().width * ax.figure.get_size_inches()[0]  # type: ignore[union-attr]
     ax_height = ax.get_position().height * ax.figure.get_size_inches()[1]  # type: ignore[union-attr]
-    bbox, _, descent = txt_obj._get_layout(ax.figure.canvas.get_renderer())  # type: ignore[attr-defined,union-attr]
+    _layout = txt_obj._get_layout(_safe_get_renderer(ax.figure))  # type: ignore[attr-defined,union-attr]
+    bbox = _layout[0]
+    descent = _descent_from_layout(_layout)
     width, height = bbox.width, bbox.height
     dpi = ax.figure.dpi
     text_height = height / ax_height / dpi
@@ -684,11 +713,10 @@ def exp_text(
         _fmt = ax.get_yaxis().get_major_formatter()
         if hasattr(_fmt, "get_useOffset") and _fmt.get_useOffset():  # type: ignore[attr-defined]
             # Requires figure.draw call, fetch only when needed
-            ax.figure.draw(ax.figure.canvas.get_renderer())  # type: ignore[attr-defined,union-attr]
+            _renderer = _safe_get_renderer(ax.figure)
+            ax.figure.draw(_renderer)  # type: ignore[union-attr]
             _sci_box = _pixel_to_axis(
-                ax.get_yaxis().offsetText.get_window_extent(
-                    ax.figure.canvas.get_renderer()  # type: ignore[attr-defined,union-attr]
-                )  # type: ignore[attr-defined]
+                ax.get_yaxis().offsetText.get_window_extent(_renderer)  # type: ignore[attr-defined]
             )
             # Use abs() to handle cases where extent coordinates may be reversed
             _sci_offset = max(0, abs(_sci_box.width) * 1.1)
