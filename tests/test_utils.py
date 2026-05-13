@@ -308,3 +308,99 @@ def test_yscale_mpl_magic_add_text():
         mh.mpl_magic(axr, soft_fail=True)
 
     return fig
+
+
+def _make_sci_overlap_axes(style):
+    """Build axes that exhibit the xlabel/sci-notation overlap from issue #712."""
+    plt.style.use(style)
+    fig, ax = plt.subplots()
+    np.random.seed(0)
+    ax.plot(np.linspace(0, 5e6, 100), np.random.normal(0, 1, 100))
+    ax.ticklabel_format(axis="x", style="sci", scilimits=(0, 0))
+    ax.set_xlabel("Energy [GeV]")
+    ax.set_ylabel("Events")
+    return fig, ax
+
+
+@pytest.mark.mpl_image_compare(style="default", remove_text=False)
+def test_xlabel_sci_adjust_visual():
+    """Visual baseline for the issue-#712 fix: x-label should not overlap the
+    matplotlib-supplied ``x10^n`` offset text after ``xlabel_sci_adjust``.
+    """
+    fig, ax = _make_sci_overlap_axes(mh.style.ATLAS)
+    mh.atlas.label(loc=1)
+    mh.xlabel_sci_adjust(ax)
+    return fig
+
+
+def _xlabel_offset_overlap(ax):
+    """Return True iff the x-label bbox overlaps the offset-text bbox."""
+    fig = ax.figure
+    fig.canvas.draw()
+    canvas = fig.canvas
+    renderer = (
+        canvas.get_renderer()
+        if hasattr(canvas, "get_renderer")
+        else fig._get_renderer()
+    )
+    xaxis = ax.get_xaxis()
+    offset = xaxis.offsetText.get_window_extent(renderer)
+    label = xaxis.label.get_window_extent(renderer)
+    horiz = label.x1 > offset.x0 and offset.x1 > label.x0
+    vert = label.y1 > offset.y0 and offset.y1 > label.y0
+    return horiz and vert
+
+
+@pytest.mark.parametrize("style", ["ATLAS", "ATLASAlt", "CMS", "ALICE", "LHCb2"])
+def test_xlabel_sci_adjust_resolves_overlap(style):
+    """The fix must turn an overlapping (xlabel vs ``x10^n``) layout into a
+    non-overlapping one, across the styles where the overlap typically occurs.
+    """
+    style_obj = getattr(mh.style, style)
+    fig, ax = _make_sci_overlap_axes(style_obj)
+    assert _xlabel_offset_overlap(ax), (
+        f"Expected pre-fix overlap on style={style}; the test scenario no "
+        f"longer reproduces and needs updating."
+    )
+    mh.xlabel_sci_adjust(ax)
+    assert not _xlabel_offset_overlap(ax), (
+        f"xlabel_sci_adjust did not clear the overlap on style={style}."
+    )
+    plt.close(fig)
+
+
+def test_xlabel_sci_adjust_is_idempotent():
+    """Repeated invocations must not keep bumping labelpad."""
+    fig, ax = _make_sci_overlap_axes(mh.style.ATLAS)
+    mh.xlabel_sci_adjust(ax)
+    pad_after_first = ax.xaxis.labelpad
+    mh.xlabel_sci_adjust(ax)
+    mh.xlabel_sci_adjust(ax)
+    assert ax.xaxis.labelpad == pad_after_first, (
+        "Calling xlabel_sci_adjust again after the first run should be a no-op."
+    )
+    plt.close(fig)
+
+
+def test_xlabel_sci_adjust_skips_when_no_offset():
+    """No sci-notation offset = no labelpad change."""
+    plt.style.use(mh.style.ATLAS)
+    fig, ax = plt.subplots()
+    ax.plot([0, 1, 2], [0, 1, 4])
+    ax.set_xlabel("x")
+    original_pad = ax.xaxis.labelpad
+    mh.xlabel_sci_adjust(ax)
+    assert ax.xaxis.labelpad == original_pad
+    plt.close(fig)
+
+
+def test_xlabel_sci_adjust_skips_when_no_xlabel():
+    """No x-label = nothing to push."""
+    plt.style.use(mh.style.ATLAS)
+    fig, ax = plt.subplots()
+    ax.plot(np.linspace(0, 5e6, 10), np.linspace(0, 1, 10))
+    ax.ticklabel_format(axis="x", style="sci", scilimits=(0, 0))
+    original_pad = ax.xaxis.labelpad
+    mh.xlabel_sci_adjust(ax)
+    assert ax.xaxis.labelpad == original_pad
+    plt.close(fig)
