@@ -769,7 +769,10 @@ def histplot(
 
     # Add sticky edges for autoscale
     if "bar" not in histtype:
-        listy = _artist.sticky_edges.y
+        # histtype excludes "bar"/"barstep" here, so _artist is StepPatch or
+        # ErrorbarContainer; both expose sticky_edges. mypy can't narrow
+        # through the string-membership check, hence the ignore.
+        listy = _artist.sticky_edges.y  # type: ignore[union-attr]
         assert hasattr(listy, "append"), "cannot append to sticky edges"
         listy.append(0)
 

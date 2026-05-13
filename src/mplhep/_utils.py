@@ -359,11 +359,11 @@ def _get_plottables(
         elif flow == "sum":
             if underflow > 0:
                 value[0] += underflow
-                if has_variances:
+                if variance is not None:
                     variance[0] += underflowv
             if overflow > 0:
                 value[-1] += overflow
-                if has_variances:
+                if variance is not None:
                     variance[-1] += overflowv
             plottables.append(
                 EnhancedPlottableHistogram(
@@ -1548,13 +1548,26 @@ def _draw_text_bbox(ax):
         (bboxes, text_objects) - List of bboxes and corresponding text objects
     """
     fig = ax.figure
-    textboxes = [k for k in ax.get_children() if isinstance(k, (AnchoredText, Text))]
+    textboxes = [
+        k
+        for k in ax.get_children()
+        if isinstance(k, (AnchoredText, Text))
+        and (isinstance(k, AnchoredText) or k.get_text())
+    ]
     logger.debug(f"_draw_text_bbox: Found {len(textboxes)} text objects")
     logger.debug(f"_draw_text_bbox: Found {textboxes}")
     if not textboxes:
         return [], []
 
     fig.canvas.draw()
-    bboxes = [box.get_tightbbox(fig.canvas.renderer) for box in textboxes]
+    # Drop null/empty bboxes (mpl >= 3.12 returns Bbox(inf, inf, -inf, -inf)
+    # for unrenderable text, which would propagate as NaN through transforms).
+    bboxes = []
+    kept = []
+    for box in textboxes:
+        bbox = box.get_tightbbox(fig.canvas.renderer)
+        if np.isfinite(bbox.x0) and np.isfinite(bbox.y0):
+            bboxes.append(bbox)
+            kept.append(box)
     logger.debug(f"_draw_text_bbox: Returning {len(bboxes)} bboxes")
-    return bboxes, textboxes
+    return bboxes, kept
