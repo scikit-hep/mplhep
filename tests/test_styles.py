@@ -287,3 +287,62 @@ def test_label_config(fig_test, fig_ref):
     ref_ax = fig_ref.subplots()
     mh.rcParams.clear()
     mh.cms.label(data=False, lumi=30, text="Internal", ax=ref_ax)
+
+
+@pytest.mark.mpl_image_compare(style="default", remove_text=False)
+def test_cms_label_dpi_invariance():
+    """Render `cms.label` on a non-square figure at elevated DPI.
+
+    Regression guard for the dpi-vs-points fix: with the old (dimensionally
+    wrong) formula the CMS<->Preliminary gap was pinned to a constant pixel
+    count regardless of DPI, so at dpi=200 the gap shrinks to a sliver next
+    to the (correctly-DPI-scaled) text. The corrected math keeps the gap a
+    constant fraction of an inch.
+    """
+    fig, axs = plt.subplots(2, 1, figsize=(12, 5), dpi=200)
+    axs[0].set_title("loc=0")
+    mh.cms.label("Preliminary", ax=axs[0], lumi=50, data=True, loc=0)
+    axs[1].set_title("loc=2")
+    mh.cms.label("Preliminary", ax=axs[1], lumi=50, data=True, loc=2)
+    return fig
+
+
+def test_cms_label_gap_is_dpi_invariant():
+    """The horizontal gap between 'CMS' and the appended experiment-status
+    text must be a constant physical size (constant inches), not a constant
+    pixel size, so that high-DPI saves don't shrink the gap to a sliver.
+
+    Under the old `fontsize / ax_width / dpi` formula, the gap was instead
+    pinned to a constant pixel count regardless of DPI -- correct at dpi=100
+    but visibly wrong on a 300 DPI print.
+    """
+    gaps_in_inches = []
+    for dpi in (50, 100, 200, 300):
+        with plt.style.context(mh.style.CMS):
+            fig = plt.figure(figsize=(12, 5), dpi=dpi)
+            ax = fig.add_subplot(111)
+            mh.cms.label("Preliminary", ax=ax, lumi=50, data=True, loc=0)
+            fig.canvas.draw()
+            renderer = fig.canvas.get_renderer()  # type: ignore[attr-defined]
+
+            cms_bb = pre_bb = None
+            for t in ax.texts:
+                if getattr(t, "_text", None) == "CMS":
+                    cms_bb = t.get_window_extent(renderer)
+                elif getattr(t, "_text", None) == "Preliminary":
+                    pre_bb = t.get_window_extent(renderer)
+
+            assert cms_bb is not None, "expected a 'CMS' text artist"
+            assert pre_bb is not None, "expected a 'Preliminary' text artist"
+
+            gaps_in_inches.append((pre_bb.x0 - cms_bb.x1) / dpi)
+            plt.close(fig)
+
+    # All measured gaps should be identical in inches (constant physical
+    # size). Half a hundredth-of-an-inch tolerance for sub-pixel rounding.
+    ref = gaps_in_inches[0]
+    for dpi, gap in zip((50, 100, 200, 300), gaps_in_inches):
+        assert abs(gap - ref) < 5e-3, (
+            f"Gap at dpi={dpi} is {gap:.4f}in but at dpi=50 is {ref:.4f}in -- "
+            f"label positioning is not DPI-invariant. All gaps: {gaps_in_inches}"
+        )

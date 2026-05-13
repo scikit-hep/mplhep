@@ -22,8 +22,13 @@ DEFAULT_PAD_PERCENTAGE = 5.0
 FONT_SIZE_SCALE_EXP = 1.3
 FONT_SIZE_SCALE_LUMI = 1.1
 FONT_SIZE_SCALE_SUPP = 1.3
-FONT_HEIGHT_CORRECTION_FACTOR = 10
-FONT_WIDTH_CORRECTION_FACTOR = 3
+# Height/width correction factors are calibrated so that at the legacy default
+# DPI of 100 the resulting pixel gap equals the value the old (dimensionally
+# wrong) formula produced. With the dimensionally correct (points/72) math now
+# in use, the factors carry the 100/72 calibration constant.
+_LEGACY_DPI_CALIBRATION = 100 / 72
+FONT_HEIGHT_CORRECTION_FACTOR = 10 * _LEGACY_DPI_CALIBRATION
+FONT_WIDTH_CORRECTION_FACTOR = 3 * _LEGACY_DPI_CALIBRATION
 BOTTOM_MARGIN_OFFSET = -0.1
 
 if TYPE_CHECKING:
@@ -235,10 +240,10 @@ def _fontsize_to_points(fontsize: str | float) -> float:
 def _fontsize_axis(ax: Axes, fontsize: str | float) -> float:
     """Convert fontsize to axis fraction units."""
     fontsize_points = _fontsize_to_points(fontsize)
-    return (
-        fontsize_points
-        / (ax.get_position().height * ax.figure.get_size_inches()[1])  # type: ignore[union-attr]
-        / ax.figure.dpi
+    # Convert points to inches (1pt = 1/72 inch), then divide by axis height
+    # in inches to express the font size as an axis-fraction.
+    return (fontsize_points / 72) / (
+        ax.get_position().height * ax.figure.get_size_inches()[1]  # type: ignore[union-attr]
     )
 
 
@@ -516,9 +521,12 @@ def append_text(
     width, height = bbox.width, bbox.height
     dpi = ax.figure.dpi
     text_height = height / ax_height / dpi
-    text_height_corr = fontsize / FONT_HEIGHT_CORRECTION_FACTOR / ax_height / dpi
+    # `fontsize` is in points; convert to inches (/72) before dividing by axis
+    # extents in inches to get an axis-fraction. Using /dpi here would treat
+    # points as pixels and is what caused the gap to look wrong at non-default DPIs.
+    text_height_corr = (fontsize / 72) / FONT_HEIGHT_CORRECTION_FACTOR / ax_height
     text_width = width / ax_width / dpi
-    text_width_corr = fontsize / FONT_WIDTH_CORRECTION_FACTOR / ax_width / dpi
+    text_width_corr = (fontsize / 72) / FONT_WIDTH_CORRECTION_FACTOR / ax_width
     yoffset = descent / ax_height / dpi
 
     # Account for horizontal alignment of the reference text
@@ -704,7 +712,13 @@ def exp_text(
         _fontsize = base_fontsize
         _fontsize_lumi = base_fontsize / FONT_SIZE_SCALE_LUMI
         _fontsize_supp = base_fontsize / FONT_SIZE_SCALE_SUPP
-    _inside_pad = max(5, _fontsize_axis(ax, _fontsize_exp) * 100)
+    # `_fontsize_axis` returns a true physical axis-fraction (fontsize_in / ax_height_in).
+    # The legacy pad calibration was tuned against the old (dimensionally wrong)
+    # formula that, at the default DPI of 100, effectively returned that fraction
+    # scaled by 100/72. Multiplying by 72 here (rather than 100, to convert
+    # fraction -> percent) reproduces the legacy nominal value while staying
+    # DPI-invariant.
+    _inside_pad = max(5, _fontsize_axis(ax, _fontsize_exp) * 72)
     _italic_exp, _italic_suff, _italic_lumi, _italic_supp = fontstyle
     _weight_exp, _weight_suff, _weight_lumi, _weight_supp = fontweight
 
