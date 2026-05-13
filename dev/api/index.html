@@ -2035,6 +2035,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#mplhep.utils.xlabel_sci_adjust" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;xlabel_sci_adjust
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#mplhep.utils.mpl_magic" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -8634,6 +8645,73 @@ labels : List of labels</p>
 </div>
 </div>
 <div class="doc doc-object doc-function">
+<h3 class="doc doc-heading" id="mplhep.utils.xlabel_sci_adjust">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code> <span class="doc doc-object-name doc-function-name">mplhep.utils.xlabel_sci_adjust</span>
+<a class="headerlink" href="#mplhep.utils.xlabel_sci_adjust" title="Permanent link">¤</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nf">xlabel_sci_adjust</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="n">Axes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">mpl</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">Axes</span>
+</span></code></pre></div>
+<div class="doc doc-contents">
+<p>Shift the x-axis label inwards when it overlaps the sci-notation offset text.</p>
+<p>Mirrors the analogous adjustment for experiment labels (<code>CMS</code>, <code>ATLAS</code>, ...)
+on the y-axis: when matplotlib places a <code>x10^n</code> offset at the right edge of
+the x-axis, an x-label anchored at the same right edge (the HEP-style default,
+via <code>xaxis.labellocation = "right"</code>) overlaps the offset text (issue #712).
+This helper detects the overlap and shifts the x-label leftward (inward) by
+just enough to clear it, leaving the offset text where matplotlib drew it.</p>
+<p>The function is idempotent: if no overlap is currently present (e.g. because
+it was already fixed), it is a no-op.</p>
+<p><span class="doc-section-title">Parameters:</span></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="doc-section-item">
+<td>
+<code>ax</code>
+</td>
+<td>
+<code><span title="matplotlib.axes.Axes">Axes</span></code>
+</td>
+<td>
+<div class="doc-md-description">
+<p>Axes object (if None, <code>plt.gca()</code> is used).</p>
+</div>
+</td>
+<td>
+<code>None</code>
+</td>
+</tr>
+</tbody>
+</table>
+<p><span class="doc-section-title">Returns:</span></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="doc-section-item">
+<td>
+<code><span title="matplotlib.axes.Axes">Axes</span></code>
+</td>
+<td>
+<div class="doc-md-description">
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="doc doc-object doc-function">
 <h3 class="doc doc-heading" id="mplhep.utils.mpl_magic">
 <code class="doc-symbol doc-symbol-heading doc-symbol-function"></code> <span class="doc doc-object-name doc-function-name">mplhep.utils.mpl_magic</span>
 <a class="headerlink" href="#mplhep.utils.mpl_magic" title="Permanent link">¤</a></h3>
@@ -8643,7 +8721,8 @@ labels : List of labels</p>
 <p>Consolidate all ex-post style adjustments:
     ylow
     yscale_legend
-    yscale_anchored_text</p>
+    yscale_anchored_text
+    xlabel_sci_adjust</p>
 <p><span class="doc-section-title">Parameters:</span></p>
 <table>
 <thead>
