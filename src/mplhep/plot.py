@@ -560,10 +560,16 @@ def histplot(
             _full_bin_width = 0.8
         else:
             _full_bin_width = kwargs.pop("bin_width")
-        _shift = np.linspace(
-            -(_full_bin_width / 2), _full_bin_width / 2, len(plottables), endpoint=False
-        )
-        _shift += _full_bin_width / (2 * len(plottables))
+        if stack:
+            _shift = np.zeros(len(plottables))
+        else:
+            _shift = np.linspace(
+                -(_full_bin_width / 2),
+                _full_bin_width / 2,
+                len(plottables),
+                endpoint=False,
+            )
+            _shift += _full_bin_width / (2 * len(plottables))
 
     if "step" in histtype:
         for i in range(len(plottables)):
@@ -597,17 +603,18 @@ def histplot(
                     **{k: v for k, v in _kwargs.items() if k != "marker"},
                 )
                 if do_errors:
-                    _kwargs = soft_update_kwargs(_kwargs, {"color": _s.get_edgecolor()})
                     # Match errorbar line width to step edge width (issue #613)
-                    if "elinewidth" not in _kwargs:
-                        _kwargs["elinewidth"] = _s.get_linewidth()
-                    _ls = _kwargs.pop("linestyle", "-")
-                    _kwargs["linestyle"] = "none"
+                    err_kw = _kwargs.copy()
+                    err_kw.setdefault("color", _s.get_edgecolor())
+                    _ls = _kwargs.get("linestyle", "-")
+                    err_kw["linestyle"] = "none"
+                    err_kw.setdefault("elinewidth", _s.get_linewidth())
+
                     _plot_info = plottables[i].to_errorbar()
                     del _plot_info["xerr"]
                     _e = ax.errorbar(
                         **_plot_info,
-                        **_kwargs,
+                        **err_kw,
                     )
                     _e_leg = ax.errorbar(
                         [],
@@ -637,7 +644,10 @@ def histplot(
 
                 _b = ax.bar(
                     plottables[i].centers + _shift[i],
-                    plottables[i].values(),
+                    plottables[i].values() - plottables[i].baseline
+                    if stack
+                    else plottables[i].values(),
+                    bottom=plottables[i].baseline if stack else None,
                     width=_full_bin_width / len(plottables),
                     label=_step_label,
                     align="center",
@@ -647,19 +657,20 @@ def histplot(
                 )
 
                 if do_errors:
-                    _ls = _kwargs.pop("linestyle", "-")
-                    # _kwargs["linestyle"] = "none"
-                    _plot_info = plottables[i].to_errorbar()
                     # Match errorbar line width to bar edge width (issue #613)
                     _bar_lw = _b[0].get_linewidth()
-                    if "elinewidth" not in _kwargs:
-                        _kwargs["elinewidth"] = _bar_lw
+                    _ls = _kwargs.get("linestyle", "-")
+
+                    err_kw = _kwargs.copy()
+                    err_kw["linestyle"] = "none"
+                    err_kw.setdefault("elinewidth", _bar_lw)
+
+                    _plot_info = plottables[i].to_errorbar()
                     _e = ax.errorbar(
                         _plot_info["x"] + _shift[i],
                         _plot_info["y"],
                         yerr=_plot_info["yerr"],
-                        linestyle="none",
-                        **_kwargs,
+                        **err_kw,
                     )
                     _e_leg = ax.errorbar(
                         [],
@@ -687,7 +698,10 @@ def histplot(
 
             _b = ax.bar(
                 plottables[i].centers + _shift[i],
-                plottables[i].values(),
+                plottables[i].values() - plottables[i].baseline
+                if stack
+                else plottables[i].values(),
+                bottom=plottables[i].baseline if stack else None,
                 width=_full_bin_width / len(plottables),
                 label=_labels[i],
                 align="center",

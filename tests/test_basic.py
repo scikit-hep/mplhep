@@ -791,6 +791,53 @@ def test_histplot_bar():
     return fig
 
 
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_histplot_bar_stack():
+    bins = list(range(6))
+    h1 = [1, 2, 3, 2, 1]
+    h2 = [2, 2, 2, 2, 2]
+    h3 = [2, 1, 2, 1, 2]
+
+    fig, axs = plt.subplots(1, 3, figsize=(15, 5))
+
+    axs[0].set_title("bar, stack=True", fontsize=14)
+    mh.histplot(
+        [h1, h2, h3],
+        bins,
+        histtype="bar",
+        stack=True,
+        label=["h1", "h2", "h3"],
+        ax=axs[0],
+    )
+    axs[0].legend()
+
+    axs[1].set_title("barstep, stack=True", fontsize=14)
+    mh.histplot(
+        [h1, h2, h3],
+        bins,
+        histtype="barstep",
+        stack=True,
+        yerr=False,
+        label=["h1", "h2", "h3"],
+        ax=axs[1],
+    )
+    axs[1].legend()
+
+    axs[2].set_title("barstep, stack=True, yerr", fontsize=14)
+    mh.histplot(
+        [h1, h2],
+        bins,
+        histtype="barstep",
+        stack=True,
+        yerr=True,
+        label=["h1", "h2"],
+        ax=axs[2],
+    )
+    axs[2].legend()
+
+    return fig
+
+
 h = np.geomspace(1, 10, 10)
 
 
