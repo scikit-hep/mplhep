@@ -1,12 +1,7 @@
 from __future__ import annotations
 
-import sys
-from typing import Any, Callable, TypeVar
-
-if sys.version_info >= (3, 10):
-    from typing import ParamSpec, TypeAlias
-else:
-    from typing_extensions import ParamSpec, TypeAlias
+from collections.abc import Callable
+from typing import Any, ParamSpec, TypeAlias, TypeVar
 
 T = TypeVar("T")
 P = ParamSpec("P")

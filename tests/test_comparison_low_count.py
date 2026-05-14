@@ -82,7 +82,7 @@ def test_low_count_comparisons_defaults():
     h_data, h_model = _make_low_count_hists()
     n = len(COMPARISONS)
     fig, axes = plt.subplots(n, 1, figsize=(8, 3 * n))
-    for ax, comp_type in zip(axes, COMPARISONS):
+    for ax, comp_type in zip(axes, COMPARISONS, strict=True):
         comparison(
             h_data,
             h_model,

@@ -23,14 +23,14 @@ jobs:
       fail-fast: false
       matrix:
         runs-on: [ ubuntu-latest ]
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
         include:  # testing the last "reasonable supported" version
           - runs-on: macOS-15-intel
-            python-version: "3.9"
+            python-version: "3.10"
           - runs-on: macOS-latest
-            python-version: "3.9"
+            python-version: "3.10"
           - runs-on: windows-latest
-            python-version: "3.9"
+            python-version: "3.10"
 
     steps:
       - uses: actions/checkout@v6

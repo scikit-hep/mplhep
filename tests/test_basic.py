@@ -705,7 +705,9 @@ def test_histplot_w2_methods():
         ) * 0.2 * np.mean(w)
 
     fig, axs = plt.subplots(2, 3, figsize=(12, 8))
-    for ax, method in zip(axs.flatten(), [None, "poisson", "sqrt", fcn1, fcn2]):
+    for ax, method in zip(
+        axs.flatten(), [None, "poisson", "sqrt", fcn1, fcn2], strict=False
+    ):
         mh.histplot(htype1, w2=htype1_w2, w2method=method, ax=ax, label="With w2")
         mh.histplot(htype1, w2method=method, ax=ax, label="No w2 passed")
         htype2.plot(w2method=method, ax=ax, label="Hist")

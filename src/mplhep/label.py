@@ -1110,7 +1110,7 @@ def save_variations(
         for ax in fig.get_axes():
             exp_labels = [t for t in ax.get_children() if isinstance(t, ExpText)]
             suffixes = [t for t in ax.get_children() if isinstance(t, ExpText)]
-            for exp_label, suffix_text in zip(exp_labels, suffixes):
+            for exp_label, suffix_text in zip(exp_labels, suffixes, strict=True):
                 if exp is not None:
                     exp_label.set_text(exp)
                 suffix_text.set_text(text)

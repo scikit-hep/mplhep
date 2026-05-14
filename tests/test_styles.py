@@ -341,7 +341,7 @@ def test_cms_label_gap_is_dpi_invariant():
     # All measured gaps should be identical in inches (constant physical
     # size). Half a hundredth-of-an-inch tolerance for sub-pixel rounding.
     ref = gaps_in_inches[0]
-    for dpi, gap in zip((50, 100, 200, 300), gaps_in_inches):
+    for dpi, gap in zip((50, 100, 200, 300), gaps_in_inches, strict=True):
         assert abs(gap - ref) < 5e-3, (
             f"Gap at dpi={dpi} is {gap:.4f}in but at dpi=50 is {ref:.4f}in -- "
             f"label positioning is not DPI-invariant. All gaps: {gaps_in_inches}"

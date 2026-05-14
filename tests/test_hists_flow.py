@@ -31,7 +31,7 @@ def test_hists_flow():
     flow_options = ["hint", "show", "sum", "none"]
     titles = ["Default(hint)", "Show", "Sum", "None"]
 
-    for idx, (flow_opt, title) in enumerate(zip(flow_options, titles)):
+    for idx, (flow_opt, title) in enumerate(zip(flow_options, titles, strict=True)):
         row_offset = (idx // 2) * 2  # 0 for first two, 2 for last two
         col = idx % 2
 

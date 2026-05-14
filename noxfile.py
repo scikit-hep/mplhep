@@ -8,7 +8,7 @@ nox.options.sessions = ["lint", "tests"]
 nox.needs_version = ">=2025.2.9"
 nox.options.default_venv_backend = "uv|venv"
 
-PYTHON_ALL_VERSIONS = ["3.9", "3.13"]
+PYTHON_ALL_VERSIONS = ["3.10", "3.13"]
 
 
 @nox.session(reuse_venv=True)

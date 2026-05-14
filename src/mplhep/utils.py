@@ -38,7 +38,7 @@ def merge_legend_handles_labels(handles, labels):
 
     seen_labels = []
     seen_label_handles = []
-    for handle, label in zip(handles, labels):
+    for handle, label in zip(handles, labels, strict=True):
         if label not in seen_labels:
             seen_labels.append(label)
             seen_label_handles.append([handle])
@@ -565,7 +565,7 @@ def sort_legend(ax, order=None):
     """
 
     handles, labels = ax.get_legend_handles_labels()
-    by_label = OrderedDict(zip(labels, handles))
+    by_label = OrderedDict(zip(labels, handles, strict=True))
 
     if isinstance(order, OrderedDict):
         ordered_label_list = list(order.keys())

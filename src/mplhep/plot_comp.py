@@ -508,6 +508,7 @@ def model(
             unstacked_colors,
             unstacked_labels,
             unstacked_kwargs_list,
+            strict=True,
         ):
             if model_type == "histograms":
                 unstacked_kwargs.setdefault("histtype", "step")
