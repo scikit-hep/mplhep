@@ -163,7 +163,7 @@ def test_append_text_placement(fontname):
         # Use original labeling pattern to match baseline images
         labels = ["1", "2", "2", "1"]  # Original pattern from t1, t2, t3, t4
         for _, (text_obj, font_size, label_prefix) in enumerate(
-            zip(texts, font_sizes, labels)
+            zip(texts, font_sizes, labels, strict=True)
         ):
             label = f"{label_prefix}-{app_pos}"
             mh.append_text(label, text_obj, fontsize=font_size, **append_kwargs)

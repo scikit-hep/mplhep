@@ -270,7 +270,7 @@ def _get_plottables(
         xoffsets = parsed_offsets
     else:
         xoffsets = [None] * len(hists)
-    for h, xoffset in zip(hists, xoffsets):
+    for h, xoffset in zip(hists, xoffsets, strict=True):
         value, variance = np.copy(h.values()), h.variances()
         if has_variances := variance is not None:
             variance = np.copy(variance)
@@ -379,7 +379,9 @@ def _get_plottables(
 
     if w2 is not None:
         for _w2, _plottable in zip(
-            np.array(w2).reshape(len(plottables), len(final_bins) - 1), plottables
+            np.array(w2).reshape(len(plottables), len(final_bins) - 1),
+            plottables,
+            strict=True,
         ):
             _plottable.set_variances(_w2)
             _plottable.method = w2method
@@ -462,7 +464,7 @@ def _yerr_plottables(plottables, bins, yerr=None):
             raise ValueError(msg)
 
         assert _yerr is not None
-        for yrs, _plottable in zip(_yerr, plottables):
+        for yrs, _plottable in zip(_yerr, plottables, strict=True):
             _plottable.fixed_errors(*yrs)
 
 
@@ -514,7 +516,7 @@ def _norm_stack_plottables(plottables, bins, stack=False, density=False, binwnor
                 plottable.density()
     elif binwnorm is not None:
         for plottable, norm in zip(
-            plottables, np.broadcast_to(binwnorm, (len(plottables),))
+            plottables, np.broadcast_to(binwnorm, (len(plottables),)), strict=True
         ):
             plottable.flat_scale(norm)
             plottable.binwnorm()

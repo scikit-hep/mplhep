@@ -3,7 +3,7 @@ from __future__ import annotations
 import collections.abc
 import inspect
 import logging
-from typing import TYPE_CHECKING, Any, NamedTuple, Union
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -68,7 +68,7 @@ class ColormeshArtists(NamedTuple):
     text: Any
 
 
-Hist1DArtists = Union[StairsArtists, ErrorBarArtists]
+Hist1DArtists = StairsArtists | ErrorBarArtists
 Hist2DArtists = ColormeshArtists
 
 
@@ -1527,6 +1527,7 @@ def model(
             unstacked_colors,
             unstacked_labels,
             unstacked_kwargs_list,
+            strict=True,
         ):
             if model_type == "histograms":
                 unstacked_kwargs.setdefault("histtype", "step")
