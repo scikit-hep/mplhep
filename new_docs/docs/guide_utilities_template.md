@@ -133,6 +133,7 @@ The function [mh.mpl_magic][mplhep.mpl_magic] applies several common mplhep util
 - [mh.set_ylow][mplhep.set_ylow]: Sets a minimum y-axis limit based on data.
 - [mh.yscale_legend][mplhep.yscale_legend]: Rescales the y-axis to fit the legend.
 - [mh.yscale_anchored_text][mplhep.yscale_anchored_text]: Rescales the y-axis to fit anchored text.
+- [mh.xlabel_sci_adjust][mplhep.xlabel_sci_adjust]: Shift the x-axis label inwards when it overlaps the sci-notation offset text.
 
 ```python
 mh.mpl_magic(ax)
