@@ -1163,7 +1163,7 @@ def _is_debug_marker(artist):
     return hasattr(artist, "get_label") and artist.get_label() in DEBUG_LABELS
 
 
-def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
+def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None, return_per_bbox=False):
     """
     Find overlap of bboxes (in display coordinates) with drawn elements on axes.
 
@@ -1173,6 +1173,9 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
 
     Returns number of overlapping points/bboxes.
     If get_vertices, also return vertices in data coordinates.
+    If return_per_bbox, also return a boolean list indicating which bboxes
+    contributed to the overlap (via contained/occluding vertices or bbox-bbox
+    overlap). Implies ``get_vertices``.
 
     Parameters
     ----------
@@ -1184,6 +1187,11 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
         If True, also return vertices in data coordinates
     exclude_texts : list, optional
         List of Text objects to exclude from overlap detection (to avoid self-overlap)
+    return_per_bbox : bool, optional
+        If True, also return per-bbox overlap flags. The returned tuple is
+        ``(overlap_count, vertices_data, bbox_overlaps)`` where
+        ``bbox_overlaps[i]`` is True iff ``bboxes[i]`` had any contained,
+        occluding, or bbox-bbox overlap.
     """
     if not isinstance(bboxes, list):
         bboxes = [bboxes]
@@ -1289,33 +1297,36 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
         f"Annotation bboxes extents in data coordinates: {[f'x=[{b.x0:.3f}, {b.x1:.3f}], y=[{b.y0:.3f}, {b.y1:.3f}]' for b in bboxes_data]}"
     )
 
-    # Calculate overlap in display coordinates
+    # Calculate overlap in display coordinates. Each bbox accumulates:
+    #   - contained vertex hits (vertex inside the bbox),
+    #   - occluding vertex hits (vertex in same x-range AND above bbox.y1),
+    #   - bbox-bbox overlaps against other text/patch bboxes.
+    # The vertex checks are vectorised over all vertices at once; previously
+    # they were two separate passes plus a Python-level ``bbox.contains`` loop.
+    have_vertices = len(all_vertices_display) > 0
+    if have_vertices:
+        vx = all_vertices_display[:, 0]
+        vy = all_vertices_display[:, 1]
     overlap_count = 0
-    overlapping_vertices_data = []  # Track all vertices that contribute to overlap in data coordinates
-    for bbox in bboxes:
-        contained = bbox.count_contains(all_vertices_display)
-        if contained > 0:
-            # Find which vertices are contained
-            contained_mask = np.array(
-                [bbox.contains(x, y) for x, y in all_vertices_display]
-            )
-            overlapping_vertices_data.extend(all_vertices_data[contained_mask])
-        overlap_count += contained + bbox.count_overlaps(bboxes_display)
-
-    # Also check if data vertices are above the text bbox (occluding it)
-    # This catches cases where the histogram bars cover the text
-    for bbox in bboxes:
-        if len(all_vertices_display) > 0:
-            # Check if any vertices are in the same x-range but above the bbox
-            in_x_range = (all_vertices_display[:, 0] >= bbox.x0) & (
-                all_vertices_display[:, 0] <= bbox.x1
-            )
-            above_bbox = all_vertices_display[:, 1] > bbox.y1
-            occluding = in_x_range & above_bbox
-            if occluding.any():
-                overlap_count += occluding.sum()
-                # Collect occluding vertices in data coordinates
-                overlapping_vertices_data.extend(all_vertices_data[occluding])
+    overlapping_vertices_data = []  # vertices that contribute to overlap (data coords)
+    bbox_overlaps = [False] * len(bboxes)
+    for i, bbox in enumerate(bboxes):
+        bbox_hit = False
+        if have_vertices:
+            in_x = (vx >= bbox.x0) & (vx <= bbox.x1)
+            contained_mask = in_x & (vy >= bbox.y0) & (vy <= bbox.y1)
+            occluding_mask = in_x & (vy > bbox.y1)
+            n_contained = int(contained_mask.sum())
+            n_occluding = int(occluding_mask.sum())
+            if n_contained:
+                overlapping_vertices_data.extend(all_vertices_data[contained_mask])
+            if n_occluding:
+                overlapping_vertices_data.extend(all_vertices_data[occluding_mask])
+            overlap_count += n_contained + n_occluding
+            bbox_hit = bool(n_contained or n_occluding)
+        n_bbox_bbox = bbox.count_overlaps(bboxes_display)
+        overlap_count += n_bbox_bbox
+        bbox_overlaps[i] = bbox_hit or bool(n_bbox_bbox)
 
     logger.info(f"Overlap count: {overlap_count}")
     if overlapping_vertices_data:
@@ -1392,6 +1403,8 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
         ax.set_xlim(current_xlim)
         ax.set_ylim(current_ylim)
 
+    if return_per_bbox:
+        return overlap_count, all_vertices_data, bbox_overlaps
     if get_vertices:
         return overlap_count, all_vertices_data
     return overlap_count
@@ -1422,34 +1435,31 @@ def _calculate_optimal_scaling(ax, bboxes, exclude_texts=None):
     if not isinstance(bboxes, list):
         bboxes = [bboxes]
 
-    # Check for overlaps
-    overlap_count, vertices = _overlap(
-        ax, bboxes, get_vertices=True, exclude_texts=exclude_texts
+    # Check for overlaps. ``bbox_overlaps[i]`` is the per-bbox flag computed
+    # inside ``_overlap``; reusing it avoids a second O(n_vertices * n_bboxes)
+    # pass to figure out which bboxes were the cause.
+    overlap_count, vertices, bbox_overlaps = _overlap(
+        ax, bboxes, return_per_bbox=True, exclude_texts=exclude_texts
     )
     if overlap_count == 0:
         return 1.0
 
-    # Convert bboxes to data coordinates and filter degenerate ones
-    bboxes_data = [bbox.transformed(ax.transData.inverted()) for bbox in bboxes]
-    bboxes_data = [b for b in bboxes_data if b.y1 > b.y0]
+    # Convert bboxes to data coordinates. Keep only those that ``_overlap``
+    # flagged as contributing AND that aren't degenerate (y1 > y0). If the
+    # filter wipes out every bbox (e.g. all flagged ones happened to be
+    # degenerate in data coords), fall back to every non-degenerate bbox so
+    # scaling can still be attempted.
+    inv = ax.transData.inverted()
+    all_bboxes_data = [bbox.transformed(inv) for bbox in bboxes]
+    bboxes_data = [
+        b
+        for b, ov in zip(all_bboxes_data, bbox_overlaps, strict=True)
+        if ov and b.y1 > b.y0
+    ]
+    if not bboxes_data:
+        bboxes_data = [b for b in all_bboxes_data if b.y1 > b.y0]
     if not bboxes_data:
         return 1.0
-
-    # Determine which bboxes actually have overlapping vertices
-    # Only these should be used for computing the required scaling
-    if len(vertices) > 0:
-        overlapping_bboxes_data = []
-        for bbox_data in bboxes_data:
-            in_x = (vertices[:, 0] >= bbox_data.x0) & (vertices[:, 0] <= bbox_data.x1)
-            in_y = (vertices[:, 1] >= bbox_data.y0) & (vertices[:, 1] <= bbox_data.y1)
-            contained = (in_x & in_y).any()
-            above = (in_x & (vertices[:, 1] > bbox_data.y1)).any()
-            if contained or above:
-                overlapping_bboxes_data.append(bbox_data)
-        # Fall back to all bboxes if no vertex-based overlap found
-        # (overlap may come from bbox-bbox overlap)
-        if overlapping_bboxes_data:
-            bboxes_data = overlapping_bboxes_data
 
     # Get annotation properties
     tallest_bbox = max(bboxes_data, key=lambda b: b.y1)
