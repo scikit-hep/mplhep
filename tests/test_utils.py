@@ -2,8 +2,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 from matplotlib.offsetbox import AnchoredText
+from matplotlib.transforms import Bbox
 
 import mplhep as mh
+from mplhep._utils import _calculate_optimal_scaling, _overlap
 
 plt.switch_backend("Agg")
 
@@ -403,4 +405,95 @@ def test_xlabel_sci_adjust_skips_when_no_xlabel():
     original_x = ax.xaxis.label.get_position()[0]
     mh.xlabel_sci_adjust(ax)
     assert ax.xaxis.label.get_position()[0] == original_x
+    plt.close(fig)
+
+
+def test_overlap_per_bbox_flags_multi_bbox():
+    """Regression test for #699: when several bboxes are passed but only a
+    subset actually overlap data, ``_overlap(return_per_bbox=True)`` must
+    flag exactly the contributing ones.
+
+    Without this, ``_calculate_optimal_scaling`` would have to redo the
+    contained/occluding check itself against *all* vertices, which was both
+    slow and used a filter criterion that could disagree with the count.
+    """
+    fig, ax = plt.subplots()
+    # Diagonal line through the axes.
+    ax.plot([0, 1, 2, 3, 4], [0, 1, 2, 3, 4])
+    ax.set_xlim(0, 5)
+    ax.set_ylim(0, 5)
+    fig.canvas.draw()
+
+    def disp_bbox(x0, y0, x1, y1):
+        (dx0, dy0), (dx1, dy1) = ax.transData.transform([[x0, y0], [x1, y1]])
+        return Bbox.from_extents(dx0, dy0, dx1, dy1)
+
+    # bbox A: contains the line at (1.5, 1.5) -> hit.
+    bbox_a = disp_bbox(1.0, 1.0, 2.0, 2.0)
+    # bbox B: in the top-left corner, ABOVE every line vertex in its x-range
+    #         -> not contained, not occluded -> no hit.
+    bbox_b = disp_bbox(0.1, 4.5, 0.3, 4.9)
+    # bbox C: below the line in column x in [3, 4] -> occluded -> hit.
+    bbox_c = disp_bbox(3.0, 0.0, 4.0, 1.0)
+
+    count, _verts, flags = _overlap(ax, [bbox_a, bbox_b, bbox_c], return_per_bbox=True)
+
+    assert count > 0
+    assert flags == [True, False, True], (
+        f"per-bbox flags should isolate the actually-overlapping bboxes, got {flags}"
+    )
+    plt.close(fig)
+
+
+def test_overlap_per_bbox_bbox_bbox():
+    """A bbox that doesn't intersect any plot vertex but DOES overlap another
+    text bbox on the axes must still be flagged. This is the path that
+    earlier filters could drop because they only looked at vertex overlap.
+    """
+    fig, ax = plt.subplots()
+    ax.set_xlim(0, 5)
+    ax.set_ylim(0, 5)
+    txt = ax.text(2.5, 2.5, "hello")
+    fig.canvas.draw()
+    text_bbox = txt.get_window_extent()
+
+    # Overlapping shift in display coords -- guaranteed not to touch any line.
+    overlap_bbox = Bbox.from_extents(
+        text_bbox.x0 + 1,
+        text_bbox.y0 + 1,
+        text_bbox.x1 + 1,
+        text_bbox.y1 + 1,
+    )
+    count, _verts, flags = _overlap(ax, [overlap_bbox], return_per_bbox=True)
+    assert count > 0
+    assert flags == [True]
+    plt.close(fig)
+
+
+def test_calculate_optimal_scaling_with_subset_overlap():
+    """End-to-end regression for #699: when only some bboxes overlap data,
+    ``_calculate_optimal_scaling`` must compute the scaling from those bboxes
+    only -- not let a far-from-overlap bbox influence (or null out) the
+    answer because all bboxes get fed in together.
+    """
+    fig, ax = plt.subplots()
+    ax.plot([0, 1, 2, 3, 4], [0, 1, 2, 3, 4])
+    ax.set_xlim(0, 5)
+    ax.set_ylim(0, 5)
+    fig.canvas.draw()
+
+    def disp_bbox(x0, y0, x1, y1):
+        (dx0, dy0), (dx1, dy1) = ax.transData.transform([[x0, y0], [x1, y1]])
+        return Bbox.from_extents(dx0, dy0, dx1, dy1)
+
+    overlapping = disp_bbox(0.5, 0.5, 2.0, 2.0)  # contains line vertices
+    free = disp_bbox(0.1, 4.5, 0.3, 4.9)  # top-left, above any line vertex
+
+    scale = _calculate_optimal_scaling(ax, [overlapping, free])
+    assert scale > 1.0, (
+        f"expected scale > 1 because `overlapping` covers plot data; got {scale}"
+    )
+
+    # Sanity: with only the non-overlapping bbox, no scaling is needed.
+    assert _calculate_optimal_scaling(ax, [free]) == 1.0
     plt.close(fig)
