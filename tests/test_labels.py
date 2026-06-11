@@ -19,7 +19,7 @@ import pytest
 os.environ["RUNNING_PYTEST"] = "true"
 
 import mplhep as mh
-from mplhep.label import exp_label, exp_text
+from mplhep.label import _parse_com, exp_label, exp_text
 
 plt.switch_backend("Agg")
 
@@ -295,4 +295,84 @@ def test_exp_label_scilocator_adjust():
     )
     mh.add_text("scilocator_adjust=False", loc="lower right", ax=ax2, fontsize=10)
 
+    return fig
+
+
+@pytest.mark.parametrize(
+    ("com", "expected"),
+    [
+        (None, (None, None)),
+        (13, ("13", "TeV")),
+        (13.6, ("13.6", "TeV")),
+        ("13.6", ("13.6", "TeV")),
+        ("500 GeV", ("500", "GeV")),
+        ("500GeV", ("500", "GeV")),
+        ("900 MeV", ("900", "MeV")),
+        (".5 GeV", (".5", "GeV")),
+    ],
+)
+def test_parse_com(com, expected):
+    assert _parse_com(com) == expected
+
+
+@pytest.mark.parametrize(
+    ("com", "expected_in", "expected_not_in"),
+    [
+        ("13", "(13 TeV)", None),
+        (None, None, "TeV"),
+        ("500 GeV", "(500 GeV)", "TeV"),
+        ("900 MeV", "(900 MeV)", "TeV"),
+    ],
+)
+def test_exp_label_com(com, expected_in, expected_not_in):
+    """com units are respected and com=None omits the energy entirely."""
+    fig, ax = plt.subplots()
+    _, _, lumi_text, _ = exp_label(exp="TEST", lumi=100, com=com, ax=ax)
+    label = lumi_text.get_text()
+    if expected_in is not None:
+        assert expected_in in label
+    if expected_not_in is not None:
+        assert expected_not_in not in label
+    assert "100" in label
+    plt.close(fig)
+
+
+@pytest.mark.parametrize(
+    ("com", "expected_in", "expected_not_in"),
+    [
+        ("13", r"\mathrm{13\ TeV}", None),
+        (None, None, r"\sqrt{s}"),
+        ("500 GeV", r"\mathrm{500\ GeV}", "TeV"),
+    ],
+)
+def test_exp_label_com_atlas_style(com, expected_in, expected_not_in):
+    """ATLAS-style (loc=4) sqrt(s) line respects units and com=None."""
+    fig, ax = plt.subplots()
+    _, _, lumi_text, _ = exp_label(exp="TEST", lumi=139, com=com, loc=4, ax=ax)
+    label = lumi_text.get_text()
+    if expected_in is not None:
+        assert expected_in in label
+    if expected_not_in is not None:
+        assert expected_not_in not in label
+    assert "139" in label
+    plt.close(fig)
+
+
+@pytest.mark.parametrize("loc", [0, 4])
+def test_exp_label_com_none_no_lumi(loc):
+    """com=None with no lumi/year creates no luminosity text at all."""
+    fig, ax = plt.subplots()
+    _, _, lumi_text, _ = exp_label(exp="TEST", com=None, loc=loc, ax=ax)
+    assert lumi_text is None
+    plt.close(fig)
+
+
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_exp_label_com_variants():
+    """Visual test for com=None and com with explicit units."""
+    fig, axs = plt.subplots(2, 2, figsize=(12, 10))
+    exp_label(exp="TEST", lumi=100, ax=axs[0, 0])
+    exp_label(exp="TEST", lumi=100, com=None, ax=axs[0, 1])
+    exp_label(exp="TEST", lumi=100, com="500 GeV", ax=axs[1, 0])
+    exp_label(exp="TEST", lumi=100, com="500 GeV", loc=4, ax=axs[1, 1])
     return fig
