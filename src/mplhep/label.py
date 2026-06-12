@@ -51,16 +51,26 @@ def _safe_get_renderer(fig):
 
 
 def _descent_from_layout(layout):
-    """Extract a scalar descent (in display units) from a ``Text._get_layout`` result.
+    """Extract a scalar typographic descent (in display units) from ``Text._get_layout``.
 
-    mpl < 3.12 returned ``(bbox, lines, descent)`` with ``descent`` a scalar.
-    mpl >= 3.12 returned ``(bbox, lines, (xy_corner, (w, h)))`` where the
-    lower-left corner's y is at ``-descent`` relative to the baseline.
+    mpl < 3.11 returned ``(bbox, lines, descent)`` with ``descent`` a scalar
+    measuring the descent below the baseline, independent of the text's ``va``.
+
+    mpl >= 3.11 returns ``(bbox, lines, (xy_corner, size))`` where ``xy_corner``
+    is relative to the text *anchor* (which shifts with ``va``), so it must not
+    be used directly.  Instead, the per-line ``wad = (width, ascent, descent)``
+    tuples in ``layout[1]`` give the true typographic descent independent of
+    ``va``.
     """
-    descent_or_corner = layout[2]
-    if isinstance(descent_or_corner, tuple) and isinstance(descent_or_corner[0], tuple):
-        return -descent_or_corner[0][1]
-    return float(descent_or_corner)
+    third = layout[2]
+    if isinstance(third, tuple) and isinstance(third[0], tuple):
+        # mpl >= 3.11: use per-line wad for va-independent typographic descent
+        lines_data = layout[1]
+        if lines_data:
+            wad = lines_data[0][1]  # (width, ascent, descent) for first line
+            return float(wad[2])
+        return 0.0
+    return float(third)  # mpl < 3.11: direct scalar descent
 
 
 class ExpLabel(mtext.Text):

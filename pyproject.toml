@@ -25,7 +25,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Physics",
 ]
 dependencies = [
-    "matplotlib>=3.10.8",
+    "matplotlib>=3.11.0",
     "mplhep-data>=0.0.4",
     "numpy>=1.16.0",
     "packaging",
