@@ -337,7 +337,7 @@ class DevScript:
                     self._print_success(
                         f"Removed {item.relative_to(self.project_root)}"
                     )
-            except OSError as e:  # noqa: PERF203
+            except OSError as e:
                 self._print_error(f"Failed to remove {item}: {e}")
 
         if len(items_to_clean) > 10:
@@ -478,7 +478,7 @@ class DevScript:
                     self._print_success(
                         f"Removed {item.relative_to(self.project_root)}"
                     )
-            except OSError as e:  # noqa: PERF203
+            except OSError as e:
                 self._print_error(f"Failed to remove {item}: {e}")
 
         if len(items_to_clean) > 10:
@@ -546,9 +546,7 @@ class DevScript:
             self._print_success(f"Will save benchmark results as: {baseline_name}")
         else:
             # Auto-generate baseline name with timestamp
-            timestamp = datetime.datetime.now(tz=datetime.timezone.utc).strftime(
-                "%Y%m%d_%H%M%S"
-            )
+            timestamp = datetime.datetime.now(tz=datetime.UTC).strftime("%Y%m%d_%H%M%S")
             baseline_name = f"run_{timestamp}"
             cmd.append(f"--benchmark-save={baseline_name}")
             self._print_success(f"Will save benchmark results as: {baseline_name}")
