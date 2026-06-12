@@ -393,6 +393,11 @@ def histplot(
         Attempts to draw x-axis ticks coinciding with bin boundaries if feasible.
     xoffsets : bool, default: False,
         If True, the bin "centers" of plotted histograms will be offset within their bin.
+    bin_width : float, default: 0.8
+        Only used for ``histtype="bar"`` and ``histtype="barstep"``. Fraction of
+        each bin's width occupied by the group of side-by-side bars (e.g. ``0.8``
+        leaves a 20% gap between adjacent bins). Scaled per-bin, so variable-width
+        bins are handled correctly.
 
     Returns
     -------
@@ -460,6 +465,11 @@ def histplot(
 
     def iterable_not_string(arg):
         return isinstance(arg, collections.abc.Iterable) and not isinstance(arg, str)
+
+    # bin_width is a histplot-level option (fraction of each bin width used by
+    # the "bar"/"barstep" histtypes), not a per-hist artist kwarg. Pop it here
+    # before chunking so it is never forwarded to matplotlib.
+    _bin_width_frac = kwargs.pop("bin_width", 0.8)
 
     _chunked_kwargs: list[dict[str, Any]] = [{} for _ in hists]
     for kwarg, kwarg_content in kwargs.items():
@@ -556,14 +566,18 @@ def histplot(
                         _chunked_kwargs[i][k] = v
 
     if "bar" in histtype:
-        if kwargs.get("bin_width") is None:
-            _full_bin_width = 0.8
-        else:
-            _full_bin_width = kwargs.pop("bin_width")
+        # ``_bin_width_frac`` is the fraction of each bin's width occupied by the
+        # group of bars (default 0.8). ``_shift`` and the per-bar width below are
+        # expressed as fractions of the bin width here, and scaled to data units
+        # per-bin via ``_bin_widths`` at plotting time so that variable-width
+        # bins render correctly. For unit-width bins ``_bin_widths == 1`` and the
+        # result is identical to using the fraction directly.
+        _full_bin_width = _bin_width_frac
         _shift = np.linspace(
             -(_full_bin_width / 2), _full_bin_width / 2, len(plottables), endpoint=False
         )
         _shift += _full_bin_width / (2 * len(plottables))
+        _bar_width = _full_bin_width / len(plottables)
 
     if "step" in histtype:
         for i in range(len(plottables)):
@@ -573,9 +587,6 @@ def histplot(
             )
 
             _kwargs = _chunked_kwargs[i]
-
-            if _kwargs.get("bin_width"):
-                _kwargs.pop("bin_width")
 
             _label = _labels[i] if do_errors else None
             _step_label = _labels[i] if not do_errors else None
@@ -635,10 +646,13 @@ def histplot(
                 else:
                     edgecolor = _kwargs.pop("edgecolor")
 
+                # Per-bin widths (handles variable-width and flow bins).
+                _widths_i = np.diff(plottables[i].edges_1d())
+
                 _b = ax.bar(
-                    plottables[i].centers + _shift[i],
+                    plottables[i].centers + _shift[i] * _widths_i,
                     plottables[i].values(),
-                    width=_full_bin_width / len(plottables),
+                    width=_bar_width * _widths_i,
                     label=_step_label,
                     align="center",
                     edgecolor=edgecolor,
@@ -655,7 +669,7 @@ def histplot(
                     if "elinewidth" not in _kwargs:
                         _kwargs["elinewidth"] = _bar_lw
                     _e = ax.errorbar(
-                        _plot_info["x"] + _shift[i],
+                        _plot_info["x"] + _shift[i] * _widths_i,
                         _plot_info["y"],
                         yerr=_plot_info["yerr"],
                         linestyle="none",
@@ -682,13 +696,13 @@ def histplot(
         for i in range(len(plottables)):
             _kwargs = _chunked_kwargs[i]
 
-            if _kwargs.get("bin_width"):
-                _kwargs.pop("bin_width")
+            # Per-bin widths (handles variable-width and flow bins).
+            _widths_i = np.diff(plottables[i].edges_1d())
 
             _b = ax.bar(
-                plottables[i].centers + _shift[i],
+                plottables[i].centers + _shift[i] * _widths_i,
                 plottables[i].values(),
-                width=_full_bin_width / len(plottables),
+                width=_bar_width * _widths_i,
                 label=_labels[i],
                 align="center",
                 fill=True,
