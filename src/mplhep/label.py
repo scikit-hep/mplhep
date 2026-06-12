@@ -313,6 +313,27 @@ def _parse_loc_to_xy(loc):
     raise ValueError(error_msg)
 
 
+def _apply_latex_font_commands(text: str, **kwargs: Any) -> str:
+    """Wrap text in LaTeX font commands based on fontweight/fontstyle kwargs.
+
+    Only applies when ``rcParams["text.usetex"]`` is True and text is non-empty.
+    The order is ``\\textbf{\\textit{...}}`` when both bold and italic are requested.
+    """
+    if not (rcParams.get("text.usetex", False) and text):
+        return text
+    fontweight = kwargs.get("fontweight", "normal")
+    fontstyle = kwargs.get("fontstyle", "normal")
+    is_bold = fontweight in ("bold", 700, "heavy")
+    is_italic = fontstyle in ("italic", "oblique")
+    if is_bold and is_italic:
+        return rf"\textbf{{\textit{{{text}}}}}"
+    if is_bold:
+        return rf"\textbf{{{text}}}"
+    if is_italic:
+        return rf"\textit{{{text}}}"
+    return text
+
+
 def add_text(
     text: str,
     loc: str | None = None,
@@ -464,21 +485,7 @@ def add_text(
         raise TypeError(msg)
 
     # When using LaTeX, wrap text in appropriate commands based on fontweight and fontstyle
-    _text = text
-    if rcParams.get("text.usetex", False) and text:
-        fontweight = kwargs.get("fontweight", "normal")
-        fontstyle = kwargs.get("fontstyle", "normal")
-
-        # Apply both bold and italic if needed (order matters: textbf outside textit)
-        is_bold = fontweight in ("bold", 700, "heavy")
-        is_italic = fontstyle in ("italic", "oblique")
-
-        if is_bold and is_italic:
-            _text = rf"\textbf{{\textit{{{_text}}}}}"
-        elif is_bold:
-            _text = rf"\textbf{{{_text}}}"
-        elif is_italic:
-            _text = rf"\textit{{{_text}}}"
+    _text = _apply_latex_font_commands(text, **kwargs)
 
     t = text_class(
         float(x), float(y), _text, fontsize=_font_size, transform=transform, **kwargs
@@ -631,21 +638,7 @@ def append_text(
         _x = _debug_x_override
 
     # When using LaTeX, wrap text in appropriate commands based on fontweight and fontstyle
-    _s = s
-    if rcParams.get("text.usetex", False) and s:
-        fontweight = kwargs.get("fontweight", "normal")
-        fontstyle = kwargs.get("fontstyle", "normal")
-
-        # Apply both bold and italic if needed (order matters: textbf outside textit)
-        is_bold = fontweight in ("bold", 700, "heavy")
-        is_italic = fontstyle in ("italic", "oblique")
-
-        if is_bold and is_italic:
-            _s = rf"\textbf{{\textit{{{_s}}}}}"
-        elif is_bold:
-            _s = rf"\textbf{{{_s}}}"
-        elif is_italic:
-            _s = rf"\textit{{{_s}}}"
+    _s = _apply_latex_font_commands(s, **kwargs)
 
     txt_artist = text_class(_x, _y, _s, va=va, ha=ha, transform=ax.transAxes, **kwargs)
     ax._add_text(txt_artist)  # type: ignore[attr-defined]
@@ -1080,27 +1073,27 @@ def savelabels(
 
     _sim = "Simulation" if "Simulation" in label_base.get_text() else ""
 
+    def _construct_filename(base_fname: str, suffix: str) -> str:
+        """Construct output filename from base name and suffix."""
+        if "." in suffix:  # suffix is absolute path
+            return suffix
+
+        # Add underscore prefix to non-empty suffixes
+        if suffix:
+            suffix = f"_{suffix}"
+
+        # Handle extension
+        if "." in base_fname:
+            name_parts = base_fname.rsplit(
+                ".", 1
+            )  # Split from right to handle multiple dots
+            return f"{name_parts[0]}{suffix}.{name_parts[1]}"
+        return f"{base_fname}{suffix}"
+
     # At this point, labels is guaranteed to be list[tuple[str, str]]
     tuple_labels: list[tuple[str, str]] = labels  # type: ignore[assignment]
     for label_text, suffix in tuple_labels:
         label_base.set_text(f"{_sim} {label_text}".lstrip())
-
-        def _construct_filename(base_fname: str, suffix: str) -> str:
-            """Construct output filename from base name and suffix."""
-            if "." in suffix:  # suffix is absolute path
-                return suffix
-
-            # Add underscore prefix to non-empty suffixes
-            if suffix:
-                suffix = f"_{suffix}"
-
-            # Handle extension
-            if "." in base_fname:
-                name_parts = base_fname.rsplit(
-                    ".", 1
-                )  # Split from right to handle multiple dots
-                return f"{name_parts[0]}{suffix}.{name_parts[1]}"
-            return f"{base_fname}{suffix}"
 
         save_name = _construct_filename(fname, suffix)
 

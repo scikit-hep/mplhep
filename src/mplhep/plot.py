@@ -1557,7 +1557,6 @@ def model(
         ):
             if model_type == "histograms":
                 model_sum_kwargs.setdefault("yerr", False)
-            if model_type == "histograms":
                 histplot(
                     sum(components),
                     ax=ax,

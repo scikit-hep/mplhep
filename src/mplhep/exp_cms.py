@@ -13,8 +13,6 @@ from ._deprecate import deprecate_parameter
 # Log styles
 from .styles import cms as style
 
-# import mplhep._deprecate as deprecate
-
 __all__ = ("label", "style", "text")
 
 
@@ -58,9 +56,3 @@ def label(text=None, label=None, **kwargs):  # noqa: ARG001
     if text is not None:
         kwargs["text"] = text
     return label_base.exp_label(**kwargs)
-
-
-# Deprecation example
-# @deprecate.deprecate("Naming convention is changing. Use ``mplhep.cms.label``.")
-# def cmslabel(*args, **kwargs):
-#     return _cms_label(*args, **kwargs)
