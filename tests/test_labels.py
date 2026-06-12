@@ -19,7 +19,13 @@ import pytest
 os.environ["RUNNING_PYTEST"] = "true"
 
 import mplhep as mh
-from mplhep.label import _parse_com, exp_label, exp_text
+from mplhep.label import (
+    _descent_from_layout,
+    _parse_com,
+    _safe_get_renderer,
+    exp_label,
+    exp_text,
+)
 
 plt.switch_backend("Agg")
 
@@ -57,7 +63,9 @@ def _draw_text_boundary_lines(txt_obj, ax=None, color="gray", alpha=0.5):
         Transparency of boundary lines, by default 0.5
     """
     ax = plt.gca() if ax is None else ax
-    bbox, _, descent = txt_obj._get_layout(ax.figure.canvas.get_renderer())
+    _layout = txt_obj._get_layout(_safe_get_renderer(ax.figure))
+    bbox = _layout[0]
+    descent = _descent_from_layout(_layout)
     ax_width = ax.get_position().width * ax.figure.get_size_inches()[0]
     ax_height = ax.get_position().height * ax.figure.get_size_inches()[1]
     dpi = ax.figure.dpi
