@@ -20,11 +20,14 @@ os.environ["RUNNING_PYTEST"] = "true"
 
 import mplhep as mh
 from mplhep.label import (
+    ExpLabel,
+    ExpText,
     _descent_from_layout,
     _parse_com,
     _safe_get_renderer,
     exp_label,
     exp_text,
+    save_variations,
 )
 
 plt.switch_backend("Agg")
@@ -384,3 +387,67 @@ def test_exp_label_com_variants():
     exp_label(exp="TEST", lumi=100, com="500 GeV", ax=axs[1, 0])
     exp_label(exp="TEST", lumi=100, com="500 GeV", loc=4, ax=axs[1, 1])
     return fig
+
+
+# --- Regression tests for Bug D: deprecated label= kwarg ---
+
+
+def test_exp_label_deprecated_label_kwarg():
+    """Regression: exp_label(label='Preliminary') must use the value, not silently drop it."""
+    fig, ax = plt.subplots()
+    with pytest.warns(FutureWarning):
+        exp_obj, text_obj, _, _ = exp_label(exp="TEST", label="Preliminary", ax=ax)
+    # The text should appear in the secondary text object
+    assert text_obj is not None
+    assert "Preliminary" in text_obj.get_text()
+    plt.close(fig)
+
+
+def test_exp_cms_deprecated_label_kwarg():
+    """Regression: mh.cms.label(label='Preliminary') must forward the value."""
+    fig, ax = plt.subplots()
+    with pytest.warns(FutureWarning):
+        _, text_obj, _, _ = mh.cms.label(label="Preliminary", ax=ax)
+    assert text_obj is not None
+    assert "Preliminary" in text_obj.get_text()
+    plt.close(fig)
+
+
+def test_exp_label_no_duplicate_deprecation_pub():
+    """Regression: duplicate @deprecate_parameter('pub') must not raise on call."""
+    fig, ax = plt.subplots()
+    # This should not raise TypeError about duplicate decorator application
+    with pytest.warns(FutureWarning):
+        exp_label(exp="TEST", pub="Note", ax=ax)
+    plt.close(fig)
+
+
+# --- Regression tests for Bug B: save_variations artist lookup ---
+
+
+def test_save_variations_exp_targets_explabel(tmp_path):
+    """Regression: save_variations(exp=...) must update ExpLabel, not ExpText."""
+    fig, ax = plt.subplots()
+    exp_label(exp="CMS", text="Preliminary", ax=ax)
+
+    original_exp_texts = [
+        t.get_text() for t in ax.get_children() if isinstance(t, ExpLabel)
+    ]
+    assert original_exp_texts, "No ExpLabel found — test setup broken"
+
+    save_file = str(tmp_path / "test.png")
+    save_variations(fig, save_file, text_list=[""], exp="ATLAS")
+    plt.close(fig)
+
+    # After save_variations runs, ExpLabel objects should have been set to "ATLAS"
+    # and ExpText objects should have been set to the suffix text (empty string here)
+    exp_label_texts = [
+        t.get_text() for t in ax.get_children() if isinstance(t, ExpLabel)
+    ]
+    suffix_texts = [t.get_text() for t in ax.get_children() if isinstance(t, ExpText)]
+    assert all(t == "ATLAS" for t in exp_label_texts), (
+        f"ExpLabel texts should be 'ATLAS', got {exp_label_texts}"
+    )
+    assert all(t == "" for t in suffix_texts), (
+        f"ExpText suffix texts should be '', got {suffix_texts}"
+    )
