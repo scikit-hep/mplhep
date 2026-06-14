@@ -26,8 +26,7 @@ classifiers = [
 dependencies = [
     "matplotlib>=3.11.0",
     "mplhep-data>=0.0.4",
-    "numpy>=1.16.0",
-    "packaging",
+    "numpy>=1.25",
     "uhi>=0.2.0",
 ]
 
@@ -94,11 +93,6 @@ all = [
     "mplhep[dev,test,docs]",
 ]
 
-[tool.uv]
-environments = [
-    "python_version >= '3.11'",
-]
-
 [tool.mypy]
 files = ["src"]
 python_version = "3.11"
@@ -130,10 +124,8 @@ minversion = 6.0
 addopts = ["-ra", "--strict-markers"]  # need to fix pytest dependency installs to enable --strict-config
 filterwarnings = [
   "error",
-  "default:urllib3 v2 only supports OpenSSL",
   "default:invalid value encountered in _fmt:RuntimeWarning",
   "ignore::pytest_benchmark.logger.PytestBenchmarkWarning",
-  "ignore:In the future `np.object` will be defined:FutureWarning",
 ]
 log_level = "INFO"
 python_files = "test*.py"
@@ -145,7 +137,6 @@ markers = [
 
 
 [tool.ruff]
-target-version = "py310"
 show-fixes = true
 
 [tool.ruff.lint]
