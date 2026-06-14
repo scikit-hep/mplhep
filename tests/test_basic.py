@@ -12,13 +12,6 @@ import uproot
 
 os.environ["RUNNING_PYTEST"] = "true"
 
-try:
-    # NumPy 2
-    from numpy.char import chararray
-except ModuleNotFoundError:
-    # NumPy 1
-    from numpy import chararray
-
 import mplhep as mh
 
 # Import benchmark decorator from helpers
@@ -529,12 +522,10 @@ def test_hist2dplot_labels_option():
 
     assert mh.hist2dplot(H, xedges, yedges, labels=False)
 
-    label_array = chararray(H.shape, itemsize=2)
-    label_array[:] = "hi"
+    label_array = np.full(H.shape, "hi", dtype="U2")
     assert mh.hist2dplot(H, xedges, yedges, labels=label_array)
 
-    label_array = chararray(H.shape[0], itemsize=2)
-    label_array[:] = "hi"
+    label_array = np.full(H.shape[0], "hi", dtype="U2")
     # Label array shape invalid
     with pytest.raises(
         ValueError,
