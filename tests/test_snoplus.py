@@ -68,10 +68,10 @@ def test_snop_style_string_aliases(fig_test, fig_ref, style, str_alias):
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 @pytest.mark.mpl_image_compare(style="default")
-def test_snop_label_loc():
+def test_snop_text():
     fig, axs = plt.subplots(1, 4, figsize=(16, 4))
     for i, ax in enumerate(axs.flatten()):
-        mh.snoplus.label(text="Preliminary", loc=i, ax=ax, lumi=50, data=True)
+        mh.snoplus.text(text="Preliminary", loc=i, ax=ax)
         ax.set_title(f"loc={i}")
     return fig
 

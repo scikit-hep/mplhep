@@ -31,33 +31,12 @@ def text(text="", **kwargs):
             and key in inspect.getfullargspec(label_base.exp_text).kwonlyargs
         ):
             kwargs.setdefault(key, value)
-    kwargs.setdefault("fontsize", 22)
+    kwargs.setdefault("fontsize", 16)
     kwargs.setdefault("fontstyle", ("normal", "normal", "normal", "normal"))
+    kwargs.setdefault("fontweight", ("normal", "normal", "normal", "normal"))
     kwargs.setdefault("exp", "SNO+")
     kwargs.setdefault("loc", 1)
     return label_base.exp_text(text=text, **kwargs)
-
-
-@deprecate_parameter("label", reason='Use `text="..."` instead.', warn_once=False)
-@copy_doc(label_base.exp_label)
-def label(text=None, label=None, **kwargs):
-    """Add SNO+ experiment label to a plot."""
-    for key, value in dict(mplhep.rcParams.label._get_kwargs()).items():
-        if (
-            value is not None
-            and key not in kwargs
-            and key in inspect.getfullargspec(label_base.exp_label).kwonlyargs
-        ):
-            kwargs.setdefault(key, value)
-    kwargs.setdefault("fontsize", 22)
-    kwargs.setdefault("fontstyle", ("normal", "normal", "normal", "normal"))
-    kwargs.setdefault("exp", "SNO+")
-    kwargs.setdefault("loc", 1)
-    if text is not None:
-        kwargs["text"] = text
-    if label is not None:
-        kwargs["text"] = label
-    return label_base.exp_label(**kwargs)
 
 
 def legend(ax: Axes | None = None, **kwargs) -> Legend:
