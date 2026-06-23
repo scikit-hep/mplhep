@@ -19,6 +19,7 @@ from .cms import CMS, ROOT, CMSTex, ROOTTex
 from .dune import DUNE, DUNE1, DUNETex, DUNETex1
 from .lhcb import LHCb, LHCb1, LHCb2, LHCbTex, LHCbTex1, LHCbTex2
 from .plothist import plothist
+from .snoplus import SNOplus, SNOplus1
 
 __all__ = (
     "ALICE",
@@ -35,6 +36,8 @@ __all__ = (
     "DUNETex1",
     "DUNE",
     "DUNETex",
+    "SNOplus1",
+    "SNOplus",
     "LHCb",
     "LHCb1",
     "LHCb2",
@@ -61,6 +64,8 @@ __style_aliases__ = (
     "ATLASAlt",
     "ATLASTex",
     "CMSTex",
+    "SNOplus1",
+    "SNOplus",
     "DUNE1",
     "DUNETex1",
     "DUNE",

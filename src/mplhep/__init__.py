@@ -17,6 +17,7 @@ from . import exp_atlas as atlas
 from . import exp_cms as cms
 from . import exp_dune as dune
 from . import exp_lhcb as lhcb
+from . import exp_snoplus as snoplus
 from . import styles as style
 from ._tools import Config
 from ._utils import (
@@ -119,6 +120,7 @@ __all__ = [
     "set_fitting_ylabel_fontsize",
     "set_style",
     "set_ylow",
+    "snoplus",
     "sort_legend",
     "style",
     "subplots",
