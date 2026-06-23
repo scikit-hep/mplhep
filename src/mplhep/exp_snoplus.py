@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 __all__ = ("label", "style", "text")
 
 
-@copy_doc(label_base.exp_text)
+@copy_doc(label_base.add_text)
 def text(text="", **kwargs):
     """Add SNO+ experiment text to a plot."""
     for key, value in dict(mplhep.rcParams.text._get_kwargs()).items():
@@ -32,11 +32,8 @@ def text(text="", **kwargs):
         ):
             kwargs.setdefault(key, value)
     kwargs.setdefault("fontsize", 16)
-    kwargs.setdefault("fontstyle", ("normal", "normal", "normal", "normal"))
-    kwargs.setdefault("fontweight", ("normal", "normal", "normal", "normal"))
-    kwargs.setdefault("exp", "SNO+")
     kwargs.setdefault("loc", 1)
-    return label_base.exp_text(text=text, **kwargs)
+    return label_base.add_text(text=text, **kwargs)
 
 
 def legend(ax: Axes | None = None, **kwargs) -> Legend:
