@@ -32,6 +32,7 @@ def text(text="", **kwargs):
         ):
             kwargs.setdefault(key, value)
     kwargs.setdefault("fontsize", 16)
+    kwargs.setdefault("fontname", "serif")
     return label_base.add_text(text=text, **kwargs)
 
 
