@@ -10,7 +10,6 @@ import mplhep
 
 from . import label as label_base
 from ._compat import copy_doc
-from ._deprecate import deprecate_parameter
 from .styles import snoplus as style
 
 if TYPE_CHECKING:
