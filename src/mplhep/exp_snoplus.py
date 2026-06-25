@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import inspect
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import matplotlib as mpl
 from matplotlib import rcParams
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from matplotlib.legend import Legend
 
 
-__all__ = ("label", "style", "text")
+__all__ = ("style", "text", "legend")
 
 
 @copy_doc(label_base.add_text)
@@ -52,10 +52,10 @@ def legend(ax: Axes | None = None, **kwargs) -> Legend:
     ax = ax or mpl.pyplot.gca()
 
     handles, labels = ax.get_legend_handles_labels()
-    new_handles = []
+    new_handles: list[mpl.artist.Artist] = []
 
     for handle in handles:
-        color = None
+        color: Any = None
         if isinstance(handle, mpl.patches.Polygon):
             color = handle.get_edgecolor()
         elif isinstance(handle, mpl.collections.PolyCollection):
