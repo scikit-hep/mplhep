@@ -100,20 +100,10 @@ def _get_next_prop_cycle(ax: mpl.axes.Axes, kwargs: dict[str, Any]) -> dict[str,
     # Filter out None values to treat them as "not provided"
     clean_kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
-    if hasattr(ax, "_get_lines") and hasattr(ax._get_lines, "_getdefaults"):
-        # This is the standard way for modern matplotlib
-        res = ax._get_lines._getdefaults(kw=clean_kwargs, ignore=frozenset())
-        if isinstance(res, dict):
-            return res
-        return {}
-    if (
-        hasattr(ax, "_get_lines")
-        and hasattr(ax._get_lines, "get_next_color")
-        and clean_kwargs.get("color") is None
-    ):
-        # Fallback for when _getdefaults is not available but get_next_color is
+    # mpl >= 3.11: get_next_color is the standard path for advancing the prop cycler
+    if clean_kwargs.get("color") is None:
         try:
-            return {"color": ax._get_lines.get_next_color()}
+            return {"color": ax._get_lines.get_next_color()}  # type: ignore[attr-defined]
         except AttributeError:
             return {}
     return {}
@@ -1081,20 +1071,21 @@ def hist2dplot(
         H = np.copy(h.values())
         # Sum borders
         try:
+            values_flow = h.values(flow=True)  # type: ignore[call-arg]
             H[0], H[-1] = (
-                H[0] + h.values(flow=True)[0, 1:-1],  # type: ignore[call-arg]
-                H[-1] + h.values(flow=True)[-1, 1:-1],  # type: ignore[call-arg]
+                H[0] + values_flow[0, 1:-1],
+                H[-1] + values_flow[-1, 1:-1],
             )
             H[:, 0], H[:, -1] = (
-                H[:, 0] + h.values(flow=True)[1:-1, 0],  # type: ignore[call-arg]
-                H[:, -1] + h.values(flow=True)[1:-1, -1],  # type: ignore[call-arg]
+                H[:, 0] + values_flow[1:-1, 0],
+                H[:, -1] + values_flow[1:-1, -1],
             )
             # Sum corners to corners
             H[0, 0], H[-1, -1], H[0, -1], H[-1, 0] = (
-                h.values(flow=True)[0, 0] + H[0, 0],  # type: ignore[call-arg]
-                h.values(flow=True)[-1, -1] + H[-1, -1],  # type: ignore[call-arg]
-                h.values(flow=True)[0, -1] + H[0, -1],  # type: ignore[call-arg]
-                h.values(flow=True)[-1, 0] + H[-1, 0],  # type: ignore[call-arg]
+                values_flow[0, 0] + H[0, 0],
+                values_flow[-1, -1] + H[-1, -1],
+                values_flow[0, -1] + H[0, -1],
+                values_flow[-1, 0] + H[-1, 0],
             )
         except TypeError as error:
             if "got an unexpected keyword argument 'flow'" in str(error):
@@ -1558,8 +1549,9 @@ def model(
             if model_type == "histograms":
                 model_sum_kwargs.setdefault("yerr", False)
             if model_type == "histograms":
+                components_sum = sum(components)
                 histplot(
-                    sum(components),
+                    components_sum,
                     ax=ax,
                     histtype="step",
                     flow=flow,
@@ -1571,7 +1563,7 @@ def model(
                     and model_sum_kwargs.get("yerr", False) is not True
                 ):
                     histplot(
-                        sum(components),
+                        components_sum,
                         ax=ax,
                         label=model_uncertainty_label,
                         histtype="band",

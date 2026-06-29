@@ -53,9 +53,6 @@ def _safe_get_renderer(fig):
 def _descent_from_layout(layout):
     """Extract a scalar typographic descent (in display units) from ``Text._get_layout``.
 
-    mpl < 3.11 returned ``(bbox, lines, descent)`` with ``descent`` a scalar
-    measuring the descent below the baseline, independent of the text's ``va``.
-
     mpl >= 3.11 returns ``(bbox, lines, (xy_corner, size))`` where ``xy_corner``
     is relative to the text *anchor* (which shifts with ``va``), so it must not
     be used directly.  Instead, the per-line ``wad = (width, ascent, descent)``
@@ -63,14 +60,17 @@ def _descent_from_layout(layout):
     ``va``.
     """
     third = layout[2]
-    if isinstance(third, tuple) and isinstance(third[0], tuple):
-        # mpl >= 3.11: use per-line wad for va-independent typographic descent
-        lines_data = layout[1]
-        if lines_data:
-            wad = lines_data[0][1]  # (width, ascent, descent) for first line
-            return float(wad[2])
-        return 0.0
-    return float(third)  # mpl < 3.11: direct scalar descent
+    if not (isinstance(third, tuple) and isinstance(third[0], tuple)):
+        msg = (
+            f"Unexpected Text._get_layout format: layout[2]={third!r}. "
+            "The private matplotlib API may have changed."
+        )
+        raise TypeError(msg)
+    lines_data = layout[1]
+    if lines_data:
+        wad = lines_data[0][1]  # (width, ascent, descent) for first line
+        return float(wad[2])
+    return 0.0
 
 
 class ExpLabel(mtext.Text):
