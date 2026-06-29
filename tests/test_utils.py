@@ -497,3 +497,27 @@ def test_calculate_optimal_scaling_with_subset_overlap():
     # Sanity: with only the non-overlapping bbox, no scaling is needed.
     assert _calculate_optimal_scaling(ax, [free]) == 1.0
     plt.close(fig)
+
+
+# --- Regression tests for set_ylow ---
+
+
+def test_set_ylow_uses_value():
+    """Regression: set_ylow(ax, ylow=value) must use value, not hardcode 0."""
+    fig, ax = plt.subplots()
+    ax.plot([0, 1], [5, 10])
+    mh.set_ylow(ax, ylow=2.5)
+    assert ax.get_ylim()[0] == 2.5, (
+        f"Expected lower y limit 2.5, got {ax.get_ylim()[0]}"
+    )
+    plt.close(fig)
+
+
+def test_set_ylow_default_zero():
+    """set_ylow() with no ylow argument still sets lower limit to 0."""
+    fig, ax = plt.subplots()
+    ax.plot([0, 1], [5, 10])
+    ax.set_ylim(3, 12)
+    mh.set_ylow(ax)
+    assert ax.get_ylim()[0] == 0, f"Expected lower y limit 0, got {ax.get_ylim()[0]}"
+    plt.close(fig)

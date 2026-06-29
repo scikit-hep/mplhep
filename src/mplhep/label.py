@@ -869,7 +869,6 @@ def exp_text(
     reason='Use `fontweight=("bold", "normal", "normal", "normal")` instead.',
     removed=True,
 )
-@deprecate_parameter("pub", reason='Use `supp="..."` instead.')
 def exp_label(
     *,
     exp: str = "",
@@ -971,7 +970,7 @@ def exp_label(
     >>> # Custom positioning and formatting
     >>> mh.exp_label(exp="ATLAS", loc=4, lumi=139, lumi_format="{0:.0f}")
     """
-    if label is not None and text is None:
+    if label is not None and not text:
         text = label
     if rlabel is None:
         lumi_func = _lumi_line_atlas if loc == 4 else _lumi_line
@@ -1132,11 +1131,9 @@ def save_variations(
     if text_list is None:
         text_list = ["Preliminary", ""]
 
-    from mplhep.label import ExpText  # noqa: PLC0415
-
     for text in text_list:
         for ax in fig.get_axes():
-            exp_labels = [t for t in ax.get_children() if isinstance(t, ExpText)]
+            exp_labels = [t for t in ax.get_children() if isinstance(t, ExpLabel)]
             suffixes = [t for t in ax.get_children() if isinstance(t, ExpText)]
             for exp_label, suffix_text in zip(exp_labels, suffixes, strict=True):
                 if exp is not None:

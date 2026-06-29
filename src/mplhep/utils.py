@@ -290,7 +290,7 @@ def set_ylow(
             ax.set_ylim(0, current_ylim[1])
 
     else:
-        ax.set_ylim(0, ax.get_ylim()[-1])
+        ax.set_ylim(ylow, ax.get_ylim()[-1])
 
     return ax
 
