@@ -5,20 +5,12 @@ import os
 import re
 
 import hist
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 import uproot
 
 os.environ["RUNNING_PYTEST"] = "true"
-
-try:
-    # NumPy 2
-    from numpy.char import chararray
-except ModuleNotFoundError:
-    # NumPy 1
-    from numpy import chararray
 
 import mplhep as mh
 
@@ -70,26 +62,6 @@ def test_simple2d():
     return fig
 
 
-@pytest.mark.skipif(
-    (int(mpl.__version__.split(".")[0]), int(mpl.__version__.split(".")[1])) >= (3, 10),
-    reason="Change in mpl behaviour since 3.10",
-)
-@pytest.mark.mpl_image_compare(style="default", remove_text=True)
-def test_log_mpl39():
-    fig, axs = plt.subplots(2, 2, figsize=(10, 10))
-    for ax in axs[0]:
-        mh.histplot([1, 2, 3, 2], range(5), ax=ax)
-    ax.semilogy()
-    for ax in axs[1]:
-        mh.histplot([1, 2, 3, 2], range(5), ax=ax, edges=False)
-    ax.semilogy()
-    return fig
-
-
-@pytest.mark.skipif(
-    (int(mpl.__version__.split(".")[0]), int(mpl.__version__.split(".")[1])) < (3, 10),
-    reason="Change in mpl behaviour since 3.10",
-)
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_log():
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
@@ -550,12 +522,10 @@ def test_hist2dplot_labels_option():
 
     assert mh.hist2dplot(H, xedges, yedges, labels=False)
 
-    label_array = chararray(H.shape, itemsize=2)
-    label_array[:] = "hi"
+    label_array = np.full(H.shape, "hi", dtype="U2")
     assert mh.hist2dplot(H, xedges, yedges, labels=label_array)
 
-    label_array = chararray(H.shape[0], itemsize=2)
-    label_array[:] = "hi"
+    label_array = np.full(H.shape[0], "hi", dtype="U2")
     # Label array shape invalid
     with pytest.raises(
         ValueError,
