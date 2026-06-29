@@ -42,10 +42,13 @@ def poisson_interval(sumw, sumw2, coverage=_coverage1sd):
             )
             return np.vstack([sumw, sumw])
         nearest = np.sum(
-            [
-                np.subtract.outer(d, d0) ** 2
-                for d, d0 in zip(available, missing, strict=True)
-            ]
+            np.stack(
+                [
+                    np.subtract.outer(d, d0) ** 2
+                    for d, d0 in zip(available, missing, strict=True)
+                ]
+            ),
+            axis=0,
         ).argmin(axis=0)
         argnearest = tuple(dim[nearest] for dim in available)
         scale[missing] = scale[argnearest]
