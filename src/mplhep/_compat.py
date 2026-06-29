@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-from collections.abc import Callable
-from typing import Any, ParamSpec, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, Any
 
-T = TypeVar("T")
-P = ParamSpec("P")
-WrappedFuncDeco: TypeAlias = Callable[[Callable[..., Any]], Callable[..., Any]]
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 def copy_doc(

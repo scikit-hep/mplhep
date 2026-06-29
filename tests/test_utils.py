@@ -560,3 +560,27 @@ def test_poisson_interval_nearest_nonzero_scale_2d():
 
     assert interval.shape == (2, 2, 2)
     np.testing.assert_allclose(interval, expected)
+
+
+# --- Regression tests for set_ylow ---
+
+
+def test_set_ylow_uses_value():
+    """Regression: set_ylow(ax, ylow=value) must use value, not hardcode 0."""
+    fig, ax = plt.subplots()
+    ax.plot([0, 1], [5, 10])
+    mh.set_ylow(ax, ylow=2.5)
+    assert ax.get_ylim()[0] == 2.5, (
+        f"Expected lower y limit 2.5, got {ax.get_ylim()[0]}"
+    )
+    plt.close(fig)
+
+
+def test_set_ylow_default_zero():
+    """set_ylow() with no ylow argument still sets lower limit to 0."""
+    fig, ax = plt.subplots()
+    ax.plot([0, 1], [5, 10])
+    ax.set_ylim(3, 12)
+    mh.set_ylow(ax)
+    assert ax.get_ylim()[0] == 0, f"Expected lower y limit 0, got {ax.get_ylim()[0]}"
+    plt.close(fig)
