@@ -810,6 +810,118 @@ def test_histplot_inputs_pass(h, yerr, htype):
     plt.close(fig)
 
 
+@pytest.mark.parametrize("label", ["data", None])
+def test_histplot_sort_label_keeps_all_hists(label):
+    # Regression: sort="label" with a scalar/None label used to argsort the raw
+    # `label` argument, dropping all but one histogram.
+    bins = np.linspace(0, 10, 11)
+    h = np.arange(10).astype(float)
+
+    fig, ax = plt.subplots()
+    artists = mh.histplot([h, 2 * h, 3 * h], bins, label=label, sort="label", ax=ax)
+    assert len(artists) == 3
+    plt.close(fig)
+
+
+def test_histplot_sort_label_orders_by_label():
+    # sort="label" should order histograms by their (normalized) labels.
+    bins = np.linspace(0, 10, 11)
+    h = np.arange(10).astype(float)
+
+    fig, ax = plt.subplots()
+    artists = mh.histplot(
+        [3 * h, h, 2 * h], bins, label=["c", "a", "b"], sort="label", ax=ax
+    )
+    labels = [a.stairs.get_label() for a in artists]
+    assert labels == ["a", "b", "c"]
+    plt.close(fig)
+
+
+def test_histplot_sort_unknown_raises():
+    # Regression: an unknown sort string used to raise UnboundLocalError; it
+    # should raise a clear ValueError instead.
+    bins = np.linspace(0, 10, 11)
+    h = np.arange(10).astype(float)
+
+    fig, ax = plt.subplots()
+    with pytest.raises(ValueError, match="Sort type"):
+        mh.histplot([h, 2 * h], bins, sort="foo", ax=ax)
+    plt.close(fig)
+
+
+def test_hist_yerr_false_with_weights_no_errorbars():
+    # Regression: hist(..., weights=w, yerr=False) used to draw error bars
+    # anyway because yerr=False was converted to None alongside w2.
+    np.random.seed(0)
+    bins = np.linspace(0, 10, 11)
+    data = np.random.normal(5, 2, 1000)
+    weights = np.random.uniform(0.5, 1.5, 1000)
+
+    fig, ax = plt.subplots()
+    artists = mh.hist(
+        data, bins=bins, weights=weights, yerr=False, histtype="errorbar", ax=ax
+    )
+    # errorbar container: index 2 holds the (y)error LineCollections
+    assert artists[0].errorbar[2] == ()
+
+    # Sanity: yerr=True still produces error bars.
+    fig2, ax2 = plt.subplots()
+    artists_true = mh.hist(
+        data, bins=bins, weights=weights, yerr=True, histtype="errorbar", ax=ax2
+    )
+    assert len(artists_true[0].errorbar[2]) > 0
+    plt.close(fig)
+    plt.close(fig2)
+
+
+def test_histplot_errorbar_ndarray_xerr():
+    # Regression: ndarray xerr used to raise "truth value of an array is
+    # ambiguous" while equivalent lists worked.
+    bins = np.linspace(0, 10, 11)
+    h = np.arange(10).astype(float)
+    xerr = np.tile(np.full(10, 0.3), (2, 1))
+
+    fig, ax = plt.subplots()
+    artists = mh.histplot([h, 2 * h], bins, histtype="errorbar", xerr=xerr, ax=ax)
+    assert len(artists) == 2
+
+    # List xerr (and True/scalar) must keep working.
+    fig2, ax2 = plt.subplots()
+    artists_list = mh.histplot(
+        [h, 2 * h],
+        bins,
+        histtype="errorbar",
+        xerr=[np.full(10, 0.3), np.full(10, 0.3)],
+        ax=ax2,
+    )
+    assert len(artists_list) == 2
+    plt.close(fig)
+    plt.close(fig2)
+
+
+def test_hist_multidataset_weights():
+    # Regression: multi-dataset hist() flattened the entire weights structure
+    # for every dataset, so plt.hist-style per-dataset weights always failed.
+    np.random.seed(0)
+    bins = np.linspace(0, 10, 11)
+    d1 = np.random.normal(5, 2, 1000)
+    d2 = np.random.normal(6, 2, 800)
+    w1 = np.random.uniform(0.5, 1.5, 1000)
+    w2 = np.random.uniform(0.5, 1.5, 800)
+
+    # Per-dataset list of weight arrays (plt.hist style).
+    fig, ax = plt.subplots()
+    artists = mh.hist([d1, d2], bins=bins, weights=[w1, w2], ax=ax)
+    assert len(artists) == 2
+    plt.close(fig)
+
+    # A single shared weights array (matching dataset shapes) still works.
+    fig2, ax2 = plt.subplots()
+    artists_shared = mh.hist([d1, d1], bins=bins, weights=w1, ax=ax2)
+    assert len(artists_shared) == 2
+    plt.close(fig2)
+
+
 @pytest.mark.parametrize(
     "sort", [None, "label", "label_r", "yield", "yield_r", [0, 2, 1]]
 )

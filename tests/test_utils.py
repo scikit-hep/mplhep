@@ -1,11 +1,14 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
+import scipy.stats
 from matplotlib.offsetbox import AnchoredText
 from matplotlib.transforms import Bbox
+from pytest import approx
 
 import mplhep as mh
 from mplhep._utils import _calculate_optimal_scaling, _overlap
+from mplhep.error_estimation import _coverage1sd, poisson_interval
 
 plt.switch_backend("Agg")
 
@@ -497,6 +500,66 @@ def test_calculate_optimal_scaling_with_subset_overlap():
     # Sanity: with only the non-overlapping bbox, no scaling is needed.
     assert _calculate_optimal_scaling(ax, [free]) == 1.0
     plt.close(fig)
+
+
+def test_poisson_interval_nearest_nonzero_scale():
+    """Regression test for the empty-bin scale lookup in ``poisson_interval``.
+
+    For weighted histograms, empty bins (``sumw == 0``) borrow the per-bin
+    scale (``sumw2 / sumw``) of the *nearest* nonzero bin. A regression once
+    collapsed the inter-bin distance matrix to a scalar (``np.sum([...])``
+    instead of an element-wise sum), so every empty bin inherited the scale of
+    the *first* nonzero bin instead of the nearest one.
+
+    With ``sumw = [4, 0, 0, 9]`` / ``sumw2 = [8, 0, 0, 9]`` the per-bin scales
+    are ``[2, 2, 1, 1]``: bin 1 is nearest to bin 0 (scale 2) and bin 2 is
+    nearest to bin 3 (scale 1). The buggy code gave bin 2 scale 2.
+    """
+    sumw = np.array([4.0, 0.0, 0.0, 9.0])
+    sumw2 = np.array([8.0, 0.0, 0.0, 9.0])
+
+    interval = poisson_interval(sumw, sumw2)
+
+    # The empty bin nearest to bin 3 (scale 1) must NOT inherit bin 0's scale 2.
+    # Compare against an interval built with the correct per-bin scales.
+    scale = np.array([2.0, 2.0, 1.0, 1.0])
+    counts = sumw / scale
+    lo = scale * scipy.stats.chi2.ppf((1 - _coverage1sd) / 2, 2 * counts) / 2.0
+    hi = scale * scipy.stats.chi2.ppf((1 + _coverage1sd) / 2, 2 * (counts + 1)) / 2.0
+    expected = np.array([lo, hi])
+    expected[np.isnan(expected)] = 0.0
+
+    np.testing.assert_allclose(interval, expected)
+
+    # Discriminating check: with the bug, bin 2 used scale 2 and its upper
+    # bound equalled bin 1's; the fix gives it scale 1 (half of that).
+    assert interval[1, 2] == approx(interval[1, 1] / 2.0)
+
+
+def test_poisson_interval_nearest_nonzero_scale_2d():
+    """``poisson_interval`` must preserve N-dimensional nearest-bin lookup.
+
+    The nearest-nonzero-bin substitution operates on flattened index tuples via
+    ``np.where`` / ``np.nonzero``, so it must work for multi-dimensional
+    ``sumw`` arrays too.
+    """
+    sumw = np.array([[4.0, 0.0], [0.0, 9.0]])
+    sumw2 = np.array([[8.0, 0.0], [0.0, 9.0]])
+
+    interval = poisson_interval(sumw, sumw2)
+
+    # Nonzero bins: (0,0) scale 2, (1,1) scale 1.
+    # Empty (0,1): dist 1 to (0,0), dist 2 to (1,1) -> scale 2.
+    # Empty (1,0): dist 1 to both -> first wins (0,0) -> scale 2.
+    scale = np.array([[2.0, 2.0], [2.0, 1.0]])
+    counts = sumw / scale
+    lo = scale * scipy.stats.chi2.ppf((1 - _coverage1sd) / 2, 2 * counts) / 2.0
+    hi = scale * scipy.stats.chi2.ppf((1 + _coverage1sd) / 2, 2 * (counts + 1)) / 2.0
+    expected = np.array([lo, hi])
+    expected[np.isnan(expected)] = 0.0
+
+    assert interval.shape == (2, 2, 2)
+    np.testing.assert_allclose(interval, expected)
 
 
 # --- Regression tests for set_ylow ---
