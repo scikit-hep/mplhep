@@ -383,7 +383,7 @@ def histplot(
         Attempts to draw x-axis ticks coinciding with bin boundaries if feasible.
     xoffsets : bool, default: False,
         If True, the bin "centers" of plotted histograms will be offset within their bin.
-    bin_width : float, default: 0.8
+    bar_bin_width : float, default: 0.8
         Only used for ``histtype="bar"`` and ``histtype="barstep"``. Fraction of
         each bin's width occupied by the group of side-by-side bars (e.g. ``0.8``
         leaves a 20% gap between adjacent bins). Scaled per-bin, so variable-width
@@ -456,10 +456,10 @@ def histplot(
     def iterable_not_string(arg):
         return isinstance(arg, collections.abc.Iterable) and not isinstance(arg, str)
 
-    # bin_width is a histplot-level option (fraction of each bin width used by
+    # bar_bin_width is a histplot-level option (fraction of each bin width used by
     # the "bar"/"barstep" histtypes), not a per-hist artist kwarg. Pop it here
     # before chunking so it is never forwarded to matplotlib.
-    _bin_width_frac = kwargs.pop("bin_width", 0.8)
+    _bin_width_frac = kwargs.pop("bar_bin_width", 0.8)
 
     _chunked_kwargs: list[dict[str, Any]] = [{} for _ in hists]
     for kwarg, kwarg_content in kwargs.items():

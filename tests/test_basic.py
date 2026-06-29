@@ -754,7 +754,7 @@ def test_histplot_bar():
 
     axs[3].set_title("Histype bar", fontsize=18)
     mh.histplot(
-        [h1, h2], bins, histtype="bar", label=["h1", "h2"], bin_width=0.2, ax=axs[3]
+        [h1, h2], bins, histtype="bar", label=["h1", "h2"], bar_bin_width=0.2, ax=axs[3]
     )
     axs[3].legend()
 
