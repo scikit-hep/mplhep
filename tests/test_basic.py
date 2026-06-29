@@ -754,9 +754,42 @@ def test_histplot_bar():
 
     axs[3].set_title("Histype bar", fontsize=18)
     mh.histplot(
-        [h1, h2], bins, histtype="bar", label=["h1", "h2"], bin_width=0.2, ax=axs[3]
+        [h1, h2], bins, histtype="bar", label=["h1", "h2"], bar_bin_width=0.2, ax=axs[3]
     )
     axs[3].legend()
+
+    fig.subplots_adjust(wspace=0.1)
+
+    return fig
+
+
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_histplot_bar_nonunit_bins():
+    # Bars/steps must be scaled to each bin's width. With wide (width 10) and
+    # variable-width bins, the rendered bars should fill ~80% of each bin rather
+    # than being slivers in absolute data units (see issue #731).
+    wide_bins = [0, 10, 20, 30]  # 3 bins, width 10
+    var_bins = [0, 1, 4, 10, 25]  # 4 variable-width bins
+    h1 = [3, 5, 2]
+    h2 = [4, 2, 6]
+    h3 = [2, 4, 3]
+    v1 = [3, 5, 2, 4]
+    v2 = [4, 2, 6, 1]
+
+    fig, axs = plt.subplots(2, 2, figsize=(10, 10))
+    axs = axs.flatten()
+
+    axs[0].set_title("bar, wide bins", fontsize=18)
+    mh.histplot([h1, h2, h3], wide_bins, histtype="bar", ax=axs[0])
+
+    axs[1].set_title("barstep, wide bins", fontsize=18)
+    mh.histplot([h1, h2], wide_bins, histtype="barstep", yerr=True, ax=axs[1])
+
+    axs[2].set_title("bar, variable bins", fontsize=18)
+    mh.histplot([v1, v2], var_bins, histtype="bar", ax=axs[2])
+
+    axs[3].set_title("barstep, variable bins", fontsize=18)
+    mh.histplot([v1, v2], var_bins, histtype="barstep", yerr=True, ax=axs[3])
 
     fig.subplots_adjust(wspace=0.1)
 
