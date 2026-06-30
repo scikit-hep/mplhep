@@ -501,8 +501,9 @@ def _norm_stack_plottables(plottables, bins, stack=False, density=False, binwnor
             _total = np.sum(
                 np.array([plottable.values() for plottable in plottables]), axis=0
             )
+            _norm = np.diff(bins) * np.sum(_total)
             for plottable in plottables:
-                plottable.flat_scale(1.0 / np.sum(np.diff(bins) * _total))
+                plottable.flat_scale(1.0 / _norm)
         else:
             for plottable in plottables:
                 plottable.density()
@@ -1090,11 +1091,17 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         return self.flat_scale(1 / np.diff(self.edges_1d()))
 
     def density(self):
-        """Normalize values and errors by the area."""
+        """Normalize values and errors to form a probability density.
+
+        Each bin is divided by its own width and by the total sum of weights so
+        that the histogram integrates to 1 over the domain of the axis. This
+        matches ``numpy.histogram(..., density=True)`` for variable-width bins.
+        """
         if self._density:
             return self
         self._density = True
-        return self.flat_scale(1 / np.sum(np.diff(self.edges_1d()) * self.values()))
+        widths = np.diff(self.edges_1d())
+        return self.flat_scale(1 / (widths * np.sum(self.values())))
 
     def to_stairs(self):
         """Export data in a dictionary format suitable for stair plots (e.g., step histograms)."""
