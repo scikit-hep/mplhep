@@ -341,6 +341,22 @@ def test_density_normalization(basic_hist):
     assert np.isclose(np.sum(h1.values()), 1.0)
 
 
+def test_density_variable_bins_matches_numpy():
+    # Variable-width bins: each bin must be divided by its own width as well as
+    # by the total weight, matching numpy.histogram(..., density=True).
+    # Regression test for https://github.com/scikit-hep/mplhep/issues/742
+    edges = np.array([0.0, 1.0, 2.0, 4.0, 8.0])
+    values = np.array([2.0, 1.0, 3.0, 4.0])
+    h = EnhancedPlottableHistogram(values, edges=edges, variances=values)
+    h.density()
+
+    widths = np.diff(edges)
+    expected = values / (widths * values.sum())
+    assert np.allclose(h.values(), expected)
+    # The density integrates to 1 over the domain of the axis.
+    assert np.isclose(np.sum(h.values() * widths), 1.0)
+
+
 def test_binwnorm_then_density(basic_hist):
     h = basic_hist
     h.set_variances(np.array([1.0, 1.0, 1.0]))
