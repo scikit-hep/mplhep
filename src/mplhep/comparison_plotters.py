@@ -725,7 +725,7 @@ def data_model(
 
     with contextlib.suppress(Exception):
         ylabel_fontsize = set_fitting_ylabel_fontsize(ax_main)
-    ax_comparison.get_yaxis().get_label().set_size(ylabel_fontsize)
+        ax_comparison.get_yaxis().get_label().set_size(ylabel_fontsize)
 
     fig.align_ylabels()
 

@@ -53,9 +53,6 @@ def _safe_get_renderer(fig):
 def _descent_from_layout(layout):
     """Extract a scalar typographic descent (in display units) from ``Text._get_layout``.
 
-    mpl < 3.11 returned ``(bbox, lines, descent)`` with ``descent`` a scalar
-    measuring the descent below the baseline, independent of the text's ``va``.
-
     mpl >= 3.11 returns ``(bbox, lines, (xy_corner, size))`` where ``xy_corner``
     is relative to the text *anchor* (which shifts with ``va``), so it must not
     be used directly.  Instead, the per-line ``wad = (width, ascent, descent)``
@@ -63,14 +60,17 @@ def _descent_from_layout(layout):
     ``va``.
     """
     third = layout[2]
-    if isinstance(third, tuple) and isinstance(third[0], tuple):
-        # mpl >= 3.11: use per-line wad for va-independent typographic descent
-        lines_data = layout[1]
-        if lines_data:
-            wad = lines_data[0][1]  # (width, ascent, descent) for first line
-            return float(wad[2])
-        return 0.0
-    return float(third)  # mpl < 3.11: direct scalar descent
+    if not (isinstance(third, tuple) and isinstance(third[0], tuple)):
+        msg = (
+            f"Unexpected Text._get_layout format: layout[2]={third!r}. "
+            "The private matplotlib API may have changed."
+        )
+        raise TypeError(msg)
+    lines_data = layout[1]
+    if lines_data:
+        wad = lines_data[0][1]  # (width, ascent, descent) for first line
+        return float(wad[2])
+    return 0.0
 
 
 class ExpLabel(mtext.Text):
@@ -862,7 +862,6 @@ def exp_text(
     reason='Use `fontweight=("bold", "normal", "normal", "normal")` instead.',
     removed=True,
 )
-@deprecate_parameter("pub", reason='Use `supp="..."` instead.')
 def exp_label(
     *,
     exp: str = "",
@@ -964,7 +963,7 @@ def exp_label(
     >>> # Custom positioning and formatting
     >>> mh.exp_label(exp="ATLAS", loc=4, lumi=139, lumi_format="{0:.0f}")
     """
-    if label is not None and text is None:
+    if label is not None and not text:
         text = label
     if rlabel is None:
         lumi_func = _lumi_line_atlas if loc == 4 else _lumi_line
@@ -1125,11 +1124,9 @@ def save_variations(
     if text_list is None:
         text_list = ["Preliminary", ""]
 
-    from mplhep.label import ExpText  # noqa: PLC0415
-
     for text in text_list:
         for ax in fig.get_axes():
-            exp_labels = [t for t in ax.get_children() if isinstance(t, ExpText)]
+            exp_labels = [t for t in ax.get_children() if isinstance(t, ExpLabel)]
             suffixes = [t for t in ax.get_children() if isinstance(t, ExpText)]
             for exp_label, suffix_text in zip(exp_labels, suffixes, strict=True):
                 if exp is not None:

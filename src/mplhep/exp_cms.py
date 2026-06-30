@@ -34,7 +34,7 @@ def text(text="", **kwargs):
 
 @deprecate_parameter("label", reason='Use `text="..."` instead.', warn_once=False)
 @copy_doc(label_base.exp_label)
-def label(text=None, label=None, **kwargs):  # noqa: ARG001
+def label(text=None, label=None, **kwargs):
     for key, value in dict(mplhep.rcParams.label._get_kwargs()).items():
         if (
             value is not None
@@ -55,4 +55,6 @@ def label(text=None, label=None, **kwargs):  # noqa: ARG001
     kwargs.setdefault("exp", "CMS")
     if text is not None:
         kwargs["text"] = text
+    if label is not None:
+        kwargs["text"] = label
     return label_base.exp_label(**kwargs)

@@ -25,7 +25,7 @@ repos:
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
   # Ruff version.
-  rev: v0.15.16
+  rev: v0.15.20
   hooks:
     # Run the linter.
     - id: ruff-check
@@ -40,7 +40,7 @@ repos:
   hooks:
   - id: mypy
     files: src
-    additional_dependencies: ["uhi", "numpy", "matplotlib>3.4"]
+    additional_dependencies: ["uhi", "numpy", "matplotlib>=3.11"]
     args: [--show-error-codes]
 
 - repo: https://github.com/codespell-project/codespell

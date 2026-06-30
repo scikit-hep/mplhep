@@ -100,20 +100,10 @@ def _get_next_prop_cycle(ax: mpl.axes.Axes, kwargs: dict[str, Any]) -> dict[str,
     # Filter out None values to treat them as "not provided"
     clean_kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
-    if hasattr(ax, "_get_lines") and hasattr(ax._get_lines, "_getdefaults"):
-        # This is the standard way for modern matplotlib
-        res = ax._get_lines._getdefaults(kw=clean_kwargs, ignore=frozenset())
-        if isinstance(res, dict):
-            return res
-        return {}
-    if (
-        hasattr(ax, "_get_lines")
-        and hasattr(ax._get_lines, "get_next_color")
-        and clean_kwargs.get("color") is None
-    ):
-        # Fallback for when _getdefaults is not available but get_next_color is
+    # mpl >= 3.11: get_next_color is the standard path for advancing the prop cycler
+    if clean_kwargs.get("color") is None:
         try:
-            return {"color": ax._get_lines.get_next_color()}
+            return {"color": ax._get_lines.get_next_color()}  # type: ignore[attr-defined]
         except AttributeError:
             return {}
     return {}
@@ -210,12 +200,21 @@ def hist(
         else:
             bin_edges = np.asarray(bins)
 
+        # Determine whether weights are shared across datasets or given
+        # per-dataset (a list/tuple of weight arrays, like plt.hist accepts).
+        per_dataset_weights = isinstance(weights, (list, tuple))
+
         # Histogram each dataset
         hist_values = []
         hist_w2 = []
-        for dataset in datasets:
+        for i, dataset in enumerate(datasets):
             data_arr = np.asarray(dataset).ravel()
-            w = None if weights is None else np.asarray(weights).ravel()
+            if weights is None:
+                w = None
+            elif per_dataset_weights:
+                w = np.asarray(weights[i]).ravel()
+            else:
+                w = np.asarray(weights).ravel()
 
             h, _ = np.histogram(data_arr, bins=bin_edges, weights=w, density=False)
             hist_values.append(h)
@@ -229,9 +228,13 @@ def hist(
 
         # Pass to histplot
         w2_arg = hist_w2 if weights is not None and len(hist_w2) > 0 else None
+        # If errors are explicitly disabled, don't supply w2 either (otherwise
+        # histplot would still draw uncertainties from the variances).
+        if yerr is False:
+            w2_arg = None
         # If w2 is provided, don't pass yerr (w2 will be used for error calculation)
         # If yerr is explicitly an array, still pass it
-        yerr_arg = None if w2_arg is not None and isinstance(yerr, bool) else yerr
+        yerr_arg = None if w2_arg is not None and yerr is True else yerr
         return histplot(
             hist_values,
             bin_edges,
@@ -263,9 +266,13 @@ def hist(
         h_w2, _ = np.histogram(x, bins=bin_edges, weights=w**2, density=False)
         w2_arg = h_w2
 
+    # If errors are explicitly disabled, don't supply w2 either (otherwise
+    # histplot would still draw uncertainties from the variances).
+    if yerr is False:
+        w2_arg = None
     # If w2 is provided, don't pass yerr (w2 will be used for error calculation)
     # If yerr is explicitly an array, still pass it
-    yerr_arg = None if w2_arg is not None and isinstance(yerr, bool) else yerr
+    yerr_arg = None if w2_arg is not None and yerr is True else yerr
 
     # Pass to histplot
     return histplot(
@@ -393,6 +400,11 @@ def histplot(
         Attempts to draw x-axis ticks coinciding with bin boundaries if feasible.
     xoffsets : bool, default: False,
         If True, the bin "centers" of plotted histograms will be offset within their bin.
+    bar_bin_width : float, default: 0.8
+        Only used for ``histtype="bar"`` and ``histtype="barstep"``. Fraction of
+        each bin's width occupied by the group of side-by-side bars (e.g. ``0.8``
+        leaves a 20% gap between adjacent bins). Scaled per-bin, so variable-width
+        bins are handled correctly.
 
     Returns
     -------
@@ -461,6 +473,11 @@ def histplot(
     def iterable_not_string(arg):
         return isinstance(arg, collections.abc.Iterable) and not isinstance(arg, str)
 
+    # bar_bin_width is a histplot-level option (fraction of each bin width used by
+    # the "bar"/"barstep" histtypes), not a per-hist artist kwarg. Pop it here
+    # before chunking so it is never forwarded to matplotlib.
+    _bin_width_frac = kwargs.pop("bar_bin_width", 0.8)
+
     _chunked_kwargs: list[dict[str, Any]] = [{} for _ in hists]
     for kwarg, kwarg_content in kwargs.items():
         # Check if iterable
@@ -491,11 +508,16 @@ def histplot(
     # Sorting
     if sort is not None:
         if isinstance(sort, str):
-            if sort.split("_")[0] in ["l", "label"] and isinstance(_labels, list):
-                order = np.argsort(label)  # [::-1]
+            if sort.split("_")[0] in ["l", "label"]:
+                # Sort on the normalized labels; use string keys so that
+                # ``None`` labels (unlabelled hists) compare safely.
+                order = np.argsort([str(_l) for _l in _labels])  # [::-1]
             elif sort.split("_")[0] in ["y", "yield"]:
                 _yields = [np.sum(_h.values()) for _h in hists]  # type: ignore[var-annotated]
                 order = np.argsort(_yields)
+            else:
+                msg = f"Sort type: {sort} not understood."
+                raise ValueError(msg)
             if len(sort.split("_")) == 2 and sort.split("_")[1] == "r":
                 order = order[::-1]
         elif isinstance(sort, (list, np.ndarray)):
@@ -556,14 +578,18 @@ def histplot(
                         _chunked_kwargs[i][k] = v
 
     if "bar" in histtype:
-        if kwargs.get("bin_width") is None:
-            _full_bin_width = 0.8
-        else:
-            _full_bin_width = kwargs.pop("bin_width")
+        # ``_bin_width_frac`` is the fraction of each bin's width occupied by the
+        # group of bars (default 0.8). ``_shift`` and the per-bar width below are
+        # expressed as fractions of the bin width here, and scaled to data units
+        # per-bin via ``_bin_widths`` at plotting time so that variable-width
+        # bins render correctly. For unit-width bins ``_bin_widths == 1`` and the
+        # result is identical to using the fraction directly.
+        _full_bin_width = _bin_width_frac
         _shift = np.linspace(
             -(_full_bin_width / 2), _full_bin_width / 2, len(plottables), endpoint=False
         )
         _shift += _full_bin_width / (2 * len(plottables))
+        _bar_width = _full_bin_width / len(plottables)
 
     if "step" in histtype:
         for i in range(len(plottables)):
@@ -573,9 +599,6 @@ def histplot(
             )
 
             _kwargs = _chunked_kwargs[i]
-
-            if _kwargs.get("bin_width"):
-                _kwargs.pop("bin_width")
 
             _label = _labels[i] if do_errors else None
             _step_label = _labels[i] if not do_errors else None
@@ -635,10 +658,13 @@ def histplot(
                 else:
                     edgecolor = _kwargs.pop("edgecolor")
 
+                # Per-bin widths (handles variable-width and flow bins).
+                _widths_i = np.diff(plottables[i].edges_1d())
+
                 _b = ax.bar(
-                    plottables[i].centers + _shift[i],
+                    plottables[i].centers + _shift[i] * _widths_i,
                     plottables[i].values(),
-                    width=_full_bin_width / len(plottables),
+                    width=_bar_width * _widths_i,
                     label=_step_label,
                     align="center",
                     edgecolor=edgecolor,
@@ -655,7 +681,7 @@ def histplot(
                     if "elinewidth" not in _kwargs:
                         _kwargs["elinewidth"] = _bar_lw
                     _e = ax.errorbar(
-                        _plot_info["x"] + _shift[i],
+                        _plot_info["x"] + _shift[i] * _widths_i,
                         _plot_info["y"],
                         yerr=_plot_info["yerr"],
                         linestyle="none",
@@ -682,13 +708,13 @@ def histplot(
         for i in range(len(plottables)):
             _kwargs = _chunked_kwargs[i]
 
-            if _kwargs.get("bin_width"):
-                _kwargs.pop("bin_width")
+            # Per-bin widths (handles variable-width and flow bins).
+            _widths_i = np.diff(plottables[i].edges_1d())
 
             _b = ax.bar(
-                plottables[i].centers + _shift[i],
+                plottables[i].centers + _shift[i] * _widths_i,
                 plottables[i].values(),
-                width=_full_bin_width / len(plottables),
+                width=_bar_width * _widths_i,
                 label=_labels[i],
                 align="center",
                 fill=True,
@@ -738,21 +764,12 @@ def histplot(
             "elinewidth": 1,
         }
 
-        _xerr: np.ndarray | float | int | None
-
-        if xerr is True:
-            _xerr = _bin_widths / 2
-        elif isinstance(xerr, (int, float)) and not isinstance(xerr, bool):
-            _xerr = xerr
-        else:
-            _xerr = None
-
         for i in range(len(plottables)):
             _kwargs = _chunked_kwargs[i]
             _plot_info = plottables[i].to_errorbar()
             if yerr is False:
                 _plot_info["yerr"] = None
-            if not xerr:
+            if xerr is None or xerr is False:
                 del _plot_info["xerr"]
             if isinstance(xerr, (int, float)) and not isinstance(xerr, bool):
                 _plot_info["xerr"] = xerr
@@ -1081,20 +1098,21 @@ def hist2dplot(
         H = np.copy(h.values())
         # Sum borders
         try:
+            values_flow = h.values(flow=True)  # type: ignore[call-arg]
             H[0], H[-1] = (
-                H[0] + h.values(flow=True)[0, 1:-1],  # type: ignore[call-arg]
-                H[-1] + h.values(flow=True)[-1, 1:-1],  # type: ignore[call-arg]
+                H[0] + values_flow[0, 1:-1],
+                H[-1] + values_flow[-1, 1:-1],
             )
             H[:, 0], H[:, -1] = (
-                H[:, 0] + h.values(flow=True)[1:-1, 0],  # type: ignore[call-arg]
-                H[:, -1] + h.values(flow=True)[1:-1, -1],  # type: ignore[call-arg]
+                H[:, 0] + values_flow[1:-1, 0],
+                H[:, -1] + values_flow[1:-1, -1],
             )
             # Sum corners to corners
             H[0, 0], H[-1, -1], H[0, -1], H[-1, 0] = (
-                h.values(flow=True)[0, 0] + H[0, 0],  # type: ignore[call-arg]
-                h.values(flow=True)[-1, -1] + H[-1, -1],  # type: ignore[call-arg]
-                h.values(flow=True)[0, -1] + H[0, -1],  # type: ignore[call-arg]
-                h.values(flow=True)[-1, 0] + H[-1, 0],  # type: ignore[call-arg]
+                values_flow[0, 0] + H[0, 0],
+                values_flow[-1, -1] + H[-1, -1],
+                values_flow[0, -1] + H[0, -1],
+                values_flow[-1, 0] + H[-1, 0],
             )
         except TypeError as error:
             if "got an unexpected keyword argument 'flow'" in str(error):
@@ -1557,8 +1575,9 @@ def model(
         ):
             if model_type == "histograms":
                 model_sum_kwargs.setdefault("yerr", False)
+                components_sum = sum(components)
                 histplot(
-                    sum(components),
+                    components_sum,
                     ax=ax,
                     histtype="step",
                     flow=flow,
@@ -1570,7 +1589,7 @@ def model(
                     and model_sum_kwargs.get("yerr", False) is not True
                 ):
                     histplot(
-                        sum(components),
+                        components_sum,
                         ax=ax,
                         label=model_uncertainty_label,
                         histtype="band",

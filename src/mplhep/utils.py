@@ -150,11 +150,13 @@ def yscale_legend(
         new_y_max = y_max * scale_factor
         ax.set_ylim(y_min, new_y_max)
 
-        # Redraw to update legend position
+        # Redraw to update legend position. ``set_ylim`` marks the figure
+        # stale, so this draw fires; the downstream helpers reuse it.
         if (fig := ax.figure) is None:
             msg = "Could not fetch figure, maybe no plot is drawn yet?"
             raise RuntimeError(msg)
-        fig.canvas.draw()
+        if fig.stale:
+            fig.canvas.draw()
 
         # Check if scaling resolved overlap
         final_overlap = _overlap(ax, _draw_leg_bbox(ax))
@@ -226,11 +228,13 @@ def yscale_anchored_text(
         new_y_max = y_max * scale_factor
         ax.set_ylim(y_min, new_y_max)
 
-        # Redraw to update text position
+        # Redraw to update text position. ``set_ylim`` marks the figure
+        # stale, so this draw fires; the downstream helpers reuse it.
         if (fig := ax.figure) is None:
             msg = "Could not fetch figure, maybe no plot is drawn yet?"
             raise RuntimeError(msg)
-        fig.canvas.draw()
+        if fig.stale:
+            fig.canvas.draw()
 
         # Check if scaling resolved overlap (excluding the annotation texts themselves)
         updated_text_bbox, updated_text_objects = _draw_text_bbox(ax)
@@ -286,7 +290,7 @@ def set_ylow(
             ax.set_ylim(0, current_ylim[1])
 
     else:
-        ax.set_ylim(0, ax.get_ylim()[-1])
+        ax.set_ylim(ylow, ax.get_ylim()[-1])
 
     return ax
 
