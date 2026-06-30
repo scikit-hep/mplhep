@@ -314,13 +314,7 @@ def _get_plottables(
                     underflowv, overflowv = variances_flow[0], variances_flow[-1]
 
         # Set plottables
-        if flow == "none":
-            plottables.append(
-                EnhancedPlottableHistogram(
-                    value, edges=final_bins, variances=variance, xoffsets=xoffset
-                )
-            )
-        elif flow == "hint":
+        if flow == "hint":
             plottables.append(
                 EnhancedPlottableHistogram(
                     value,
@@ -368,6 +362,7 @@ def _get_plottables(
                 )
             )
         else:
+            # Covers flow == "none" and any other value
             plottables.append(
                 EnhancedPlottableHistogram(
                     value, edges=final_bins, variances=variance, xoffsets=xoffset
@@ -872,8 +867,6 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         added_variances = None
         if self._variances is not None and other._variances is not None:
             added_variances = self._variances + other._variances
-        else:
-            added_variances = None
 
         # Sum flow bins if both histograms have them
         added_underflow = None
@@ -1155,27 +1148,13 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         }
 
 
-def _hist_legend(ax=None, **kwargs):
-    if ax is None:
-        ax = plt.gca()
-
-    handles, labels = ax.get_legend_handles_labels()
-    new_handles = [
-        Line2D([], [], c=h.get_edgecolor()) if isinstance(h, mpl.patches.Polygon) else h
-        for h in handles
-    ]
-    ax.legend(handles=new_handles[::-1], labels=labels[::-1], **kwargs)
-
-    return ax
-
-
 def _is_debug_marker(artist):
     """Check if an artist is a debug marker that should be excluded from overlap detection."""
     DEBUG_LABELS = {"overlap vertices", "overlapping vertices", "overlap bbox"}
     return hasattr(artist, "get_label") and artist.get_label() in DEBUG_LABELS
 
 
-def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None, return_per_bbox=False):
+def _overlap(ax, bboxes, exclude_texts=None, return_per_bbox=False):
     """
     Find overlap of bboxes (in display coordinates) with drawn elements on axes.
 
@@ -1184,10 +1163,9 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None, return_per_bbox
     Logs summary in data coordinates for understandability.
 
     Returns number of overlapping points/bboxes.
-    If get_vertices, also return vertices in data coordinates.
     If return_per_bbox, also return a boolean list indicating which bboxes
     contributed to the overlap (via contained/occluding vertices or bbox-bbox
-    overlap). Implies ``get_vertices``.
+    overlap).
 
     Parameters
     ----------
@@ -1195,8 +1173,6 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None, return_per_bbox
         The axes to check
     bboxes : Bbox or list of Bbox
         Bounding boxes to check for overlap
-    get_vertices : bool, optional
-        If True, also return vertices in data coordinates
     exclude_texts : list, optional
         List of Text objects to exclude from overlap detection (to avoid self-overlap)
     return_per_bbox : bool, optional
@@ -1387,22 +1363,7 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None, return_per_bbox
                 label="overlap bbox",
             )
             ax.add_patch(rect)
-        # Plot occluding vertices as fat blue pluses
-        if overlapping_vertices_data:
-            overlapping_array = np.array(overlapping_vertices_data)
-            ax.scatter(
-                overlapping_array[:, 0],
-                overlapping_array[:, 1],
-                color="blue",
-                s=100,
-                alpha=0.9,
-                marker="+",
-                linewidth=3,
-                label="overlapping vertices",
-                zorder=10,  # Plot on top
-            )
-
-        # Plot overlapping vertices with emphasis
+        # Plot overlapping vertices as fat blue pluses
         if overlapping_vertices_data:
             overlapping_array = np.array(overlapping_vertices_data)
             ax.scatter(
@@ -1423,8 +1384,6 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None, return_per_bbox
 
     if return_per_bbox:
         return overlap_count, all_vertices_data, bbox_overlaps
-    if get_vertices:
-        return overlap_count, all_vertices_data
     return overlap_count
 
 

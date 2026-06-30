@@ -87,7 +87,6 @@ __all__ = [
     "EnhancedPlottableHistogram",
     "_check_counting_histogram",
     "add_text",
-    "add_text",
     "alice",
     "append_axes",
     "append_text",

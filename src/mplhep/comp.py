@@ -5,6 +5,8 @@ This module provides functions to create comparison plots, such as ratio plots,
 data vs. model comparisons, and more.
 """
 
+import sys
+
 from .comparison_plotters import (
     comparison,
     data_model,
@@ -26,7 +28,7 @@ from .comparison_functions import (
 )
 
 # Alias the module name itself for discoverability
-compare = __import__(__name__)
+compare = sys.modules[__name__]
 
 __all__ = [
     "hists",
