@@ -33,10 +33,10 @@ jobs:
             python-version: "3.11"
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup uv
-        uses: astral-sh/setup-uv@v8.1.0
+        uses: astral-sh/setup-uv@v8.2.0
         with:
           activate-environment: true
           version: "latest"
