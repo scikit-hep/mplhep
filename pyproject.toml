@@ -95,7 +95,8 @@ all = [
 
 [tool.mypy]
 files = ["src"]
-python_version = "3.11"
+# numpy>=2.5 type stubs use PEP 695 syntax, which mypy rejects for targets <3.12
+python_version = "3.12"
 warn_unused_configs = true
 
 allow_redefinition = true
