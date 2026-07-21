@@ -1,9 +1,14 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
+import scipy.stats
 from matplotlib.offsetbox import AnchoredText
+from matplotlib.transforms import Bbox
+from pytest import approx
 
 import mplhep as mh
+from mplhep._utils import _calculate_optimal_scaling, _overlap
+from mplhep.error_estimation import _coverage1sd, poisson_interval
 
 plt.switch_backend("Agg")
 
@@ -308,3 +313,274 @@ def test_yscale_mpl_magic_add_text():
         mh.mpl_magic(axr, soft_fail=True)
 
     return fig
+
+
+def _make_sci_overlap_axes(style):
+    """Build axes that exhibit the xlabel/sci-notation overlap from issue #712."""
+    plt.style.use(style)
+    fig, ax = plt.subplots()
+    np.random.seed(0)
+    ax.plot(np.linspace(0, 5e6, 100), np.random.normal(0, 1, 100))
+    ax.ticklabel_format(axis="x", style="sci", scilimits=(0, 0))
+    ax.set_xlabel("Energy [GeV]")
+    ax.set_ylabel("Events")
+    return fig, ax
+
+
+@pytest.mark.mpl_image_compare(style="default", remove_text=False)
+def test_xlabel_sci_adjust_visual():
+    """Visual baseline for the issue-#712 fix: x-label should not overlap the
+    matplotlib-supplied ``x10^n`` offset text after ``xlabel_sci_adjust``.
+    """
+    fig, ax = _make_sci_overlap_axes(mh.style.ATLAS)
+    mh.atlas.label(loc=1)
+    mh.xlabel_sci_adjust(ax)
+    return fig
+
+
+def _xlabel_offset_overlap(ax):
+    """Return True iff the x-label bbox overlaps the offset-text bbox."""
+    fig = ax.figure
+    fig.canvas.draw()
+    canvas = fig.canvas
+    renderer = (
+        canvas.get_renderer()
+        if hasattr(canvas, "get_renderer")
+        else fig._get_renderer()
+    )
+    xaxis = ax.get_xaxis()
+    offset = xaxis.offsetText.get_window_extent(renderer)
+    label = xaxis.label.get_window_extent(renderer)
+    horiz = label.x1 > offset.x0 and offset.x1 > label.x0
+    vert = label.y1 > offset.y0 and offset.y1 > label.y0
+    return horiz and vert
+
+
+@pytest.mark.parametrize("style", ["ATLAS", "ATLASAlt", "CMS", "ALICE", "LHCb2"])
+def test_xlabel_sci_adjust_resolves_overlap(style):
+    """The fix must turn an overlapping (xlabel vs ``x10^n``) layout into a
+    non-overlapping one, across the styles where the overlap typically occurs.
+    """
+    style_obj = getattr(mh.style, style)
+    fig, ax = _make_sci_overlap_axes(style_obj)
+    assert _xlabel_offset_overlap(ax), (
+        f"Expected pre-fix overlap on style={style}; the test scenario no "
+        f"longer reproduces and needs updating."
+    )
+    mh.xlabel_sci_adjust(ax)
+    assert not _xlabel_offset_overlap(ax), (
+        f"xlabel_sci_adjust did not clear the overlap on style={style}."
+    )
+    plt.close(fig)
+
+
+def test_xlabel_sci_adjust_is_idempotent():
+    """Repeated invocations must not keep shifting the label further left."""
+    fig, ax = _make_sci_overlap_axes(mh.style.ATLAS)
+    mh.xlabel_sci_adjust(ax)
+    x_after_first = ax.xaxis.label.get_position()[0]
+    mh.xlabel_sci_adjust(ax)
+    mh.xlabel_sci_adjust(ax)
+    assert ax.xaxis.label.get_position()[0] == x_after_first, (
+        "Calling xlabel_sci_adjust again after the first run should be a no-op."
+    )
+    plt.close(fig)
+
+
+def test_xlabel_sci_adjust_skips_when_no_offset():
+    """No sci-notation offset = no label-position change."""
+    plt.style.use(mh.style.ATLAS)
+    fig, ax = plt.subplots()
+    ax.plot([0, 1, 2], [0, 1, 4])
+    ax.set_xlabel("x")
+    original_x = ax.xaxis.label.get_position()[0]
+    mh.xlabel_sci_adjust(ax)
+    assert ax.xaxis.label.get_position()[0] == original_x
+    plt.close(fig)
+
+
+def test_xlabel_sci_adjust_skips_when_no_xlabel():
+    """No x-label = nothing to shift."""
+    plt.style.use(mh.style.ATLAS)
+    fig, ax = plt.subplots()
+    ax.plot(np.linspace(0, 5e6, 10), np.linspace(0, 1, 10))
+    ax.ticklabel_format(axis="x", style="sci", scilimits=(0, 0))
+    original_x = ax.xaxis.label.get_position()[0]
+    mh.xlabel_sci_adjust(ax)
+    assert ax.xaxis.label.get_position()[0] == original_x
+    plt.close(fig)
+
+
+def test_overlap_per_bbox_flags_multi_bbox():
+    """Regression test for #699: when several bboxes are passed but only a
+    subset actually overlap data, ``_overlap(return_per_bbox=True)`` must
+    flag exactly the contributing ones.
+
+    Without this, ``_calculate_optimal_scaling`` would have to redo the
+    contained/occluding check itself against *all* vertices, which was both
+    slow and used a filter criterion that could disagree with the count.
+    """
+    fig, ax = plt.subplots()
+    # Diagonal line through the axes.
+    ax.plot([0, 1, 2, 3, 4], [0, 1, 2, 3, 4])
+    ax.set_xlim(0, 5)
+    ax.set_ylim(0, 5)
+    fig.canvas.draw()
+
+    def disp_bbox(x0, y0, x1, y1):
+        (dx0, dy0), (dx1, dy1) = ax.transData.transform([[x0, y0], [x1, y1]])
+        return Bbox.from_extents(dx0, dy0, dx1, dy1)
+
+    # bbox A: contains the line at (1.5, 1.5) -> hit.
+    bbox_a = disp_bbox(1.0, 1.0, 2.0, 2.0)
+    # bbox B: in the top-left corner, ABOVE every line vertex in its x-range
+    #         -> not contained, not occluded -> no hit.
+    bbox_b = disp_bbox(0.1, 4.5, 0.3, 4.9)
+    # bbox C: below the line in column x in [3, 4] -> occluded -> hit.
+    bbox_c = disp_bbox(3.0, 0.0, 4.0, 1.0)
+
+    count, _verts, flags = _overlap(ax, [bbox_a, bbox_b, bbox_c], return_per_bbox=True)
+
+    assert count > 0
+    assert flags == [True, False, True], (
+        f"per-bbox flags should isolate the actually-overlapping bboxes, got {flags}"
+    )
+    plt.close(fig)
+
+
+def test_overlap_per_bbox_bbox_bbox():
+    """A bbox that doesn't intersect any plot vertex but DOES overlap another
+    text bbox on the axes must still be flagged. This is the path that
+    earlier filters could drop because they only looked at vertex overlap.
+    """
+    fig, ax = plt.subplots()
+    ax.set_xlim(0, 5)
+    ax.set_ylim(0, 5)
+    txt = ax.text(2.5, 2.5, "hello")
+    fig.canvas.draw()
+    text_bbox = txt.get_window_extent()
+
+    # Overlapping shift in display coords -- guaranteed not to touch any line.
+    overlap_bbox = Bbox.from_extents(
+        text_bbox.x0 + 1,
+        text_bbox.y0 + 1,
+        text_bbox.x1 + 1,
+        text_bbox.y1 + 1,
+    )
+    count, _verts, flags = _overlap(ax, [overlap_bbox], return_per_bbox=True)
+    assert count > 0
+    assert flags == [True]
+    plt.close(fig)
+
+
+def test_calculate_optimal_scaling_with_subset_overlap():
+    """End-to-end regression for #699: when only some bboxes overlap data,
+    ``_calculate_optimal_scaling`` must compute the scaling from those bboxes
+    only -- not let a far-from-overlap bbox influence (or null out) the
+    answer because all bboxes get fed in together.
+    """
+    fig, ax = plt.subplots()
+    ax.plot([0, 1, 2, 3, 4], [0, 1, 2, 3, 4])
+    ax.set_xlim(0, 5)
+    ax.set_ylim(0, 5)
+    fig.canvas.draw()
+
+    def disp_bbox(x0, y0, x1, y1):
+        (dx0, dy0), (dx1, dy1) = ax.transData.transform([[x0, y0], [x1, y1]])
+        return Bbox.from_extents(dx0, dy0, dx1, dy1)
+
+    overlapping = disp_bbox(0.5, 0.5, 2.0, 2.0)  # contains line vertices
+    free = disp_bbox(0.1, 4.5, 0.3, 4.9)  # top-left, above any line vertex
+
+    scale = _calculate_optimal_scaling(ax, [overlapping, free])
+    assert scale > 1.0, (
+        f"expected scale > 1 because `overlapping` covers plot data; got {scale}"
+    )
+
+    # Sanity: with only the non-overlapping bbox, no scaling is needed.
+    assert _calculate_optimal_scaling(ax, [free]) == 1.0
+    plt.close(fig)
+
+
+def test_poisson_interval_nearest_nonzero_scale():
+    """Regression test for the empty-bin scale lookup in ``poisson_interval``.
+
+    For weighted histograms, empty bins (``sumw == 0``) borrow the per-bin
+    scale (``sumw2 / sumw``) of the *nearest* nonzero bin. A regression once
+    collapsed the inter-bin distance matrix to a scalar (``np.sum([...])``
+    instead of an element-wise sum), so every empty bin inherited the scale of
+    the *first* nonzero bin instead of the nearest one.
+
+    With ``sumw = [4, 0, 0, 9]`` / ``sumw2 = [8, 0, 0, 9]`` the per-bin scales
+    are ``[2, 2, 1, 1]``: bin 1 is nearest to bin 0 (scale 2) and bin 2 is
+    nearest to bin 3 (scale 1). The buggy code gave bin 2 scale 2.
+    """
+    sumw = np.array([4.0, 0.0, 0.0, 9.0])
+    sumw2 = np.array([8.0, 0.0, 0.0, 9.0])
+
+    interval = poisson_interval(sumw, sumw2)
+
+    # The empty bin nearest to bin 3 (scale 1) must NOT inherit bin 0's scale 2.
+    # Compare against an interval built with the correct per-bin scales.
+    scale = np.array([2.0, 2.0, 1.0, 1.0])
+    counts = sumw / scale
+    lo = scale * scipy.stats.chi2.ppf((1 - _coverage1sd) / 2, 2 * counts) / 2.0
+    hi = scale * scipy.stats.chi2.ppf((1 + _coverage1sd) / 2, 2 * (counts + 1)) / 2.0
+    expected = np.array([lo, hi])
+    expected[np.isnan(expected)] = 0.0
+
+    np.testing.assert_allclose(interval, expected)
+
+    # Discriminating check: with the bug, bin 2 used scale 2 and its upper
+    # bound equalled bin 1's; the fix gives it scale 1 (half of that).
+    assert interval[1, 2] == approx(interval[1, 1] / 2.0)
+
+
+def test_poisson_interval_nearest_nonzero_scale_2d():
+    """``poisson_interval`` must preserve N-dimensional nearest-bin lookup.
+
+    The nearest-nonzero-bin substitution operates on flattened index tuples via
+    ``np.where`` / ``np.nonzero``, so it must work for multi-dimensional
+    ``sumw`` arrays too.
+    """
+    sumw = np.array([[4.0, 0.0], [0.0, 9.0]])
+    sumw2 = np.array([[8.0, 0.0], [0.0, 9.0]])
+
+    interval = poisson_interval(sumw, sumw2)
+
+    # Nonzero bins: (0,0) scale 2, (1,1) scale 1.
+    # Empty (0,1): dist 1 to (0,0), dist 2 to (1,1) -> scale 2.
+    # Empty (1,0): dist 1 to both -> first wins (0,0) -> scale 2.
+    scale = np.array([[2.0, 2.0], [2.0, 1.0]])
+    counts = sumw / scale
+    lo = scale * scipy.stats.chi2.ppf((1 - _coverage1sd) / 2, 2 * counts) / 2.0
+    hi = scale * scipy.stats.chi2.ppf((1 + _coverage1sd) / 2, 2 * (counts + 1)) / 2.0
+    expected = np.array([lo, hi])
+    expected[np.isnan(expected)] = 0.0
+
+    assert interval.shape == (2, 2, 2)
+    np.testing.assert_allclose(interval, expected)
+
+
+# --- Regression tests for set_ylow ---
+
+
+def test_set_ylow_uses_value():
+    """Regression: set_ylow(ax, ylow=value) must use value, not hardcode 0."""
+    fig, ax = plt.subplots()
+    ax.plot([0, 1], [5, 10])
+    mh.set_ylow(ax, ylow=2.5)
+    assert ax.get_ylim()[0] == 2.5, (
+        f"Expected lower y limit 2.5, got {ax.get_ylim()[0]}"
+    )
+    plt.close(fig)
+
+
+def test_set_ylow_default_zero():
+    """set_ylow() with no ylow argument still sets lower limit to 0."""
+    fig, ax = plt.subplots()
+    ax.plot([0, 1], [5, 10])
+    ax.set_ylim(3, 12)
+    mh.set_ylow(ax)
+    assert ax.get_ylim()[0] == 0, f"Expected lower y limit 0, got {ax.get_ylim()[0]}"
+    plt.close(fig)

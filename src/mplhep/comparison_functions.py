@@ -131,18 +131,15 @@ def get_ratio_variances(h1, h2):
     _check_binning_consistency([h1_plottable, h2_plottable])
     _check_counting_histogram([h1_plottable, h2_plottable])
 
-    np.seterr(divide="ignore", invalid="ignore")
-    ratio_variances = np.where(
-        h2_plottable.values() != 0,
-        h1_plottable.variances() / h2_plottable.values() ** 2
-        + h2_plottable.variances()
-        * h1_plottable.values() ** 2
-        / h2_plottable.values() ** 4,
-        np.nan,
-    )
-    np.seterr(divide="warn", invalid="warn")
-
-    return ratio_variances
+    with np.errstate(divide="ignore", invalid="ignore"):
+        return np.where(
+            h2_plottable.values() != 0,
+            h1_plottable.variances() / h2_plottable.values() ** 2
+            + h2_plottable.variances()
+            * h1_plottable.values() ** 2
+            / h2_plottable.values() ** 4,
+            np.nan,
+        )
 
 
 def get_ratio(
@@ -371,7 +368,7 @@ def get_asymmetry(h1, h2):
 def get_efficiency(h1, h2):
     """
     Calculate the ratio of two correlated histograms (h1/h2), in which the entries of h1 are a subsample of the entries of h2.
-    The variances are calculated according to the formula given in :ref:`documentation-statistics-label`.
+    The variances are calculated using the Bayesian method with a uniform prior Beta(1,1), following the approach in ROOT's TEfficiency class (see https://root.cern.ch/doc/master/classTEfficiency.html).
 
     The following conditions must be fulfilled for the calculation of the efficiency:
     * The bins of the histograms must be equal.
@@ -485,46 +482,44 @@ def get_comparison(
     _check_binning_consistency([h1_plottable, h2_plottable])
     _check_counting_histogram([h1_plottable, h2_plottable])
 
-    np.seterr(divide="ignore", invalid="ignore")
-
-    if comparison == "ratio":
-        values, lower_uncertainties, upper_uncertainties = get_ratio(
-            h1_plottable, h2_plottable, h1_w2method, "uncorrelated"
-        )
-    elif comparison == "split_ratio":
-        values, lower_uncertainties, upper_uncertainties = get_ratio(
-            h1_plottable, h2_plottable, h1_w2method, "split"
-        )
-    elif comparison == "relative_difference":
-        values, lower_uncertainties, upper_uncertainties = get_ratio(
-            h1_plottable, h2_plottable, h1_w2method, "uncorrelated"
-        )
-        values -= 1  # relative difference is ratio-1
-    elif comparison == "pull":
-        values, lower_uncertainties, upper_uncertainties = get_pull(
-            h1_plottable, h2_plottable, h1_w2method
-        )
-    elif comparison == "difference":
-        values, lower_uncertainties, upper_uncertainties = get_difference(
-            h1_plottable, h2_plottable, h1_w2method
-        )
-    elif comparison == "asymmetry":
-        if h1_w2method == "poisson":
-            msg = "Poisson asymmetrical uncertainties are not supported for the asymmetry comparison."
+    with np.errstate(divide="ignore", invalid="ignore"):
+        if comparison == "ratio":
+            values, lower_uncertainties, upper_uncertainties = get_ratio(
+                h1_plottable, h2_plottable, h1_w2method, "uncorrelated"
+            )
+        elif comparison == "split_ratio":
+            values, lower_uncertainties, upper_uncertainties = get_ratio(
+                h1_plottable, h2_plottable, h1_w2method, "split"
+            )
+        elif comparison == "relative_difference":
+            values, lower_uncertainties, upper_uncertainties = get_ratio(
+                h1_plottable, h2_plottable, h1_w2method, "uncorrelated"
+            )
+            values -= 1  # relative difference is ratio-1
+        elif comparison == "pull":
+            values, lower_uncertainties, upper_uncertainties = get_pull(
+                h1_plottable, h2_plottable, h1_w2method
+            )
+        elif comparison == "difference":
+            values, lower_uncertainties, upper_uncertainties = get_difference(
+                h1_plottable, h2_plottable, h1_w2method
+            )
+        elif comparison == "asymmetry":
+            if h1_w2method == "poisson":
+                msg = "Poisson asymmetrical uncertainties are not supported for the asymmetry comparison."
+                raise ValueError(msg)
+            values, uncertainties = get_asymmetry(h1_plottable, h2_plottable)
+            lower_uncertainties = uncertainties
+            upper_uncertainties = uncertainties
+        elif comparison == "efficiency":
+            if h1_w2method == "poisson":
+                msg = "Poisson asymmetrical uncertainties are not supported for the efficiency comparison."
+                raise ValueError(msg)
+            values, uncertainties = get_efficiency(h1_plottable, h2_plottable)
+            lower_uncertainties = uncertainties
+            upper_uncertainties = uncertainties
+        else:
+            msg = f"{comparison} not available as a comparison ('ratio', 'split_ratio', 'pull', 'difference', 'relative_difference', 'asymmetry' or 'efficiency')."
             raise ValueError(msg)
-        values, uncertainties = get_asymmetry(h1_plottable, h2_plottable)
-        lower_uncertainties = uncertainties
-        upper_uncertainties = uncertainties
-    elif comparison == "efficiency":
-        if h1_w2method == "poisson":
-            msg = "Poisson asymmetrical uncertainties are not supported for the efficiency comparison."
-            raise ValueError(msg)
-        values, uncertainties = get_efficiency(h1_plottable, h2_plottable)
-        lower_uncertainties = uncertainties
-        upper_uncertainties = uncertainties
-    else:
-        msg = f"{comparison} not available as a comparison ('ratio', 'split_ratio', 'pull', 'difference', 'relative_difference', 'asymmetry' or 'efficiency')."
-        raise ValueError(msg)
-    np.seterr(divide="warn", invalid="warn")
 
     return values, lower_uncertainties, upper_uncertainties

@@ -1,4 +1,5 @@
 docstring-inheritance
 griffe-inherited-docstrings
 markdown-exec
+mike
 mkdocs-matplotlib @ git+https://github.com/andrzejnovak/mkdocs-matplotlib.git

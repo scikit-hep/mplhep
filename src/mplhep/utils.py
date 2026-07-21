@@ -38,7 +38,7 @@ def merge_legend_handles_labels(handles, labels):
 
     seen_labels = []
     seen_label_handles = []
-    for handle, label in zip(handles, labels):
+    for handle, label in zip(handles, labels, strict=True):
         if label not in seen_labels:
             seen_labels.append(label)
             seen_label_handles.append([handle])
@@ -150,11 +150,13 @@ def yscale_legend(
         new_y_max = y_max * scale_factor
         ax.set_ylim(y_min, new_y_max)
 
-        # Redraw to update legend position
+        # Redraw to update legend position. ``set_ylim`` marks the figure
+        # stale, so this draw fires; the downstream helpers reuse it.
         if (fig := ax.figure) is None:
             msg = "Could not fetch figure, maybe no plot is drawn yet?"
             raise RuntimeError(msg)
-        fig.canvas.draw()
+        if fig.stale:
+            fig.canvas.draw()
 
         # Check if scaling resolved overlap
         final_overlap = _overlap(ax, _draw_leg_bbox(ax))
@@ -226,11 +228,13 @@ def yscale_anchored_text(
         new_y_max = y_max * scale_factor
         ax.set_ylim(y_min, new_y_max)
 
-        # Redraw to update text position
+        # Redraw to update text position. ``set_ylim`` marks the figure
+        # stale, so this draw fires; the downstream helpers reuse it.
         if (fig := ax.figure) is None:
             msg = "Could not fetch figure, maybe no plot is drawn yet?"
             raise RuntimeError(msg)
-        fig.canvas.draw()
+        if fig.stale:
+            fig.canvas.draw()
 
         # Check if scaling resolved overlap (excluding the annotation texts themselves)
         updated_text_bbox, updated_text_objects = _draw_text_bbox(ax)
@@ -286,8 +290,80 @@ def set_ylow(
             ax.set_ylim(0, current_ylim[1])
 
     else:
-        ax.set_ylim(0, ax.get_ylim()[-1])
+        ax.set_ylim(ylow, ax.get_ylim()[-1])
 
+    return ax
+
+
+def xlabel_sci_adjust(ax: mpl.axes.Axes | None = None) -> mpl.axes.Axes:
+    """Shift the x-axis label inwards when it overlaps the sci-notation offset text.
+
+    Mirrors the analogous adjustment for experiment labels (``CMS``, ``ATLAS``, ...)
+    on the y-axis: when matplotlib places a ``x10^n`` offset at the right edge of
+    the x-axis, an x-label anchored at the same right edge (the HEP-style default,
+    via ``xaxis.labellocation = "right"``) overlaps the offset text (issue #712).
+    This helper detects the overlap and shifts the x-label leftward (inward) by
+    just enough to clear it, leaving the offset text where matplotlib drew it.
+
+    The function is idempotent: if no overlap is currently present (e.g. because
+    it was already fixed), it is a no-op.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes, optional
+        Axes object (if None, ``plt.gca()`` is used).
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+    """
+    if ax is None:
+        ax = plt.gca()
+
+    xaxis = ax.get_xaxis()
+    fmt = xaxis.get_major_formatter()
+    if not (hasattr(fmt, "get_useOffset") and fmt.get_useOffset()):
+        return ax
+    if not ax.get_xlabel():
+        return ax
+
+    fig = ax.figure
+    if fig is None:
+        return ax
+    fig.canvas.draw()
+    canvas = fig.canvas
+    renderer = (
+        canvas.get_renderer()
+        if hasattr(canvas, "get_renderer")
+        else fig._get_renderer()  # type: ignore[attr-defined,union-attr]
+    )
+
+    offset_text = xaxis.offsetText
+    if not offset_text.get_text():
+        return ax
+
+    offset_bbox = offset_text.get_window_extent(renderer)
+    label_bbox = xaxis.label.get_window_extent(renderer)
+
+    horiz_overlap = label_bbox.x1 > offset_bbox.x0 and offset_bbox.x1 > label_bbox.x0
+    vert_overlap = label_bbox.y1 > offset_bbox.y0 and offset_bbox.y1 > label_bbox.y0
+    if not (horiz_overlap and vert_overlap):
+        return ax
+
+    # Shift the label leftward by (overlap + margin) pixels so its right edge
+    # sits just left of the offset text's left edge.
+    overlap_px = label_bbox.x1 - offset_bbox.x0
+    margin_px = 4.0
+    shift_px = overlap_px + margin_px
+
+    ax_bbox = ax.get_window_extent(renderer)
+    ax_width_px = ax_bbox.x1 - ax_bbox.x0
+    if ax_width_px <= 0:
+        return ax
+    shift_axes_fraction = shift_px / ax_width_px
+
+    current_x = xaxis.label.get_position()[0]
+    xaxis.label.set_x(current_x - shift_axes_fraction)
     return ax
 
 
@@ -303,6 +379,7 @@ def mpl_magic(
         ylow
         yscale_legend
         yscale_anchored_text
+        xlabel_sci_adjust
 
     Parameters
     ----------
@@ -325,7 +402,8 @@ def mpl_magic(
 
     ax = set_ylow(ax, ylow=ylow)
     ax = yscale_legend(ax, otol=otol, soft_fail=soft_fail, N=N)
-    return yscale_anchored_text(ax, otol=otol, soft_fail=soft_fail, N=N)
+    ax = yscale_anchored_text(ax, otol=otol, soft_fail=soft_fail, N=N)
+    return xlabel_sci_adjust(ax)
 
 
 ########################################
@@ -454,26 +532,26 @@ def append_axes(ax, size=0.1, pad=0.1, position="right", extend=False):
             new_size = sum(itax.get_position().size for itax in [ax, yhax])
             return new_size / orig_size
 
-        if position in ["right"]:
+        if position == "right":
             divider.set_horizontal([axes_size.Fixed(width), *xsizes])
             fig.set_size_inches(
                 fig.get_size_inches()[0] * extend_ratio(ax, yhax)[0],
                 fig.get_size_inches()[1],
             )
-        elif position in ["left"]:
+        elif position == "left":
             divider.set_horizontal([*xsizes[::-1], axes_size.Fixed(width)])
             fig.set_size_inches(
                 fig.get_size_inches()[0] * extend_ratio(ax, yhax)[0],
                 fig.get_size_inches()[1],
             )
-        elif position in ["top"]:
+        elif position == "top":
             divider.set_vertical([axes_size.Fixed(height), *xsizes[::-1]])
             fig.set_size_inches(
                 fig.get_size_inches()[0],
                 fig.get_size_inches()[1] * extend_ratio(ax, yhax)[1],
             )
             yhax.sharex(ax)
-        elif position in ["bottom"]:
+        elif position == "bottom":
             divider.set_vertical([*xsizes, axes_size.Fixed(height)])
             fig.set_size_inches(
                 fig.get_size_inches()[0],
@@ -491,7 +569,7 @@ def sort_legend(ax, order=None):
     """
 
     handles, labels = ax.get_legend_handles_labels()
-    by_label = OrderedDict(zip(labels, handles))
+    by_label = OrderedDict(zip(labels, handles, strict=True))
 
     if isinstance(order, OrderedDict):
         ordered_label_list = list(order.keys())

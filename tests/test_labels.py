@@ -19,7 +19,16 @@ import pytest
 os.environ["RUNNING_PYTEST"] = "true"
 
 import mplhep as mh
-from mplhep.label import exp_label, exp_text
+from mplhep.label import (
+    ExpLabel,
+    ExpText,
+    _descent_from_layout,
+    _parse_com,
+    _safe_get_renderer,
+    exp_label,
+    exp_text,
+    save_variations,
+)
 
 plt.switch_backend("Agg")
 
@@ -57,7 +66,9 @@ def _draw_text_boundary_lines(txt_obj, ax=None, color="gray", alpha=0.5):
         Transparency of boundary lines, by default 0.5
     """
     ax = plt.gca() if ax is None else ax
-    bbox, _, descent = txt_obj._get_layout(ax.figure.canvas.get_renderer())
+    _layout = txt_obj._get_layout(_safe_get_renderer(ax.figure))
+    bbox = _layout[0]
+    descent = _descent_from_layout(_layout)
     ax_width = ax.get_position().width * ax.figure.get_size_inches()[0]
     ax_height = ax.get_position().height * ax.figure.get_size_inches()[1]
     dpi = ax.figure.dpi
@@ -163,7 +174,7 @@ def test_append_text_placement(fontname):
         # Use original labeling pattern to match baseline images
         labels = ["1", "2", "2", "1"]  # Original pattern from t1, t2, t3, t4
         for _, (text_obj, font_size, label_prefix) in enumerate(
-            zip(texts, font_sizes, labels)
+            zip(texts, font_sizes, labels, strict=True)
         ):
             label = f"{label_prefix}-{app_pos}"
             mh.append_text(label, text_obj, fontsize=font_size, **append_kwargs)
@@ -296,3 +307,147 @@ def test_exp_label_scilocator_adjust():
     mh.add_text("scilocator_adjust=False", loc="lower right", ax=ax2, fontsize=10)
 
     return fig
+
+
+@pytest.mark.parametrize(
+    ("com", "expected"),
+    [
+        (None, (None, None)),
+        (13, ("13", "TeV")),
+        (13.6, ("13.6", "TeV")),
+        ("13.6", ("13.6", "TeV")),
+        ("500 GeV", ("500", "GeV")),
+        ("500GeV", ("500", "GeV")),
+        ("900 MeV", ("900", "MeV")),
+        (".5 GeV", (".5", "GeV")),
+    ],
+)
+def test_parse_com(com, expected):
+    assert _parse_com(com) == expected
+
+
+@pytest.mark.parametrize(
+    ("com", "expected_in", "expected_not_in"),
+    [
+        ("13", "(13 TeV)", None),
+        (None, None, "TeV"),
+        ("500 GeV", "(500 GeV)", "TeV"),
+        ("900 MeV", "(900 MeV)", "TeV"),
+    ],
+)
+def test_exp_label_com(com, expected_in, expected_not_in):
+    """com units are respected and com=None omits the energy entirely."""
+    fig, ax = plt.subplots()
+    _, _, lumi_text, _ = exp_label(exp="TEST", lumi=100, com=com, ax=ax)
+    label = lumi_text.get_text()
+    if expected_in is not None:
+        assert expected_in in label
+    if expected_not_in is not None:
+        assert expected_not_in not in label
+    assert "100" in label
+    plt.close(fig)
+
+
+@pytest.mark.parametrize(
+    ("com", "expected_in", "expected_not_in"),
+    [
+        ("13", r"\mathrm{13\ TeV}", None),
+        (None, None, r"\sqrt{s}"),
+        ("500 GeV", r"\mathrm{500\ GeV}", "TeV"),
+    ],
+)
+def test_exp_label_com_atlas_style(com, expected_in, expected_not_in):
+    """ATLAS-style (loc=4) sqrt(s) line respects units and com=None."""
+    fig, ax = plt.subplots()
+    _, _, lumi_text, _ = exp_label(exp="TEST", lumi=139, com=com, loc=4, ax=ax)
+    label = lumi_text.get_text()
+    if expected_in is not None:
+        assert expected_in in label
+    if expected_not_in is not None:
+        assert expected_not_in not in label
+    assert "139" in label
+    plt.close(fig)
+
+
+@pytest.mark.parametrize("loc", [0, 4])
+def test_exp_label_com_none_no_lumi(loc):
+    """com=None with no lumi/year creates no luminosity text at all."""
+    fig, ax = plt.subplots()
+    _, _, lumi_text, _ = exp_label(exp="TEST", com=None, loc=loc, ax=ax)
+    assert lumi_text is None
+    plt.close(fig)
+
+
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_exp_label_com_variants():
+    """Visual test for com=None and com with explicit units."""
+    fig, axs = plt.subplots(2, 2, figsize=(12, 10))
+    exp_label(exp="TEST", lumi=100, ax=axs[0, 0])
+    exp_label(exp="TEST", lumi=100, com=None, ax=axs[0, 1])
+    exp_label(exp="TEST", lumi=100, com="500 GeV", ax=axs[1, 0])
+    exp_label(exp="TEST", lumi=100, com="500 GeV", loc=4, ax=axs[1, 1])
+    return fig
+
+
+# --- Regression tests for Bug D: deprecated label= kwarg ---
+
+
+def test_exp_label_deprecated_label_kwarg():
+    """Regression: exp_label(label='Preliminary') must use the value, not silently drop it."""
+    fig, ax = plt.subplots()
+    with pytest.warns(FutureWarning):
+        exp_obj, text_obj, _, _ = exp_label(exp="TEST", label="Preliminary", ax=ax)
+    # The text should appear in the secondary text object
+    assert text_obj is not None
+    assert "Preliminary" in text_obj.get_text()
+    plt.close(fig)
+
+
+def test_exp_cms_deprecated_label_kwarg():
+    """Regression: mh.cms.label(label='Preliminary') must forward the value."""
+    fig, ax = plt.subplots()
+    with pytest.warns(FutureWarning):
+        _, text_obj, _, _ = mh.cms.label(label="Preliminary", ax=ax)
+    assert text_obj is not None
+    assert "Preliminary" in text_obj.get_text()
+    plt.close(fig)
+
+
+def test_exp_label_no_duplicate_deprecation_pub():
+    """Regression: duplicate @deprecate_parameter('pub') must not raise on call."""
+    fig, ax = plt.subplots()
+    # This should not raise TypeError about duplicate decorator application
+    with pytest.warns(FutureWarning):
+        exp_label(exp="TEST", pub="Note", ax=ax)
+    plt.close(fig)
+
+
+# --- Regression tests for Bug B: save_variations artist lookup ---
+
+
+def test_save_variations_exp_targets_explabel(tmp_path):
+    """Regression: save_variations(exp=...) must update ExpLabel, not ExpText."""
+    fig, ax = plt.subplots()
+    exp_label(exp="CMS", text="Preliminary", ax=ax)
+
+    original_exp_texts = [
+        t.get_text() for t in ax.get_children() if isinstance(t, ExpLabel)
+    ]
+    assert original_exp_texts, "No ExpLabel found — test setup broken"
+
+    save_file = str(tmp_path / "test.png")
+    save_variations(fig, save_file, text_list=[""], exp="ATLAS")
+    plt.close(fig)
+
+    # After save_variations runs, ExpLabel objects should have been set to "ATLAS"
+    # and ExpText objects should have been set to the suffix text (empty string here)
+    exp_label_texts = [
+        t.get_text() for t in ax.get_children() if isinstance(t, ExpLabel)
+    ]
+    suffix_texts = [t.get_text() for t in ax.get_children() if isinstance(t, ExpText)]
+    assert all(t == "ATLAS" for t in exp_label_texts), (
+        f"ExpLabel texts should be 'ATLAS', got {exp_label_texts}"
+    )
+    assert all(t == "" for t in suffix_texts), (
+        f"ExpText suffix texts should be '', got {suffix_texts}"
+    )

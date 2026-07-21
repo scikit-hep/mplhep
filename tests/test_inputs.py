@@ -5,13 +5,11 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
-from matplotlib.testing.decorators import check_figures_equal
 
 os.environ["RUNNING_PYTEST"] = "true"
 
 import boost_histogram as bh
 import uproot
-import uproot4
 from skhep_testdata import data_path
 
 import mplhep as mh
@@ -45,7 +43,7 @@ def test_inputs_basic():
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_inputs_uproot():
     fname = data_path("uproot-hepdata-example.root")
-    f = uproot4.open(fname)
+    f = uproot.open(fname)
 
     fig, axs = plt.subplots(1, 2, figsize=(14, 5))
     TH1, TH2 = f["hpx"], f["hpxpy"]
@@ -53,26 +51,6 @@ def test_inputs_uproot():
     mh.hist2dplot(TH2, ax=axs[1], cbar=False)
 
     return fig
-
-
-@check_figures_equal(extensions=("png", "pdf"))
-def test_uproot_versions(fig_test, fig_ref):
-    fname = data_path("uproot-hepdata-example.root")
-    f4 = uproot4.open(fname)
-    f3 = uproot.open(fname)
-
-    fig_test.set_size_inches(14, 5)
-    fig_ref.set_size_inches(14, 5)
-
-    test_axs = fig_test.subplots(1, 2)
-    TH1u4, TH2u4 = f4["hpx"], f4["hpxpy"]
-    mh.histplot(TH1u4, ax=test_axs[0])
-    mh.hist2dplot(TH2u4, ax=test_axs[1], cbar=False)
-
-    ref_axs = fig_ref.subplots(1, 2)
-    TH1u3, TH2u3 = f3["hpx"], f3["hpxpy"]
-    mh.histplot(TH1u3, ax=ref_axs[0])
-    mh.hist2dplot(TH2u3, ax=ref_axs[1], cbar=False)
 
 
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)

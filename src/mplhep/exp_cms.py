@@ -13,8 +13,6 @@ from ._deprecate import deprecate_parameter
 # Log styles
 from .styles import cms as style
 
-# import mplhep._deprecate as deprecate
-
 __all__ = ("label", "style", "text")
 
 
@@ -36,7 +34,7 @@ def text(text="", **kwargs):
 
 @deprecate_parameter("label", reason='Use `text="..."` instead.', warn_once=False)
 @copy_doc(label_base.exp_label)
-def label(text=None, label=None, **kwargs):  # noqa: ARG001
+def label(text=None, label=None, **kwargs):
     for key, value in dict(mplhep.rcParams.label._get_kwargs()).items():
         if (
             value is not None
@@ -57,10 +55,6 @@ def label(text=None, label=None, **kwargs):  # noqa: ARG001
     kwargs.setdefault("exp", "CMS")
     if text is not None:
         kwargs["text"] = text
+    if label is not None:
+        kwargs["text"] = label
     return label_base.exp_label(**kwargs)
-
-
-# Deprecation example
-# @deprecate.deprecate("Naming convention is changing. Use ``mplhep.cms.label``.")
-# def cmslabel(*args, **kwargs):
-#     return _cms_label(*args, **kwargs)

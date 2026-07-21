@@ -30,6 +30,7 @@ from ._utils import (
     _make_plottable_histogram as make_plottable_histogram,
 )
 from ._version import version as __version__  # noqa: F401
+from .blind import loc
 from .label import add_text, append_text, save_variations, savelabels
 from .plot import (
     funcplot,
@@ -54,6 +55,7 @@ from .utils import (
     set_ylow,
     sort_legend,
     subplots,
+    xlabel_sci_adjust,
     yscale_anchored_text,
     yscale_legend,
 )
@@ -85,7 +87,6 @@ __all__ = [
     "EnhancedPlottableHistogram",
     "_check_counting_histogram",
     "add_text",
-    "add_text",
     "alice",
     "append_axes",
     "append_text",
@@ -102,6 +103,7 @@ __all__ = [
     "histplot",
     "label",
     "lhcb",
+    "loc",
     "make_plottable_histogram",
     "make_square_add_cbar",
     "merge_legend_handles_labels",
@@ -118,7 +120,8 @@ __all__ = [
     "set_ylow",
     "sort_legend",
     "style",
+    "subplots",
+    "xlabel_sci_adjust",
     "yscale_anchored_text",
     "yscale_legend",
-    "subplots",
 ]

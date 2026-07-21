@@ -289,10 +289,10 @@ class DevScript:
         self._print_header("Running Pre-commit Hooks")
 
         # Check if pre-commit is available
-        if not self._check_tool_available("pre-commit", ["pre-commit", "--version"]):
+        if not self._check_tool_available("prek", ["prek", "--version"]):
             return False
 
-        cmd = ["pre-commit", "run", "--all-files"]
+        cmd = ["prek", "run", "--all-files"]
 
         # Add any extra arguments
         if extra_args:
@@ -337,7 +337,7 @@ class DevScript:
                     self._print_success(
                         f"Removed {item.relative_to(self.project_root)}"
                     )
-            except OSError as e:  # noqa: PERF203
+            except OSError as e:
                 self._print_error(f"Failed to remove {item}: {e}")
 
         if len(items_to_clean) > 10:
@@ -478,7 +478,7 @@ class DevScript:
                     self._print_success(
                         f"Removed {item.relative_to(self.project_root)}"
                     )
-            except OSError as e:  # noqa: PERF203
+            except OSError as e:
                 self._print_error(f"Failed to remove {item}: {e}")
 
         if len(items_to_clean) > 10:
@@ -546,9 +546,7 @@ class DevScript:
             self._print_success(f"Will save benchmark results as: {baseline_name}")
         else:
             # Auto-generate baseline name with timestamp
-            timestamp = datetime.datetime.now(tz=datetime.timezone.utc).strftime(
-                "%Y%m%d_%H%M%S"
-            )
+            timestamp = datetime.datetime.now(tz=datetime.UTC).strftime("%Y%m%d_%H%M%S")
             baseline_name = f"run_{timestamp}"
             cmd.append(f"--benchmark-save={baseline_name}")
             self._print_success(f"Will save benchmark results as: {baseline_name}")
@@ -824,7 +822,7 @@ Examples:
         display_prompt += ": "
 
         response = input(display_prompt).strip()
-        return response if response else default
+        return response or default
 
     def _get_choice(
         self, prompt: str, choices: list[tuple], fallback_prompt: str = ""
@@ -976,6 +974,9 @@ Examples:
             # Get available test modules/directories
             test_modules = self._get_test_modules()
             if test_modules:
+                # Reaching this branch implies the user already picked "submodules"
+                # from an interactive questionary prompt, so the dependency is loaded.
+                assert questionary is not None
                 while True:
                     selected_modules = questionary.checkbox(
                         "Select test modules to run:",
@@ -1056,7 +1057,7 @@ Examples:
 
         menu_choices = [
             (
-                make_menu_item("🔍 Run pre-commit", "pre-commit run --all-files"),
+                make_menu_item("🔍 Run pre-commit", "prek run --all-files"),
                 "precommit",
             ),
             (

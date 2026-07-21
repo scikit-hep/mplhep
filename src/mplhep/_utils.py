@@ -16,7 +16,6 @@ if TYPE_CHECKING:
 
 ArrayLike = Any
 
-import copy
 import inspect
 import logging
 import warnings
@@ -270,47 +269,62 @@ def _get_plottables(
         xoffsets = parsed_offsets
     else:
         xoffsets = [None] * len(hists)
-    for h, xoffset in zip(hists, xoffsets):
+    for h, xoffset in zip(hists, xoffsets, strict=True):
         value, variance = np.copy(h.values()), h.variances()
         if has_variances := variance is not None:
             variance = np.copy(variance)
         underflow, overflow = 0.0, 0.0
         underflowv, overflowv = 0.0, 0.0
+        # EnhancedPlottableHistogram already has flow bins stored
+        if isinstance(h, EnhancedPlottableHistogram):
+            if h._underflow is not None:
+                underflow = h._underflow
+                if has_variances and h._underflow_var is not None:
+                    underflowv = h._underflow_var
+            if h._overflow is not None:
+                overflow = h._overflow
+                if has_variances and h._overflow_var is not None:
+                    overflowv = h._overflow_var
         # One sided flow bins - hist (uproot hist does not have the over- or underflow traits)
-        if (
+        elif (
             hasattr(h, "axes")
             and (traits := getattr(h.axes[0], "traits", None)) is not None
             and hasattr(traits, "underflow")
             and hasattr(traits, "overflow")
         ):
+            # Read scalars directly off the flow arrays; no whole-array copy
+            # is needed since only single endpoints are extracted.
+            values_flow = h.values(flow=True)
+            variances_flow = h.variances(flow=True) if has_variances else None
             if traits.overflow:
-                overflow = np.copy(h.values(flow=True))[-1]
-                if has_variances:
-                    overflowv = np.copy(h.variances(flow=True))[-1]
+                overflow = values_flow[-1]
+                if variances_flow is not None:
+                    overflowv = variances_flow[-1]
             if traits.underflow:
-                underflow = np.copy(h.values(flow=True))[0]
-                if has_variances:
-                    underflowv = np.copy(h.variances(flow=True))[0]
+                underflow = values_flow[0]
+                if variances_flow is not None:
+                    underflowv = variances_flow[0]
         # Both flow bins exist - uproot
         elif hasattr(h, "values") and "flow" in inspect.getfullargspec(h.values).args:
-            if len(h.values()) + 2 == len(
-                h.values(flow=True)
-            ):  # easy case, both over/under
-                underflow, overflow = (
-                    np.copy(h.values(flow=True))[0],
-                    np.copy(h.values(flow=True))[-1],
-                )
+            values_flow = h.values(flow=True)
+            if len(h.values()) + 2 == len(values_flow):  # easy case, both over/under
+                underflow, overflow = values_flow[0], values_flow[-1]
                 if has_variances:
-                    underflowv, overflowv = (
-                        np.copy(h.variances(flow=True))[0],
-                        np.copy(h.variances(flow=True))[-1],
-                    )
+                    variances_flow = h.variances(flow=True)
+                    underflowv, overflowv = variances_flow[0], variances_flow[-1]
 
         # Set plottables
-        if flow in ("none", "hint"):
+        if flow == "hint":
             plottables.append(
                 EnhancedPlottableHistogram(
-                    value, edges=final_bins, variances=variance, xoffsets=xoffset
+                    value,
+                    edges=final_bins,
+                    variances=variance,
+                    xoffsets=xoffset,
+                    underflow=underflow if underflow != 0.0 else None,
+                    overflow=overflow if overflow != 0.0 else None,
+                    underflow_var=underflowv if underflowv != 0.0 else None,
+                    overflow_var=overflowv if overflowv != 0.0 else None,
                 )
             )
         elif flow == "show":
@@ -336,11 +350,11 @@ def _get_plottables(
         elif flow == "sum":
             if underflow > 0:
                 value[0] += underflow
-                if has_variances:
+                if variance is not None:
                     variance[0] += underflowv
             if overflow > 0:
                 value[-1] += overflow
-                if has_variances:
+                if variance is not None:
                     variance[-1] += overflowv
             plottables.append(
                 EnhancedPlottableHistogram(
@@ -348,6 +362,7 @@ def _get_plottables(
                 )
             )
         else:
+            # Covers flow == "none" and any other value
             plottables.append(
                 EnhancedPlottableHistogram(
                     value, edges=final_bins, variances=variance, xoffsets=xoffset
@@ -356,7 +371,9 @@ def _get_plottables(
 
     if w2 is not None:
         for _w2, _plottable in zip(
-            np.array(w2).reshape(len(plottables), len(final_bins) - 1), plottables
+            np.array(w2).reshape(len(plottables), len(final_bins) - 1),
+            plottables,
+            strict=True,
         ):
             _plottable.set_variances(_w2)
             _plottable.method = w2method
@@ -439,7 +456,7 @@ def _yerr_plottables(plottables, bins, yerr=None):
             raise ValueError(msg)
 
         assert _yerr is not None
-        for yrs, _plottable in zip(_yerr, plottables):
+        for yrs, _plottable in zip(_yerr, plottables, strict=True):
             _plottable.fixed_errors(*yrs)
 
 
@@ -484,14 +501,15 @@ def _norm_stack_plottables(plottables, bins, stack=False, density=False, binwnor
             _total = np.sum(
                 np.array([plottable.values() for plottable in plottables]), axis=0
             )
+            _norm = np.diff(bins) * np.sum(_total)
             for plottable in plottables:
-                plottable.flat_scale(1.0 / np.sum(np.diff(bins) * _total))
+                plottable.flat_scale(1.0 / _norm)
         else:
             for plottable in plottables:
                 plottable.density()
     elif binwnorm is not None:
         for plottable, norm in zip(
-            plottables, np.broadcast_to(binwnorm, (len(plottables),))
+            plottables, np.broadcast_to(binwnorm, (len(plottables),)), strict=True
         ):
             plottable.flat_scale(norm)
             plottable.binwnorm()
@@ -561,25 +579,61 @@ def _make_plottable_histogram(hist_like, **kwargs):
         msg = "Categorical axis is not supported yet."
         raise NotImplementedError(msg)
 
+    # Extract flow bin values if available (handle one-sided flow from hist library)
+    underflow, overflow = None, None
+    underflow_var, overflow_var = None, None
+    has_variances = hist_obj.variances() is not None
+
+    # Check for axis traits (hist library) - can have only underflow or only overflow
+    traits = getattr(axis, "traits", None)
+    if (
+        traits is not None
+        and hasattr(traits, "underflow")
+        and hasattr(traits, "overflow")
+    ):
+        if traits.underflow:
+            underflow = hist_obj.values(flow=True)[0]
+            if has_variances:
+                underflow_var = hist_obj.variances(flow=True)[0]
+        if traits.overflow:
+            overflow = hist_obj.values(flow=True)[-1]
+            if has_variances:
+                overflow_var = hist_obj.variances(flow=True)[-1]
+    # Fallback: check if values(flow=True) adds 2 bins (both over/under)
+    elif (
+        hasattr(hist_obj, "values")
+        and "flow" in inspect.getfullargspec(hist_obj.values).args
+    ):
+        flow_vals = hist_obj.values(flow=True)
+        if len(flow_vals) == len(hist_obj.values()) + 2:
+            underflow, overflow = flow_vals[0], flow_vals[-1]
+            if has_variances:
+                flow_vars = hist_obj.variances(flow=True)
+                underflow_var, overflow_var = flow_vars[0], flow_vars[-1]
+
     return EnhancedPlottableHistogram(
         np.array(hist_obj.values()),  # copy to avoid further modification
         edges=edges,
-        variances=np.array(hist_obj.variances()),  # copy to avoid further modification
+        variances=np.array(hist_obj.variances()) if has_variances else None,
         kind=hist_obj.kind,
+        underflow=underflow,
+        overflow=overflow,
+        underflow_var=underflow_var,
+        overflow_var=overflow_var,
         **kwargs,
     )
 
 
 def _stack(*plottables):
-    baseline = np.nan_to_num(copy.deepcopy(plottables[0].values()), 0)
+    baseline = np.nan_to_num(np.copy(plottables[0].values()), 0)
     baseline_variance = (
-        np.nan_to_num(copy.deepcopy(plottables[0].variances()), 0)
+        np.nan_to_num(np.copy(plottables[0].variances()), 0)
         if plottables[0].variances() is not None
         else None
     )
     for i in range(1, len(plottables)):
         _mask = np.isnan(plottables[i].values())
-        _baseline = copy.deepcopy(baseline)
+        _baseline = np.copy(baseline)
         _baseline[_mask] = np.nan
         plottables[i].baseline = _baseline
         baseline += np.nan_to_num(plottables[i].values(), 0)
@@ -706,6 +760,10 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         yerr=None,
         w2method="poisson",
         kind=Kind.COUNT,
+        underflow=None,
+        overflow=None,
+        underflow_var=None,
+        overflow_var=None,
     ):
         """Initialize the EnhancedPlottableHistogram object with values, bin edges, optional variances, and error bars."""
 
@@ -716,6 +774,12 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
 
         self._binwnorm = False
         self._density = False
+
+        # Store flow bin values (underflow/overflow)
+        self._underflow = underflow
+        self._overflow = overflow
+        self._underflow_var = underflow_var
+        self._overflow_var = overflow_var
 
         self.baseline = np.zeros_like(self.values())
         self.centers = self.axes[0].edges.mean(axis=1)
@@ -804,14 +868,31 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         added_variances = None
         if self._variances is not None and other._variances is not None:
             added_variances = self._variances + other._variances
-        else:
-            added_variances = None
+
+        # Sum flow bins if both histograms have them
+        added_underflow = None
+        added_overflow = None
+        added_underflow_var = None
+        added_overflow_var = None
+        if self._underflow is not None and other._underflow is not None:
+            added_underflow = self._underflow + other._underflow
+            if self._underflow_var is not None and other._underflow_var is not None:
+                added_underflow_var = self._underflow_var + other._underflow_var
+        if self._overflow is not None and other._overflow is not None:
+            added_overflow = self._overflow + other._overflow
+            if self._overflow_var is not None and other._overflow_var is not None:
+                added_overflow_var = self._overflow_var + other._overflow_var
+
         return EnhancedPlottableHistogram(
             added_values,
             edges=self.axes[0].edges,
             variances=added_variances,
             kind=self.kind,
             w2method=self.method,
+            underflow=added_underflow,
+            overflow=added_overflow,
+            underflow_var=added_underflow_var,
+            overflow_var=added_overflow_var,
         )
 
     def __radd__(self, other):
@@ -850,11 +931,50 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         """Set the variances of the histogram."""
         self._variances = variances
 
+    def values(self, flow=False):
+        """Return the histogram values, optionally including flow bins."""
+        if not flow:
+            return self._values
+        result = self._values
+        if self._underflow is not None:
+            result = np.concatenate([[self._underflow], result])
+        if self._overflow is not None:
+            result = np.concatenate([result, [self._overflow]])
+        return result
+
+    def variances(self, flow=False):
+        """Return the histogram variances, optionally including flow bins."""
+        if self._variances is None:
+            return None
+        if not flow:
+            return self._variances
+        result = self._variances
+        if self._underflow_var is not None:
+            result = np.concatenate([[self._underflow_var], result])
+        if self._overflow_var is not None:
+            result = np.concatenate([result, [self._overflow_var]])
+        return result
+
     def edges_1d(self):
-        """Return the edges of the first axis as a 1D array."""
-        edges = np.empty(len(self.axes[0].edges) + 1, dtype=float)
-        edges[0] = self.axes[0].edges[0][0]
-        edges[1:] = [self.axes[0].edges[i][1] for i in range(len(self.axes[0]))]
+        """Return the edges of the first axis as a 1D array.
+
+        The edges are derived once from the (immutable) axis and cached on the
+        instance, since the axis edges are never mutated after construction.
+        """
+        cached = self.__dict__.get("_edges_1d_cache")
+        if cached is not None:
+            return cached
+        axis_edges = self.axes[0].edges
+        edges = np.empty(len(axis_edges) + 1, dtype=float)
+        if isinstance(axis_edges, np.ndarray):
+            # Fast path: (N, 2) ndarray of lower/upper edges.
+            edges[0] = axis_edges[0][0]
+            edges[1:] = np.asarray(axis_edges)[:, 1]
+        else:
+            # Generic path for protocol (PlottableAxis) edges.
+            edges[0] = axis_edges[0][0]
+            edges[1:] = [axis_edges[i][1] for i in range(len(self.axes[0]))]
+        self.__dict__["_edges_1d_cache"] = edges
         return edges
 
     def is_unweighted(self):
@@ -922,6 +1042,22 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         self.yerr_lo = np.nan_to_num(self.yerr_lo, 0)
         self.yerr_hi = np.nan_to_num(self.yerr_hi, 0)
 
+    def apply_blind(self, mask):
+        """Apply a boolean mask to hide (blind) bins. True = visible, False = blinded."""
+        self.errors()  # force error computation before NaN-ing
+        self._values = self._values.astype(float)
+        self._values[~mask] = np.nan
+        if self._variances is not None:
+            self._variances = self._variances.astype(float)
+            self._variances[~mask] = np.nan
+        self.yerr_lo = self.yerr_lo.astype(float)
+        self.yerr_hi = self.yerr_hi.astype(float)
+        self.yerr_lo[~mask] = np.nan
+        self.yerr_hi[~mask] = np.nan
+        if isinstance(self.baseline, np.ndarray):
+            self.baseline = self.baseline.astype(float)
+            self.baseline[~mask] = np.nan
+
     def fixed_errors(self, yerr_lo, yerr_hi):
         """Manually assign fixed lower and upper y-errors."""
         self.yerr_lo = yerr_lo
@@ -955,11 +1091,17 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         return self.flat_scale(1 / np.diff(self.edges_1d()))
 
     def density(self):
-        """Normalize values and errors by the area."""
+        """Normalize values and errors to form a probability density.
+
+        Each bin is divided by its own width and by the total sum of weights so
+        that the histogram integrates to 1 over the domain of the axis. This
+        matches ``numpy.histogram(..., density=True)`` for variable-width bins.
+        """
         if self._density:
             return self
         self._density = True
-        return self.flat_scale(1 / np.sum(np.diff(self.edges_1d()) * self.values()))
+        widths = np.diff(self.edges_1d())
+        return self.flat_scale(1 / (widths * np.sum(self.values())))
 
     def to_stairs(self):
         """Export data in a dictionary format suitable for stair plots (e.g., step histograms)."""
@@ -1013,27 +1155,13 @@ class EnhancedPlottableHistogram(NumPyPlottableHistogram):
         }
 
 
-def _hist_legend(ax=None, **kwargs):
-    if ax is None:
-        ax = plt.gca()
-
-    handles, labels = ax.get_legend_handles_labels()
-    new_handles = [
-        Line2D([], [], c=h.get_edgecolor()) if isinstance(h, mpl.patches.Polygon) else h
-        for h in handles
-    ]
-    ax.legend(handles=new_handles[::-1], labels=labels[::-1], **kwargs)
-
-    return ax
-
-
 def _is_debug_marker(artist):
     """Check if an artist is a debug marker that should be excluded from overlap detection."""
     DEBUG_LABELS = {"overlap vertices", "overlapping vertices", "overlap bbox"}
     return hasattr(artist, "get_label") and artist.get_label() in DEBUG_LABELS
 
 
-def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
+def _overlap(ax, bboxes, exclude_texts=None, return_per_bbox=False):
     """
     Find overlap of bboxes (in display coordinates) with drawn elements on axes.
 
@@ -1042,7 +1170,9 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
     Logs summary in data coordinates for understandability.
 
     Returns number of overlapping points/bboxes.
-    If get_vertices, also return vertices in data coordinates.
+    If return_per_bbox, also return a boolean list indicating which bboxes
+    contributed to the overlap (via contained/occluding vertices or bbox-bbox
+    overlap).
 
     Parameters
     ----------
@@ -1050,10 +1180,13 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
         The axes to check
     bboxes : Bbox or list of Bbox
         Bounding boxes to check for overlap
-    get_vertices : bool, optional
-        If True, also return vertices in data coordinates
     exclude_texts : list, optional
         List of Text objects to exclude from overlap detection (to avoid self-overlap)
+    return_per_bbox : bool, optional
+        If True, also return per-bbox overlap flags. The returned tuple is
+        ``(overlap_count, vertices_data, bbox_overlaps)`` where
+        ``bbox_overlaps[i]`` is True iff ``bboxes[i]`` had any contained,
+        occluding, or bbox-bbox overlap.
     """
     if not isinstance(bboxes, list):
         bboxes = [bboxes]
@@ -1061,9 +1194,11 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
     if exclude_texts is None:
         exclude_texts = []
 
-    # Ensure canvas is drawn before collecting vertices
+    # Ensure canvas is drawn before collecting vertices. Only redraw when the
+    # figure is stale; consecutive calls on an unchanged figure reuse the
+    # existing render (identical result, fewer full canvas draws).
     fig = ax.figure
-    if fig is not None:
+    if fig is not None and fig.stale:
         fig.canvas.draw()
 
     lines_display = []
@@ -1114,16 +1249,20 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
                 # For step/line paths, also sample intermediate points along edges
                 # This ensures we detect overlap with horizontal/vertical segments
                 if len(path.vertices) > 1:
-                    for i in range(len(path.vertices) - 1):
-                        v1 = path.vertices[i]
-                        v2 = path.vertices[i + 1]
-                        # Sample 5 intermediate points along each edge
-                        t = np.linspace(0, 1, 7)[
-                            1:-1
-                        ]  # Exclude endpoints (already in vertices)
-                        interpolated = v1 + (v2 - v1) * t[:, np.newaxis]
-                        interpolated_display = ax.transData.transform(interpolated)
-                        lines_display.append(interpolated_display)
+                    verts = np.asarray(path.vertices)
+                    v1 = verts[:-1]  # (S, 2) segment starts
+                    v2 = verts[1:]  # (S, 2) segment ends
+                    # Sample 5 intermediate points along each edge
+                    # Exclude endpoints (already in vertices)
+                    t = np.linspace(0, 1, 7)[1:-1]
+                    # Broadcast over all segments at once: (S, 1, 2) op (T,) -> (S, T, 2)
+                    interpolated = (
+                        v1[:, np.newaxis, :]
+                        + (v2 - v1)[:, np.newaxis, :] * t[np.newaxis, :, np.newaxis]
+                    ).reshape(-1, 2)
+                    # Single transform call for all interpolated points
+                    interpolated_display = ax.transData.transform(interpolated)
+                    lines_display.append(interpolated_display)
 
     # Collect bboxes from texts (excluding specified text objects to avoid self-overlap)
     bboxes_display.extend(
@@ -1159,33 +1298,36 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
         f"Annotation bboxes extents in data coordinates: {[f'x=[{b.x0:.3f}, {b.x1:.3f}], y=[{b.y0:.3f}, {b.y1:.3f}]' for b in bboxes_data]}"
     )
 
-    # Calculate overlap in display coordinates
+    # Calculate overlap in display coordinates. Each bbox accumulates:
+    #   - contained vertex hits (vertex inside the bbox),
+    #   - occluding vertex hits (vertex in same x-range AND above bbox.y1),
+    #   - bbox-bbox overlaps against other text/patch bboxes.
+    # The vertex checks are vectorised over all vertices at once; previously
+    # they were two separate passes plus a Python-level ``bbox.contains`` loop.
+    have_vertices = len(all_vertices_display) > 0
+    if have_vertices:
+        vx = all_vertices_display[:, 0]
+        vy = all_vertices_display[:, 1]
     overlap_count = 0
-    overlapping_vertices_data = []  # Track all vertices that contribute to overlap in data coordinates
-    for bbox in bboxes:
-        contained = bbox.count_contains(all_vertices_display)
-        if contained > 0:
-            # Find which vertices are contained
-            contained_mask = np.array(
-                [bbox.contains(x, y) for x, y in all_vertices_display]
-            )
-            overlapping_vertices_data.extend(all_vertices_data[contained_mask])
-        overlap_count += contained + bbox.count_overlaps(bboxes_display)
-
-    # Also check if data vertices are above the text bbox (occluding it)
-    # This catches cases where the histogram bars cover the text
-    for bbox in bboxes:
-        if len(all_vertices_display) > 0:
-            # Check if any vertices are in the same x-range but above the bbox
-            in_x_range = (all_vertices_display[:, 0] >= bbox.x0) & (
-                all_vertices_display[:, 0] <= bbox.x1
-            )
-            above_bbox = all_vertices_display[:, 1] > bbox.y1
-            occluding = in_x_range & above_bbox
-            if occluding.any():
-                overlap_count += occluding.sum()
-                # Collect occluding vertices in data coordinates
-                overlapping_vertices_data.extend(all_vertices_data[occluding])
+    overlapping_vertices_data = []  # vertices that contribute to overlap (data coords)
+    bbox_overlaps = [False] * len(bboxes)
+    for i, bbox in enumerate(bboxes):
+        bbox_hit = False
+        if have_vertices:
+            in_x = (vx >= bbox.x0) & (vx <= bbox.x1)
+            contained_mask = in_x & (vy >= bbox.y0) & (vy <= bbox.y1)
+            occluding_mask = in_x & (vy > bbox.y1)
+            n_contained = int(contained_mask.sum())
+            n_occluding = int(occluding_mask.sum())
+            if n_contained:
+                overlapping_vertices_data.extend(all_vertices_data[contained_mask])
+            if n_occluding:
+                overlapping_vertices_data.extend(all_vertices_data[occluding_mask])
+            overlap_count += n_contained + n_occluding
+            bbox_hit = bool(n_contained or n_occluding)
+        n_bbox_bbox = bbox.count_overlaps(bboxes_display)
+        overlap_count += n_bbox_bbox
+        bbox_overlaps[i] = bbox_hit or bool(n_bbox_bbox)
 
     logger.info(f"Overlap count: {overlap_count}")
     if overlapping_vertices_data:
@@ -1228,22 +1370,7 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
                 label="overlap bbox",
             )
             ax.add_patch(rect)
-        # Plot occluding vertices as fat blue pluses
-        if overlapping_vertices_data:
-            overlapping_array = np.array(overlapping_vertices_data)
-            ax.scatter(
-                overlapping_array[:, 0],
-                overlapping_array[:, 1],
-                color="blue",
-                s=100,
-                alpha=0.9,
-                marker="+",
-                linewidth=3,
-                label="overlapping vertices",
-                zorder=10,  # Plot on top
-            )
-
-        # Plot overlapping vertices with emphasis
+        # Plot overlapping vertices as fat blue pluses
         if overlapping_vertices_data:
             overlapping_array = np.array(overlapping_vertices_data)
             ax.scatter(
@@ -1262,8 +1389,8 @@ def _overlap(ax, bboxes, get_vertices=False, exclude_texts=None):
         ax.set_xlim(current_xlim)
         ax.set_ylim(current_ylim)
 
-    if get_vertices:
-        return overlap_count, all_vertices_data
+    if return_per_bbox:
+        return overlap_count, all_vertices_data, bbox_overlaps
     return overlap_count
 
 
@@ -1292,16 +1419,29 @@ def _calculate_optimal_scaling(ax, bboxes, exclude_texts=None):
     if not isinstance(bboxes, list):
         bboxes = [bboxes]
 
-    # Check for overlaps
-    overlap_count, vertices = _overlap(
-        ax, bboxes, get_vertices=True, exclude_texts=exclude_texts
+    # Check for overlaps. ``bbox_overlaps[i]`` is the per-bbox flag computed
+    # inside ``_overlap``; reusing it avoids a second O(n_vertices * n_bboxes)
+    # pass to figure out which bboxes were the cause.
+    overlap_count, vertices, bbox_overlaps = _overlap(
+        ax, bboxes, return_per_bbox=True, exclude_texts=exclude_texts
     )
     if overlap_count == 0:
         return 1.0
 
-    # Convert bboxes to data coordinates and filter degenerate ones
-    bboxes_data = [bbox.transformed(ax.transData.inverted()) for bbox in bboxes]
-    bboxes_data = [b for b in bboxes_data if b.y1 > b.y0]
+    # Convert bboxes to data coordinates. Keep only those that ``_overlap``
+    # flagged as contributing AND that aren't degenerate (y1 > y0). If the
+    # filter wipes out every bbox (e.g. all flagged ones happened to be
+    # degenerate in data coords), fall back to every non-degenerate bbox so
+    # scaling can still be attempted.
+    inv = ax.transData.inverted()
+    all_bboxes_data = [bbox.transformed(inv) for bbox in bboxes]
+    bboxes_data = [
+        b
+        for b, ov in zip(all_bboxes_data, bbox_overlaps, strict=True)
+        if ov and b.y1 > b.y0
+    ]
+    if not bboxes_data:
+        bboxes_data = [b for b in all_bboxes_data if b.y1 > b.y0]
     if not bboxes_data:
         return 1.0
 
@@ -1341,7 +1481,8 @@ def _calculate_optimal_scaling(ax, bboxes, exclude_texts=None):
             0.025 if annotation_fraction <= 0.15 else 0.05
         ) * current_axis_height
     else:
-        fig.canvas.draw()
+        if fig.stale:
+            fig.canvas.draw()
         axes_height_inches = ax.get_position().height * fig.get_figheight()
         margin_inches = (
             0.025 if annotation_fraction <= 0.15 else 0.05
@@ -1390,7 +1531,8 @@ def _draw_leg_bbox(ax):
     if leg is None:
         return []
 
-    fig.canvas.draw()
+    if fig.stale:
+        fig.canvas.draw()
     return [leg.get_frame().get_bbox()]
 
 
@@ -1404,13 +1546,27 @@ def _draw_text_bbox(ax):
         (bboxes, text_objects) - List of bboxes and corresponding text objects
     """
     fig = ax.figure
-    textboxes = [k for k in ax.get_children() if isinstance(k, (AnchoredText, Text))]
+    textboxes = [
+        k
+        for k in ax.get_children()
+        if isinstance(k, (AnchoredText, Text))
+        and (isinstance(k, AnchoredText) or k.get_text())
+    ]
     logger.debug(f"_draw_text_bbox: Found {len(textboxes)} text objects")
     logger.debug(f"_draw_text_bbox: Found {textboxes}")
     if not textboxes:
         return [], []
 
-    fig.canvas.draw()
-    bboxes = [box.get_tightbbox(fig.canvas.renderer) for box in textboxes]
+    if fig.stale:
+        fig.canvas.draw()
+    # Drop null/empty bboxes (mpl >= 3.12 returns Bbox(inf, inf, -inf, -inf)
+    # for unrenderable text, which would propagate as NaN through transforms).
+    bboxes = []
+    kept = []
+    for box in textboxes:
+        bbox = box.get_tightbbox(fig.canvas.renderer)
+        if np.isfinite(bbox.x0) and np.isfinite(bbox.y0):
+            bboxes.append(bbox)
+            kept.append(box)
     logger.debug(f"_draw_text_bbox: Returning {len(bboxes)} bboxes")
-    return bboxes, textboxes
+    return bboxes, kept

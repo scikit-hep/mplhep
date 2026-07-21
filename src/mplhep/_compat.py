@@ -1,16 +1,9 @@
 from __future__ import annotations
 
-import sys
-from typing import Any, Callable, TypeVar
+from typing import TYPE_CHECKING, Any
 
-if sys.version_info >= (3, 10):
-    from typing import ParamSpec, TypeAlias
-else:
-    from typing_extensions import ParamSpec, TypeAlias
-
-T = TypeVar("T")
-P = ParamSpec("P")
-WrappedFuncDeco: TypeAlias = Callable[[Callable[..., Any]], Callable[..., Any]]
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 def copy_doc(

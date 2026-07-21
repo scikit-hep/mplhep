@@ -8,7 +8,7 @@ dynamic = ["version"]
 description = "Matplotlib styles for HEP"
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 authors = [
     { name = "andrzejnovak", email = "novak5andrzej@gmail.com" },
 ]
@@ -17,8 +17,6 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -26,10 +24,9 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Physics",
 ]
 dependencies = [
-    "matplotlib>=3.4",
+    "matplotlib>=3.11.1",
     "mplhep-data>=0.0.4",
-    "numpy>=1.16.0",
-    "packaging",
+    "numpy>=1.25",
     "uhi>=0.2.0",
 ]
 
@@ -37,7 +34,7 @@ dependencies = [
 dev = [
     "bumpversion",
     "jupyter",
-    "pre-commit",
+    "prek",
     "questionary",
     "twine",
 ]
@@ -51,6 +48,9 @@ docs = [
     "mkdocs-git-committers-plugin-2",
     "mkdocstrings[python]>=0.20",
     "griffe_inherited_docstrings",
+    "docstring-inheritance",
+    "markdown-exec",
+    "mike",
 ]
 test = [
     "boost_histogram",
@@ -62,8 +62,7 @@ test = [
     "pytest>=6.0",
     "scikit-hep-testdata",
     "scipy>=1.1.0",
-    "uproot",
-    "uproot4",
+    "uproot>=5.0",
     "seaborn",
 ]
 all = [
@@ -94,15 +93,10 @@ all = [
     "mplhep[dev,test,docs]",
 ]
 
-[tool.uv]
-environments = [
-    "python_version >= '3.10'",
-]
-
-
 [tool.mypy]
 files = ["src"]
-python_version = "3.9"
+# numpy>=2.5 type stubs use PEP 695 syntax, which mypy rejects for targets <3.12
+python_version = "3.12"
 warn_unused_configs = true
 
 allow_redefinition = true
@@ -131,8 +125,8 @@ minversion = 6.0
 addopts = ["-ra", "--strict-markers"]  # need to fix pytest dependency installs to enable --strict-config
 filterwarnings = [
   "error",
-  "default:urllib3 v2 only supports OpenSSL",
   "default:invalid value encountered in _fmt:RuntimeWarning",
+  "ignore::pytest_benchmark.logger.PytestBenchmarkWarning",
 ]
 log_level = "INFO"
 python_files = "test*.py"

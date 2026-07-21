@@ -5,20 +5,12 @@ import os
 import re
 
 import hist
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 import uproot
 
 os.environ["RUNNING_PYTEST"] = "true"
-
-try:
-    # NumPy 2
-    from numpy.char import chararray
-except ModuleNotFoundError:
-    # NumPy 1
-    from numpy import chararray
 
 import mplhep as mh
 
@@ -70,26 +62,6 @@ def test_simple2d():
     return fig
 
 
-@pytest.mark.skipif(
-    (int(mpl.__version__.split(".")[0]), int(mpl.__version__.split(".")[1])) >= (3, 10),
-    reason="Change in mpl behaviour since 3.10",
-)
-@pytest.mark.mpl_image_compare(style="default", remove_text=True)
-def test_log_mpl39():
-    fig, axs = plt.subplots(2, 2, figsize=(10, 10))
-    for ax in axs[0]:
-        mh.histplot([1, 2, 3, 2], range(5), ax=ax)
-    ax.semilogy()
-    for ax in axs[1]:
-        mh.histplot([1, 2, 3, 2], range(5), ax=ax, edges=False)
-    ax.semilogy()
-    return fig
-
-
-@pytest.mark.skipif(
-    (int(mpl.__version__.split(".")[0]), int(mpl.__version__.split(".")[1])) < (3, 10),
-    reason="Change in mpl behaviour since 3.10",
-)
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_log():
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
@@ -319,6 +291,23 @@ def test_hist2dplot_hist_all_flow_hint():
     return fig
 
 
+@pytest.mark.mpl_image_compare(style="default")
+def test_hist2dplot_hist_mask():
+    np.random.seed(0)
+    _fill_x = np.random.uniform(-5, 5, 300)
+    _fill_y = np.random.normal(-5, 5, 300)
+    _fill_value = np.random.normal(1000, 5, 300)
+    h = hist.new.Reg(10, -5, 5, name="x").Reg(10, -5, 5, name="y").Mean()
+    h.fill(_fill_x, _fill_y, sample=_fill_value)
+    fig, ax = plt.subplots()
+    h.plot(ax=ax, mask=h.counts() > 1, cmax=1010)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_xlabel("")
+    ax.set_ylabel("")
+    return fig
+
+
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
 def test_histplot_multiple():
     np.random.seed(0)
@@ -396,10 +385,10 @@ def test_hist2dplot_flow():
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
     axs = axs.flatten()
 
-    mh.hist2dplot(h, ax=axs[0], flow="hint", cmin=0, cmax=10)
-    mh.hist2dplot(h, ax=axs[1], flow="show", cmin=0, cmax=10)
-    mh.hist2dplot(h, ax=axs[2], flow="sum", cmin=0, cmax=10)
-    mh.hist2dplot(h, ax=axs[3], flow=None, cmin=0, cmax=10)
+    mh.hist2dplot(h, ax=axs[0], flow="hint", cmin=0, cmax=10, cbarextend=True)
+    mh.hist2dplot(h, ax=axs[1], flow="show", cmin=0, cmax=10, cbarextend=True)
+    mh.hist2dplot(h, ax=axs[2], flow="sum", cmin=0, cmax=10, cbarextend=True)
+    mh.hist2dplot(h, ax=axs[3], flow=None, cmin=0, cmax=10, cbarextend=True)
 
     axs[0].set_title("Default(hint)", fontsize=18)
     axs[1].set_title("Show", fontsize=18)
@@ -415,10 +404,10 @@ def test_hist2dplot_inputs_nobin():
     np.random.seed(0)
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
     axs = axs.flatten()
-    mh.hist2dplot([[1, 2, 3]], ax=axs[0])
-    mh.hist2dplot(np.array([[1, 2, 3]]), ax=axs[1])
-    mh.hist2dplot([[1, 2, 3], [3, 4, 1]], ax=axs[2])
-    mh.hist2dplot(np.array([[1, 2, 3], [3, 4, 1]]), ax=axs[3])
+    mh.hist2dplot([[1, 2, 3]], ax=axs[0], cbarextend=True)
+    mh.hist2dplot(np.array([[1, 2, 3]]), ax=axs[1], cbarextend=True)
+    mh.hist2dplot([[1, 2, 3], [3, 4, 1]], ax=axs[2], cbarextend=True)
+    mh.hist2dplot(np.array([[1, 2, 3], [3, 4, 1]]), ax=axs[3], cbarextend=True)
     return fig
 
 
@@ -447,9 +436,55 @@ def test_hist2dplot_cbar_subplots():
     H, xedges, yedges = np.histogram2d(x, y, bins=(xedges, yedges))
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
-    mh.hist2dplot(H, xedges, yedges, labels=True, cbar=True, ax=ax1)
-    mh.hist2dplot(H * 2, xedges, yedges, labels=True, cbar=True, ax=ax2)
+    mh.hist2dplot(H, xedges, yedges, labels=True, cbar=True, ax=ax1, cbarextend=True)
+    mh.hist2dplot(
+        H * 2, xedges, yedges, labels=True, cbar=True, ax=ax2, cbarextend=True
+    )
     return fig
+
+
+def test_hist2dplot_cbarextend_auto_single_axes(mocker):
+    """Test that cbarextend defaults to True for single axes figure."""
+    mock_append_axes = mocker.patch("mplhep.plot.append_axes")
+    mock_append_axes.return_value = plt.gca()  # Return a valid axes
+
+    np.random.seed(0)
+    H = np.array([[1, 2], [3, 4]])
+    xedges = [0, 1, 2]
+    yedges = [0, 1, 2]
+
+    fig, ax = plt.subplots()
+    mh.hist2dplot(H, xedges, yedges, cbar=True, ax=ax)
+
+    # Verify append_axes was called with extend=True for single axes
+    mock_append_axes.assert_called_once()
+    call_kwargs = mock_append_axes.call_args
+    assert call_kwargs.kwargs.get("extend") is True, (
+        "cbarextend should default to True for single axes"
+    )
+    plt.close(fig)
+
+
+def test_hist2dplot_cbarextend_auto_multiple_axes(mocker):
+    """Test that cbarextend defaults to False for multiple axes figure."""
+    mock_append_axes = mocker.patch("mplhep.plot.append_axes")
+    mock_append_axes.return_value = plt.gca()  # Return a valid axes
+
+    np.random.seed(0)
+    H = np.array([[1, 2], [3, 4]])
+    xedges = [0, 1, 2]
+    yedges = [0, 1, 2]
+
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    mh.hist2dplot(H, xedges, yedges, cbar=True, ax=ax1)
+
+    # Verify append_axes was called with extend=False for multiple axes
+    mock_append_axes.assert_called_once()
+    call_kwargs = mock_append_axes.call_args
+    assert call_kwargs.kwargs.get("extend") is False, (
+        "cbarextend should default to False for multiple axes"
+    )
+    plt.close(fig)
 
 
 @pytest.mark.mpl_image_compare(style="default", remove_text=True)
@@ -487,12 +522,10 @@ def test_hist2dplot_labels_option():
 
     assert mh.hist2dplot(H, xedges, yedges, labels=False)
 
-    label_array = chararray(H.shape, itemsize=2)
-    label_array[:] = "hi"
+    label_array = np.full(H.shape, "hi", dtype="U2")
     assert mh.hist2dplot(H, xedges, yedges, labels=label_array)
 
-    label_array = chararray(H.shape[0], itemsize=2)
-    label_array[:] = "hi"
+    label_array = np.full(H.shape[0], "hi", dtype="U2")
     # Label array shape invalid
     with pytest.raises(
         ValueError,
@@ -642,7 +675,9 @@ def test_histplot_w2_methods():
         ) * 0.2 * np.mean(w)
 
     fig, axs = plt.subplots(2, 3, figsize=(12, 8))
-    for ax, method in zip(axs.flatten(), [None, "poisson", "sqrt", fcn1, fcn2]):
+    for ax, method in zip(
+        axs.flatten(), [None, "poisson", "sqrt", fcn1, fcn2], strict=False
+    ):
         mh.histplot(htype1, w2=htype1_w2, w2method=method, ax=ax, label="With w2")
         mh.histplot(htype1, w2method=method, ax=ax, label="No w2 passed")
         htype2.plot(w2method=method, ax=ax, label="Hist")
@@ -719,9 +754,42 @@ def test_histplot_bar():
 
     axs[3].set_title("Histype bar", fontsize=18)
     mh.histplot(
-        [h1, h2], bins, histtype="bar", label=["h1", "h2"], bin_width=0.2, ax=axs[3]
+        [h1, h2], bins, histtype="bar", label=["h1", "h2"], bar_bin_width=0.2, ax=axs[3]
     )
     axs[3].legend()
+
+    fig.subplots_adjust(wspace=0.1)
+
+    return fig
+
+
+@pytest.mark.mpl_image_compare(style="default", remove_text=True)
+def test_histplot_bar_nonunit_bins():
+    # Bars/steps must be scaled to each bin's width. With wide (width 10) and
+    # variable-width bins, the rendered bars should fill ~80% of each bin rather
+    # than being slivers in absolute data units (see issue #731).
+    wide_bins = [0, 10, 20, 30]  # 3 bins, width 10
+    var_bins = [0, 1, 4, 10, 25]  # 4 variable-width bins
+    h1 = [3, 5, 2]
+    h2 = [4, 2, 6]
+    h3 = [2, 4, 3]
+    v1 = [3, 5, 2, 4]
+    v2 = [4, 2, 6, 1]
+
+    fig, axs = plt.subplots(2, 2, figsize=(10, 10))
+    axs = axs.flatten()
+
+    axs[0].set_title("bar, wide bins", fontsize=18)
+    mh.histplot([h1, h2, h3], wide_bins, histtype="bar", ax=axs[0])
+
+    axs[1].set_title("barstep, wide bins", fontsize=18)
+    mh.histplot([h1, h2], wide_bins, histtype="barstep", yerr=True, ax=axs[1])
+
+    axs[2].set_title("bar, variable bins", fontsize=18)
+    mh.histplot([v1, v2], var_bins, histtype="bar", ax=axs[2])
+
+    axs[3].set_title("barstep, variable bins", fontsize=18)
+    mh.histplot([v1, v2], var_bins, histtype="barstep", yerr=True, ax=axs[3])
 
     fig.subplots_adjust(wspace=0.1)
 
@@ -740,6 +808,118 @@ def test_histplot_inputs_pass(h, yerr, htype):
     fig, ax = plt.subplots()
     mh.histplot(h, bins, yerr=yerr, histtype=htype)
     plt.close(fig)
+
+
+@pytest.mark.parametrize("label", ["data", None])
+def test_histplot_sort_label_keeps_all_hists(label):
+    # Regression: sort="label" with a scalar/None label used to argsort the raw
+    # `label` argument, dropping all but one histogram.
+    bins = np.linspace(0, 10, 11)
+    h = np.arange(10).astype(float)
+
+    fig, ax = plt.subplots()
+    artists = mh.histplot([h, 2 * h, 3 * h], bins, label=label, sort="label", ax=ax)
+    assert len(artists) == 3
+    plt.close(fig)
+
+
+def test_histplot_sort_label_orders_by_label():
+    # sort="label" should order histograms by their (normalized) labels.
+    bins = np.linspace(0, 10, 11)
+    h = np.arange(10).astype(float)
+
+    fig, ax = plt.subplots()
+    artists = mh.histplot(
+        [3 * h, h, 2 * h], bins, label=["c", "a", "b"], sort="label", ax=ax
+    )
+    labels = [a.stairs.get_label() for a in artists]
+    assert labels == ["a", "b", "c"]
+    plt.close(fig)
+
+
+def test_histplot_sort_unknown_raises():
+    # Regression: an unknown sort string used to raise UnboundLocalError; it
+    # should raise a clear ValueError instead.
+    bins = np.linspace(0, 10, 11)
+    h = np.arange(10).astype(float)
+
+    fig, ax = plt.subplots()
+    with pytest.raises(ValueError, match="Sort type"):
+        mh.histplot([h, 2 * h], bins, sort="foo", ax=ax)
+    plt.close(fig)
+
+
+def test_hist_yerr_false_with_weights_no_errorbars():
+    # Regression: hist(..., weights=w, yerr=False) used to draw error bars
+    # anyway because yerr=False was converted to None alongside w2.
+    np.random.seed(0)
+    bins = np.linspace(0, 10, 11)
+    data = np.random.normal(5, 2, 1000)
+    weights = np.random.uniform(0.5, 1.5, 1000)
+
+    fig, ax = plt.subplots()
+    artists = mh.hist(
+        data, bins=bins, weights=weights, yerr=False, histtype="errorbar", ax=ax
+    )
+    # errorbar container: index 2 holds the (y)error LineCollections
+    assert artists[0].errorbar[2] == ()
+
+    # Sanity: yerr=True still produces error bars.
+    fig2, ax2 = plt.subplots()
+    artists_true = mh.hist(
+        data, bins=bins, weights=weights, yerr=True, histtype="errorbar", ax=ax2
+    )
+    assert len(artists_true[0].errorbar[2]) > 0
+    plt.close(fig)
+    plt.close(fig2)
+
+
+def test_histplot_errorbar_ndarray_xerr():
+    # Regression: ndarray xerr used to raise "truth value of an array is
+    # ambiguous" while equivalent lists worked.
+    bins = np.linspace(0, 10, 11)
+    h = np.arange(10).astype(float)
+    xerr = np.tile(np.full(10, 0.3), (2, 1))
+
+    fig, ax = plt.subplots()
+    artists = mh.histplot([h, 2 * h], bins, histtype="errorbar", xerr=xerr, ax=ax)
+    assert len(artists) == 2
+
+    # List xerr (and True/scalar) must keep working.
+    fig2, ax2 = plt.subplots()
+    artists_list = mh.histplot(
+        [h, 2 * h],
+        bins,
+        histtype="errorbar",
+        xerr=[np.full(10, 0.3), np.full(10, 0.3)],
+        ax=ax2,
+    )
+    assert len(artists_list) == 2
+    plt.close(fig)
+    plt.close(fig2)
+
+
+def test_hist_multidataset_weights():
+    # Regression: multi-dataset hist() flattened the entire weights structure
+    # for every dataset, so plt.hist-style per-dataset weights always failed.
+    np.random.seed(0)
+    bins = np.linspace(0, 10, 11)
+    d1 = np.random.normal(5, 2, 1000)
+    d2 = np.random.normal(6, 2, 800)
+    w1 = np.random.uniform(0.5, 1.5, 1000)
+    w2 = np.random.uniform(0.5, 1.5, 800)
+
+    # Per-dataset list of weight arrays (plt.hist style).
+    fig, ax = plt.subplots()
+    artists = mh.hist([d1, d2], bins=bins, weights=[w1, w2], ax=ax)
+    assert len(artists) == 2
+    plt.close(fig)
+
+    # A single shared weights array (matching dataset shapes) still works.
+    fig2, ax2 = plt.subplots()
+    artists_shared = mh.hist([d1, d1], bins=bins, weights=w1, ax=ax2)
+    assert len(artists_shared) == 2
+    plt.close(fig2)
 
 
 @pytest.mark.parametrize(
@@ -813,3 +993,30 @@ def test_histplot_xoffsets():
     )
     mh.histplot(htype1, yerr=False, alpha=0.2, ax=axs[3])
     return fig
+
+
+@pytest.mark.parametrize("ls", ["-", "solid", (0, (3, 5))])
+def test_histplot_linestyle_tuple(ls):
+    fig, ax = plt.subplots()
+    h = [1, 3, 2]
+    bins = [0, 1, 2, 3]
+    mh.histplot(h, bins, ax=ax, linestyle=ls)
+    plt.close(fig)
+
+
+@pytest.mark.parametrize("ls", ["-", "solid", (0, (3, 5))])
+def test_histplot_linestyle_tuple_multiple(ls):
+    fig, ax = plt.subplots()
+    h = [[1, 3, 2], [2, 1, 3]]
+    bins = [0, 1, 2, 3]
+    mh.histplot(h, bins, ax=ax, linestyle=ls)
+    plt.close(fig)
+
+
+def test_histplot_linestyle_tuple_list():
+    fig, ax = plt.subplots()
+    h = [[1, 3, 2], [2, 1, 3]]
+    bins = [0, 1, 2, 3]
+    ls_list = [(0, (3, 5)), (0, (1, 1))]
+    mh.histplot(h, bins, ax=ax, linestyle=ls_list)
+    plt.close(fig)

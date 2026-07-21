@@ -3,7 +3,7 @@ ci:
 
 repos:
 - repo: https://github.com/compilerla/conventional-pre-commit
-  rev: v4.3.0
+  rev: v4.4.0
   hooks:
     - id: conventional-pre-commit
       stages: [commit-msg]
@@ -25,7 +25,7 @@ repos:
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
   # Ruff version.
-  rev: v0.14.5
+  rev: v0.15.21
   hooks:
     # Run the linter.
     - id: ruff-check
@@ -36,19 +36,19 @@ repos:
       exclude: '\.ipynb$'
 
 - repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v1.18.2
+  rev: v2.3.0
   hooks:
   - id: mypy
     files: src
-    additional_dependencies: ["uhi", "numpy", "matplotlib>3.4"]
+    additional_dependencies: ["uhi", "numpy", "matplotlib>=3.11"]
     args: [--show-error-codes]
 
 - repo: https://github.com/codespell-project/codespell
-  rev: "v2.4.1"
+  rev: "v2.4.2"
   hooks:
   - id: codespell
     args: ["-L", "hist,heros,hep", "--uri-ignore-words-list", "*"]
-    exclude: '^examples/Examples\.ipynb$|^new_docs/site/|\.ipynb$'
+    exclude: '^examples/Examples\.ipynb$|^new_docs/site/|\.ipynb$|^pixi\.lock$'
 
 - repo: https://github.com/pre-commit/pygrep-hooks
   rev: "v1.10.0"

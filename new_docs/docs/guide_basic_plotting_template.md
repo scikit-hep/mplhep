@@ -461,6 +461,234 @@ When plotting multiple histograms, the `histtype` can be set to `'bar'` or `'bar
 
 {{TABS_END}}
 
+### Blinding
+
+Blinding allows you to hide specific regions of a histogram, which is useful for blind analyses where signal regions should not be examined until the analysis is finalized. The `blind` parameter in [`mh.histplot()`][mplhep.histplot] supports multiple specification formats to accommodate different use cases.
+
+??? info "Blinding syntax overview"
+
+    Blinding regions can be specified in several ways:
+
+    - **Value-based**: Specify physical values (coordinates) using tuples or `j` suffix
+    - **Index-based**: Specify bin indices directly using integers
+    - **Multiple regions**: Use a list to blind multiple regions at once
+
+    All formats can be combined in a list for maximum flexibility.
+
+
+#### Value-Based Blinding
+
+Blind a region by specifying physical values (coordinates) on the x-axis:
+
+{{TABS_START}}
+{{TAB_HEADER}}
+
+    === "Tuple notation"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, ax=ax, blind=(-1.0, 1.0), label='Data')
+        ax.legend()
+        ax.set_xlabel('Observable [GeV]')
+        ax.set_ylabel('Events')
+        ```
+
+    === "String with j suffix"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, ax=ax, blind="-1j:1j", label='Data')
+        ax.legend()
+        ax.set_xlabel('Observable [GeV]')
+        ax.set_ylabel('Events')
+        ```
+
+    === "loc slice notation"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        from mplhep import loc  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        mh.histplot(h, ax=ax, blind=loc[-1.0:1.0], label='Data')
+        ax.legend()
+        ax.set_xlabel('Observable [GeV]')
+        ax.set_ylabel('Events')
+        ```
+
+{{TABS_END}}
+
+#### Index-Based Blinding
+
+Blind specific bins by their index:
+
+{{TABS_START}}
+{{TAB_HEADER}}
+
+    === "Single bin"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        # Blind the 20th bin (index 19)
+        mh.histplot(h, ax=ax, blind=19, label='Data')
+        ax.legend()
+        ax.set_xlabel('Observable [GeV]')
+        ax.set_ylabel('Events')
+        ```
+
+    === "Range of bins"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        # Blind bins 15 to 25 (indices 15-24)
+        mh.histplot(h, ax=ax, blind="15:25", label='Data')
+        ax.legend()
+        ax.set_xlabel('Observable [GeV]')
+        ax.set_ylabel('Events')
+        ```
+
+    === "List of bins"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        # Blind specific bins
+        mh.histplot(h, ax=ax, blind=[18, 19, 20, 21, 22], label='Data')
+        ax.legend()
+        ax.set_xlabel('Observable [GeV]')
+        ax.set_ylabel('Events')
+        ```
+
+{{TABS_END}}
+
+#### Multiple Regions
+
+Blind multiple regions by providing a list of specifications:
+
+{{TABS_START}}
+{{TAB_HEADER}}
+
+    ```python
+    # mkdocs: render
+    # mkdocs: align=left
+    import matplotlib.pyplot as plt  # mkdocs: hide
+    import mplhep as mh  # mkdocs: hide
+    import numpy as np  # mkdocs: hide
+    import hist  # mkdocs: hide
+    np.random.seed(42)  # mkdocs: hide
+    {{STYLE_USE_CODE}}  # mkdocs: hide
+    h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+    fig, ax = plt.subplots()
+    # Blind multiple regions: value-based and index-based
+    mh.histplot(h, ax=ax, blind=[(-2.5, -1.5), (1.5, 2.5), 5], label='Data')
+    ax.legend()
+    ax.set_xlabel('Observable [GeV]')
+    ax.set_ylabel('Events')
+    ```
+
+{{TABS_END}}
+
+#### Mixed-Mode Blinding
+
+Mix value-based and index-based specifications in the same slice:
+
+{{TABS_START}}
+{{TAB_HEADER}}
+
+    === "Index start, value end"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        # Blind from bin 5 to value 1.0
+        mh.histplot(h, ax=ax, blind="5:1j", label='Data')
+        ax.legend()
+        ax.set_xlabel('Observable [GeV]')
+        ax.set_ylabel('Events')
+        ```
+
+    === "Value start, index end"
+
+        ```python
+        # mkdocs: render
+        # mkdocs: align=left
+        import matplotlib.pyplot as plt  # mkdocs: hide
+        import mplhep as mh  # mkdocs: hide
+        from mplhep import loc  # mkdocs: hide
+        import numpy as np  # mkdocs: hide
+        import hist  # mkdocs: hide
+        np.random.seed(42)  # mkdocs: hide
+        {{STYLE_USE_CODE}}  # mkdocs: hide
+        h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
+        fig, ax = plt.subplots()
+        # Blind from value -1.0 to bin 30
+        mh.histplot(h, ax=ax, blind=loc[-1.0:30], label='Data')
+        ax.legend()
+        ax.set_xlabel('Observable [GeV]')
+        ax.set_ylabel('Events')
+        ```
+
+{{TABS_END}}
+
 ### Error Bars
 
 Control error bar display with `yerr` and `w2method` parameters:

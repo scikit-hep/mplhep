@@ -20,6 +20,7 @@ Functions for 1D and 2D pre-binned histograms with support for the [Unified Hist
     - [Supported Input Formats](guide_basic_plotting.md#supported-input-formats)
     - [Histogram Styles](guide_basic_plotting.md#histogram-styles)
     - [Multiple Histograms](guide_basic_plotting.md#multiple-histograms)
+    - [Blinding](guide_basic_plotting.md#blinding)
     - [Error Bars](guide_basic_plotting.md#error-bars)
     - [Normalization Options](guide_basic_plotting.md#normalization-options)
 - [2D Histograms](guide_basic_plotting.md#2d-histograms)
@@ -30,6 +31,7 @@ High-level functions for data-model comparisons.
 - [Compare two histograms](guide_comparisons.md#comparing-two-histograms)
 - [Data-MC comparison](guide_comparisons.md#data-mc-comparison)
     - [Showcasing more options](guide_comparisons.md#showcasing-more-options)
+- [Blinding in Comparisons](guide_comparisons.md#blinding-in-comparisons)
 - [Additional examples](guide_comparisons.md#additional-examples)
 
 ### [**Styling**](guide_styling.md)

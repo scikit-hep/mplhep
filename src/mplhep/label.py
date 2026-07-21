@@ -22,13 +22,55 @@ DEFAULT_PAD_PERCENTAGE = 5.0
 FONT_SIZE_SCALE_EXP = 1.3
 FONT_SIZE_SCALE_LUMI = 1.1
 FONT_SIZE_SCALE_SUPP = 1.3
-FONT_HEIGHT_CORRECTION_FACTOR = 10
-FONT_WIDTH_CORRECTION_FACTOR = 3
+# Height/width correction factors are calibrated so that at the legacy default
+# DPI of 100 the resulting pixel gap equals the value the old (dimensionally
+# wrong) formula produced. With the dimensionally correct (points/72) math now
+# in use, the factors carry the 100/72 calibration constant.
+_LEGACY_DPI_CALIBRATION = 100 / 72
+FONT_HEIGHT_CORRECTION_FACTOR = 10 * _LEGACY_DPI_CALIBRATION
+FONT_WIDTH_CORRECTION_FACTOR = 3 * _LEGACY_DPI_CALIBRATION
 BOTTOM_MARGIN_OFFSET = -0.1
 
 if TYPE_CHECKING:
     from matplotlib.axes import Axes
     from matplotlib.figure import Figure
+
+
+def _safe_get_renderer(fig):
+    """Return a renderer for *fig*, tolerating canvases without ``get_renderer``.
+
+    On bare ``Figure()`` instances (e.g. ones produced by
+    ``matplotlib.testing.decorators.check_figures_equal`` before save), the
+    canvas is ``FigureCanvasBase`` which lacks ``get_renderer`` on mpl >= 3.11.
+    ``Figure._get_renderer`` is the cross-canvas fallback used by mpl itself.
+    """
+    canvas = fig.canvas
+    if hasattr(canvas, "get_renderer"):
+        return canvas.get_renderer()
+    return fig._get_renderer()
+
+
+def _descent_from_layout(layout):
+    """Extract a scalar typographic descent (in display units) from ``Text._get_layout``.
+
+    mpl >= 3.11 returns ``(bbox, lines, (xy_corner, size))`` where ``xy_corner``
+    is relative to the text *anchor* (which shifts with ``va``), so it must not
+    be used directly.  Instead, the per-line ``wad = (width, ascent, descent)``
+    tuples in ``layout[1]`` give the true typographic descent independent of
+    ``va``.
+    """
+    third = layout[2]
+    if not (isinstance(third, tuple) and isinstance(third[0], tuple)):
+        msg = (
+            f"Unexpected Text._get_layout format: layout[2]={third!r}. "
+            "The private matplotlib API may have changed."
+        )
+        raise TypeError(msg)
+    lines_data = layout[1]
+    if lines_data:
+        wad = lines_data[0][1]  # (width, ascent, descent) for first line
+        return float(wad[2])
+    return 0.0
 
 
 class ExpLabel(mtext.Text):
@@ -149,16 +191,24 @@ def _pixel_to_axis(extent: Any, ax: Axes | None = None) -> Any:
 
 
 def _parse_com(com):
-    """Parse center-of-mass energy into value and unit."""
+    """Parse center-of-mass energy into value and unit.
+
+    Returns (None, None) if com is None, meaning the energy is omitted
+    from the label entirely.
+    """
     if com is None:
-        return "13", "TeV"
+        return None, None
     if isinstance(com, str):
-        match = re.match(r"(\d+\.?\d*)\s*(.*)", com.strip())
-        return (
-            (match.group(1), match.group(2))
-            if match and match.group(2)
-            else (com, "TeV")
-        )
+        com = com.strip()
+        match = re.match(r"(\d*\.?\d+)\s*(.*)", com)
+        if match and match.group(2):
+            return match.group(1), match.group(2)
+        if match:
+            return match.group(1), "TeV"
+        # Unparsable string: never append TeV if it already ends in an energy unit
+        if re.search(r"[kMGTPE]?eV$", com):
+            return com, ""
+        return com, "TeV"
     return str(com), "TeV"
 
 
@@ -168,16 +218,20 @@ def _lumi_line(
     lumi: str | float | None = None,
     lumi_format: str = "{0}",
     lumi_unit: str = "fb^{-1}",
-    com: str | float | None = None,
+    com: str | float | None = "13",
 ) -> str:
     """Format luminosity line for standard layout."""
     com_str, com_unit = _parse_com(com)
+    energy = " ".join(p for p in (com_str, com_unit) if p)
+    com_part = f" ({energy})" if energy else ""
     year_str = f", {year}" if year is not None else ""
 
     if lumi is not None:
         lumi_str = f"{lumi_format.format(lumi)} $\\mathrm{{{lumi_unit}}}$"
-        return f"{lumi_str}{year_str} ({com_str} {com_unit})"
-    return f"$\\ ${year_str} ({com_str} {com_unit})"
+        return f"{lumi_str}{year_str}{com_part}"
+    if year is None and not com_part:
+        return ""
+    return f"$\\ ${year_str}{com_part}"
 
 
 def _lumi_line_atlas(
@@ -186,15 +240,16 @@ def _lumi_line_atlas(
     lumi: str | float | None = None,
     lumi_format: str = "{0}",
     lumi_unit: str = "fb^{-1}",
-    com: str | float | None = None,
+    com: str | float | None = "13",
 ) -> str:
     """Format luminosity line for ATLAS-style layout."""
     com_str, com_unit = _parse_com(com)
-    com_latex = f"$\\sqrt{{s}} = \\mathrm{{{com_str}\\ {com_unit}}}$"
+    energy = "\\ ".join(p.replace(" ", "\\ ") for p in (com_str, com_unit) if p)
+    com_latex = f"$\\sqrt{{s}} = \\mathrm{{{energy}}}$" if energy else ""
 
     if lumi is not None:
         lumi_str = f"{lumi_format.format(lumi)} $\\mathrm{{{lumi_unit}}}$"
-        return f"{com_latex}, {lumi_str}"
+        return f"{com_latex}, {lumi_str}" if com_latex else lumi_str
     return com_latex
 
 
@@ -208,10 +263,10 @@ def _fontsize_to_points(fontsize: str | float) -> float:
 def _fontsize_axis(ax: Axes, fontsize: str | float) -> float:
     """Convert fontsize to axis fraction units."""
     fontsize_points = _fontsize_to_points(fontsize)
-    return (
-        fontsize_points
-        / (ax.get_position().height * ax.figure.get_size_inches()[1])  # type: ignore[union-attr]
-        / ax.figure.dpi
+    # Convert points to inches (1pt = 1/72 inch), then divide by axis height
+    # in inches to express the font size as an axis-fraction.
+    return (fontsize_points / 72) / (
+        ax.get_position().height * ax.figure.get_size_inches()[1]  # type: ignore[union-attr]
     )
 
 
@@ -256,6 +311,27 @@ def _parse_loc_to_xy(loc):
         return loc_map[loc]
     error_msg = f"Invalid location: {loc!r}. Valid options are: {list(loc_map.keys())}"
     raise ValueError(error_msg)
+
+
+def _apply_latex_font_commands(text: str, **kwargs: Any) -> str:
+    """Wrap text in LaTeX font commands based on fontweight/fontstyle kwargs.
+
+    Only applies when ``rcParams["text.usetex"]`` is True and text is non-empty.
+    The order is ``\\textbf{\\textit{...}}`` when both bold and italic are requested.
+    """
+    if not (rcParams.get("text.usetex", False) and text):
+        return text
+    fontweight = kwargs.get("fontweight", "normal")
+    fontstyle = kwargs.get("fontstyle", "normal")
+    is_bold = fontweight in ("bold", 700, "heavy")
+    is_italic = fontstyle in ("italic", "oblique")
+    if is_bold and is_italic:
+        return rf"\textbf{{\textit{{{text}}}}}"
+    if is_bold:
+        return rf"\textbf{{{text}}}"
+    if is_italic:
+        return rf"\textit{{{text}}}"
+    return text
 
 
 def add_text(
@@ -409,21 +485,7 @@ def add_text(
         raise TypeError(msg)
 
     # When using LaTeX, wrap text in appropriate commands based on fontweight and fontstyle
-    _text = text
-    if rcParams.get("text.usetex", False) and text:
-        fontweight = kwargs.get("fontweight", "normal")
-        fontstyle = kwargs.get("fontstyle", "normal")
-
-        # Apply both bold and italic if needed (order matters: textbf outside textit)
-        is_bold = fontweight in ("bold", 700, "heavy")
-        is_italic = fontstyle in ("italic", "oblique")
-
-        if is_bold and is_italic:
-            _text = rf"\textbf{{\textit{{{_text}}}}}"
-        elif is_bold:
-            _text = rf"\textbf{{{_text}}}"
-        elif is_italic:
-            _text = rf"\textit{{{_text}}}"
+    _text = _apply_latex_font_commands(text, **kwargs)
 
     t = text_class(
         float(x), float(y), _text, fontsize=_font_size, transform=transform, **kwargs
@@ -483,13 +545,18 @@ def append_text(
 
     ax_width = ax.get_position().width * ax.figure.get_size_inches()[0]  # type: ignore[union-attr]
     ax_height = ax.get_position().height * ax.figure.get_size_inches()[1]  # type: ignore[union-attr]
-    bbox, _, descent = txt_obj._get_layout(ax.figure.canvas.get_renderer())  # type: ignore[attr-defined,union-attr]
+    _layout = txt_obj._get_layout(_safe_get_renderer(ax.figure))  # type: ignore[attr-defined,union-attr]
+    bbox = _layout[0]
+    descent = _descent_from_layout(_layout)
     width, height = bbox.width, bbox.height
     dpi = ax.figure.dpi
     text_height = height / ax_height / dpi
-    text_height_corr = fontsize / FONT_HEIGHT_CORRECTION_FACTOR / ax_height / dpi
+    # `fontsize` is in points; convert to inches (/72) before dividing by axis
+    # extents in inches to get an axis-fraction. Using /dpi here would treat
+    # points as pixels and is what caused the gap to look wrong at non-default DPIs.
+    text_height_corr = (fontsize / 72) / FONT_HEIGHT_CORRECTION_FACTOR / ax_height
     text_width = width / ax_width / dpi
-    text_width_corr = fontsize / FONT_WIDTH_CORRECTION_FACTOR / ax_width / dpi
+    text_width_corr = (fontsize / 72) / FONT_WIDTH_CORRECTION_FACTOR / ax_width
     yoffset = descent / ax_height / dpi
 
     # Account for horizontal alignment of the reference text
@@ -571,21 +638,7 @@ def append_text(
         _x = _debug_x_override
 
     # When using LaTeX, wrap text in appropriate commands based on fontweight and fontstyle
-    _s = s
-    if rcParams.get("text.usetex", False) and s:
-        fontweight = kwargs.get("fontweight", "normal")
-        fontstyle = kwargs.get("fontstyle", "normal")
-
-        # Apply both bold and italic if needed (order matters: textbf outside textit)
-        is_bold = fontweight in ("bold", 700, "heavy")
-        is_italic = fontstyle in ("italic", "oblique")
-
-        if is_bold and is_italic:
-            _s = rf"\textbf{{\textit{{{_s}}}}}"
-        elif is_bold:
-            _s = rf"\textbf{{{_s}}}"
-        elif is_italic:
-            _s = rf"\textit{{{_s}}}"
+    _s = _apply_latex_font_commands(s, **kwargs)
 
     txt_artist = text_class(_x, _y, _s, va=va, ha=ha, transform=ax.transAxes, **kwargs)
     ax._add_text(txt_artist)  # type: ignore[attr-defined]
@@ -675,7 +728,13 @@ def exp_text(
         _fontsize = base_fontsize
         _fontsize_lumi = base_fontsize / FONT_SIZE_SCALE_LUMI
         _fontsize_supp = base_fontsize / FONT_SIZE_SCALE_SUPP
-    _inside_pad = max(5, _fontsize_axis(ax, _fontsize_exp) * 100)
+    # `_fontsize_axis` returns a true physical axis-fraction (fontsize_in / ax_height_in).
+    # The legacy pad calibration was tuned against the old (dimensionally wrong)
+    # formula that, at the default DPI of 100, effectively returned that fraction
+    # scaled by 100/72. Multiplying by 72 here (rather than 100, to convert
+    # fraction -> percent) reproduces the legacy nominal value while staying
+    # DPI-invariant.
+    _inside_pad = max(5, _fontsize_axis(ax, _fontsize_exp) * 72)
     _italic_exp, _italic_suff, _italic_lumi, _italic_supp = fontstyle
     _weight_exp, _weight_suff, _weight_lumi, _weight_supp = fontweight
 
@@ -684,11 +743,10 @@ def exp_text(
         _fmt = ax.get_yaxis().get_major_formatter()
         if hasattr(_fmt, "get_useOffset") and _fmt.get_useOffset():  # type: ignore[attr-defined]
             # Requires figure.draw call, fetch only when needed
-            ax.figure.draw(ax.figure.canvas.get_renderer())  # type: ignore[attr-defined,union-attr]
+            _renderer = _safe_get_renderer(ax.figure)
+            ax.figure.draw(_renderer)  # type: ignore[union-attr]
             _sci_box = _pixel_to_axis(
-                ax.get_yaxis().offsetText.get_window_extent(
-                    ax.figure.canvas.get_renderer()  # type: ignore[attr-defined,union-attr]
-                )  # type: ignore[attr-defined]
+                ax.get_yaxis().offsetText.get_window_extent(_renderer)  # type: ignore[attr-defined]
             )
             # Use abs() to handle cases where extent coordinates may be reversed
             _sci_offset = max(0, abs(_sci_box.width) * 1.1)
@@ -804,7 +862,6 @@ def exp_text(
     reason='Use `fontweight=("bold", "normal", "normal", "normal")` instead.',
     removed=True,
 )
-@deprecate_parameter("pub", reason='Use `supp="..."` instead.')
 def exp_label(
     *,
     exp: str = "",
@@ -815,7 +872,7 @@ def exp_label(
     year: str | float | None = None,
     lumi: str | float | None = None,
     lumi_format: str = "{0}",
-    com: str | float | None = None,
+    com: str | float | None = "13",
     llabel: str | None = None,
     rlabel: str | None = None,
     fontsize: (
@@ -861,8 +918,10 @@ def exp_label(
         Format string for luminosity display, by default "{0}".
         Example: "{0:.1f}" for one decimal place.
     com : str | float | None, optional
-        Center-of-mass energy in TeV, by default None (uses 13).
-        Common values: 7, 8, 13, 13.6, 14.
+        Center-of-mass energy, by default 13 (displayed as "13 TeV").
+        Common values: 7, 8, 13, 13.6, 14. Numbers are displayed in TeV;
+        pass a string with units (e.g. "500 GeV", "900 MeV") to use a
+        different unit. Pass None to omit the energy from the label.
     llabel : str | None, optional
         Manual override for left-hand label text. Overrides "data" and "text" parameters.
     rlabel : str | None, optional
@@ -904,11 +963,14 @@ def exp_label(
     >>> # Custom positioning and formatting
     >>> mh.exp_label(exp="ATLAS", loc=4, lumi=139, lumi_format="{0:.0f}")
     """
-    if label is not None and text is None:
+    if label is not None and not text:
         text = label
     if rlabel is None:
         lumi_func = _lumi_line_atlas if loc == 4 else _lumi_line
-        rlabel = lumi_func(year=year, lumi=lumi, lumi_format=lumi_format, com=com)
+        # An empty line (e.g. com=None without lumi/year) is skipped entirely
+        rlabel = (
+            lumi_func(year=year, lumi=lumi, lumi_format=lumi_format, com=com) or None
+        )
     if llabel is None:
         # Build label following main branch logic
         _label = text
@@ -1010,27 +1072,27 @@ def savelabels(
 
     _sim = "Simulation" if "Simulation" in label_base.get_text() else ""
 
+    def _construct_filename(base_fname: str, suffix: str) -> str:
+        """Construct output filename from base name and suffix."""
+        if "." in suffix:  # suffix is absolute path
+            return suffix
+
+        # Add underscore prefix to non-empty suffixes
+        if suffix:
+            suffix = f"_{suffix}"
+
+        # Handle extension
+        if "." in base_fname:
+            name_parts = base_fname.rsplit(
+                ".", 1
+            )  # Split from right to handle multiple dots
+            return f"{name_parts[0]}{suffix}.{name_parts[1]}"
+        return f"{base_fname}{suffix}"
+
     # At this point, labels is guaranteed to be list[tuple[str, str]]
     tuple_labels: list[tuple[str, str]] = labels  # type: ignore[assignment]
     for label_text, suffix in tuple_labels:
         label_base.set_text(f"{_sim} {label_text}".lstrip())
-
-        def _construct_filename(base_fname: str, suffix: str) -> str:
-            """Construct output filename from base name and suffix."""
-            if "." in suffix:  # suffix is absolute path
-                return suffix
-
-            # Add underscore prefix to non-empty suffixes
-            if suffix:
-                suffix = f"_{suffix}"
-
-            # Handle extension
-            if "." in base_fname:
-                name_parts = base_fname.rsplit(
-                    ".", 1
-                )  # Split from right to handle multiple dots
-                return f"{name_parts[0]}{suffix}.{name_parts[1]}"
-            return f"{base_fname}{suffix}"
 
         save_name = _construct_filename(fname, suffix)
 
@@ -1062,18 +1124,16 @@ def save_variations(
     if text_list is None:
         text_list = ["Preliminary", ""]
 
-    from mplhep.label import ExpText  # noqa: PLC0415
-
     for text in text_list:
         for ax in fig.get_axes():
-            exp_labels = [t for t in ax.get_children() if isinstance(t, ExpText)]
+            exp_labels = [t for t in ax.get_children() if isinstance(t, ExpLabel)]
             suffixes = [t for t in ax.get_children() if isinstance(t, ExpText)]
-            for exp_label, suffix_text in zip(exp_labels, suffixes):
+            for exp_label, suffix_text in zip(exp_labels, suffixes, strict=True):
                 if exp is not None:
                     exp_label.set_text(exp)
                 suffix_text.set_text(text)
         name_ext = "" if text == "" else "_" + text.lower()
         if exp is not None:
             name_ext = exp.lower() + name_ext
-        save_name = name.split(".")[0] + name_ext + "." + name.split(".")[1]
+        save_name = name.split(".", maxsplit=1)[0] + name_ext + "." + name.split(".")[1]
         fig.savefig(save_name)
