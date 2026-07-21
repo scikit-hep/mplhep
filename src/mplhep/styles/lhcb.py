@@ -137,7 +137,7 @@ LHCb2 = {
     "axes.linewidth": 2,
     "axes.facecolor": "white",
     "axes.xmargin": 0.0,
-    # "axes.ymargin": 0.0,
+    "axes.ymargin": 0.0,
     # Custom colors
     "axes.prop_cycle": cycler("color", colors2),
     "axes.formatter.min_exponent": 3,
@@ -150,7 +150,7 @@ LHCb2 = {
     # Outer frame color
     "figure.facecolor": "white",
     # Note: autolayout disabled to allow subplots_adjust(hspace=0) - see issue #401
-    # Set default font to Times New Roman
+    # Set default font to Tex Gyre Termes (Times clone bundled in mplhep_data)
     "font.family": "serif",
     "font.serif": ["Tex Gyre Termes"],
     "font.cursive": ["Tex Gyre Termes"],
@@ -185,7 +185,7 @@ LHCb2 = {
     "lines.elinewidth": 1.5,
     # Saved figure settings
     "savefig.bbox": "tight",
-    "savefig.pad_inches": 0.1,
+    "savefig.pad_inches": 0.3,
     "savefig.format": "pdf",
     # Ticks settings
     # xticks

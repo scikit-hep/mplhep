@@ -45,7 +45,7 @@ def text(text="", **kwargs):
     kwargs.setdefault("fontsize", (28 * 1.3, 28, 28 * 0.95, 28 / 1.3))
     kwargs.setdefault("fontstyle", ("normal", "normal", "normal", "normal"))
     kwargs.setdefault("fontweight", ("normal", "normal", "normal", "normal"))
-    kwargs.setdefault("fontname", "Times New Roman")
+    kwargs.setdefault("fontname", "Tex Gyre Termes")
     kwargs.setdefault("loc", 1)
     kwargs.setdefault("exp", "LHCb")
     return label_base.exp_text(text=text, **kwargs)
@@ -66,7 +66,7 @@ def label(text=None, label=None, **kwargs):  # noqa: ARG001
     kwargs.setdefault("fontsize", (28 * 1.3, 28, 28 * 0.95, 28 / 1.3))
     kwargs.setdefault("fontstyle", ("normal", "normal", "normal", "normal"))
     kwargs.setdefault("fontweight", ("normal", "normal", "normal", "normal"))
-    kwargs.setdefault("fontname", "Times New Roman")
+    kwargs.setdefault("fontname", "Tex Gyre Termes")
     kwargs.setdefault("loc", 1)
     kwargs.setdefault("exp", "LHCb")
     if text is not None:
