@@ -51,7 +51,9 @@ ghostscript = "*"
 [pypi-dependencies]
 # Install matplotlib and dependents via pip to get freetype 2.6.1 (embedded in PyPI wheels)
 # This ensures pytest-mpl baseline images match CI (which uses uv/pip)
-matplotlib = ">=3.10.8"
+# Must be >=3.11.0: label.py's _descent_from_layout relies on the mpl>=3.11
+# Text._get_layout return format (matches the pin in pyproject.toml).
+matplotlib = ">=3.11.0"
 pytest-mpl = "*"
 hist = "*"
 seaborn = "*"
