@@ -51,7 +51,10 @@ ghostscript = "*"
 [pypi-dependencies]
 # Install matplotlib and dependents via pip to get freetype 2.6.1 (embedded in PyPI wheels)
 # This ensures pytest-mpl baseline images match CI (which uses uv/pip)
-matplotlib = ">=3.10.8"
+# Must match the pyproject.toml floor (>=3.11.1): label.py's
+# _descent_from_layout relies on the mpl>=3.11 Text._get_layout return
+# format, and postinstall's `pip install --no-deps` skips dependency checks.
+matplotlib = ">=3.11.1"
 pytest-mpl = "*"
 hist = "*"
 seaborn = "*"
@@ -89,7 +92,7 @@ markdown-exec = "*"
 docstring-inheritance = "*"
 griffe-inherited-docstrings = "*"
 neoteroi-mkdocs = "*"
-mkdocs-matplotlib = { git = "https://github.com/andrzejnovak/mkdocs-matplotlib.git" }
+mkdocs-matplotlib = { git = "https://github.com/andrzejnovak/mkdocs-matplotlib.git", rev = "e3d9ce14a6f0a1fea9550323439b7db93f220b38" }
 
 [feature.docs.tasks]
 docs-postinstall = "pip install --no-deps -e ."

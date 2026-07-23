@@ -69,7 +69,7 @@ jobs:
       - name: Install package and documentation dependencies
         run: |
           uv pip install -e ".[all]"
-          uv pip install git+https://github.com/andrzejnovak/mkdocs-matplotlib.git
+          uv pip install git+https://github.com/andrzejnovak/mkdocs-matplotlib.git@e3d9ce14a6f0a1fea9550323439b7db93f220b38
           uv pip list
 
       - name: Delete mike version
