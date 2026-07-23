@@ -11,6 +11,15 @@ on:
         description: 'Delete a mike version (e.g. pr-683). Leave empty to skip.'
         required: false
         type: string
+      make_latest:
+        description: 'Point the "latest" alias and the site default at deploy_version. Leave off when re-deploying an OLD tag.'
+        required: false
+        default: false
+        type: boolean
+      matplotlib_pin:
+        description: 'Optional matplotlib constraint for the deploy_version build (e.g. "matplotlib>=3.10.8,<3.11"). Old tags predate the mpl>=3.11 Text._get_layout change and crash without this.'
+        required: false
+        type: string
   push:
     branches:
       - main
@@ -74,25 +83,46 @@ jobs:
 
       - name: Delete mike version
         if: inputs.delete_version != ''
+        env:
+          DELETE_VERSION: ${{ inputs.delete_version }}
         run: |
           cd new_docs
-          mike delete --push ${{ inputs.delete_version }}
+          mike delete --push "$DELETE_VERSION"
 
       - name: Deploy docs for specific tag
         if: inputs.deploy_version != ''
+        env:
+          DEPLOY_VERSION: ${{ inputs.deploy_version }}
+          MAKE_LATEST: ${{ inputs.make_latest }}
+          MATPLOTLIB_PIN: ${{ inputs.matplotlib_pin }}
         run: |
+          set -euo pipefail
           # Save current docs config (has mike version provider etc.)
           cp -r new_docs /tmp/new_docs_config
           # Checkout old tag for source code only
-          git checkout ${{ inputs.deploy_version }} -- src/
+          git checkout "$DEPLOY_VERSION" -- src/
           uv pip install --reinstall --no-deps -e ".[all]"
+          # Old tags may need an older matplotlib than the current floor: pre-1.1
+          # label.py unpacks Text._get_layout()[2] as a scalar descent, but mpl>=3.11
+          # returns a tuple there, so every label render raises TypeError.
+          if [ -n "$MATPLOTLIB_PIN" ]; then
+            uv pip install --reinstall "$MATPLOTLIB_PIN"
+          fi
+          python -c "import matplotlib, mplhep; print('matplotlib', matplotlib.__version__, '/ mplhep', mplhep.__version__)"
           # Restore current docs config
           rm -rf new_docs
           cp -r /tmp/new_docs_config new_docs
           cd new_docs
-          VERSION=$(echo "${{ inputs.deploy_version }}" | sed 's/^v//' | cut -d. -f1,2)
-          mike deploy --push --update-aliases "$VERSION" latest
-          mike set-default --push latest
+          VERSION=$(echo "$DEPLOY_VERSION" | sed 's/^v//' | cut -d. -f1,2)
+          # Only move the "latest" alias / site default when deploying the newest
+          # release. Re-deploying an old tag must not repoint latest at it.
+          if [ "$MAKE_LATEST" = "true" ]; then
+            mike deploy --push --update-aliases "$VERSION" latest
+            mike set-default --push latest
+          else
+            echo "Deploying $VERSION without touching the 'latest' alias or site default."
+            mike deploy --push "$VERSION"
+          fi
 
       - name: Deploy dev documentation
         if: inputs.deploy_version == '' && inputs.delete_version == '' && github.ref == 'refs/heads/main'
