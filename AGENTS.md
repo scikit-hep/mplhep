@@ -13,6 +13,10 @@
   when a plain push was already approved, and `--force-with-lease` is preferred over `--force`
 - Prefer proposing the command for the user to run over running it, when an operation is hard
   to undo. Say plainly what is irreversible about it
+- Ask for these confirmations as a y/N prompt, not as an open-ended question. Use the
+  question tool with plain `Yes` / `No` options so the answer is one keypress, and put the
+  detail that matters — the exact command, the branch, the target — in the option
+  descriptions rather than in a paragraph the user has to reply to in prose
 
 
 # Development guidelines
