@@ -11,6 +11,15 @@ on:
         description: 'Delete a mike version (e.g. pr-683). Leave empty to skip.'
         required: false
         type: string
+      make_latest:
+        description: 'Point the "latest" alias and the site default at deploy_version. Leave off when re-deploying an OLD tag.'
+        required: false
+        default: false
+        type: boolean
+      matplotlib_pin:
+        description: 'Optional matplotlib constraint for the deploy_version build (e.g. "matplotlib>=3.10.8,<3.11"). Old tags predate the mpl>=3.11 Text._get_layout change and crash without this.'
+        required: false
+        type: string
   push:
     branches:
       - main
@@ -45,6 +54,36 @@ jobs:
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
+      # The built site lives in scikit-hep/mplhep_docs, not in this repository, so that a
+      # clone of mplhep does not carry the published docs for every release. GITHUB_TOKEN is
+      # scoped to this repo and cannot push there, hence a deploy key scoped to mplhep_docs.
+      # The github-docs Host alias keeps this key off origin, which stays on HTTPS.
+      - name: Configure docs repository access
+        env:
+          DOCS_DEPLOY_KEY: ${{ secrets.DOCS_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${DOCS_DEPLOY_KEY:-}" ]; then
+            echo "ERROR: DOCS_DEPLOY_KEY secret is not set; cannot reach scikit-hep/mplhep_docs." >&2
+            exit 1
+          fi
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DOCS_DEPLOY_KEY" > ~/.ssh/docs_deploy
+          chmod 600 ~/.ssh/docs_deploy
+          ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts 2>/dev/null
+          cat >> ~/.ssh/config <<'EOF'
+          Host github-docs
+            HostName github.com
+            User git
+            IdentityFile ~/.ssh/docs_deploy
+            IdentitiesOnly yes
+          EOF
+          chmod 600 ~/.ssh/config
+          git remote add docs git@github-docs:scikit-hep/mplhep_docs.git
+          git fetch docs +refs/heads/gh-pages:refs/remotes/docs/gh-pages
+          git branch -f gh-pages docs/gh-pages
+          echo "Tracking $(git rev-parse --short gh-pages) from scikit-hep/mplhep_docs."
+
       - name: Setup uv
         uses: astral-sh/setup-uv@v8.2.0
         with:
@@ -74,32 +113,53 @@ jobs:
 
       - name: Delete mike version
         if: inputs.delete_version != ''
+        env:
+          DELETE_VERSION: ${{ inputs.delete_version }}
         run: |
           cd new_docs
-          mike delete --push ${{ inputs.delete_version }}
+          mike delete --push -r docs "$DELETE_VERSION"
 
       - name: Deploy docs for specific tag
         if: inputs.deploy_version != ''
+        env:
+          DEPLOY_VERSION: ${{ inputs.deploy_version }}
+          MAKE_LATEST: ${{ inputs.make_latest }}
+          MATPLOTLIB_PIN: ${{ inputs.matplotlib_pin }}
         run: |
+          set -euo pipefail
           # Save current docs config (has mike version provider etc.)
           cp -r new_docs /tmp/new_docs_config
           # Checkout old tag for source code only
-          git checkout ${{ inputs.deploy_version }} -- src/
+          git checkout "$DEPLOY_VERSION" -- src/
           uv pip install --reinstall --no-deps -e ".[all]"
+          # Old tags may need an older matplotlib than the current floor: pre-1.1
+          # label.py unpacks Text._get_layout()[2] as a scalar descent, but mpl>=3.11
+          # returns a tuple there, so every label render raises TypeError.
+          if [ -n "$MATPLOTLIB_PIN" ]; then
+            uv pip install --reinstall "$MATPLOTLIB_PIN"
+          fi
+          python -c "import matplotlib, mplhep; print('matplotlib', matplotlib.__version__, '/ mplhep', mplhep.__version__)"
           # Restore current docs config
           rm -rf new_docs
           cp -r /tmp/new_docs_config new_docs
           cd new_docs
-          VERSION=$(echo "${{ inputs.deploy_version }}" | sed 's/^v//' | cut -d. -f1,2)
-          mike deploy --push --update-aliases "$VERSION" latest
-          mike set-default --push latest
+          VERSION=$(echo "$DEPLOY_VERSION" | sed 's/^v//' | cut -d. -f1,2)
+          # Only move the "latest" alias / site default when deploying the newest
+          # release. Re-deploying an old tag must not repoint latest at it.
+          if [ "$MAKE_LATEST" = "true" ]; then
+            mike deploy --push -r docs --update-aliases "$VERSION" latest
+            mike set-default --push -r docs latest
+          else
+            echo "Deploying $VERSION without touching the 'latest' alias or site default."
+            mike deploy --push -r docs "$VERSION"
+          fi
 
       - name: Deploy dev documentation
         if: inputs.deploy_version == '' && inputs.delete_version == '' && github.ref == 'refs/heads/main'
         run: |
           cd new_docs
-          mike deploy --push dev
-          mike set-default --push dev
+          mike deploy --push -r docs dev
+          mike set-default --push -r docs dev
 
       - name: Deploy versioned documentation
         if: inputs.deploy_version == '' && inputs.delete_version == '' && startsWith(github.ref, 'refs/tags/v')
@@ -107,8 +167,8 @@ jobs:
           cd new_docs
           # Extract version from tag (v1.2.3 -> 1.2)
           VERSION=$(echo "${GITHUB_REF#refs/tags/v}" | cut -d. -f1,2)
-          mike deploy --push --update-aliases "$VERSION" latest
-          mike set-default --push latest
+          mike deploy --push -r docs --update-aliases "$VERSION" latest
+          mike set-default --push -r docs latest
 
       - name: Export gh-pages for upload
         run: |
