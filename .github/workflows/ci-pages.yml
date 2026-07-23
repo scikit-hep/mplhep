@@ -27,15 +27,15 @@ on:
       - 'v*'
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+# Publishing happens in pages-publish.yml; this workflow only writes to mplhep_docs.
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+# Serialise doc builds so concurrent mike runs cannot race each other pushing to
+# mplhep_docs. Deliberately a different group from pages-publish.yml, which would
+# otherwise wait on a run that has to finish before it can even start.
 concurrency:
-  group: "pages"
+  group: "docs-build"
   cancel-in-progress: false
 
 jobs:
@@ -159,7 +159,9 @@ jobs:
         run: |
           cd new_docs
           mike deploy --push -r docs dev
-          mike set-default --push -r docs dev
+          # Deliberately no `mike set-default` here. The site default belongs to
+          # `latest`; setting it to dev on every merge to main is what left the root
+          # redirecting to dev/ between releases.
 
       - name: Deploy versioned documentation
         if: inputs.deploy_version == '' && inputs.delete_version == '' && startsWith(github.ref, 'refs/tags/v')
@@ -169,27 +171,3 @@ jobs:
           VERSION=$(echo "${GITHUB_REF#refs/tags/v}" | cut -d. -f1,2)
           mike deploy --push -r docs --update-aliases "$VERSION" latest
           mike set-default --push -r docs latest
-
-      - name: Export gh-pages for upload
-        run: |
-          git worktree add _gh-pages gh-pages
-          rm -rf _gh-pages/.git
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: _gh-pages
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
