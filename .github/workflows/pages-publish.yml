@@ -1,0 +1,62 @@
+name: Publish Documentation
+
+# Publishing is split out from ci-pages.yml because a GitHub Pages deployment only
+# actually serves when its run is on the default branch. A run started by a tag push
+# records a successful deployment that never reaches the site, which meant versioned
+# docs for a release were built, pushed, and then silently not published.
+#
+# A workflow_run-triggered workflow always executes on the default branch, whatever
+# started the upstream run. Routing every publish through here means tags and merges
+# publish by the same path, and no part of the workflow needs to know which refs can
+# serve.
+on:
+  workflow_run:
+    workflows: ["Deploy Documentation"]
+    types: [completed]
+  # Manual republish, e.g. after editing scikit-hep/mplhep_docs directly.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    # Never publish on top of a failed build: mplhep_docs may be half-updated.
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      # mplhep_docs is public, so this is an anonymous read. The deploy key lives in
+      # ci-pages.yml, which is the only workflow that needs to *write* there.
+      - name: Fetch the built site from mplhep_docs
+        run: |
+          set -euo pipefail
+          git clone --quiet --depth 1 --branch gh-pages \
+            https://github.com/scikit-hep/mplhep_docs.git _gh-pages
+          echo "Publishing $(git -C _gh-pages rev-parse --short HEAD) from mplhep_docs."
+          rm -rf _gh-pages/.git
+          echo "$(find _gh-pages -type f | wc -l) files, $(du -sh _gh-pages | cut -f1)."
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _gh-pages
+
+  deploy:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
