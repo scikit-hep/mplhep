@@ -104,4 +104,6 @@ nox -s lint
 
 ## Contributing to the documentation
 
-The documentation is built using [MkDocs](https://www.mkdocs.org/) and the [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/) theme. To contribute to the documentation, please look at the [`new_docs/CONTRIBUTING_DOC.md`](CONTRIBUTING_DOC.md) file for instructions.
+The documentation is built using [MkDocs](https://www.mkdocs.org/) and the [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/) theme. To contribute to the documentation, please look at the
+[`new_docs/CONTRIBUTING_DOC.md`](https://github.com/scikit-hep/mplhep/blob/main/new_docs/CONTRIBUTING_DOC.md)
+file for instructions.
