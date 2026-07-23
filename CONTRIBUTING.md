@@ -8,64 +8,17 @@ Please open an [issue](https://github.com/scikit-hep/mplhep/issues).
 
 ## Cloning the repository
 
-A plain clone works and is all most contributors need:
-
 ```bash
 git clone https://github.com/scikit-hep/mplhep.git
 ```
 
-That lands at ~71 MB of `.git`, of which ~45 MB is the `gh-pages` branch — the built
-documentation site for every released version. Nothing in the development workflow uses it.
+That is all you need — roughly 26 MB.
 
-There is no way for the repository to make a default `git clone` skip a branch: the refspec
-is chosen by the client, and git's server-side `uploadpack.hideRefs` is not something GitHub
-exposes. So skipping the built docs has to be opted into, as below.
-
-### Skipping the built docs (optional)
-
-Clone `main` only, then widen to the other code branches while keeping `gh-pages` excluded:
-
-```bash
-git clone --single-branch --branch main https://github.com/scikit-hep/mplhep.git
-cd mplhep
-git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
-git config --add remote.origin.fetch '^refs/heads/gh-pages'
-git fetch
-```
-
-That lands at ~28 MB of `.git` with every code branch visible to `git branch -r`, so
-`git checkout some/feature-branch` and PR review work normally. `gh-pages` is never
-downloaded, and plain `git fetch` will not pull it later.
-
-The `^refs/heads/gh-pages` line is a *negative refspec* and needs git ≥ 2.29. If you only
-ever work on `main`, the first command on its own is enough (~26 MB).
-
-### Getting the built docs when you actually need them
-
-Only inspecting or repairing the published site requires `gh-pages`. An explicit refspec on
-the command line overrides the exclusion, so no config change is needed:
-
-```bash
-git fetch origin gh-pages:refs/remotes/origin/gh-pages
-```
-
-That adds ~43 MB. It is sticky — a later `git fetch --prune` will not remove it. To go back
-to a lean clone, use the recipe below.
-
-### Slimming an existing clone
-
-If you already have `gh-pages` locally, exclude it and reclaim the space (~69 MB → ~27 MB):
-
-```bash
-git config --add remote.origin.fetch '^refs/heads/gh-pages'
-git update-ref -d refs/remotes/origin/gh-pages
-git reflog expire --expire=now --all
-git gc --prune=now
-```
-
-Deleting the ref explicitly is the part that matters: `git fetch --prune` will *not* remove
-a remote-tracking ref that falls outside the current refspec, and `git gc` cannot reclaim
-the objects while any ref still points at them.
+The built documentation site does not live here. It is published to
+[scikit-hep/mplhep_docs](https://github.com/scikit-hep/mplhep_docs), because keeping the
+rendered HTML for every released version in this repository meant every contributor
+downloaded the whole published site just to work on the library. Doc *sources* stay here,
+under `new_docs/`; only the build output is elsewhere.
 
 ## Installing the development environment
 
