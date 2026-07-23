@@ -99,8 +99,14 @@ markdown_extensions:
       line_spans: __span
       pygments_lang_class: true
   - pymdownx.snippets:
+      # base_path is resolved against the working directory mkdocs was launched
+      # from, not against this file, so `../` is only correct for builds started
+      # in new_docs/. on_config in docs_hooks.py overrides it with the absolute
+      # repo root so Read the Docs (which builds from the checkout root) finds
+      # the example snippets too. Keep check_paths on: a missing snippet must
+      # fail the build rather than silently render an empty code block.
       base_path: ../
-      check_paths: false
+      check_paths: true
   - pymdownx.inlinehilite
   - pymdownx.superfences
   - pymdownx.details
