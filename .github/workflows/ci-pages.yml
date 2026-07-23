@@ -20,6 +20,11 @@ on:
         description: 'Optional matplotlib constraint for the deploy_version build (e.g. "matplotlib>=3.10.8,<3.11"). Old tags predate the mpl>=3.11 Text._get_layout change and crash without this.'
         required: false
         type: string
+      publish_only:
+        description: 'Skip every mike step and only publish the current mplhep_docs gh-pages branch. Used to republish after a tag deploy, which cannot publish on its own.'
+        required: false
+        default: false
+        type: boolean
   push:
     branches:
       - main
@@ -31,6 +36,7 @@ permissions:
   contents: write
   pages: write
   id-token: write
+  actions: write # to dispatch the follow-up publish run after a tag deploy
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
@@ -43,6 +49,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: write
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -93,6 +100,7 @@ jobs:
           enable-cache: true
 
       - name: Install core fonts
+        if: '!inputs.publish_only'
         run: |
           set -euo pipefail
           echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
@@ -106,13 +114,14 @@ jobs:
           echo "Times New Roman font verified successfully."
 
       - name: Install package and documentation dependencies
+        if: '!inputs.publish_only'
         run: |
           uv pip install -e ".[all]"
           uv pip install git+https://github.com/andrzejnovak/mkdocs-matplotlib.git@e3d9ce14a6f0a1fea9550323439b7db93f220b38
           uv pip list
 
       - name: Delete mike version
-        if: inputs.delete_version != ''
+        if: inputs.delete_version != '' && !inputs.publish_only
         env:
           DELETE_VERSION: ${{ inputs.delete_version }}
         run: |
@@ -120,7 +129,7 @@ jobs:
           mike delete --push -r docs "$DELETE_VERSION"
 
       - name: Deploy docs for specific tag
-        if: inputs.deploy_version != ''
+        if: inputs.deploy_version != '' && !inputs.publish_only
         env:
           DEPLOY_VERSION: ${{ inputs.deploy_version }}
           MAKE_LATEST: ${{ inputs.make_latest }}
@@ -155,20 +164,35 @@ jobs:
           fi
 
       - name: Deploy dev documentation
-        if: inputs.deploy_version == '' && inputs.delete_version == '' && github.ref == 'refs/heads/main'
+        if: inputs.deploy_version == '' && inputs.delete_version == '' && !inputs.publish_only && github.ref == 'refs/heads/main'
         run: |
           cd new_docs
           mike deploy --push -r docs dev
-          mike set-default --push -r docs dev
+          # Deliberately no `mike set-default` here. The site default belongs to
+          # `latest`; setting it to dev on every merge to main is what left the root
+          # redirecting to dev/ between releases.
 
       - name: Deploy versioned documentation
-        if: inputs.deploy_version == '' && inputs.delete_version == '' && startsWith(github.ref, 'refs/tags/v')
+        if: inputs.deploy_version == '' && inputs.delete_version == '' && !inputs.publish_only && startsWith(github.ref, 'refs/tags/v')
         run: |
           cd new_docs
           # Extract version from tag (v1.2.3 -> 1.2)
           VERSION=$(echo "${GITHUB_REF#refs/tags/v}" | cut -d. -f1,2)
           mike deploy --push -r docs --update-aliases "$VERSION" latest
           mike set-default --push -r docs latest
+
+      # A deployment created from a tag ref is recorded as successful but never actually
+      # serves; only deployments from `main` reach the site. The commits mike just pushed
+      # to mplhep_docs would therefore stay invisible. Re-run this workflow on main in
+      # publish-only mode, which exports the now-updated branch and publishes it for real.
+      - name: Republish from main
+        if: inputs.deploy_version == '' && inputs.delete_version == '' && !inputs.publish_only && startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          echo "Tag deploys cannot publish; dispatching a publish-only run on main."
+          gh workflow run ci-pages.yml --ref main -f publish_only=true
 
       - name: Export gh-pages for upload
         run: |
