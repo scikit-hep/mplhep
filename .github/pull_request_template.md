@@ -11,12 +11,15 @@ PR titles follow Conventional Commits: https://www.conventionalcommits.org/
 ## Proposed commit message
 
 <!-- If this PR is squash-merged, this is what lands on main. Skip it if your
-     commits are already well organised and should be merged as they are. -->
+     commits are already well organised and should be merged as they are.
+     Keep the Assisted-by trailer if AI was used; delete the line if not. -->
 
 ```text
 <type>(<scope>): <summary>
 
 <body>
+
+Assisted-by: <harness>:<model>
 ```
 
 ## Checklist
