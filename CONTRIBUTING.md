@@ -42,10 +42,8 @@ for example:
 Assisted-by: claude-code:claude-opus-5
 ```
 
-Put the trailer in your commit messages. Pull requests are often squash-merged,
-and then the message proposed in the pull request body (see
-[Making a pull request](#making-a-pull-request)) is what lands on `main` — so add
-it there too, and the credit survives either way.
+Put the trailer in the commit. If you also propose a squash message in the pull
+request body, put it there too.
 
 ## Bug Reports
 

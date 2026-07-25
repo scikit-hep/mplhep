@@ -14,8 +14,7 @@ The project's AI policy is in `CONTRIBUTING.md` ("AI Policy") and applies to you
 - Never add `Signed-off-by:` and never use `git commit -s`. It certifies the Developer
   Certificate of Origin, which only a human can do.
 - Never add "Generated with ..." footers, session URLs, or tool links.
-- Put the trailer in your commit messages. PRs are often squash-merged, and then the
-  message proposed in the PR body is what lands on `main` — put it there too.
+- Put the trailer in the commit, and in any squash message proposed in the PR body.
 - Disclose the tool and model in the PR description.
 
 ## Folder Structure
