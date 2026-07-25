@@ -1,17 +1,13 @@
 <!--
-Thanks for contributing to mplhep!
-
 PR titles follow Conventional Commits: https://www.conventionalcommits.org/
 -->
 
 ## Description
 
-<!-- What does this change and why? -->
-
 ## Proposed commit message
 
 <!-- If this PR is squash-merged, this is what lands on main. Skip it if your
-     commits are already well organised and should be merged as they are.
+     commits are already well organised and should be merged as a rebase.
      Keep the Assisted-by trailer if AI was used; delete the line if not. -->
 
 ```text
@@ -24,10 +20,8 @@ Assisted-by: <harness>:<model>
 
 ## Checklist
 
-<!-- CI runs the full test suite and pre-commit.ci handles linting, so only the
-     things CI cannot check are listed here. -->
-
-- [ ] Tests added or updated for the change
+- [ ] I have read the [contributing guidelines](https://github.com/scikit-hep/mplhep/blob/main/CONTRIBUTING.md)
+- [ ] Tests added or updated for the change if changing code
 - [ ] Only genuinely modified baseline images are included
 
 ## AI assistance
