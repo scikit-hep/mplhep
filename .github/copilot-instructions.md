@@ -3,6 +3,21 @@
 - Commit messages and PR names should follow Conventional Commits specification (https://www.conventionalcommits.org/en/v1.0.0/)
 - Use present tense ("add feature" not "added feature")
 
+## AI Policy
+
+The project's AI policy is in `CONTRIBUTING.md` ("AI Policy") and applies to you.
+
+- Credit assistance with the Linux kernel trailer `Assisted-by: <harness>:<model>`
+  (e.g. `Assisted-by: copilot:gpt-5`). See https://docs.kernel.org/process/coding-assistants.html
+- Never add `Co-authored-by:` for an AI — that trailer asserts authorship and a copyright
+  interest, and an AI is a tool, not an author. A human co-author is fine.
+- Never add `Signed-off-by:` and never use `git commit -s`. It certifies the Developer
+  Certificate of Origin, which only a human can do.
+- Never add "Generated with ..." footers, session URLs, or tool links.
+- Put the trailer in your commit messages. PRs are often squash-merged, and then the
+  message proposed in the PR body is what lands on `main` — put it there too.
+- Disclose the tool and model in the PR description.
+
 ## Folder Structure
 
 - `/src/mplhep`: Contains the source code for project.
