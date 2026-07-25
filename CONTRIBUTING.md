@@ -2,6 +2,51 @@
 
 We are happy to accept contributions to `mplhep` via Pull Requests to the GitHub repo. To get started fork the repo.
 
+## AI Policy
+
+AI-assisted contributions are welcome. We ask that you:
+
+- **Disclose** that AI was used, and name the tool and model.
+- **Review and understand every line you submit.** You are responsible for it.
+- **Meet the same quality, testing, and style standards** as any other contribution.
+- **Do not use fully autonomous agents** to open issues or pull requests.
+- **Respond to review comments yourself.**
+
+This applies to issues and comments as well as pull requests. Using AI for
+translation or grammar help is fine and needs no disclosure.
+
+Unsolicited, undisclosed, or low-effort AI pull requests may be closed at
+maintainer discretion.
+
+### Crediting AI in commits
+
+Only humans can be named as co-authors, and an AI can _never_ sign off on a commit.
+
+- Do **not** add a `Co-authored-by:` trailer for an AI. That trailer asserts
+  authorship and a copyright interest — an AI is a tool, not an author, and the
+  work stays yours.
+- Do **not** let a tool add `Signed-off-by:` on your behalf. That line certifies
+  the [Developer Certificate of Origin](https://developercertificate.org/), a
+  legal statement only a human can make.
+
+Credit AI assistance with the trailer the Linux kernel standardised in
+[`Documentation/process/coding-assistants.rst`](https://docs.kernel.org/process/coding-assistants.html):
+
+```text
+Assisted-by: <harness>:<model>
+```
+
+for example:
+
+```text
+Assisted-by: claude-code:claude-opus-5
+```
+
+Put the trailer in your commit messages. Pull requests are often squash-merged,
+and then the message proposed in the pull request body (see
+[Making a pull request](#making-a-pull-request)) is what lands on `main` — so add
+it there too, and the credit survives either way.
+
 ## Bug Reports
 
 Please open an [issue](https://github.com/scikit-hep/mplhep/issues).
@@ -66,7 +111,7 @@ nox -s tests
 
 ### Making a pull request
 
-We follow [Conventional Commit](https://www.conventionalcommits.org/) for commit messages and PR titles. Since we merge PR's using squash commits, it's fine if the final commit messages (proposed in the PR body) follow this convention.
+We follow [Conventional Commit](https://www.conventionalcommits.org/) for commit messages and PR titles. Pull requests are often squash-merged, and then it is the final commit message — the one proposed in the PR body — that needs to follow the convention. A PR whose commits are already well organised may instead be merged as it is, so it is worth having each of them follow it too.
 
 ### Generating Reference Visuals
 

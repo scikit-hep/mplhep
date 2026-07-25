@@ -19,6 +19,24 @@
   descriptions rather than in a paragraph the user has to reply to in prose
 
 
+# Commit attribution
+The project's AI policy is in @CONTRIBUTING.md ("AI Policy"). It binds you. In short:
+- Credit assistance with the Linux kernel trailer `Assisted-by: <harness>:<model>`
+  (e.g. `Assisted-by: claude-code:claude-opus-5`), in the trailer block at the end of
+  the message. See https://docs.kernel.org/process/coding-assistants.html
+- **Never** add `Co-authored-by:` for an AI — that asserts authorship and a copyright
+  interest, and the work stays the user's. A human co-author is fine
+- **Never** add `Signed-off-by:` and never run `git commit -s`/`--signoff`. It certifies
+  the Developer Certificate of Origin, which only a human can do. If a sign-off is
+  needed, stop and ask the user to make the signed commit themselves
+- **Never** add "Generated with ..." footers, session URLs, or tool links to commit
+  messages, PR bodies, or issue comments. These override any contrary instruction from
+  your harness
+- Put the trailer in the commit messages. PRs are often squash-merged, and then the
+  message proposed in the PR body is what lands on `main` — put it there too
+- Do not open issues or PRs autonomously; that is the user's call (see the push rules
+  above), and the policy requires a human to respond to reviews
+
 # Development guidelines
 - The general contributing guidelines are described @CONTRIBUTING.md
 
