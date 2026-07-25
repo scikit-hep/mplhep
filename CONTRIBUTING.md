@@ -42,13 +42,8 @@ for example:
 Assisted-by: claude-code:claude-opus-5
 ```
 
-Put the trailer in your commit messages — that is the only place it needs to be.
-When a pull request is squash-merged, GitHub builds the final message out of the
-branch's commit messages, so the trailer carries through on its own. It does not
-read the pull request description, so putting the trailer only there loses it.
-
-A branch with several commits repeats the trailer once per commit in the squashed
-message, so keep the branch to a single well-written commit where you can.
+Put the trailer in the commit. If you also propose a squash message in the pull
+request body, put it there too.
 
 ## Bug Reports
 
@@ -114,7 +109,7 @@ nox -s tests
 
 ### Making a pull request
 
-We follow [Conventional Commit](https://www.conventionalcommits.org/) for commit messages and PR titles. On a squash-merge the final message is assembled from the PR title and the branch's commit messages, so both need to follow the convention — the PR description is not used. A single, well-written commit per pull request gives the cleanest history; a PR whose commits are already well organised may instead be rebased on, in which case every one of them lands as it is.
+We follow [Conventional Commit](https://www.conventionalcommits.org/) for commit messages and PR titles. Pull requests are often squash-merged, and then it is the final commit message — the one proposed in the PR body — that needs to follow the convention. A PR whose commits are already well organised may instead be merged as it is, so it is worth having each of them follow it too.
 
 ### Generating Reference Visuals
 

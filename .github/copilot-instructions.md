@@ -14,10 +14,7 @@ The project's AI policy is in `CONTRIBUTING.md` ("AI Policy") and applies to you
 - Never add `Signed-off-by:` and never use `git commit -s`. It certifies the Developer
   Certificate of Origin, which only a human can do.
 - Never add "Generated with ..." footers, session URLs, or tool links.
-- Put the trailer in your commit messages, which is the only place it needs to be. A
-  squash-merge builds the final message from the branch's commits, so it carries
-  through; the PR description is not used. Prefer a single commit per PR, or the
-  trailer repeats once per commit in the squashed message.
+- Put the trailer in the commit, and in any squash message proposed in the PR body.
 - Disclose the tool and model in the PR description.
 
 ## Folder Structure
