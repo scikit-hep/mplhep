@@ -6,9 +6,11 @@ PR titles follow Conventional Commits: https://www.conventionalcommits.org/
 
 ## Proposed commit message
 
-<!-- If this PR is squash-merged, this is what lands on main. Skip it if your
-     commits are already well organised and should be merged as a rebase.
-     Keep the Assisted-by trailer if AI was used; delete the line if not. -->
+<!-- Optional, and only a suggestion for the maintainer to paste at merge time:
+     GitHub builds the squash message from your commits, not from this
+     description. If your branch is a single well-written commit, that commit is
+     already the answer and you can delete this section. The Assisted-by trailer
+     belongs in the commit itself; drop the line if no AI was used. -->
 
 ```text
 <type>(<scope>): <summary>
