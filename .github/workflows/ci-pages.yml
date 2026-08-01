@@ -85,7 +85,7 @@ jobs:
           echo "Tracking $(git rev-parse --short gh-pages) from scikit-hep/mplhep_docs."
 
       - name: Setup uv
-        uses: astral-sh/setup-uv@v8.2.0
+        uses: astral-sh/setup-uv@v9.0.0
         with:
           activate-environment: true
           version: "latest"
