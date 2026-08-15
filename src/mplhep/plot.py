@@ -97,14 +97,15 @@ def _get_next_prop_cycle(ax: mpl.axes.Axes, kwargs: dict[str, Any]) -> dict[str,
     Retrieve the next set of properties from the Axes property cycler.
     Advances the cycler if defaults are needed for the given kwargs.
     """
-    # Filter out None values to treat them as "not provided"
-    clean_kwargs = {k: v for k, v in kwargs.items() if v is not None}
+    lines = ax._get_lines  # type: ignore[attr-defined]
 
-    # mpl >= 3.11: get_next_color is the standard path for advancing the prop cycler
-    if clean_kwargs.get("color") is None:
+    # mpl >= 3.11: the prop cycle lives on a ``_PropCycle`` helper exposing ``getdefaults(kw)``,
+    # which returns the full next entry and advances the cycle when a cycled property is missing from ``kw``.
+    prop_cycle = getattr(lines, "_prop_cycle", None)
+    if prop_cycle is not None and hasattr(prop_cycle, "getdefaults"):
         try:
-            return {"color": ax._get_lines.get_next_color()}  # type: ignore[attr-defined]
-        except AttributeError:
+            return dict(prop_cycle.getdefaults(kwargs))
+        except (AttributeError, TypeError):
             return {}
     return {}
 
