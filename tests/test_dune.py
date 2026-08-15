@@ -42,30 +42,9 @@ def test_dune_style_str_alias(fig_test, fig_ref):
     fig_test.subplots()
 
 
-@pytest.mark.latex
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
-@pytest.mark.mpl_image_compare(style="default", remove_text=False)
-def test_style_dunetex():
-    plt.rcParams.update(plt.rcParamsDefault)
-
-    plt.style.use(mh.style.DUNETex)
-    fig, ax = plt.subplots()
-    mh.dune.label(text="Preliminary")
-
-    return fig
-
-
-@pytest.mark.latex
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
-@pytest.mark.mpl_image_compare(style="default", remove_text=False)
-def test_style_dunetex1():
-    plt.rcParams.update(plt.rcParamsDefault)
-
-    plt.style.use(mh.style.DUNETex1)
-    fig, ax = plt.subplots()
-    mh.dune.label(text="Preliminary")
-
-    return fig
+# The DUNETex/DUNETex1 image tests live in tests/test_styles_latex.py, which
+# owns the Tex styles. They used to be duplicated here verbatim, writing to the
+# same tests/baseline/ files.
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
@@ -75,21 +54,15 @@ def test_style_dunetex1():
     [
         (mh.style.DUNE, "DUNE"),
         (mh.style.DUNE1, "DUNE1"),
-        pytest.param(
-            mh.style.DUNETex,
-            "DUNETex",
-            marks=pytest.mark.latex,
-        ),
-        pytest.param(
-            mh.style.DUNETex1,
-            "DUNETex1",
-            marks=pytest.mark.latex,
-        ),
     ],
-    ids=["DUNE", "DUNE1", "DUNETex", "DUNETex1"],
+    ids=["DUNE", "DUNE1"],
 )
 def test_dune_style_string_aliases(fig_test, fig_ref, style, str_alias):
-    """Test that string aliases work for all DUNE style variants."""
+    """Test that string aliases work for the DUNE style variants.
+
+    The DUNETex/DUNETex1 aliases are covered by
+    tests/test_styles_latex.py::test_latex_style_str_alias.
+    """
     plt.rcParams.update(plt.rcParamsDefault)
 
     mh.rcParams.clear()

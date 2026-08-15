@@ -1,3 +1,4 @@
+import os
 import shutil
 import subprocess
 
@@ -26,9 +27,17 @@ def _has_latex():
 
 
 def pytest_collection_modifyitems(config, items):  # noqa: ARG001
-    """Skip LaTeX tests if LaTeX is not installed."""
+    """Skip LaTeX tests if LaTeX is not installed.
+
+    Set MPLHEP_REQUIRE_LATEX to fail instead. CI LaTeX sets it so that a broken
+    texlive install cannot produce a green run by skipping the whole suite.
+    """
     if _has_latex():
         return
+
+    if os.environ.get("MPLHEP_REQUIRE_LATEX"):
+        msg = "MPLHEP_REQUIRE_LATEX is set but no working `latex` was found on PATH."
+        raise pytest.UsageError(msg)
 
     skip_latex = pytest.mark.skip(reason="LaTeX not installed")
     for item in items:
