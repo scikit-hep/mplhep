@@ -14,11 +14,22 @@ import mplhep as mh
 """
 Tests for LaTeX-dependent styles (CMSTex, DUNETex, ATLASTex, LHCbTex, etc.)
 
+Only the rendered output belongs here. The styles' rcParams are asserted in
+tests/test_styles_tex.py, which needs no texlive and so runs in the main CI.
+
 To test run:
 pytest tests/test_styles_latex.py --mpl
 
 When adding new tests, run:
 pytest tests/test_styles_latex.py --mpl-generate-path=tests/baseline
+
+Baselines must come from a CI LaTeX run, not from a local render: local and CI
+agree on glyphs but not necessarily on figure dimensions.
+
+DUNETex, DUNETex1, LHCbTex1 and LHCbTex2 set savefig.bbox: "tight", which
+derives the image size from rendered text extents. A sub-pixel LaTeX metric
+change therefore fails the whole image on "Image dimensions did not match"
+before any pixel is compared -- the observed failure mode of this suite.
 """
 
 plt.switch_backend("Agg")

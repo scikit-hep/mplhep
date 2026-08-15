@@ -22,9 +22,10 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - 'src/mplhep/styles/**'
-      - 'tests/test_styles_latex.py'
-      - 'tests/test_dune.py'
+      # Not just styles/: these tests call mh.cms.label, mh.dune.label,
+      # mh.atlas.label and mh.lhcb.label, which live in label.py and exp_*.py.
+      - 'src/mplhep/**'
+      - 'tests/**'
       - '.github/workflows/ci_latex.yml'
   # Run weekly on Monday at 0:00 UTC
   schedule:
@@ -48,7 +49,7 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Setup uv
-        uses: astral-sh/setup-uv@v8.2.0
+        uses: astral-sh/setup-uv@v9.0.0
         with:
           activate-environment: true
           version: 'latest'
@@ -86,15 +87,15 @@ jobs:
           which latex
           latex --version
 
+      # Selecting by marker rather than by filename picks up any latex-marked
+      # test wherever it lives. MPLHEP_REQUIRE_LATEX turns conftest's "LaTeX not
+      # installed" skip into an error, so a broken texlive install cannot pass
+      # this job by silently skipping every test.
       - name: Test LaTeX styles with pytest
+        env:
+          MPLHEP_REQUIRE_LATEX: '1'
         run: |
-          python -m pytest tests/test_styles_latex.py -m latex -r sa --mpl --mpl-results-path=pytest_results_latex -n 4 --benchmark-disable
-
-      - name: Test DUNE LaTeX styles with pytest
-        run: |
-          python -m pytest tests/test_dune.py::test_style_dunetex -m latex -r sa --mpl --mpl-results-path=pytest_results_dune_tex
-          python -m pytest tests/test_dune.py::test_style_dunetex1 -m latex -r sa --mpl --mpl-results-path=pytest_results_dune_tex
-          python -m pytest tests/test_dune.py::test_dune_style_string_aliases -m latex -r sa --mpl --mpl-results-path=pytest_results_dune_tex
+          python -m pytest -m latex -r sa --mpl --mpl-results-path=pytest_results_latex -n 4 --benchmark-disable
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v7
@@ -102,6 +103,4 @@ jobs:
         with:
           name: pytest_results_latex-${{ matrix.python-version }}
           retention-days: 7
-          path: |
-            pytest_results_latex
-            pytest_results_dune_tex
+          path: pytest_results_latex
