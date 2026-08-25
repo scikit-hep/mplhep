@@ -27,7 +27,7 @@ DUNE1 = {
     "mathtext.cal": "TeX Gyre Heros",
     "mathtext.default": "regular",
     # Figure configuration
-    "figure.figsize": (10, 10),
+    "figure.figsize": (8, 6),
     "figure.facecolor": "white",
     "figure.dpi": 100,
     "figure.autolayout": True,
