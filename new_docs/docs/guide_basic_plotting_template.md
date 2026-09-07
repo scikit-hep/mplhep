@@ -8,6 +8,7 @@ This section covers the core plotting functionality of mplhep for plotting 1D an
     import matplotlib.pyplot as plt
     import numpy as np
     import hist
+
     np.random.seed(42)
     import mplhep as mh
     # mh.style.use('<as appropriate>')
@@ -32,6 +33,7 @@ This section covers the core plotting functionality of mplhep for plotting 1D an
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         fig, ax = plt.subplots()
@@ -47,6 +49,7 @@ This section covers the core plotting functionality of mplhep for plotting 1D an
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         data = np.random.normal(0, 1, 1000)
@@ -63,6 +66,7 @@ This section covers the core plotting functionality of mplhep for plotting 1D an
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         data = np.random.normal(0, 1, 1000)
@@ -81,14 +85,16 @@ This section covers the core plotting functionality of mplhep for plotting 1D an
         import matplotlib.pyplot as plt  # mkdocs: hide
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         from skhep_testdata import data_path  # mkdocs: hide
+
         uproot_file_name = data_path("uproot-hepdata-example.root")  # mkdocs: hide
         import uproot
 
         file = uproot.open(uproot_file_name)
-        h_root = file['hpx']
+        h_root = file["hpx"]
         fig, ax = plt.subplots()
         mh.histplot(h_root, ax=ax)
         ```
@@ -112,11 +118,12 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(h, histtype='step', label='Step histogram', ax=ax)
+        mh.histplot(h, histtype="step", label="Step histogram", ax=ax)
         ```
 
     === "Fill"
@@ -128,11 +135,12 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(h, histtype='fill', alpha=0.5, label='Filled histogram', ax=ax)
+        mh.histplot(h, histtype="fill", alpha=0.5, label="Filled histogram", ax=ax)
         ```
 
     === "Errorbar"
@@ -144,11 +152,12 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(h, histtype='errorbar', label='Data', ax=ax)
+        mh.histplot(h, histtype="errorbar", label="Data", ax=ax)
         ```
 
     === "Band"
@@ -160,11 +169,12 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(h, histtype='band', alpha=0.5, label='Band histogram', ax=ax)
+        mh.histplot(h, histtype="band", alpha=0.5, label="Band histogram", ax=ax)
         # Can be used to visualize uncertainties
         ```
 
@@ -177,11 +187,12 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(h, histtype='bar', label='Bar histogram', ax=ax)
+        mh.histplot(h, histtype="bar", label="Bar histogram", ax=ax)
         # If only one histogram is provided, it will be treated as "fill" histtype, if multiple data are given the bars are arranged side by side (see next section)
         ```
 
@@ -194,11 +205,12 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(h, histtype='barstep', label='Barstep histogram', ax=ax)
+        mh.histplot(h, histtype="barstep", label="Barstep histogram", ax=ax)
         # If one histogram is provided, it will be treated as "step" histtype. If multiple data are given the bars are arranged side by side (see next section)
         ```
 
@@ -223,6 +235,7 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         # Create histograms and fill them
@@ -233,12 +246,12 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         fig, ax = plt.subplots()
         mh.histplot(
             [h1, h2, h3],
-            histtype='fill',
+            histtype="fill",
             alpha=0.7,
-            label=['Background 1', 'Background 2', 'Signal'],
-            ax=ax
+            label=["Background 1", "Background 2", "Signal"],
+            ax=ax,
         )
-        ax.legend(loc='upper right')
+        ax.legend(loc="upper right")
         mh.yscale_legend(soft_fail=True)
         ```
 
@@ -252,6 +265,7 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         # Create histograms and fill them
@@ -262,12 +276,12 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         fig, ax = plt.subplots()
         mh.histplot(
             [h1, h2, h3],
-            histtype='fill',
+            histtype="fill",
             stack=True,
-            label=['Background 1', 'Background 2', 'Signal'],
-            ax=ax
+            label=["Background 1", "Background 2", "Signal"],
+            ax=ax,
         )
-        ax.legend(loc='upper right')
+        ax.legend(loc="upper right")
         mh.yscale_legend(soft_fail=True)
         ```
 
@@ -280,6 +294,7 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         # Create histograms and fill them
@@ -290,13 +305,13 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         fig, ax = plt.subplots()
         mh.histplot(
             [h1, h2, h3],
-            histtype='fill',
+            histtype="fill",
             stack=True,
-            sort='yield',
-            label=['Background 1', 'Background 2', 'Signal'],
-            ax=ax
+            sort="yield",
+            label=["Background 1", "Background 2", "Signal"],
+            ax=ax,
         )
-        ax.legend(loc='upper right')
+        ax.legend(loc="upper right")
         mh.yscale_legend(soft_fail=True)
         ```
 
@@ -309,6 +324,7 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         # Create histograms and fill them
@@ -319,13 +335,13 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         fig, ax = plt.subplots()
         mh.histplot(
             [h1, h2, h3],
-            histtype='fill',
+            histtype="fill",
             stack=True,
-            sort='label',
-            label=['Background 1', 'Background 2', 'Signal'],
-            ax=ax
+            sort="label",
+            label=["Background 1", "Background 2", "Signal"],
+            ax=ax,
         )
-        ax.legend(loc='upper right')
+        ax.legend(loc="upper right")
         mh.yscale_legend(soft_fail=True)
         ```
 
@@ -338,6 +354,7 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         # Create histograms and fill them
@@ -348,13 +365,13 @@ Control the appearance with the `histtype` parameter. Select an experiment style
         fig, ax = plt.subplots()
         mh.histplot(
             [h1, h2, h3],
-            histtype='fill',
+            histtype="fill",
             stack=True,
-            sort='l_r',
-            label=['Background 1', 'Background 2', 'Signal'],
-            ax=ax
+            sort="l_r",
+            label=["Background 1", "Background 2", "Signal"],
+            ax=ax,
         )
-        ax.legend(loc='upper right')
+        ax.legend(loc="upper right")
         mh.yscale_legend(soft_fail=True)
         ```
 
@@ -492,14 +509,15 @@ Blind a region by specifying physical values (coordinates) on the x-axis:
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(h, ax=ax, blind=(-1.0, 1.0), label='Data')
+        mh.histplot(h, ax=ax, blind=(-1.0, 1.0), label="Data")
         ax.legend()
-        ax.set_xlabel('Observable [GeV]')
-        ax.set_ylabel('Events')
+        ax.set_xlabel("Observable [GeV]")
+        ax.set_ylabel("Events")
         ```
 
     === "String with j suffix"
@@ -511,14 +529,15 @@ Blind a region by specifying physical values (coordinates) on the x-axis:
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(h, ax=ax, blind="-1j:1j", label='Data')
+        mh.histplot(h, ax=ax, blind="-1j:1j", label="Data")
         ax.legend()
-        ax.set_xlabel('Observable [GeV]')
-        ax.set_ylabel('Events')
+        ax.set_xlabel("Observable [GeV]")
+        ax.set_ylabel("Events")
         ```
 
     === "loc slice notation"
@@ -531,14 +550,15 @@ Blind a region by specifying physical values (coordinates) on the x-axis:
         from mplhep import loc  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
-        mh.histplot(h, ax=ax, blind=loc[-1.0:1.0], label='Data')
+        mh.histplot(h, ax=ax, blind=loc[-1.0:1.0], label="Data")
         ax.legend()
-        ax.set_xlabel('Observable [GeV]')
-        ax.set_ylabel('Events')
+        ax.set_xlabel("Observable [GeV]")
+        ax.set_ylabel("Events")
         ```
 
 {{TABS_END}}
@@ -559,15 +579,16 @@ Blind specific bins by their index:
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
         # Blind the 20th bin (index 19)
-        mh.histplot(h, ax=ax, blind=19, label='Data')
+        mh.histplot(h, ax=ax, blind=19, label="Data")
         ax.legend()
-        ax.set_xlabel('Observable [GeV]')
-        ax.set_ylabel('Events')
+        ax.set_xlabel("Observable [GeV]")
+        ax.set_ylabel("Events")
         ```
 
     === "Range of bins"
@@ -579,15 +600,16 @@ Blind specific bins by their index:
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
         # Blind bins 15 to 25 (indices 15-24)
-        mh.histplot(h, ax=ax, blind="15:25", label='Data')
+        mh.histplot(h, ax=ax, blind="15:25", label="Data")
         ax.legend()
-        ax.set_xlabel('Observable [GeV]')
-        ax.set_ylabel('Events')
+        ax.set_xlabel("Observable [GeV]")
+        ax.set_ylabel("Events")
         ```
 
     === "List of bins"
@@ -599,15 +621,16 @@ Blind specific bins by their index:
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
         # Blind specific bins
-        mh.histplot(h, ax=ax, blind=[18, 19, 20, 21, 22], label='Data')
+        mh.histplot(h, ax=ax, blind=[18, 19, 20, 21, 22], label="Data")
         ax.legend()
-        ax.set_xlabel('Observable [GeV]')
-        ax.set_ylabel('Events')
+        ax.set_xlabel("Observable [GeV]")
+        ax.set_ylabel("Events")
         ```
 
 {{TABS_END}}
@@ -626,15 +649,16 @@ Blind multiple regions by providing a list of specifications:
     import mplhep as mh  # mkdocs: hide
     import numpy as np  # mkdocs: hide
     import hist  # mkdocs: hide
+
     np.random.seed(42)  # mkdocs: hide
     {{STYLE_USE_CODE}}  # mkdocs: hide
     h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
     fig, ax = plt.subplots()
     # Blind multiple regions: value-based and index-based
-    mh.histplot(h, ax=ax, blind=[(-2.5, -1.5), (1.5, 2.5), 5], label='Data')
+    mh.histplot(h, ax=ax, blind=[(-2.5, -1.5), (1.5, 2.5), 5], label="Data")
     ax.legend()
-    ax.set_xlabel('Observable [GeV]')
-    ax.set_ylabel('Events')
+    ax.set_xlabel("Observable [GeV]")
+    ax.set_ylabel("Events")
     ```
 
 {{TABS_END}}
@@ -655,15 +679,16 @@ Mix value-based and index-based specifications in the same slice:
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
         # Blind from bin 5 to value 1.0
-        mh.histplot(h, ax=ax, blind="5:1j", label='Data')
+        mh.histplot(h, ax=ax, blind="5:1j", label="Data")
         ax.legend()
-        ax.set_xlabel('Observable [GeV]')
-        ax.set_ylabel('Events')
+        ax.set_xlabel("Observable [GeV]")
+        ax.set_ylabel("Events")
         ```
 
     === "Value start, index end"
@@ -676,15 +701,16 @@ Mix value-based and index-based specifications in the same slice:
         from mplhep import loc  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         h = hist.new.Reg(40, -4, 4).Weight().fill(np.random.normal(0, 1, 1000))
         fig, ax = plt.subplots()
         # Blind from value -1.0 to bin 30
-        mh.histplot(h, ax=ax, blind=loc[-1.0:30], label='Data')
+        mh.histplot(h, ax=ax, blind=loc[-1.0:30], label="Data")
         ax.legend()
-        ax.set_xlabel('Observable [GeV]')
-        ax.set_ylabel('Events')
+        ax.set_xlabel("Observable [GeV]")
+        ax.set_ylabel("Events")
         ```
 
 {{TABS_END}}
@@ -705,14 +731,15 @@ Control error bar display with `yerr` and `w2method` parameters:
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         # Simple histogram with Weight storage for automatic errors
         h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.poisson(5, 20))
 
         fig, ax = plt.subplots()
-        mh.histplot(h, histtype='errorbar', yerr=True, label='Data with Poisson errors', ax=ax)
-        ax.legend(loc='upper right')
+        mh.histplot(h, histtype="errorbar", yerr=True, label="Data with Poisson errors", ax=ax)
+        ax.legend(loc="upper right")
         mh.yscale_legend(soft_fail=True)
         ```
 
@@ -725,6 +752,7 @@ Control error bar display with `yerr` and `w2method` parameters:
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         # Simple histogram with custom error bars
@@ -732,8 +760,10 @@ Control error bar display with `yerr` and `w2method` parameters:
         custom_errors = np.minimum(np.sqrt(h.values()), np.random.uniform(0, 20, 20))
 
         fig, ax = plt.subplots()
-        mh.histplot(h, histtype='errorbar', yerr=custom_errors, label='Data with custom errors', ax=ax)
-        ax.legend(loc='upper right')
+        mh.histplot(
+            h, histtype="errorbar", yerr=custom_errors, label="Data with custom errors", ax=ax
+        )
+        ax.legend(loc="upper right")
         mh.yscale_legend(soft_fail=True)
         ```
 
@@ -746,14 +776,17 @@ Control error bar display with `yerr` and `w2method` parameters:
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         # Weighted histogram - errors from sqrt of sum of weights squared
         h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
 
         fig, ax = plt.subplots()
-        mh.histplot(h, histtype='errorbar', w2method='sqrt', label='Weighted data (sqrt method)', ax=ax)
-        ax.legend(loc='upper right')
+        mh.histplot(
+            h, histtype="errorbar", w2method="sqrt", label="Weighted data (sqrt method)", ax=ax
+        )
+        ax.legend(loc="upper right")
         mh.yscale_legend(soft_fail=True)
         ```
 
@@ -766,21 +799,31 @@ Control error bar display with `yerr` and `w2method` parameters:
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         # Weighted histogram with custom error calculation
         h = hist.new.Reg(20, 0, 20).Weight().fill(np.random.normal(10, 5, 2000))
 
+
         # Custom error function: error = sqrt(sum(weights^2)) / 2
         def custom_w2_method(weights, variances):
             import numpy as np  # mkdocs: hide
+
             up = weights - np.ones_like(weights) * 0.2 * np.mean(weights)
             down = weights + np.ones_like(weights) * 0.2 * np.mean(weights)
             return up, down
 
+
         fig, ax = plt.subplots()
-        mh.histplot(h, histtype='errorbar', w2method=custom_w2_method, label='Weighted data (custom error method)', ax=ax)
-        ax.legend(loc='upper right')
+        mh.histplot(
+            h,
+            histtype="errorbar",
+            w2method=custom_w2_method,
+            label="Weighted data (custom error method)",
+            ax=ax,
+        )
+        ax.legend(loc="upper right")
         mh.yscale_legend(soft_fail=True)
         ```
 
@@ -802,6 +845,7 @@ Control histogram normalization with `density` and `binwnorm` parameters:
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         # Create histograms with different binning schemes
@@ -813,13 +857,17 @@ Control histogram normalization with `density` and `binwnorm` parameters:
         # Plot
         kwargs = {}
         fig, ax = plt.subplots()
-        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
-        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+        mh.histplot(
+            h1, histtype="fill", alpha=0.7, label="Variable bins (same data)", ax=ax, **kwargs
+        )
+        mh.histplot(
+            h2, histtype="fill", alpha=0.7, label="Regular bins (same data)", ax=ax, **kwargs
+        )
 
         # Style
-        ax.set_xlabel('Observable')
-        ax.set_ylabel('Events')
-        ax.legend(loc='upper right')
+        ax.set_xlabel("Observable")
+        ax.set_ylabel("Events")
+        ax.legend(loc="upper right")
         mh.yscale_legend(soft_fail=True)
         ```
 
@@ -832,6 +880,7 @@ Control histogram normalization with `density` and `binwnorm` parameters:
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         # Create histograms with different binning schemes
@@ -841,15 +890,19 @@ Control histogram normalization with `density` and `binwnorm` parameters:
         h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
 
         # Plot
-        kwargs = {'density': True}
+        kwargs = {"density": True}
         fig, ax = plt.subplots()
-        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
-        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+        mh.histplot(
+            h1, histtype="fill", alpha=0.7, label="Variable bins (same data)", ax=ax, **kwargs
+        )
+        mh.histplot(
+            h2, histtype="fill", alpha=0.7, label="Regular bins (same data)", ax=ax, **kwargs
+        )
 
         # Style
-        ax.set_xlabel('Observable')
-        ax.set_ylabel('Density')
-        ax.legend(loc='upper right')
+        ax.set_xlabel("Observable")
+        ax.set_ylabel("Density")
+        ax.legend(loc="upper right")
         mh.yscale_legend(soft_fail=True)
         ```
 
@@ -862,6 +915,7 @@ Control histogram normalization with `density` and `binwnorm` parameters:
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         # Create histograms with different binning schemes
@@ -871,15 +925,19 @@ Control histogram normalization with `density` and `binwnorm` parameters:
         h2 = hist.new.Var(bins2).Weight().fill(np.random.normal(0, 1, 2000))
 
         # Plot
-        kwargs = {'binwnorm': True}
+        kwargs = {"binwnorm": True}
         fig, ax = plt.subplots()
-        mh.histplot(h1, histtype='fill', alpha=0.7, label='Variable bins (same data)', ax=ax, **kwargs)
-        mh.histplot(h2, histtype='fill', alpha=0.7, label='Regular bins (same data)', ax=ax, **kwargs)
+        mh.histplot(
+            h1, histtype="fill", alpha=0.7, label="Variable bins (same data)", ax=ax, **kwargs
+        )
+        mh.histplot(
+            h2, histtype="fill", alpha=0.7, label="Regular bins (same data)", ax=ax, **kwargs
+        )
 
         # Style
-        ax.set_xlabel('Observable')
-        ax.set_ylabel('Events / Bin Width')
-        ax.legend(loc='upper right')
+        ax.set_xlabel("Observable")
+        ax.set_ylabel("Events / Bin Width")
+        ax.legend(loc="upper right")
         mh.yscale_legend(soft_fail=True)
         ```
 
@@ -894,10 +952,11 @@ Use [`mh.hist2dplot()`][mplhep.hist2dplot] for 2D histogram visualization:
 
     ```python
     # mkdocs: render
-        # mkdocs: align=left
+    # mkdocs: align=left
     import matplotlib.pyplot as plt  # mkdocs: hide
     import mplhep as mh  # mkdocs: hide
     import numpy as np  # mkdocs: hide
+
     np.random.seed(42)  # mkdocs: hide
     {{STYLE_USE_CODE}}  # mkdocs: hide
     # Generate 2D data
@@ -907,8 +966,8 @@ Use [`mh.hist2dplot()`][mplhep.hist2dplot] for 2D histogram visualization:
 
     fig, ax = plt.subplots()
     mh.hist2dplot(H, xedges, yedges, ax=ax, cbar=True)
-    ax.set_xlabel('Variable 1')
-    ax.set_ylabel('Variable 2')
+    ax.set_xlabel("Variable 1")
+    ax.set_ylabel("Variable 2")
     ```
 
 {{TABS_END}}

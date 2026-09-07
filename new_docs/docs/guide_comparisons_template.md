@@ -13,6 +13,7 @@ mplhep provides dedicated comparison plotters in the `mh.comp` module for creati
     import matplotlib.pyplot as plt
     import numpy as np
     import hist
+
     np.random.seed(42)
     import mplhep as mh
     # mh.style.use('<as appropriate>')
@@ -295,9 +296,7 @@ To get the `[values, lower_uncertainties, upper_uncertainties]` for a given comp
 
 ```python
 values, lower_uncertainties, upper_uncertainties = mh.comp.get_comparison(
-    h1,
-    h2,
-    comparison='ratio'
+    h1, h2, comparison="ratio"
 )
 ```
 
