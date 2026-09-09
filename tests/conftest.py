@@ -26,12 +26,27 @@ def _has_latex():
     return True
 
 
+def _alias_private_nodeid(items):
+    """Expose ``item.nodeid`` under the old private name ``item._nodeid``.
+
+    pytest-benchmark 5.3.0 reads ``node._nodeid``, which pytest main replaced
+    with a structured id (pytest-dev/pytest#14758, unreleased as of 9.2.0.dev),
+    so the ``benchmark`` fixture errors at setup there. Drop this once
+    pytest-benchmark reads the public ``node.nodeid``.
+    """
+    for item in items:
+        if not hasattr(item, "_nodeid"):
+            item._nodeid = item.nodeid
+
+
 def pytest_collection_modifyitems(config, items):  # noqa: ARG001
     """Skip LaTeX tests if LaTeX is not installed.
 
     Set MPLHEP_REQUIRE_LATEX to fail instead. CI LaTeX sets it so that a broken
     texlive install cannot produce a green run by skipping the whole suite.
     """
+    _alias_private_nodeid(items)
+
     if _has_latex():
         return
 
