@@ -8,6 +8,7 @@ This section covers advanced mplhep features and utilities.
     import matplotlib.pyplot as plt
     import numpy as np
     import hist
+
     np.random.seed(42)
     import mplhep as mh
     # mh.style.use('<as appropriate>')
@@ -26,17 +27,18 @@ This section covers advanced mplhep features and utilities.
 
         ```python
         # mkdocs: render
-            # mkdocs: align=left
+        # mkdocs: align=left
         import matplotlib.pyplot as plt  # mkdocs: hide
         import mplhep as mh  # mkdocs: hide
+
         {{STYLE_USE_CODE}}  # mkdocs: hide
         fig, ax = plt.subplots()
 
         locs = [
-            "upper left", # or "top left"
-            "upper right", # or "top right"
-            "lower left", # or "bottom left"
-            "lower right", # or "bottom right"
+            "upper left",  # or "top left"
+            "upper right",  # or "top right"
+            "lower left",  # or "bottom left"
+            "lower right",  # or "bottom right"
             "over left",
             "over right",
             "under left",
@@ -55,9 +57,10 @@ This section covers advanced mplhep features and utilities.
 
         ```python
         # mkdocs: render
-            # mkdocs: align=left
+        # mkdocs: align=left
         import matplotlib.pyplot as plt  # mkdocs: hide
         import mplhep as mh  # mkdocs: hide
+
         {{STYLE_USE_CODE}}  # mkdocs: hide
         fig, ax = plt.subplots()
 
@@ -91,10 +94,10 @@ This section covers advanced mplhep features and utilities.
 
 ```python
 # Add text at specific location
-txt = mh.add_text('Custom Text', loc='upper right')
+txt = mh.add_text("Custom Text", loc="upper right")
 
 # Append additional text
-mh.append_text('Additional info', txt, loc='below')
+mh.append_text("Additional info", txt, loc="below")
 ```
 
 ## Subplot creation
@@ -111,10 +114,10 @@ fig, axes = mh.subplots(nrows=6)
 [mh.savelabels][mplhep.savelabels] automatically generates multiple versions of a plot with different experiment label text variations, useful for creating preliminary and final versions of plots.
 
 ```python
-mh.savelabels('test.png')
+mh.savelabels("test.png")
 # Produces: test.png, test_pas.png, test_supp.png, test_wip.png, with no label, 'Preliminary', 'Supplementary', and 'Work in Progress' labels respectively.
 
-mh.savelabels('test', labels=[("FOO", "foo.pdf"), ("BAR", "bar")])
+mh.savelabels("test", labels=[("FOO", "foo.pdf"), ("BAR", "bar")])
 # Produces: foo.pdf, test_bar.png
 ```
 
@@ -157,7 +160,7 @@ ax_colorbar = mh.make_square_add_cbar(ax)
 [mh.append_axes][mplhep.append_axes] appends a new axis to an existing axis in a specified direction (top, bottom, left, right).
 
 ```python
-ax_new = mh.append_axes(ax, position='top', size=2, pad=0.3)
+ax_new = mh.append_axes(ax, position="top", size=2, pad=0.3)
 # Adds a new axis above ax with height 2 inches and 0.3 inch padding.
 ```
 
@@ -175,5 +178,5 @@ mh.hist(data, bins=50, range=(50, 150))
 # Multiple datasets
 data1 = np.random.normal(100, 15, 1000)
 data2 = np.random.normal(120, 15, 1000)
-mh.hist([data1, data2], bins=50, label=['Dataset 1', 'Dataset 2'])
+mh.hist([data1, data2], bins=50, label=["Dataset 1", "Dataset 2"])
 ```

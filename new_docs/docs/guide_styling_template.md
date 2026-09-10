@@ -8,6 +8,7 @@ This section covers additional information about styling.
     import matplotlib.pyplot as plt
     import numpy as np
     import hist
+
     np.random.seed(42)
     import mplhep as mh
     # mh.style.use('<as appropriate>')
@@ -29,6 +30,7 @@ Styles are applied globally using [`mh.style.use()`][mplhep.style.use], which is
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}
 
@@ -47,6 +49,7 @@ Styles are applied globally using [`mh.style.use()`][mplhep.style.use], which is
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         mh.style.use({{STYLE_DICT}})
 
@@ -57,6 +60,7 @@ Styles are applied globally using [`mh.style.use()`][mplhep.style.use], which is
 
         ```python exec="on" result="python"
         import mplhep as mh
+
         print({{STYLE_DICT}})
         ```
 
@@ -71,8 +75,16 @@ Styles are applied globally using [`mh.style.use()`][mplhep.style.use], which is
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
         import hist  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
-        mh.style.use([{{STYLE_DICTv2}}, {"font.size": 10,}])
+        mh.style.use(
+            [
+                {{STYLE_DICTv2}},
+                {
+                    "font.size": 10,
+                },
+            ]
+        )
 
         fig, ax = plt.subplots()
         mh.histplot([1, 2, 3, 6, 3, 5, 2, 1], ax=ax)
@@ -103,6 +115,7 @@ Each experiment style comes with a matching label function that formats experime
         import matplotlib.pyplot as plt  # mkdocs: hide
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         fig, ax = plt.subplots()
@@ -120,6 +133,7 @@ Each experiment style comes with a matching label function that formats experime
         import matplotlib.pyplot as plt  # mkdocs: hide
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         fig, ax = plt.subplots()
@@ -137,6 +151,7 @@ Each experiment style comes with a matching label function that formats experime
         import matplotlib.pyplot as plt  # mkdocs: hide
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         fig, ax = plt.subplots()
@@ -154,6 +169,7 @@ Each experiment style comes with a matching label function that formats experime
         import matplotlib.pyplot as plt  # mkdocs: hide
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         fig, ax = plt.subplots()
@@ -171,6 +187,7 @@ Each experiment style comes with a matching label function that formats experime
         import matplotlib.pyplot as plt  # mkdocs: hide
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         fig, ax = plt.subplots()
@@ -197,6 +214,7 @@ Additional configuration options for experiment labels:
         import matplotlib.pyplot as plt  # mkdocs: hide
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         fig, ax = plt.subplots()
@@ -214,6 +232,7 @@ Additional configuration options for experiment labels:
         import matplotlib.pyplot as plt  # mkdocs: hide
         import mplhep as mh  # mkdocs: hide
         import numpy as np  # mkdocs: hide
+
         np.random.seed(42)  # mkdocs: hide
         {{STYLE_USE_CODE}}  # mkdocs: hide
         fig, ax = plt.subplots()

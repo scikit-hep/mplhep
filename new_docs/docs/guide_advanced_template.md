@@ -8,6 +8,7 @@ This section covers advanced mplhep features and utilities..
     import matplotlib.pyplot as plt
     import numpy as np
     import hist
+
     np.random.seed(42)
     import mplhep as mh
     # mh.style.use('<as appropriate>')
@@ -22,7 +23,7 @@ import hist
 import boost_histogram as bh
 
 # Using hist library
-h = hist.Hist(hist.axis.Regular(50, -3, 3, name='x', label='Observable [GeV]'))
+h = hist.Hist(hist.axis.Regular(50, -3, 3, name="x", label="Observable [GeV]"))
 h.fill(data)
 mh.histplot(h)  # Automatically uses axis labels
 
@@ -33,8 +34,9 @@ mh.histplot(h_boost)
 
 # From ROOT files via uproot
 import uproot
-file = uproot.open('data.root')
-h_root = file['histogram_name']
+
+file = uproot.open("data.root")
+h_root = file["histogram_name"]
 mh.histplot(h_root)
 ```
 
@@ -61,10 +63,10 @@ Always show uncertainties for data:
 
 ```python
 # For data points
-mh.histplot(data_hist, bins=bins, yerr=True, histtype='errorbar', label='Data')
+mh.histplot(data_hist, bins=bins, yerr=True, histtype="errorbar", label="Data")
 
 # For Monte Carlo, consider filled uncertainty bands
-mh.histplot(mc_hist, bins=bins, histtype='fill', alpha=0.3, label='MC')
+mh.histplot(mc_hist, bins=bins, histtype="fill", alpha=0.3, label="MC")
 ```
 
 ### Axis Labels with Units
@@ -72,8 +74,8 @@ mh.histplot(mc_hist, bins=bins, histtype='fill', alpha=0.3, label='MC')
 Include units in axis labels following HEP conventions:
 
 ```python
-ax.set_xlabel('Mass [GeV]')
-ax.set_ylabel('Events / 5 GeV')  # Include bin width
+ax.set_xlabel("Mass [GeV]")
+ax.set_ylabel("Events / 5 GeV")  # Include bin width
 ```
 
 ### Using Legends
@@ -81,8 +83,8 @@ ax.set_ylabel('Events / 5 GeV')  # Include bin width
 Place legends appropriately and use clear labels:
 
 ```python
-mh.histplot([h1, h2], bins=bins, label=['Signal', 'Background'])
-ax.legend(loc='upper right', frameon=False)
+mh.histplot([h1, h2], bins=bins, label=["Signal", "Background"])
+ax.legend(loc="upper right", frameon=False)
 ```
 
 ### Style Consistency
@@ -92,7 +94,8 @@ Apply styles at the beginning of your script, not in functions:
 ```python
 # At the top of your script
 import mplhep as mh
-mh.style.use('CMS')
+
+mh.style.use("CMS")
 
 # Then create all plots
 # ...

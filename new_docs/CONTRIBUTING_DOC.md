@@ -178,9 +178,9 @@ This generates:
     # mkdocs: render
     import mplhep as mh
 
-    mh.style.use('ATLAS')
+    mh.style.use("ATLAS")
     # Create plot
-    mh.atlas.label('Internal', data=True, lumi=150, com=13)
+    mh.atlas.label("Internal", data=True, lumi=150, com=13)
     mh.mpl_magic(soft_fail=True)
     plt.show()
     ```

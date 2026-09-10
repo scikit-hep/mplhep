@@ -24,6 +24,7 @@ Here's a quick example showing the primary functionality
     import matplotlib.pyplot as plt
     import mplhep as mh
     import numpy as np
+
     np.random.seed(42)
     # Set the plotting style
     mh.style.use()  # Style reset to default
@@ -33,8 +34,8 @@ Here's a quick example showing the primary functionality
     # Plot a pre-binned histogram
     mh.histplot(*np.histogram(np.random.normal(0, 1, 1000)), ax=ax, label="Data")
     # Add appropriate labels
-    txt_obj = mh.add_text("Default", loc='over left')
-    mh.append_text("matplotlib style", txt_obj, loc='right')
+    txt_obj = mh.add_text("Default", loc="over left")
+    mh.append_text("matplotlib style", txt_obj, loc="right")
     ```
 
 === "plothist"
@@ -44,6 +45,7 @@ Here's a quick example showing the primary functionality
     import matplotlib.pyplot as plt
     import mplhep as mh
     import numpy as np
+
     np.random.seed(42)
     # Set the plotting style
     mh.style.use("plothist")
@@ -53,8 +55,8 @@ Here's a quick example showing the primary functionality
     # Plot a pre-binned histogram
     mh.histplot(*np.histogram(np.random.normal(0, 1, 1000)), ax=ax, label="Data")
     # Add appropriate labels
-    txt_obj = mh.add_text("plothist", loc='over left')
-    mh.append_text("style", txt_obj, loc='right', fontsize='small')
+    txt_obj = mh.add_text("plothist", loc="over left")
+    mh.append_text("style", txt_obj, loc="right", fontsize="small")
     ```
 
 
@@ -66,6 +68,7 @@ Here's a quick example showing the primary functionality
     import matplotlib.pyplot as plt
     import mplhep as mh
     import numpy as np
+
     np.random.seed(42)
     # Set the plotting style
     mh.style.use("CMS")
@@ -86,6 +89,7 @@ Here's a quick example showing the primary functionality
     import matplotlib.pyplot as plt
     import mplhep as mh
     import numpy as np
+
     np.random.seed(42)
     # Set the plotting style
     mh.style.use("ATLAS")
@@ -106,6 +110,7 @@ Here's a quick example showing the primary functionality
     import matplotlib.pyplot as plt
     import mplhep as mh
     import numpy as np
+
     np.random.seed(42)
     # Set the plotting style
     mh.style.use("LHCb2")
@@ -126,6 +131,7 @@ Here's a quick example showing the primary functionality
     import matplotlib.pyplot as plt
     import mplhep as mh
     import numpy as np
+
     np.random.seed(42)
     # Set the plotting style
     mh.style.use("ALICE")
@@ -146,6 +152,7 @@ Here's a quick example showing the primary functionality
     import matplotlib.pyplot as plt
     import mplhep as mh
     import numpy as np
+
     np.random.seed(42)
     # Set the plotting style
     mh.style.use("DUNE")

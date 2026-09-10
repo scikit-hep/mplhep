@@ -8,9 +8,11 @@ Welcome to the mplhep user guide! This documentation is organized into focused s
     import matplotlib.pyplot as plt
     import numpy as np
     import hist
+
     np.random.seed(42)
     import mplhep as mh
-    mh.style.use('<as appropriate>')
+
+    mh.style.use("<as appropriate>")
     ```
 
 ### [**Histogram Plotting**](guide_basic_plotting.md)

@@ -146,6 +146,7 @@ ignore = [
   "ANN",      # Not fully typed
   "C9",       # Complexity
   "COM812",   # Trailing commas teach the formatter
+  "CPY",      # No copyright headers
   "D",        # Documentation
   "E402",     # Make examples more readable
   "E501",     # Line too long
